@@ -1,0 +1,349 @@
+# PrintEasy - Complete Project Documentation
+
+## Project Overview
+
+PrintEasy is a comprehensive B2B2C printing platform that connects customers with local print shops through a streamlined digital interface. The platform enables customers to place printing orders online and facilitates efficient order management for print shop owners.
+
+## Architecture Overview
+
+### Technology Stack
+- **Frontend**: React 18.3.1 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Radix UI (shadcn/ui)
+- **State Management**: React Context API
+- **Routing**: React Router DOM v6
+- **Form Handling**: React Hook Form with Zod validation
+- **Notifications**: Sonner toast library
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
+
+### Project Structure
+```
+src/
+├── components/
+│   ├── admin/           # Admin-specific components
+│   ├── auth/            # Authentication components
+│   ├── chat/            # Chat system components
+│   ├── common/          # Shared components
+│   ├── customer/        # Customer-specific components
+│   ├── layout/          # Layout components
+│   ├── order/           # Order management components
+│   ├── qr/              # QR code components
+│   ├── shop/            # Shop owner components
+│   └── ui/              # Base UI components (shadcn)
+├── contexts/            # React contexts
+├── hooks/               # Custom hooks
+├── lib/                 # Utility libraries
+├── pages/               # Page components
+│   ├── admin/           # Admin pages
+│   ├── customer/        # Customer pages
+│   └── shop/            # Shop owner pages
+├── styles/              # Styling files
+├── types/               # TypeScript type definitions
+└── utils/               # Utility functions
+```
+
+## User Roles & Authentication
+
+### 1. Customer
+- **Registration**: Phone-based authentication (10 digits starting with 6, 7, 8, or 9)
+- **Capabilities**:
+  - Place upload file orders
+  - Place walk-in orders
+  - View order history and status
+  - Chat with shop owners
+  - Track order progress
+  - Manage account settings
+
+### 2. Shop Owner
+- **Registration**: Business application with admin approval
+- **Capabilities**:
+  - Manage incoming orders
+  - Update order status
+  - Print customer files
+  - Chat with customers
+  - Generate QR codes for customer access
+  - Control online/offline status
+  - View analytics and order history
+
+### 3. Admin
+- **Access**: Administrative login
+- **Capabilities**:
+  - Approve/reject shop applications
+  - Manage users and shops
+  - View platform analytics
+  - Handle disputes and issues
+  - Configure platform settings
+
+## Core Features
+
+### Order Management System
+
+#### Order Types
+1. **Uploaded Files Order**
+   - Customer uploads files for printing
+   - Shop downloads and prints files
+   - File validation and size limits (50MB max)
+   - Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT
+
+2. **Walk-in Order**
+   - Customer describes requirements
+   - No file uploads required
+   - Physical visit to shop for printing
+
+#### Order Status Lifecycle
+- **New**: Order just placed, awaiting shop acknowledgment
+- **Processing**: Shop is working on the order
+- **Ready**: Order completed, ready for pickup
+- **Completed**: Customer has collected the order
+
+### Communication System
+
+#### Real-time Chat
+- Customer-Shop communication per order
+- Message history and timestamps
+- File sharing capabilities
+- Order context integration
+
+#### Notifications
+- Order status updates
+- Important messages and alerts
+- System notifications
+
+### QR Code System
+- Unique QR codes for each shop
+- Direct customer access to shop's order page
+- Downloadable QR codes for shop owners
+- Easy order placement workflow
+
+## Validation System
+
+### Phone Validation
+```typescript
+export const validatePhoneNumber = (phone: string): boolean => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  
+  // Must be exactly 10 digits and start with 6, 7, 8, or 9
+  if (cleanPhone.length !== 10) return false;
+  
+  const firstDigit = cleanPhone.charAt(0);
+  return ['6', '7', '8', '9'].includes(firstDigit);
+};
+```
+
+### File Validation
+- Maximum file size: 50MB per file
+- Allowed file types: PDF, DOC, DOCX, JPG, PNG, TXT
+- File name length: Maximum 255 characters
+- Security: File type verification
+
+### Form Validations
+- Name validation: 2-50 characters, letters and spaces only
+- Email validation: Standard email format
+- Address validation: Minimum 10 characters, maximum 500
+- Shop name validation: 3-50 characters
+
+## Business Logic
+
+### Order Processing Flow
+1. Customer selects order type (upload/walk-in)
+2. Customer chooses shop from visited shops
+3. Customer provides order details and files (if applicable)
+4. Order is created and sent to shop
+5. Shop receives notification and processes order
+6. Status updates are communicated to customer
+7. Customer is notified when order is ready
+8. Order is marked as completed after pickup
+
+### Shop Management
+- Application process with admin approval
+- Service and equipment capability tracking
+- Working hours and availability management
+- Performance metrics and analytics
+- Quality control and customer feedback
+
+### Revenue Model
+- Commission-based structure (5-15% per order)
+- Tiered shop memberships
+- Premium features for enhanced visibility
+- Volume-based pricing discounts
+
+## User Experience (UX) Optimization
+
+### Customer Dashboard
+- Clean, mobile-first design
+- Quick action buttons for order placement
+- Visual order status tracking
+- Easy access to favorite shops
+- Streamlined navigation
+
+### Shop Owner Dashboard
+- Two-column layout for efficient order management
+- Separate sections for uploaded files and walk-in orders
+- Real-time order prioritization by urgency
+- Bulk printing capabilities for urgent orders
+- Integrated chat and communication tools
+
+### Admin Dashboard
+- Comprehensive user and shop management
+- Real-time analytics and reporting
+- Efficient approval workflows
+- Search and filtering capabilities
+
+## Design System
+
+### Color Scheme
+```css
+:root {
+  --primary: 39 39 42;           /* Dark gray */
+  --primary-foreground: 250 250 250;
+  --secondary: 244 244 245;      /* Light gray */
+  --secondary-foreground: 39 39 42;
+  --accent: 244 244 245;
+  --accent-foreground: 39 39 42;
+  --destructive: 239 68 68;      /* Red */
+  --muted: 244 244 245;
+  --muted-foreground: 113 113 122;
+  --card: 255 255 255;           /* White */
+  --card-foreground: 39 39 42;
+  --background: 255 255 255;
+  --foreground: 39 39 42;
+  --border: 229 229 234;
+  --input: 229 229 234;
+  --ring: 39 39 42;
+}
+```
+
+### Typography
+- Primary font: System font stack
+- Hierarchical sizing with consistent spacing
+- Responsive text scaling
+
+### Component Variants
+- Consistent button styles and interactions
+- Card layouts with proper spacing
+- Badge system for status indicators
+- Form input standardization
+
+## API Integration Points
+
+### Authentication
+- Phone-based OTP verification
+- Session management with JWT tokens
+- Role-based access control
+
+### Order Management
+- Order creation and updates
+- File upload and storage
+- Status tracking and notifications
+
+### Communication
+- Real-time chat messaging
+- Push notifications
+- Email confirmations
+
+### Analytics
+- Order tracking and metrics
+- User behavior analytics
+- Performance monitoring
+
+## Security Considerations
+
+### Data Protection
+- Secure file storage with encryption
+- User data privacy compliance
+- Regular security audits
+
+### File Security
+- File type validation and sanitization
+- Virus scanning for uploaded files
+- Secure file transmission
+
+### Access Control
+- Role-based permissions
+- API rate limiting
+- Session management
+
+## Performance Optimization
+
+### Frontend
+- Code splitting and lazy loading
+- Image optimization
+- Bundle size optimization
+- Caching strategies
+
+### User Experience
+- Loading states and skeletons
+- Progressive enhancement
+- Mobile-first responsive design
+- Accessibility compliance
+
+## Quality Assurance
+
+### Testing Strategy
+- Component unit testing
+- Integration testing
+- End-to-end testing
+- Performance testing
+
+### Code Quality
+- TypeScript for type safety
+- ESLint and Prettier for code formatting
+- Consistent naming conventions
+- Documentation standards
+
+## Deployment & Operations
+
+### Build Process
+- Vite build optimization
+- Environment configuration
+- Asset optimization
+
+### Monitoring
+- Error tracking and logging
+- Performance monitoring
+- User analytics
+- Uptime monitoring
+
+## Future Enhancements
+
+### Planned Features
+- Digital payment integration
+- Advanced analytics dashboard
+- Mobile application
+- Multi-language support
+- Advanced search and filtering
+
+### Scalability Considerations
+- Microservices architecture
+- Database optimization
+- CDN integration
+- Load balancing
+
+## Documentation Standards
+
+### Code Documentation
+- TSDoc comments for functions
+- README files for components
+- Architecture decision records
+- API documentation
+
+### User Documentation
+- User guides and tutorials
+- Feature documentation
+- Troubleshooting guides
+- FAQ section
+
+## Conclusion
+
+PrintEasy is designed as a scalable, user-friendly platform that addresses the core needs of both customers and print shop owners. The architecture supports future growth while maintaining excellent user experience and operational efficiency.
+
+The platform's success depends on:
+1. Seamless user experience across all roles
+2. Reliable order management and communication
+3. Efficient shop operations and management
+4. Strong quality assurance and security measures
+5. Continuous improvement based on user feedback
+
+This documentation serves as the complete reference for understanding, maintaining, and extending the PrintEasy platform.

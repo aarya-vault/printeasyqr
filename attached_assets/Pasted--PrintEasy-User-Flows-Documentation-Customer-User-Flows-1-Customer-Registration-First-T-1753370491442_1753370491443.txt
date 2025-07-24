@@ -1,0 +1,291 @@
+# PrintEasy User Flows Documentation
+
+## Customer User Flows
+
+### 1. Customer Registration & First-Time Login
+```
+Start → Enter Phone Number → Validate Phone → Login Success → Name Collection Popup → Dashboard
+```
+
+**Steps:**
+1. Customer visits homepage
+2. Enters 10-digit phone number (starting with 6,7,8,9)
+3. System validates phone format
+4. Simulated authentication (2-second delay)
+5. If first-time user, name collection popup appears
+6. Redirect to customer dashboard
+
+**Data Carried Forward:**
+- Phone number (required)
+- Name (optional, collected after login)
+- Session token
+
+**Validation Points:**
+- Phone number format: 10 digits starting with 6,7,8,9
+- Phone number uniqueness
+- Network connectivity
+
+### 2. Upload Files Order Flow
+```
+Dashboard → Upload Files → Select Shop → File Upload → Order Details → Place Order → Order Confirmation
+```
+
+**Steps:**
+1. Customer clicks "Upload Files" on dashboard
+2. System shows list of previously visited shops
+3. Customer selects shop (only online shops selectable)
+4. Customer uploads files (PDF, DOC, JPG, PNG)
+5. Customer specifies printing requirements:
+   - Number of copies
+   - Color/B&W
+   - Paper type
+   - Binding options
+   - Special instructions
+   - Urgency flag
+6. Order summary and confirmation
+7. Order placed with unique ID
+
+**Data Carried Forward:**
+- Selected shop ID
+- Uploaded files with metadata
+- Printing specifications
+- Customer contact info
+
+**Validation Points:**
+- Shop availability (online status)
+- File size limits (50MB per file)
+- File type validation
+- Minimum order requirements
+
+### 3. Walk-in Order Flow
+```
+Dashboard → Walk-in Order → Select Shop → Order Description → Place Order → Order Confirmation
+```
+
+**Steps:**
+1. Customer clicks "Walk-in Order" on dashboard
+2. System shows list of previously visited shops
+3. Customer selects shop
+4. Customer describes printing requirements in text
+5. Sets urgency and estimated quantity
+6. Order placed for shop preparation
+
+**Data Carried Forward:**
+- Selected shop ID
+- Order description
+- Estimated requirements
+- Customer contact info
+
+**Validation Points:**
+- Shop availability
+- Minimum description length
+- Valid contact information
+
+### 4. Order Tracking Flow
+```
+Dashboard → View Orders → Select Order → Order Details → Track Status → Communication
+```
+
+**Steps:**
+1. Customer accesses orders from dashboard
+2. Views order list with status indicators
+3. Clicks on specific order for details
+4. Sees real-time status updates
+5. Can initiate chat with shop
+6. Receives notifications on status changes
+
+**Data Displayed:**
+- Order status and timeline
+- Shop contact information
+- File download links (if applicable)
+- Chat history
+- Estimated completion time
+
+## Shop Owner User Flows
+
+### 1. Shop Registration Flow
+```
+Homepage → Business Login → Shop Application → Submit Details → Admin Review → Approval → Shop Dashboard
+```
+
+**Steps:**
+1. Shop owner clicks "Shop Owner Login"
+2. Enters phone number for initial access
+3. Fills comprehensive shop application:
+   - Business details
+   - Services offered
+   - Equipment available
+   - Years of experience
+   - Working hours
+   - Contact information
+4. Submits application for admin review
+5. Receives approval/rejection notification
+6. Access to shop dashboard
+
+**Data Required:**
+- Business license/registration
+- Shop address and contact
+- Services and capabilities
+- Experience documentation
+- Equipment list
+
+**Validation Points:**
+- Business registration verification
+- Address validation
+- Experience documentation
+- Equipment proof
+
+### 2. Order Management Flow
+```
+Dashboard → View Orders → Select Order → Review Details → Update Status → Customer Communication → Order Completion
+```
+
+**Steps:**
+1. Shop owner logs into dashboard
+2. Views orders by status (New, Processing, Ready)
+3. Selects order to view details
+4. Downloads files (for upload orders)
+5. Updates order status as work progresses
+6. Communicates with customer via chat
+7. Marks order as ready/completed
+
+**Data Available:**
+- Customer contact information
+- Order specifications
+- File downloads
+- Chat history
+- Order timeline
+
+**Actions Available:**
+- Status updates
+- Customer communication
+- File download/print
+- Order completion
+
+### 3. QR Code Management Flow
+```
+Dashboard → QR Code → Generate/View QR → Download → Display in Shop
+```
+
+**Steps:**
+1. Shop owner clicks QR Code button
+2. System generates unique QR code for shop
+3. QR code links to shop's order page
+4. Shop can download and print QR code
+5. Display QR code for customers to scan
+
+**Data Generated:**
+- Unique shop URL
+- QR code image
+- Direct upload link
+
+### 4. Shop Settings Management Flow
+```
+Dashboard → Settings → Update Details → Save Changes → Confirmation
+```
+
+**Steps:**
+1. Shop owner accesses settings
+2. Updates shop information:
+   - Working hours
+   - Services offered
+   - Contact details
+   - Online/offline status
+3. Saves changes
+4. Changes reflected immediately
+
+**Data Manageable:**
+- Shop profile information
+- Service offerings
+- Availability status
+- Contact information
+
+## Admin User Flows
+
+### 1. Admin Dashboard Access
+```
+Homepage → Admin Login → Credentials → Admin Dashboard → Shop/User Management
+```
+
+**Steps:**
+1. Admin clicks hidden admin link
+2. Enters admin credentials
+3. Access admin dashboard
+4. Views platform overview and metrics
+
+### 2. Shop Approval Flow
+```
+Admin Dashboard → Pending Applications → Review Application → Approve/Reject → Notification → Update Status
+```
+
+**Steps:**
+1. Admin reviews pending shop applications
+2. Evaluates application details and documentation
+3. Makes approval/rejection decision
+4. Provides feedback/reason
+5. System notifies shop owner
+6. Updates shop status in system
+
+**Decision Criteria:**
+- Business legitimacy
+- Service quality standards
+- Equipment adequacy
+- Experience requirements
+
+### 3. User Management Flow
+```
+Admin Dashboard → User Management → View Users → Select User → User Details → Take Action
+```
+
+**Actions Available:**
+- View user activity
+- Suspend/activate accounts
+- Resolve disputes
+- Access order history
+
+## Cross-Flow Interactions
+
+### 1. Customer-Shop Communication
+- Real-time chat during active orders
+- Phone call integration
+- Status update notifications
+- File sharing capabilities
+
+### 2. Order Status Synchronization
+- Real-time status updates across all interfaces
+- Automatic notifications to relevant parties
+- Timeline tracking for performance metrics
+
+### 3. Error Handling Flows
+- Network connectivity issues
+- File upload failures
+- Payment processing errors
+- Order cancellation procedures
+
+## Mobile-Specific Considerations
+
+### 1. Responsive Design Flows
+- Touch-optimized interfaces
+- Simplified navigation
+- Larger touch targets
+- Mobile-specific features
+
+### 2. Offline Capability
+- Order status caching
+- Chat message queuing
+- File upload retry mechanism
+- Connectivity restoration handling
+
+## Performance & Analytics Tracking
+
+### 1. User Journey Analytics
+- Drop-off points identification
+- Conversion rate tracking
+- User behavior analysis
+- Feature usage statistics
+
+### 2. Business Intelligence
+- Order completion rates
+- Shop performance metrics
+- Customer satisfaction scores
+- Revenue tracking per flow
