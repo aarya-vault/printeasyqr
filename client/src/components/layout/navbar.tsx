@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
-import { Store, Menu, X, Printer } from 'lucide-react';
+import { Menu, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -25,29 +25,19 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <a href="#services" className="text-medium-gray hover:text-rich-black transition-colors">
-              Services
-            </a>
-            <a href="#how-it-works" className="text-medium-gray hover:text-rich-black transition-colors">
-              How It Works
-            </a>
-            <a href="#shops" className="text-medium-gray hover:text-rich-black transition-colors">
-              For Shops
-            </a>
+          <div className="hidden md:flex items-center space-x-4">
             <Button 
-              variant="ghost" 
-              onClick={onShopApplication}
-              className="text-medium-gray hover:text-rich-black"
-            >
-              <Store className="w-5 h-5 mr-1" />
-              Shop Application
-            </Button>
-            <Button 
+              variant="outline" 
               onClick={onShopLogin}
-              className="bg-brand-yellow text-rich-black hover:bg-yellow-400"
+              className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
             >
               Shop Owner Login
+            </Button>
+            <Button 
+              onClick={onShopApplication}
+              className="bg-rich-black text-white hover:bg-gray-800"
+            >
+              Shop Application
             </Button>
           </div>
           
@@ -60,45 +50,24 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
             </SheetTrigger>
             <SheetContent side="right" className="w-64">
               <div className="flex flex-col space-y-4 mt-6">
-                <a 
-                  href="#services" 
-                  className="text-medium-gray hover:text-rich-black py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Services
-                </a>
-                <a 
-                  href="#how-it-works" 
-                  className="text-medium-gray hover:text-rich-black py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  How It Works
-                </a>
-                <a 
-                  href="#shops" 
-                  className="text-medium-gray hover:text-rich-black py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  For Shops
-                </a>
                 <Button 
-                  variant="ghost" 
-                  onClick={() => {
-                    onShopApplication?.();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="justify-start text-medium-gray hover:text-rich-black"
-                >
-                  Shop Application
-                </Button>
-                <Button 
+                  variant="outline" 
                   onClick={() => {
                     onShopLogin?.();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="bg-brand-yellow text-rich-black hover:bg-yellow-400 mt-2"
+                  className="w-full border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
                 >
                   Shop Owner Login
+                </Button>
+                <Button 
+                  onClick={() => {
+                    onShopApplication?.();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-rich-black text-white hover:bg-gray-800"
+                >
+                  Shop Application
                 </Button>
               </div>
             </SheetContent>

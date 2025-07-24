@@ -5,7 +5,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (phone: string) => Promise<void>;
-  shopLogin: (phone: string) => Promise<{ user: User; shop: any }>;
+  shopLogin: (email: string) => Promise<{ user: User; shop: any }>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
 }
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const shopLogin = async (phone: string): Promise<{ user: User; shop: any }> => {
+  const shopLogin = async (email: string): Promise<{ user: User; shop: any }> => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/shop-login', {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ email }),
       });
 
       if (!response.ok) {

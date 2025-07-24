@@ -11,6 +11,7 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByPhone(phone: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
 
@@ -36,6 +37,7 @@ export interface IStorage {
   // Shop application operations
   getShopApplication(id: number): Promise<ShopApplication | undefined>;
   getPendingShopApplications(): Promise<ShopApplication[]>;
+  getAllShopApplications(): Promise<ShopApplication[]>;
   createShopApplication(application: InsertShopApplication): Promise<ShopApplication>;
   updateShopApplication(id: number, updates: Partial<ShopApplication>): Promise<ShopApplication | undefined>;
   
@@ -64,13 +66,15 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values({
-        ...insertUser,
-        updatedAt: new Date(),
-      })
+      .values(insertUser)
       .returning();
     return user;
   }
@@ -107,10 +111,7 @@ export class DatabaseStorage implements IStorage {
   async createShop(insertShop: InsertShop): Promise<Shop> {
     const [shop] = await db
       .insert(shops)
-      .values({
-        ...insertShop,
-        updatedAt: new Date(),
-      })
+      .values(insertShop)
       .returning();
     return shop;
   }
@@ -215,13 +216,17 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(shopApplications.createdAt));
   }
 
+  async getAllShopApplications(): Promise<ShopApplication[]> {
+    return await db
+      .select()
+      .from(shopApplications)
+      .orderBy(desc(shopApplications.createdAt));
+  }
+
   async createShopApplication(insertApplication: InsertShopApplication): Promise<ShopApplication> {
     const [application] = await db
       .insert(shopApplications)
-      .values({
-        ...insertApplication,
-        updatedAt: new Date(),
-      })
+      .values(insertApplication)
       .returning();
     return application;
   }

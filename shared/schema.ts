@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   phone: text("phone").notNull().unique(),
   name: text("name"),
   email: text("email"),
+  password: text("password"), // For shop owners and admins
   role: text("role").notNull().default("customer"), // 'customer', 'shop_owner', 'admin'
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -20,14 +21,16 @@ export const shops = pgTable("shops", {
   id: serial("id").primaryKey(),
   ownerId: integer("owner_id").notNull().references(() => users.id),
   name: text("name").notNull(),
+  slug: text("slug").notNull().unique(), // URL-friendly shop identifier
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
   pinCode: text("pin_code").notNull(),
   email: text("email"),
-  services: jsonb("services").notNull(), // Array of services offered
-  workingHours: jsonb("working_hours").notNull(), // {open: "09:00", close: "21:00"}
+  services: jsonb("services").notNull(), // Array of services offered including custom ones
+  workingHours: jsonb("working_hours").notNull(), // Day-wise working hours {monday: {open: "09:00", close: "21:00", closed: false}}
   yearsOfExperience: text("years_of_experience"),
+  qrCode: text("qr_code"), // Generated QR code data
   isOnline: boolean("is_online").notNull().default(false),
   isApproved: boolean("is_approved").notNull().default(false),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
@@ -74,13 +77,16 @@ export const shopApplications = pgTable("shop_applications", {
   id: serial("id").primaryKey(),
   applicantId: integer("applicant_id").notNull().references(() => users.id),
   shopName: text("shop_name").notNull(),
+  shopSlug: text("shop_slug").notNull(), // Proposed URL slug
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
   pinCode: text("pin_code").notNull(),
   email: text("email"),
+  ownerContactName: text("owner_contact_name"), // Optional shop owner contact name
+  ownerEmail: text("owner_email"), // Optional shop owner email
   services: jsonb("services").notNull(),
-  workingHours: jsonb("working_hours").notNull(),
+  workingHours: jsonb("working_hours").notNull(), // Day-wise working hours
   yearsOfExperience: text("years_of_experience"),
   status: text("status").notNull().default("pending"), // 'pending', 'approved', 'rejected'
   adminNotes: text("admin_notes"),
@@ -200,11 +206,14 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
 export const insertShopApplicationSchema = createInsertSchema(shopApplications).pick({
   applicantId: true,
   shopName: true,
+  shopSlug: true,
   address: true,
   city: true,
   state: true,
   pinCode: true,
   email: true,
+  ownerContactName: true,
+  ownerEmail: true,
   services: true,
   workingHours: true,
   yearsOfExperience: true,

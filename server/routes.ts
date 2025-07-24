@@ -135,14 +135,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/shop-login", async (req, res) => {
     try {
-      const { phone } = req.body;
+      const { email } = req.body;
       
-      const cleanPhone = phone.replace(/\D/g, '');
-      if (cleanPhone.length !== 10 || !['6', '7', '8', '9'].includes(cleanPhone.charAt(0))) {
-        return res.status(400).json({ message: "Invalid phone number format" });
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Invalid email format" });
       }
       
-      const user = await storage.getUserByPhone(cleanPhone);
+      const user = await storage.getUserByEmail(email);
       if (!user || user.role !== 'shop_owner') {
         return res.status(404).json({ message: "Shop owner account not found" });
       }
@@ -392,21 +391,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If approved, create shop and update user role
       if (status === 'approved') {
+        // Generate QR code data (you could use a QR code library here)
+        const qrCodeData = `printeasy.com/shop/${application.shopSlug}`;
+        
         await storage.createShop({
           ownerId: application.applicantId,
           name: application.shopName,
+          slug: application.shopSlug,
           address: application.address,
           city: application.city,
           state: application.state,
           pinCode: application.pinCode,
           email: application.email,
-          services: JSON.stringify(application.services),
-          workingHours: JSON.stringify(application.workingHours),
-          yearsOfExperience: application.yearsOfExperience
+          services: application.services,
+          workingHours: application.workingHours,
+          yearsOfExperience: application.yearsOfExperience,
+          qrCode: qrCodeData,
+          isApproved: true
         });
         
         await storage.updateUser(application.applicantId, {
-          role: 'shop_owner'
+          role: 'shop_owner',
+          email: application.ownerEmail || application.email
         });
       }
       
@@ -443,6 +449,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.markNotificationAsRead(parseInt(req.params.id));
       res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin routes
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const stats = await storage.getPlatformStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/shop-applications", async (req, res) => {
+    try {
+      const applications = await storage.getAllShopApplications();
+      res.json(applications);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }

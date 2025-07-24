@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Navbar } from '@/components/layout/navbar';
 import { PhoneLogin } from '@/components/auth/phone-login';
-import { ShopApplicationModal } from '@/components/shop/shop-application-modal';
+import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,7 +15,8 @@ interface ShopLoginModalProps {
 }
 
 function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { shopLogin } = useAuth();
   const { toast } = useToast();
@@ -24,9 +25,9 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!phone.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
-        title: "Please enter your phone number",
+        title: "Please enter both email and password",
         variant: "destructive",
       });
       return;
@@ -34,7 +35,7 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
 
     setIsLoading(true);
     try {
-      await shopLogin(phone);
+      await shopLogin(email);
       onClose();
       setLocation('/shop-dashboard');
       toast({
@@ -64,25 +65,34 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-medium-gray">+91</span>
-            </div>
+          <div>
             <input
-              type="tel"
-              placeholder="Enter registered phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-yellow focus:border-transparent"
-              maxLength={10}
+              type="email"
+              placeholder="Shop Owner Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
               disabled={isLoading}
+              required
+            />
+          </div>
+          
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+              disabled={isLoading}
+              required
             />
           </div>
           
           <Button 
             type="submit" 
             className="w-full bg-brand-yellow text-rich-black hover:bg-yellow-400"
-            disabled={isLoading || !phone}
+            disabled={isLoading || !email.trim() || !password.trim()}
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-rich-black border-t-transparent rounded-full animate-spin" />
@@ -288,7 +298,7 @@ export default function Home() {
         isOpen={showShopLogin} 
         onClose={() => setShowShopLogin(false)} 
       />
-      <ShopApplicationModal 
+      <EnhancedShopApplicationModal 
         isOpen={showShopApplication} 
         onClose={() => setShowShopApplication(false)} 
       />
