@@ -187,6 +187,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin login
+  app.post("/api/auth/admin-login", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user || user.role !== 'admin') {
+        return res.status(401).json({ message: "Invalid admin credentials" });
+      }
+      
+      res.json({ user });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Shop routes
   app.get("/api/shops", async (req, res) => {
     try {
@@ -403,8 +424,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           state: application.state,
           pinCode: application.pinCode,
           email: application.email,
-          services: application.services,
-          workingHours: application.workingHours,
+          services: application.services as any,
+          workingHours: application.workingHours as any,
           yearsOfExperience: application.yearsOfExperience,
           qrCode: qrCodeData,
           isApproved: true

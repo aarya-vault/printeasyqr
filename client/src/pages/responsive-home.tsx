@@ -195,43 +195,43 @@ export default function ResponsiveHome() {
       />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-white via-yellow-50 to-yellow-100 pt-8 pb-16 lg:pt-16 lg:pb-24">
+      <section className="relative bg-yellow-50 pt-8 pb-16 lg:pt-16 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-rich-black mb-6 leading-tight">
+          <div className="text-center max-w-6xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-rich-black mb-6 leading-tight px-4">
               Your One-Stop
               <span className="block text-brand-yellow">Printing Solution</span>
             </h1>
-            <p className="text-xl sm:text-2xl text-medium-gray max-w-3xl mx-auto mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-medium-gray max-w-4xl mx-auto mb-8 leading-relaxed px-4">
               Connect with trusted local print shops for all your printing needs. 
               From documents to large format prints, we've got you covered.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 px-4">
               <PhoneLogin />
-              <div className="text-medium-gray">or</div>
+              <div className="text-medium-gray hidden sm:block">or</div>
               <Button 
                 variant="outline"
                 onClick={() => setShowShopApplication(true)}
-                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-8 py-3 rounded-xl font-semibold transition-colors"
+                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto"
               >
                 Join as Print Shop
               </Button>
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-medium-gray">
-              <div className="flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto text-medium-gray px-4">
+              <div className="flex items-center justify-center gap-2">
                 <Store className="w-5 h-5" />
-                <span className="font-medium">500+ Partner Shops</span>
+                <span className="font-medium text-sm sm:text-base">500+ Partner Shops</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Users className="w-5 h-5" />
-                <span className="font-medium">10,000+ Happy Customers</span>
+                <span className="font-medium text-sm sm:text-base">10,000+ Happy Customers</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <CheckCircle className="w-5 h-5" />
-                <span className="font-medium">Quality Guaranteed</span>
+                <span className="font-medium text-sm sm:text-base">Quality Guaranteed</span>
               </div>
             </div>
           </div>
@@ -241,16 +241,16 @@ export default function ResponsiveHome() {
       {/* Services Section */}
       <section id="services" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-rich-black mb-6">
+          <div className="text-center mb-12 lg:mb-16 px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-rich-black mb-4 lg:mb-6">
               Everything You Need to Print
             </h2>
-            <p className="text-xl text-medium-gray max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-medium-gray max-w-3xl mx-auto">
               From documents to large format prints, we connect you with the right print shop for every need
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => {
               const IconComponent = service.icon;
               return (
@@ -272,23 +272,23 @@ export default function ResponsiveHome() {
       {/* How It Works Section */}
       <section id="how-it-works" className="py-16 lg:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-rich-black mb-6">
+          <div className="text-center mb-12 lg:mb-16 px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-rich-black mb-4 lg:mb-6">
               How It Works
             </h2>
-            <p className="text-xl text-medium-gray max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-medium-gray max-w-3xl mx-auto">
               Simple steps to get your printing done quickly and efficiently
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {steps.map((step, index) => (
               <div key={index} className="text-center relative">
                 <div className="w-20 h-20 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
                   <span className="text-3xl font-bold text-rich-black">{step.number}</span>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-300 transform translate-x-10"></div>
+                  <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-300 transform translate-x-10"></div>
                 )}
                 <h3 className="text-2xl font-bold text-rich-black mb-4">{step.title}</h3>
                 <p className="text-medium-gray text-lg leading-relaxed">{step.description}</p>
@@ -301,16 +301,16 @@ export default function ResponsiveHome() {
       {/* Features Section */}
       <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-rich-black mb-6">
+          <div className="text-center mb-12 lg:mb-16 px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-rich-black mb-4 lg:mb-6">
               Why Choose PrintEasy
             </h2>
-            <p className="text-xl text-medium-gray max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-medium-gray max-w-3xl mx-auto">
               We make printing simple, reliable, and convenient for everyone
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
@@ -329,20 +329,20 @@ export default function ResponsiveHome() {
 
       {/* CTA Section */}
       <section className="py-16 lg:py-24 bg-rich-black">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+        <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 lg:mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-lg sm:text-xl text-gray-300 mb-6 lg:mb-8">
             Join thousands of satisfied customers and experience hassle-free printing today
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
             <PhoneLogin />
             <Button 
               variant="outline"
               onClick={() => setShowShopApplication(true)}
-              className="border-2 border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black px-8 py-3 rounded-xl font-semibold transition-colors"
+              className="border-2 border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black px-6 sm:px-8 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto"
             >
               Become a Partner Shop
               <ArrowRight className="w-5 h-5 ml-2" />

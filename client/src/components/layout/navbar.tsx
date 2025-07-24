@@ -28,17 +28,25 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
           <div className="hidden md:flex items-center space-x-4">
             <Button 
               variant="outline" 
-              onClick={onShopLogin}
-              className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-            >
-              Shop Owner Login
-            </Button>
-            <Button 
               onClick={onShopApplication}
-              className="bg-rich-black text-white hover:bg-gray-800"
+              className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
             >
               Shop Application
             </Button>
+            <Button 
+              onClick={onShopLogin}
+              className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
+            >
+              Shop Owner Login
+            </Button>
+            <Link href="/admin-login">
+              <Button 
+                variant="outline"
+                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+              >
+                Admin Login
+              </Button>
+            </Link>
           </div>
           
           {/* Mobile Menu Trigger */}
@@ -53,22 +61,31 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
                 <Button 
                   variant="outline" 
                   onClick={() => {
-                    onShopLogin?.();
+                    onShopApplication?.();
                     setIsMobileMenuOpen(false);
                   }}
                   className="w-full border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
                 >
-                  Shop Owner Login
+                  Shop Application
                 </Button>
                 <Button 
                   onClick={() => {
-                    onShopApplication?.();
+                    onShopLogin?.();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full bg-rich-black text-white hover:bg-gray-800"
+                  className="w-full bg-brand-yellow text-rich-black hover:bg-yellow-500"
                 >
-                  Shop Application
+                  Shop Owner Login
                 </Button>
+                <Link href="/admin-login">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  >
+                    Admin Login
+                  </Button>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

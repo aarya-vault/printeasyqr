@@ -10,6 +10,7 @@ import ResponsiveHome from "@/pages/responsive-home";
 import EnhancedCustomerDashboard from "@/pages/enhanced-customer-dashboard";
 import EnhancedShopDashboard from "@/pages/enhanced-shop-dashboard";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
+import { AdminLogin } from "@/components/auth/admin-login";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/customer-dashboard" component={EnhancedCustomerDashboard} />
       <Route path="/shop-dashboard" component={EnhancedShopDashboard} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
+      <Route path="/admin-login" component={AdminLogin} />
       <Route component={NotFound} />
     </Switch>
   );
