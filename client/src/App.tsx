@@ -6,18 +6,18 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/auth-context";
 import { WebSocketProvider } from "@/contexts/websocket-context";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import CustomerDashboard from "@/pages/customer-dashboard";
-import ShopDashboard from "@/pages/shop-dashboard";
-import AdminDashboard from "@/pages/admin-dashboard";
+import ResponsiveHome from "@/pages/responsive-home";
+import EnhancedCustomerDashboard from "@/pages/enhanced-customer-dashboard";
+import EnhancedShopDashboard from "@/pages/enhanced-shop-dashboard";
+import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/customer-dashboard" component={CustomerDashboard} />
-      <Route path="/shop-dashboard" component={ShopDashboard} />
-      <Route path="/admin-dashboard" component={AdminDashboard} />
+      <Route path="/" component={ResponsiveHome} />
+      <Route path="/customer-dashboard" component={EnhancedCustomerDashboard} />
+      <Route path="/shop-dashboard" component={EnhancedShopDashboard} />
+      <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
