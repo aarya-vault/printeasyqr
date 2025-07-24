@@ -18,7 +18,6 @@ interface PlatformStats {
   totalUsers: number;
   activeShops: number;
   totalOrders: number;
-  monthlyRevenue: number;
 }
 
 interface ShopApplication {
@@ -249,13 +248,13 @@ export default function EnhancedAdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-medium-gray">Monthly Revenue</p>
+                  <p className="text-sm text-medium-gray">Platform Activity</p>
                   <p className="text-3xl font-bold text-rich-black">
-                    ₹{statsLoading ? '...' : stats?.monthlyRevenue || 0}
+                    {statsLoading ? '...' : `${stats?.activeShops || 0} Active`}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-rich-black" />
+                  <BarChart3 className="w-6 h-6 text-rich-black" />
                 </div>
               </div>
             </CardContent>

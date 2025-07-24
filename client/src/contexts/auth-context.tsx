@@ -6,7 +6,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (phone: string) => Promise<void>;
   shopLogin: (email: string) => Promise<{ user: User; shop: any }>;
-  adminLogin: (email: string) => Promise<{ user: User }>;
+  adminLogin: (email: string, password: string) => Promise<{ user: User }>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
 }
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const adminLogin = async (email: string): Promise<{ user: User }> => {
+  const adminLogin = async (email: string, password: string): Promise<{ user: User }> => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/admin-login', {
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {

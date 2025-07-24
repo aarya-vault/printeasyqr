@@ -2,10 +2,10 @@
 
 ## 🔐 Test Login Credentials
 
-### Admin Login
+### Admin Login (Email + Password)
 - **Email:** admin@printeasy.com
-- **Phone:** 9876543210
-- **Access:** `/admin-login` page
+- **Password:** admin123
+- **Access:** `/admin-login` page (red button in navbar)
 - **Role:** Complete platform management, shop approvals, user oversight, analytics
 
 ### Customer Login (Phone-based)
@@ -54,6 +54,14 @@
 - **Text Colors:** Rich black, medium gray
 - **Mobile-first responsive design**
 - **Professional, clean interface**
+- **NO REVENUE/COST FEATURES** - Platform is completely free
+
+## ✅ Recent Fixes
+- **Admin Authentication:** Now requires email + password (admin123)
+- **Removed All Cost Features:** No estimated costs, monthly revenue, or pricing
+- **Improved UI:** Clean, modern design with better user experience
+- **Complete Shop Application Data:** All application details visible in admin dashboard
+- **Better Responsive Design:** Works perfectly on mobile and desktop
 
 ## 📊 Seeded Test Data
 - **11 Users:** 1 admin, 5 customers, 5 shop owners

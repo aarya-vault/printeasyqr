@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Mail, ArrowRight } from 'lucide-react';
+import { Shield, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { useLocation } from 'wouter';
 
 export function AdminLogin() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { adminLogin } = useAuth();
   const { toast } = useToast();
@@ -17,10 +18,10 @@ export function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
-        title: "Email Required",
-        description: "Please enter your admin email address",
+        title: "Required Fields",
+        description: "Please enter both email and password",
         variant: "destructive",
       });
       return;
@@ -28,7 +29,7 @@ export function AdminLogin() {
 
     setIsLoading(true);
     try {
-      await adminLogin(email);
+      await adminLogin(email, password);
       setLocation('/admin-dashboard');
       toast({
         title: "Welcome Admin!",
@@ -79,10 +80,28 @@ export function AdminLogin() {
               </div>
             </div>
             
+            <div>
+              <label className="block text-sm font-medium text-rich-black mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10"
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+            </div>
+            
             <Button 
               type="submit" 
               className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
-              disabled={isLoading || !email.trim()}
+              disabled={isLoading || !email.trim() || !password.trim()}
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -98,8 +117,8 @@ export function AdminLogin() {
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <h4 className="font-medium text-rich-black mb-2">Test Credentials:</h4>
             <div className="text-sm text-medium-gray space-y-1">
-              <p><strong>Admin:</strong> admin@printeasy.com</p>
-              <p><strong>Phone:</strong> 9876543210</p>
+              <p><strong>Email:</strong> admin@printeasy.com</p>
+              <p><strong>Password:</strong> admin123</p>
             </div>
           </div>
           

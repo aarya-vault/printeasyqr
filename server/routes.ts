@@ -190,15 +190,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin login
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, password } = req.body;
       
-      if (!email || !email.includes('@')) {
-        return res.status(400).json({ message: "Invalid email format" });
+      if (!email || !email.includes('@') || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      // For security, check admin credentials
+      if (email !== 'admin@printeasy.com' || password !== 'admin123') {
+        return res.status(401).json({ message: "Invalid admin credentials" });
       }
       
       const user = await storage.getUserByEmail(email);
       if (!user || user.role !== 'admin') {
-        return res.status(401).json({ message: "Invalid admin credentials" });
+        return res.status(401).json({ message: "Admin account not found" });
       }
       
       res.json({ user });

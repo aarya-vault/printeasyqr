@@ -195,43 +195,42 @@ export default function ResponsiveHome() {
       />
       
       {/* Hero Section */}
-      <section className="relative bg-yellow-50 pt-8 pb-16 lg:pt-16 lg:pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-6xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-rich-black mb-6 leading-tight px-4">
-              Your One-Stop
-              <span className="block text-brand-yellow">Printing Solution</span>
+      <section className="relative bg-white pt-12 pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-rich-black mb-6 leading-tight">
+              Professional Printing
+              <span className="block text-brand-yellow mt-2">Made Simple</span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-medium-gray max-w-4xl mx-auto mb-8 leading-relaxed px-4">
-              Connect with trusted local print shops for all your printing needs. 
-              From documents to large format prints, we've got you covered.
+            <p className="text-xl text-medium-gray max-w-2xl mx-auto mb-10 leading-relaxed">
+              Connect with verified local print shops. Upload files, place orders, and track progress all in one place.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 px-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <PhoneLogin />
-              <div className="text-medium-gray hidden sm:block">or</div>
+              <div className="text-medium-gray text-sm">or</div>
               <Button 
                 variant="outline"
                 onClick={() => setShowShopApplication(true)}
-                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto"
+                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
               >
-                Join as Print Shop
+                Register Your Print Shop
               </Button>
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto text-medium-gray px-4">
-              <div className="flex items-center justify-center gap-2">
-                <Store className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">500+ Partner Shops</span>
+            <div className="flex flex-wrap justify-center gap-8 text-medium-gray">
+              <div className="flex items-center gap-2">
+                <Store className="w-5 h-5 text-brand-yellow" />
+                <span className="font-medium">Verified Shops</span>
               </div>
-              <div className="flex items-center justify-center gap-2">
-                <Users className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">10,000+ Happy Customers</span>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-brand-yellow" />
+                <span className="font-medium">Trusted Service</span>
               </div>
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                <span className="font-medium text-sm sm:text-base">Quality Guaranteed</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                <span className="font-medium">Quality Assured</span>
               </div>
             </div>
           </div>
@@ -239,27 +238,27 @@ export default function ResponsiveHome() {
       </section>
       
       {/* Services Section */}
-      <section id="services" className="py-16 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16 px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-rich-black mb-4 lg:mb-6">
-              Everything You Need to Print
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-rich-black mb-4">
+              Print Anything You Need
             </h2>
-            <p className="text-lg sm:text-xl text-medium-gray max-w-3xl mx-auto">
-              From documents to large format prints, we connect you with the right print shop for every need
+            <p className="text-lg text-medium-gray max-w-2xl mx-auto">
+              Professional printing services for all your business and personal needs
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => {
               const IconComponent = service.icon;
               return (
-                <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-brand-yellow">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                      <IconComponent className="w-8 h-8 text-rich-black" />
+                <Card key={index} className="group hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-brand-yellow bg-white">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-14 h-14 bg-brand-yellow rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <IconComponent className="w-7 h-7 text-rich-black" />
                     </div>
-                    <h3 className="text-xl font-bold text-rich-black mb-4">{service.title}</h3>
+                    <h3 className="text-xl font-semibold text-rich-black mb-3">{service.title}</h3>
                     <p className="text-medium-gray leading-relaxed">{service.description}</p>
                   </CardContent>
                 </Card>
