@@ -51,7 +51,6 @@ export interface IStorage {
     totalUsers: number;
     activeShops: number;
     totalOrders: number;
-    monthlyRevenue: number;
   }>;
 }
 
@@ -270,7 +269,6 @@ export class DatabaseStorage implements IStorage {
     totalUsers: number;
     activeShops: number;
     totalOrders: number;
-    monthlyRevenue: number;
   }> {
     const [userCount] = await db
       .select({ count: sql<number>`count(*)` })
@@ -286,21 +284,10 @@ export class DatabaseStorage implements IStorage {
       .select({ count: sql<number>`count(*)` })
       .from(orders);
 
-    const [revenueResult] = await db
-      .select({ total: sql<number>`COALESCE(sum(final_amount), 0)` })
-      .from(orders)
-      .where(
-        and(
-          eq(orders.status, "completed"),
-          sql`created_at >= date_trunc('month', current_date)`
-        )
-      );
-
     return {
       totalUsers: userCount.count,
       activeShops: shopCount.count,
       totalOrders: orderCount.count,
-      monthlyRevenue: revenueResult.total,
     };
   }
 }
