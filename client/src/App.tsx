@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { WebSocketProvider } from "@/contexts/websocket-context";
 import NotFound from "@/pages/not-found";
 import NewHomepage from "@/pages/new-homepage";
-import RevampedCustomerDashboard from "@/pages/revamped-customer-dashboard";
+import OptimizedCustomerDashboard from "@/pages/optimized-customer-dashboard";
 import EnhancedShopDashboard from "@/pages/enhanced-shop-dashboard";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
@@ -16,7 +16,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={NewHomepage} />
-      <Route path="/customer-dashboard" component={RevampedCustomerDashboard} />
+      <Route path="/customer-dashboard" component={OptimizedCustomerDashboard} />
       <Route path="/shop-dashboard" component={EnhancedShopDashboard} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />

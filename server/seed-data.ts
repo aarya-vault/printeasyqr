@@ -1,5 +1,6 @@
 import { db } from './db';
 import { users, shops, orders, messages, shopApplications, notifications } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 export async function seedDatabase() {
   console.log('🌱 Starting database seeding...');
@@ -227,6 +228,14 @@ export async function seedDatabase() {
 
     const createdShops = await db.insert(shops).values(shopData).returning();
     console.log('✅ Seeded shops');
+
+    // Update shop owners with their shop IDs
+    for (let i = 0; i < shopOwners.length; i++) {
+      await db.update(users)
+        .set({ shopId: createdShops[i].id })
+        .where(eq(users.id, shopOwners[i].id));
+    }
+    console.log('✅ Associated shop owners with their shops');
 
     // Seed Orders
     const orderData = [
