@@ -1,45 +1,69 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types';
+
+interface User {
+  id: number;
+  phone?: string;
+  email?: string;
+  name?: string;
+  role: 'customer' | 'shop_owner' | 'admin';
+  shopId?: number;
+  needsNameUpdate?: boolean;
+}
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (phone: string) => Promise<void>;
-  shopLogin: (email: string) => Promise<{ user: User; shop: any }>;
-  adminLogin: (email: string, password: string) => Promise<{ user: User }>;
+  login: (credentials: { phone?: string; email?: string; password?: string }) => Promise<User>;
   logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  updateUser: (updates: Partial<User>) => Promise<void>;
+  isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('printeasy_user');
+    // Check for existing session
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
       } catch (error) {
         console.error('Error parsing stored user:', error);
-        localStorage.removeItem('printeasy_user');
+        localStorage.removeItem('user');
       }
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (phone: string): Promise<void> => {
+  const login = async (credentials: { phone?: string; email?: string; password?: string }): Promise<User> => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      let endpoint = '/api/auth/login';
+      let body: any = {};
+
+      if (credentials.phone) {
+        // Customer phone-based login
+        endpoint = '/api/auth/phone-login';
+        body = { phone: credentials.phone };
+      } else if (credentials.email && credentials.password) {
+        // Shop owner or admin email+password login
+        endpoint = '/api/auth/email-login';
+        body = { email: credentials.email, password: credentials.password };
+      }
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -47,9 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(error.message || 'Login failed');
       }
 
-      const { user: userData } = await response.json();
+      const userData = await response.json();
       setUser(userData);
-      localStorage.setItem('printeasy_user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -58,86 +83,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const shopLogin = async (email: string): Promise<{ user: User; shop: any }> => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/auth/shop-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Shop login failed');
-      }
-
-      const data = await response.json();
-      setUser(data.user);
-      localStorage.setItem('printeasy_user', JSON.stringify(data.user));
-      return data;
-    } catch (error) {
-      console.error('Shop login error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('printeasy_user');
-    window.location.href = '/';
+    localStorage.removeItem('user');
   };
 
-  const updateUser = (updates: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('printeasy_user', JSON.stringify(updatedUser));
-    }
-  };
+  const updateUser = async (updates: Partial<User>): Promise<void> => {
+    if (!user) return;
 
-  const adminLogin = async (email: string, password: string): Promise<{ user: User }> => {
-    setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/admin-login', {
-        method: 'POST',
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(updates),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Admin login failed');
+        throw new Error('Failed to update user');
       }
 
-      const { user: userData } = await response.json();
-      setUser(userData);
-      localStorage.setItem('printeasy_user', JSON.stringify(userData));
-      return { user: userData };
+      const updatedUser = await response.json();
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
     } catch (error) {
-      console.error('Admin login error:', error);
+      console.error('Update user error:', error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoading,
-      login,
-      shopLogin,
-      adminLogin,
-      logout,
-      updateUser,
-    }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -145,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

@@ -42,6 +42,86 @@ const wsConnections = new Map<number, WebSocket>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+
+  // Authentication routes
+  app.post('/api/auth/phone-login', async (req, res) => {
+    try {
+      const { phone } = req.body;
+      
+      if (!phone || !/^[6-9][0-9]{9}$/.test(phone)) {
+        return res.status(400).json({ message: 'Invalid phone number' });
+      }
+
+      // Check if user exists
+      let user = await storage.getUserByPhone(phone);
+      
+      if (!user) {
+        // Create new customer user
+        user = await storage.createUser({
+          phone,
+          role: 'customer',
+          needsNameUpdate: true
+        });
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error('Phone login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  });
+
+  app.post('/api/auth/email-login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password required' });
+      }
+
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+      // Simple password verification (in production, use proper hashing)
+      let isValidPassword = false;
+      if (email === 'admin@printeasy.com' && password === 'admin123') {
+        isValidPassword = true;
+      } else if (email === 'owner@digitalprint.com' && password === 'password') {
+        isValidPassword = true;
+      }
+
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error('Email login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  });
+
+  // User update route
+  app.patch('/api/users/:id', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const user = await storage.updateUser(userId, updates);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Update user error:', error);
+      res.status(500).json({ message: 'Update failed' });
+    }
+  });
   
   // Setup WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });

@@ -10,7 +10,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
+import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
+import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 interface ShopApplicationModalProps {
   isOpen: boolean;
@@ -169,7 +172,10 @@ export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showShopApplication, setShowShopApplication] = useState(false);
   const [showShopLogin, setShowShopLogin] = useState(false);
-  const { login } = useAuth();
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [tempUser, setTempUser] = useState<any>(null);
+  const { login, updateUser } = useAuth();
+  const [, navigate] = useLocation();
   const { toast } = useToast();
 
   const handleCustomerLogin = async () => {
@@ -192,7 +198,13 @@ export default function NewHomepage() {
     }
 
     try {
-      await login(customerPhone, 'customer');
+      const user = await login({ phone: customerPhone });
+      if (user.needsNameUpdate) {
+        setShowNameModal(true);
+        setTempUser(user);
+      } else {
+        navigate('/customer-dashboard');
+      }
       toast({
         title: "Login Successful",
         description: "Welcome to PrintEasy!",
@@ -212,6 +224,10 @@ export default function NewHomepage() {
         onShopLogin={() => setShowShopLogin(true)}
         onShopApplication={() => setShowShopApplication(true)}
       />
+      
+      {showShopLogin && (
+        <ShopOwnerLogin onBack={() => setShowShopLogin(false)} />
+      )}
       
       {/* Hero Section */}
       <section className="relative bg-white pt-20 pb-32">
@@ -482,9 +498,17 @@ export default function NewHomepage() {
         isOpen={showShopApplication} 
         onClose={() => setShowShopApplication(false)} 
       />
-      <ShopLoginModal 
-        isOpen={showShopLogin} 
-        onClose={() => setShowShopLogin(false)} 
+      
+      <NameCollectionModal 
+        isOpen={showNameModal}
+        onComplete={async (name: string) => {
+          if (tempUser) {
+            await updateUser({ name, needsNameUpdate: false });
+            setShowNameModal(false);
+            setTempUser(null);
+            navigate('/customer-dashboard');
+          }
+        }}
       />
     </div>
   );
