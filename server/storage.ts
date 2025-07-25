@@ -40,6 +40,8 @@ export interface IStorage {
   getAllShopApplications(): Promise<ShopApplication[]>;
   createShopApplication(application: InsertShopApplication): Promise<ShopApplication>;
   updateShopApplication(id: number, updates: Partial<ShopApplication>): Promise<ShopApplication | undefined>;
+  checkShopSlugAvailability(slug: string): Promise<boolean>;
+  updateShopApplicationStatus(id: number, status: string, adminNotes?: string): Promise<ShopApplication>;
   
   // Notification operations
   getNotificationsByUser(userId: number): Promise<Notification[]>;
@@ -246,6 +248,29 @@ export class DatabaseStorage implements IStorage {
       .where(eq(shopApplications.id, id))
       .returning();
     return application || undefined;
+  }
+
+  async checkShopSlugAvailability(slug: string): Promise<boolean> {
+    const [existingShop] = await db
+      .select()
+      .from(shops)
+      .where(eq(shops.slug, slug));
+    
+    const [existingApplication] = await db
+      .select()
+      .from(shopApplications)
+      .where(eq(shopApplications.shopSlug, slug));
+    
+    return !existingShop && !existingApplication;
+  }
+
+  async updateShopApplicationStatus(id: number, status: string, adminNotes?: string): Promise<ShopApplication> {
+    const [updated] = await db
+      .update(shopApplications)
+      .set({ status, adminNotes, updatedAt: new Date() })
+      .where(eq(shopApplications.id, id))
+      .returning();
+    return updated;
   }
 
   async getNotificationsByUser(userId: number): Promise<Notification[]> {

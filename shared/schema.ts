@@ -20,21 +20,43 @@ export const users = pgTable("users", {
 export const shops = pgTable("shops", {
   id: serial("id").primaryKey(),
   ownerId: integer("owner_id").notNull().references(() => users.id),
-  name: text("name").notNull(),
+  
+  // Public Information (shown to customers)
+  name: text("name").notNull(), // Public shop name
   slug: text("slug").notNull().unique(), // URL-friendly shop identifier
-  address: text("address").notNull(),
+  address: text("address").notNull(), // Public address
   city: text("city").notNull(),
   state: text("state").notNull(),
   pinCode: text("pin_code").notNull(),
-  email: text("email"),
+  phone: text("phone").notNull(), // Public contact number
+  publicOwnerName: text("public_owner_name"), // Optional public owner name
+  
+  // Internal Information
+  internalName: text("internal_name").notNull(), // Internal shop name
+  ownerFullName: text("owner_full_name").notNull(),
+  email: text("email").notNull(), // Login email
+  ownerPhone: text("owner_phone").notNull(),
+  completeAddress: text("complete_address").notNull(),
+  
+  // Services and Experience
   services: jsonb("services").notNull(), // Array of services offered including custom ones
+  equipment: jsonb("equipment").notNull().default([]), // Array of equipment available
+  yearsOfExperience: text("years_of_experience").notNull(),
+  
+  // Working Hours and Availability
   workingHours: jsonb("working_hours").notNull(), // Day-wise working hours {monday: {open: "09:00", close: "21:00", closed: false}}
-  yearsOfExperience: text("years_of_experience"),
-  qrCode: text("qr_code"), // Generated QR code data
+  acceptsWalkinOrders: boolean("accepts_walkin_orders").notNull().default(true),
   isOnline: boolean("is_online").notNull().default(false),
+  autoAvailability: boolean("auto_availability").notNull().default(true),
+  
+  // Admin and Status
   isApproved: boolean("is_approved").notNull().default(false),
+  isPublic: boolean("is_public").notNull().default(true),
+  qrCode: text("qr_code"), // Generated QR code data
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   totalOrders: integer("total_orders").notNull().default(0),
+  
+  // Timestamps
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -76,20 +98,41 @@ export const messages = pgTable("messages", {
 export const shopApplications = pgTable("shop_applications", {
   id: serial("id").primaryKey(),
   applicantId: integer("applicant_id").notNull().references(() => users.id),
-  shopName: text("shop_name").notNull(),
-  shopSlug: text("shop_slug").notNull(), // Proposed URL slug
-  address: text("address").notNull(),
+  
+  // Public Information
+  publicShopName: text("public_shop_name").notNull(),
+  publicOwnerName: text("public_owner_name"),
+  publicAddress: text("public_address").notNull(),
+  publicContactNumber: text("public_contact_number"),
+  
+  // Internal Shop Details
+  internalShopName: text("internal_shop_name").notNull(),
+  ownerFullName: text("owner_full_name").notNull(),
+  email: text("email").notNull(), // Login email
+  phoneNumber: text("phone_number").notNull(), // Owner phone
+  password: text("password").notNull(), // Shop owner login password
+  completeAddress: text("complete_address").notNull(),
+  
+  // Location
   city: text("city").notNull(),
   state: text("state").notNull(),
   pinCode: text("pin_code").notNull(),
-  email: text("email"),
-  ownerContactName: text("owner_contact_name"), // Optional shop owner contact name
-  ownerEmail: text("owner_email"), // Optional shop owner email
+  
+  // Business Details
   services: jsonb("services").notNull(),
+  equipment: jsonb("equipment").notNull().default([]),
+  yearsOfExperience: text("years_of_experience").notNull(),
+  
+  // Working Hours and Settings
   workingHours: jsonb("working_hours").notNull(), // Day-wise working hours
-  yearsOfExperience: text("years_of_experience"),
+  acceptsWalkinOrders: boolean("accepts_walkin_orders").notNull().default(true),
+  
+  // Application Status
+  shopSlug: text("shop_slug").notNull(), // Proposed URL slug
   status: text("status").notNull().default("pending"), // 'pending', 'approved', 'rejected'
   adminNotes: text("admin_notes"),
+  
+  // Timestamps
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -171,7 +214,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertShopSchema = createInsertSchema(shops).omit({
   id: true,
   createdAt: true,
-  updatedAt: true
+  updatedAt: true,
+  rating: true,
+  totalOrders: true,
+  qrCode: true,
 });
 
 export const insertOrderSchema = createInsertSchema(orders).pick({
@@ -198,18 +244,25 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
 
 export const insertShopApplicationSchema = createInsertSchema(shopApplications).pick({
   applicantId: true,
-  shopName: true,
-  shopSlug: true,
-  address: true,
+  publicShopName: true,
+  publicOwnerName: true,
+  publicAddress: true,
+  publicContactNumber: true,
+  internalShopName: true,
+  ownerFullName: true,
+  email: true,
+  phoneNumber: true,
+  password: true,
+  completeAddress: true,
   city: true,
   state: true,
   pinCode: true,
-  email: true,
-  ownerContactName: true,
-  ownerEmail: true,
   services: true,
-  workingHours: true,
+  equipment: true,
   yearsOfExperience: true,
+  workingHours: true,
+  acceptsWalkinOrders: true,
+  shopSlug: true,
 });
 
 // Types
