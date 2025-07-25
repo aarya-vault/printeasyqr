@@ -55,15 +55,6 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // Conversation/Chat methods
-  async getConversationsByShop(shopId: number): Promise<any[]> {
-    // Mock implementation for now
-    return [];
-  }
-
-  async markConversationAsRead(conversationId: number): Promise<void> {
-    // Mock implementation
-  }
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -117,24 +108,7 @@ export class DatabaseStorage implements IStorage {
   async createShop(insertShop: InsertShop): Promise<Shop> {
     const [shop] = await db
       .insert(shops)
-      .values({
-        name: insertShop.name,
-        ownerId: insertShop.ownerId,
-        address: insertShop.address,
-        city: insertShop.city,
-        state: insertShop.state,
-        pinCode: insertShop.pinCode,
-        phone: insertShop.phone,
-        email: insertShop.email,
-        services: insertShop.services,
-        workingHours: insertShop.workingHours,
-        yearsOfExperience: insertShop.yearsOfExperience,
-        isOnline: insertShop.isOnline ?? false,
-        isApproved: insertShop.isApproved ?? false,
-        rating: insertShop.rating ?? 0,
-        totalOrders: insertShop.totalOrders ?? 0,
-        qrCode: insertShop.qrCode || `printeasy.com/shop/${insertShop.name.toLowerCase().replace(/\s+/g, '-')}`
-      })
+      .values(insertShop)
       .returning();
     return shop;
   }
@@ -177,6 +151,7 @@ export class DatabaseStorage implements IStorage {
       .insert(orders)
       .values({
         ...insertOrder,
+        createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
@@ -206,7 +181,10 @@ export class DatabaseStorage implements IStorage {
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     const [message] = await db
       .insert(messages)
-      .values(insertMessage)
+      .values({
+        ...insertMessage,
+        createdAt: new Date()
+      })
       .returning();
     return message;
   }
@@ -249,7 +227,11 @@ export class DatabaseStorage implements IStorage {
   async createShopApplication(insertApplication: InsertShopApplication): Promise<ShopApplication> {
     const [application] = await db
       .insert(shopApplications)
-      .values(insertApplication)
+      .values({
+        ...insertApplication,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
       .returning();
     return application;
   }
@@ -277,7 +259,10 @@ export class DatabaseStorage implements IStorage {
   async createNotification(notification: Omit<Notification, 'id' | 'createdAt'>): Promise<Notification> {
     const [newNotification] = await db
       .insert(notifications)
-      .values(notification)
+      .values({
+        ...notification,
+        createdAt: new Date()
+      })
       .returning();
     return newNotification;
   }

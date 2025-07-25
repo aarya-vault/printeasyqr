@@ -47,11 +47,15 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 1000 * 60 * 2, // 2 minutes for better performance
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors
+        if (error.message.includes('401') || error.message.includes('404')) return false;
+        return failureCount < 2;
+      },
     },
     mutations: {
-      retry: false,
+      retry: 1,
     },
   },
 });

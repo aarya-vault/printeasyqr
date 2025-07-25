@@ -59,8 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create new customer user
         user = await storage.createUser({
           phone,
-          role: 'customer',
-          needsNameUpdate: true
+          role: 'customer'
         });
       }
 
@@ -299,6 +298,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const shops = await storage.getActiveShops();
       res.json(shops);
     } catch (error) {
+      console.error('Get shops error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/shops/owner/:ownerId", async (req, res) => {
+    try {
+      const ownerId = parseInt(req.params.ownerId);
+      const shops = await storage.getShopsByOwner(ownerId);
+      const shop = shops.find(s => s.isApproved);
+      
+      if (!shop) {
+        return res.status(404).json({ message: "No approved shop found for this owner" });
+      }
+      
+      res.json({ shop });
+    } catch (error) {
+      console.error('Get shop by owner error:', error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -513,7 +530,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           workingHours: application.workingHours as any,
           yearsOfExperience: application.yearsOfExperience,
           qrCode: qrCodeData,
-          isApproved: true
+          isApproved: true,
+          isOnline: false,
+          rating: "0.00",
+          totalOrders: 0
         });
         
         await storage.updateUser(application.applicantId, {

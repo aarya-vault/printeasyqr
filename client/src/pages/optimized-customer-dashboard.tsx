@@ -409,7 +409,10 @@ export default function OptimizedCustomerDashboard() {
                   <h3 className="text-lg font-medium text-rich-black mb-2">No active orders</h3>
                   <p className="text-medium-gray mb-4">Start by placing a new order</p>
                   <Button 
-                    onClick={() => document.querySelector('[value="shops"]')?.click()}
+                    onClick={() => {
+                      const shopsTab = document.querySelector('[value="shops"]') as HTMLButtonElement;
+                      shopsTab?.click();
+                    }}
                     className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
                   >
                     Browse Print Shops

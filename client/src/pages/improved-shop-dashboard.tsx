@@ -41,28 +41,30 @@ export default function ImprovedShopDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
-  // Fetch shop details
-  const { data: shop, isLoading: shopLoading } = useQuery({
-    queryKey: ['/api/shops', user?.shopId],
+  // Find shop by owner ID since we don't have shopId in user
+  const { data: shopData, isLoading: shopLoading } = useQuery({
+    queryKey: ['/api/shops/owner', user?.id],
     queryFn: async () => {
-      if (!user?.shopId) return null;
-      const response = await fetch(`/api/shops/${user.shopId}`);
+      if (!user?.id) return null;
+      const response = await fetch(`/api/shops/owner/${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch shop');
       return response.json();
     },
-    enabled: !!user?.shopId
+    enabled: !!user?.id && user?.role === 'shop_owner'
   });
+
+  const shop = shopData?.shop;
 
   // Fetch orders
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
-    queryKey: ['/api/orders/shop', user?.shopId],
+    queryKey: ['/api/orders/shop', shop?.id],
     queryFn: async () => {
-      if (!user?.shopId) return [];
-      const response = await fetch(`/api/orders/shop/${user.shopId}`);
+      if (!shop?.id) return [];
+      const response = await fetch(`/api/orders/shop/${shop.id}`);
       if (!response.ok) throw new Error('Failed to fetch orders');
       return response.json();
     },
-    enabled: !!user?.shopId
+    enabled: !!shop?.id
   });
 
   // Update order status
@@ -77,7 +79,7 @@ export default function ImprovedShopDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/shop', user?.shopId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/shop', shop?.id] });
       toast({
         title: "Success",
         description: "Order status updated successfully"
@@ -133,8 +135,22 @@ export default function ImprovedShopDashboard() {
 
   if (shopLoading || ordersLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow"></div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-20 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-48 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

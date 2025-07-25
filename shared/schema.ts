@@ -168,17 +168,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   role: true,
 });
 
-export const insertShopSchema = createInsertSchema(shops).pick({
-  ownerId: true,
-  name: true,
-  address: true,
-  city: true,
-  state: true,
-  pinCode: true,
-  email: true,
-  services: true,
-  workingHours: true,
-  yearsOfExperience: true,
+export const insertShopSchema = createInsertSchema(shops).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
 });
 
 export const insertOrderSchema = createInsertSchema(orders).pick({
