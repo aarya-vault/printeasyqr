@@ -15,95 +15,7 @@ import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 
-interface ShopApplicationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
-function ShopApplicationModal({ isOpen, onClose }: ShopApplicationModalProps) {
-  const [formData, setFormData] = useState({
-    shopName: '',
-    ownerName: '',
-    phone: '',
-    email: '',
-    address: '',
-    city: '',
-    pinCode: '',
-    experience: ''
-  });
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-        <h3 className="text-xl font-bold text-rich-black mb-4">Apply for Shop Partnership</h3>
-        <div className="space-y-4">
-          <Input
-            placeholder="Shop Name"
-            value={formData.shopName}
-            onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
-          />
-          <Input
-            placeholder="Owner Name"
-            value={formData.ownerName}
-            onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-          />
-          <Input
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          />
-          <Input
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <Input
-            placeholder="Complete Address"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-          />
-          <div className="flex gap-2">
-            <Input
-              placeholder="City"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            />
-            <Input
-              placeholder="Pin Code"
-              value={formData.pinCode}
-              onChange={(e) => setFormData({ ...formData, pinCode: e.target.value })}
-            />
-          </div>
-          <Input
-            placeholder="Years of Experience"
-            value={formData.experience}
-            onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-          />
-        </div>
-        <div className="flex gap-3 mt-6">
-          <Button 
-            onClick={onClose}
-            variant="outline"
-            className="flex-1"
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="flex-1 bg-brand-yellow text-rich-black hover:bg-yellow-500"
-            onClick={() => {
-              // TODO: Submit application
-              onClose();
-            }}
-          >
-            Submit Application
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 interface ShopLoginModalProps {
   isOpen: boolean;
@@ -170,7 +82,7 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
-  const [showShopApplication, setShowShopApplication] = useState(false);
+
   const [showShopLogin, setShowShopLogin] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
@@ -222,7 +134,7 @@ export default function NewHomepage() {
     <div className="min-h-screen bg-white">
       <Navbar 
         onShopLogin={() => setShowShopLogin(true)}
-        onShopApplication={() => setShowShopApplication(true)}
+        onShopApplication={() => window.location.href = '/apply-shop'}
       />
       
       {showShopLogin && (
@@ -433,13 +345,14 @@ export default function NewHomepage() {
             Join our network of trusted printing partners and grow your business with digital orders and enhanced visibility.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              onClick={() => setShowShopApplication(true)}
-              variant="outline"
-              className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-            >
-              Apply for Partnership
-            </Button>
+            <Link href="/apply-shop">
+              <Button 
+                variant="outline"
+                className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
+              >
+                Apply for Partnership
+              </Button>
+            </Link>
             <Button 
               onClick={() => setShowShopLogin(true)}
               className="bg-rich-black text-white hover:bg-gray-800"
@@ -480,7 +393,7 @@ export default function NewHomepage() {
             <div>
               <h4 className="font-semibold mb-4">For Businesses</h4>
               <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white" onClick={() => setShowShopApplication(true)}>Become a Partner</a></li>
+                <li><Link href="/apply-shop" className="hover:text-white">Become a Partner</Link></li>
                 <li><a href="#" className="hover:text-white" onClick={() => setShowShopLogin(true)}>Shop Owner Login</a></li>
                 <li><Link href="/admin-login" className="hover:text-white">Admin Portal</Link></li>
               </ul>
@@ -494,10 +407,7 @@ export default function NewHomepage() {
       </footer>
 
       {/* Modals */}
-      <ShopApplicationModal 
-        isOpen={showShopApplication} 
-        onClose={() => setShowShopApplication(false)} 
-      />
+
       
       <NameCollectionModal 
         isOpen={showNameModal}

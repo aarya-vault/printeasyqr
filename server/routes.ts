@@ -493,18 +493,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Shop application routes
+  // Shop slug availability check
+  app.get('/api/shops/check-slug/:slug', async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const available = await storage.checkShopSlugAvailability(slug);
+      res.json({ available });
+    } catch (error) {
+      console.error('Error checking slug availability:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   app.post("/api/shop-applications", async (req, res) => {
     try {
-      const validation = insertShopApplicationSchema.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(400).json({ message: "Invalid application data" });
+      // Create a user for the shop owner if email is provided
+      if (req.body.email && req.body.password) {
+        const existingUser = await storage.getUserByEmail(req.body.email);
+        if (existingUser) {
+          return res.status(400).json({ error: 'Email already registered' });
+        }
+        
+        // Create shop owner user account
+        const shopOwner = await storage.createUser({
+          phone: req.body.phoneNumber,
+          name: req.body.ownerFullName,
+          email: req.body.email,
+          password: req.body.password,
+          role: 'shop_owner',
+        });
+        
+        // Add applicant ID to application
+        req.body.applicantId = shopOwner.id;
       }
       
-      const application = await storage.createShopApplication(validation.data);
-      res.json(application);
+      const application = await storage.createShopApplication(req.body);
+      res.status(201).json(application);
     } catch (error) {
       console.error("Shop application error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get('/api/shop-applications/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const application = await storage.getShopApplication(id);
+      if (!application) {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+      res.json(application);
+    } catch (error) {
+      console.error('Error fetching shop application:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -536,27 +577,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         await storage.createShop({
           ownerId: application.applicantId,
-          name: application.shopName,
+          name: application.publicShopName,
           slug: application.shopSlug,
-          address: application.address,
+          address: application.publicAddress,
           city: application.city,
           state: application.state,
           pinCode: application.pinCode,
+          phone: application.publicContactNumber || application.phoneNumber,
+          publicOwnerName: application.publicOwnerName,
+          internalName: application.internalShopName,
+          ownerFullName: application.ownerFullName,
           email: application.email,
+          ownerPhone: application.phoneNumber,
+          completeAddress: application.completeAddress,
           services: application.services as any,
+          equipment: application.equipment as any,
           workingHours: application.workingHours as any,
           yearsOfExperience: application.yearsOfExperience,
-          qrCode: qrCodeData,
+          acceptsWalkinOrders: application.acceptsWalkinOrders,
           isApproved: true,
-          isOnline: false,
+          isOnline: true,
+          autoAvailability: true,
+          isPublic: true,
           rating: "0.00",
           totalOrders: 0
         });
         
-        await storage.updateUser(application.applicantId, {
-          role: 'shop_owner',
-          email: application.ownerEmail || application.email
-        });
+        // Update user role to shop_owner if needed
+        if (application.applicantId) {
+          await storage.updateUser(application.applicantId, {
+            role: 'shop_owner',
+            email: application.email
+          });
+        }
       }
       
       // Send notification to applicant

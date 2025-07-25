@@ -14,6 +14,7 @@ import {
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
   BarChart3, DollarSign, AlertTriangle, UserCheck
 } from 'lucide-react';
+import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
 
 interface PlatformStats {
   totalUsers: number;
@@ -302,6 +303,8 @@ export default function EnhancedAdminDashboard() {
                 {applications.filter((app: ShopApplication) => app.status === 'pending').length} Pending
               </Badge>
             </div>
+
+            <ComprehensiveAdminApplicationView applications={applications} />
 
             {applicationsLoading ? (
               <div className="space-y-4">

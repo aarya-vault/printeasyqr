@@ -584,7 +584,595 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
           </Card>
         )}
 
-        {/* Steps 3 and 4 would continue with similar pattern... */}
+        {currentStep === 2 && (
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <Settings className="w-8 h-8 text-rich-black" />
+              </div>
+              <CardTitle className="text-2xl text-rich-black">Services & Equipment</CardTitle>
+              <p className="text-medium-gray">What services do you offer?</p>
+            </CardHeader>
+            <CardContent>
+              <Form {...servicesForm}>
+                <form onSubmit={servicesForm.handleSubmit(onServicesNext)} className="space-y-6">
+                  <FormField
+                    control={servicesForm.control}
+                    name="services"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center space-x-2">
+                          <span>Services Offered</span>
+                          <span className="text-red-500">*</span>
+                          <span className="text-sm text-medium-gray">(Select all that apply)</span>
+                        </FormLabel>
+                        <div className="grid grid-cols-3 gap-3">
+                          {serviceOptions.map((service) => (
+                            <div key={service} className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={field.value.includes(service)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    field.onChange([...field.value, service]);
+                                  } else {
+                                    field.onChange(field.value.filter(s => s !== service));
+                                  }
+                                }}
+                              />
+                              <span className="text-sm">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex space-x-2 mt-3">
+                          <Input
+                            placeholder="Add custom service"
+                            value={customService}
+                            onChange={(e) => setCustomService(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addCustomService}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={servicesForm.control}
+                    name="equipment"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center space-x-2">
+                          <span>Equipment Available</span>
+                          <span className="text-red-500">*</span>
+                          <span className="text-sm text-medium-gray">(Select all that apply)</span>
+                        </FormLabel>
+                        <div className="grid grid-cols-3 gap-3">
+                          {equipmentOptions.map((equipment) => (
+                            <div key={equipment} className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={field.value.includes(equipment)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    field.onChange([...field.value, equipment]);
+                                  } else {
+                                    field.onChange(field.value.filter(e => e !== equipment));
+                                  }
+                                }}
+                              />
+                              <span className="text-sm">{equipment}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex space-x-2 mt-3">
+                          <Input
+                            placeholder="Add custom equipment"
+                            value={customEquipment}
+                            onChange={(e) => setCustomEquipment(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addCustomEquipment}
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={servicesForm.control}
+                    name="workingHours"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4" />
+                          <span>Working Hours</span>
+                        </FormLabel>
+                        <div className="space-y-3">
+                          {Object.entries(field.value).map(([day, hours]) => (
+                            <div key={day} className="flex items-center space-x-4 p-3 border rounded-md">
+                              <div className="w-20 font-medium capitalize">{day}</div>
+                              <Switch
+                                checked={!hours.closed}
+                                onCheckedChange={(checked) => {
+                                  field.onChange({
+                                    ...field.value,
+                                    [day]: { ...hours, closed: !checked }
+                                  });
+                                }}
+                                className="data-[state=checked]:bg-brand-yellow"
+                              />
+                              <span className="text-sm">
+                                {hours.closed ? 'Closed' : 'Open'}
+                              </span>
+                              {!hours.closed && (
+                                <>
+                                  <Input
+                                    type="time"
+                                    value={hours.open}
+                                    onChange={(e) => {
+                                      field.onChange({
+                                        ...field.value,
+                                        [day]: { ...hours, open: e.target.value }
+                                      });
+                                    }}
+                                    className="w-24"
+                                  />
+                                  <span className="text-medium-gray">to</span>
+                                  <Input
+                                    type="time"
+                                    value={hours.close}
+                                    onChange={(e) => {
+                                      field.onChange({
+                                        ...field.value,
+                                        [day]: { ...hours, close: e.target.value }
+                                      });
+                                    }}
+                                    className="w-24"
+                                  />
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-between pt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep(1)}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Previous
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
+                    >
+                      Next <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
+
+        {currentStep === 3 && (
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-rich-black" />
+              </div>
+              <CardTitle className="text-2xl text-rich-black">Shop Application Form</CardTitle>
+              <p className="text-medium-gray">Complete your application details</p>
+            </CardHeader>
+            <CardContent>
+              <Form {...finalForm}>
+                <form onSubmit={finalForm.handleSubmit(onFinalSubmit)} className="space-y-8">
+                  {/* Public Information Section */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-brand-yellow">Public Information</h3>
+                      <p className="text-sm text-medium-gray">This information will be displayed to customers</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={finalForm.control}
+                        name="publicShopName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Public Shop Name</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Quick Print Center" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={finalForm.control}
+                        name="publicOwnerName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Public Owner Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Optional - shown to customers" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={finalForm.control}
+                      name="publicAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center space-x-2">
+                            <span>Public Address</span>
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Address shown to customers for navigation"
+                              {...field}
+                              className="min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={finalForm.control}
+                      name="publicContactNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Public Contact Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Optional - contact number for customers" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Internal Shop Details Section */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-brand-yellow">Shop Details (Internal Use)</h3>
+                      <p className="text-sm text-medium-gray">Internal information for platform management</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={finalForm.control}
+                        name="internalShopName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Internal Shop Name</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={finalForm.control}
+                        name="ownerFullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Owner Full Name</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={finalForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Email Address</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <div className="flex">
+                                <div className="flex items-center px-3 border border-r-0 rounded-l-md">
+                                  <Mail className="w-4 h-4 text-gray-400" />
+                                </div>
+                                <Input {...field} className="rounded-l-none" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={finalForm.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Phone Number</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <div className="flex">
+                                <div className="flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md">
+                                  <span className="text-medium-gray">+91</span>
+                                </div>
+                                <Input {...field} className="rounded-l-none" />
+                                <div className="flex items-center px-3 border border-l-0 rounded-r-md">
+                                  <Phone className="w-4 h-4 text-gray-400" />
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={finalForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Password</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input type="password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={finalForm.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <span>Confirm Password</span>
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input type="password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={finalForm.control}
+                      name="completeAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center space-x-2">
+                            <span>Complete Address</span>
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field}
+                              className="min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Operating Hours */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-brand-yellow">Operating Hours</h3>
+                    </div>
+                    
+                    <FormField
+                      control={finalForm.control}
+                      name="workingHours"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="space-y-3">
+                            {Object.entries(field.value).map(([day, hours]) => (
+                              <div key={day} className="flex items-center space-x-4 p-3 border rounded-md">
+                                <div className="w-20 font-medium capitalize">{day}</div>
+                                <Switch
+                                  checked={!hours.closed}
+                                  onCheckedChange={(checked) => {
+                                    field.onChange({
+                                      ...field.value,
+                                      [day]: { ...hours, closed: !checked }
+                                    });
+                                  }}
+                                  className="data-[state=checked]:bg-brand-yellow"
+                                />
+                                <span className="text-sm w-16">
+                                  {hours.closed ? 'Closed' : 'Open'}
+                                </span>
+                                {!hours.closed && (
+                                  <>
+                                    <Input
+                                      type="time"
+                                      value={hours.open}
+                                      onChange={(e) => {
+                                        field.onChange({
+                                          ...field.value,
+                                          [day]: { ...hours, open: e.target.value }
+                                        });
+                                      }}
+                                      className="w-24"
+                                    />
+                                    <span className="text-medium-gray">to</span>
+                                    <Input
+                                      type="time"
+                                      value={hours.close}
+                                      onChange={(e) => {
+                                        field.onChange({
+                                          ...field.value,
+                                          [day]: { ...hours, close: e.target.value }
+                                        });
+                                      }}
+                                      className="w-24"
+                                    />
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-brand-yellow">Additional Information</h3>
+                    </div>
+                    
+                    <FormField
+                      control={finalForm.control}
+                      name="yearsOfExperience"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Years of Experience</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., 5 years" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={finalForm.control}
+                      name="servicesOffered"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Services Offered</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="e.g., Digital printing, Photocopying, Lamination, Binding..."
+                              {...field}
+                              className="min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={finalForm.control}
+                      name="equipmentAvailable"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Equipment Available</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="e.g., Color printer, Black & white printer, Laminating machine..."
+                              {...field}
+                              className="min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={finalForm.control}
+                      name="acceptsWalkinOrders"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between p-4 border rounded-md">
+                          <div>
+                            <FormLabel className="text-base font-medium">Accept Walk-in Orders</FormLabel>
+                            <p className="text-sm text-medium-gray">Allow customers to place orders for immediate pickup</p>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="data-[state=checked]:bg-brand-yellow"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex justify-between pt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep(2)}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Previous
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
+                      disabled={submitApplication.isPending}
+                    >
+                      {submitApplication.isPending ? 'Submitting...' : 'Submit Application'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
         
       </div>
     </div>
