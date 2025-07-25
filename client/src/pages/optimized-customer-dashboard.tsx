@@ -53,6 +53,7 @@ export default function OptimizedCustomerDashboard() {
     description: '',
     files: [] as File[]
   });
+  const [unreadNotifications, setUnreadNotifications] = useState(3); // Mock unread count
 
   // Fetch shops
   const { data: shops = [], isLoading: shopsLoading } = useQuery({
@@ -184,27 +185,42 @@ export default function OptimizedCustomerDashboard() {
               <h1 className="text-xl font-bold text-rich-black">PrintEasy</h1>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="hidden sm:flex">
-                <Bell className="w-4 h-4 mr-2" />
-                <span className="sr-only">Notifications</span>
+            <div className="flex items-center space-x-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/customer-notifications')}
+                className="relative"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadNotifications}
+                  </span>
+                )}
               </Button>
               
-              <div className="flex items-center space-x-3">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-rich-black">{user?.name || 'Customer'}</p>
-                  <p className="text-xs text-medium-gray">{user?.phone}</p>
-                </div>
-                <Button 
-                  onClick={logout}
-                  variant="outline"
-                  size="sm"
-                  className="border-red-200 text-red-600 hover:bg-red-50"
-                >
-                  <LogOut className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Sign Out</span>
-                </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/customer-account-settings')}
+              >
+                <User className="w-4 h-4" />
+              </Button>
+              
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-rich-black">{user?.name || 'Customer'}</p>
+                <p className="text-xs text-medium-gray">{user?.phone}</p>
               </div>
+              <Button 
+                onClick={logout}
+                variant="outline"
+                size="sm"
+                className="border-red-200 text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -326,7 +342,7 @@ export default function OptimizedCustomerDashboard() {
                       <div className="flex items-center gap-4 mt-3 text-sm">
                         <div className="flex items-center">
                           <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                          <span className="font-medium">{shop.rating.toFixed(1)}</span>
+                          <span className="font-medium">{shop.rating ? Number(shop.rating).toFixed(1) : '0.0'}</span>
                         </div>
                         <span className="text-medium-gray">•</span>
                         <span className="text-medium-gray">{shop.totalOrders} orders</span>

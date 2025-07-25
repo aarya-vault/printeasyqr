@@ -55,6 +55,15 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Conversation/Chat methods
+  async getConversationsByShop(shopId: number): Promise<any[]> {
+    // Mock implementation for now
+    return [];
+  }
+
+  async markConversationAsRead(conversationId: number): Promise<void> {
+    // Mock implementation
+  }
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -108,7 +117,24 @@ export class DatabaseStorage implements IStorage {
   async createShop(insertShop: InsertShop): Promise<Shop> {
     const [shop] = await db
       .insert(shops)
-      .values(insertShop)
+      .values({
+        name: insertShop.name,
+        ownerId: insertShop.ownerId,
+        address: insertShop.address,
+        city: insertShop.city,
+        state: insertShop.state,
+        pinCode: insertShop.pinCode,
+        phone: insertShop.phone,
+        email: insertShop.email,
+        services: insertShop.services,
+        workingHours: insertShop.workingHours,
+        yearsOfExperience: insertShop.yearsOfExperience,
+        isOnline: insertShop.isOnline ?? false,
+        isApproved: insertShop.isApproved ?? false,
+        rating: insertShop.rating ?? 0,
+        totalOrders: insertShop.totalOrders ?? 0,
+        qrCode: insertShop.qrCode || `printeasy.com/shop/${insertShop.name.toLowerCase().replace(/\s+/g, '-')}`
+      })
       .returning();
     return shop;
   }

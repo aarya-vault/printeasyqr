@@ -8,7 +8,11 @@ import { WebSocketProvider } from "@/contexts/websocket-context";
 import NotFound from "@/pages/not-found";
 import NewHomepage from "@/pages/new-homepage";
 import OptimizedCustomerDashboard from "@/pages/optimized-customer-dashboard";
-import EnhancedShopDashboard from "@/pages/enhanced-shop-dashboard";
+import CustomerNotifications from "@/pages/customer-notifications";
+import CustomerAccountSettings from "@/pages/customer-account-settings";
+import ImprovedShopDashboard from "@/pages/improved-shop-dashboard";
+import ShopChatSystem from "@/pages/shop-chat-system";
+import ShopSettings from "@/pages/shop-settings";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
 
@@ -17,7 +21,11 @@ function Router() {
     <Switch>
       <Route path="/" component={NewHomepage} />
       <Route path="/customer-dashboard" component={OptimizedCustomerDashboard} />
-      <Route path="/shop-dashboard" component={EnhancedShopDashboard} />
+      <Route path="/customer-notifications" component={CustomerNotifications} />
+      <Route path="/customer-account-settings" component={CustomerAccountSettings} />
+      <Route path="/shop-dashboard" component={ImprovedShopDashboard} />
+      <Route path="/shop-chat" component={ShopChatSystem} />
+      <Route path="/shop-settings" component={ShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route component={NotFound} />
@@ -28,14 +36,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <WebSocketProvider>
+      <AuthProvider>
+        <WebSocketProvider>
+          <TooltipProvider>
             <Toaster />
             <Router />
-          </WebSocketProvider>
-        </AuthProvider>
-      </TooltipProvider>
+          </TooltipProvider>
+        </WebSocketProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
