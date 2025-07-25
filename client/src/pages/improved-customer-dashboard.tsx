@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +38,8 @@ interface Order {
 
 export default function ImprovedCustomerDashboard() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showWalkinModal, setShowWalkinModal] = useState(false);
@@ -110,7 +114,14 @@ export default function ImprovedCustomerDashboard() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                  toast({
+                    title: "Signed Out",
+                    description: "You have been successfully signed out",
+                  });
+                }}
                 className="flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />

@@ -195,7 +195,14 @@ export default function ImprovedShopDashboard() {
               </div>
               
               <Button 
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                  toast({
+                    title: "Signed Out",
+                    description: "You have been successfully signed out",
+                  });
+                }}
                 variant="outline"
                 size="sm"
                 className="border-red-200 text-red-600 hover:bg-red-50"

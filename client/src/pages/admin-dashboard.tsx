@@ -109,6 +109,10 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     logout();
     setLocation('/');
+    toast({
+      title: "Signed Out",
+      description: "You have been successfully signed out",
+    });
   };
 
   if (!user || user.role !== 'admin') {

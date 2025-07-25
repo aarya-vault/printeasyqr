@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +38,8 @@ interface Order {
 
 export default function RevampedCustomerDashboard() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -118,7 +122,14 @@ export default function RevampedCustomerDashboard() {
                 </div>
               </div>
               <Button 
-                onClick={logout}
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                  toast({
+                    title: "Signed Out",
+                    description: "You have been successfully signed out",
+                  });
+                }}
                 variant="outline"
                 size="sm"
                 className="border-red-200 text-red-600 hover:bg-red-50"
@@ -414,7 +425,10 @@ export default function RevampedCustomerDashboard() {
                     <h3 className="text-xl font-medium text-rich-black mb-3">No orders yet</h3>
                     <p className="text-medium-gray mb-6">Start by finding a print shop and placing your first order</p>
                     <Button 
-                      onClick={() => document.querySelector('[value="shops"]')?.click()}
+                      onClick={() => {
+                        const shopsTab = document.querySelector('[value="shops"]') as HTMLElement;
+                        shopsTab?.click();
+                      }}
                       className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
                     >
                       Browse Print Shops
@@ -472,7 +486,10 @@ export default function RevampedCustomerDashboard() {
                   <h3 className="text-xl font-medium text-rich-black mb-3">Select a Print Shop First</h3>
                   <p className="text-medium-gray mb-6">Choose a print shop from the "Find Shops" tab to start placing an order</p>
                   <Button 
-                    onClick={() => document.querySelector('[value="shops"]')?.click()}
+                    onClick={() => {
+                      const shopsTab = document.querySelector('[value="shops"]') as HTMLElement;
+                      shopsTab?.click();
+                    }}
                     className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
                   >
                     Browse Print Shops
