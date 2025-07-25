@@ -608,9 +608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isApproved: true,
           isOnline: true,
           autoAvailability: true,
-          isPublic: true,
-
-          totalOrders: 0
+          isPublic: true
         });
         
         // Update user role to shop_owner if needed
@@ -825,6 +823,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Admin shop orders error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin shop management routes
+  app.patch('/api/admin/shops/:id/deactivate', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      await storage.updateShopStatus(shopId, 'deactivated');
+      res.json({ message: 'Shop deactivated successfully' });
+    } catch (error) {
+      console.error('Deactivate shop error:', error);
+      res.status(500).json({ message: 'Failed to deactivate shop' });
+    }
+  });
+
+  app.patch('/api/admin/shops/:id/activate', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      await storage.updateShopStatus(shopId, 'active');
+      res.json({ message: 'Shop activated successfully' });
+    } catch (error) {
+      console.error('Activate shop error:', error);
+      res.status(500).json({ message: 'Failed to activate shop' });
+    }
+  });
+
+  app.patch('/api/admin/shops/:id/ban', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      await storage.updateShopStatus(shopId, 'banned');
+      res.json({ message: 'Shop banned successfully' });
+    } catch (error) {
+      console.error('Ban shop error:', error);
+      res.status(500).json({ message: 'Failed to ban shop' });
+    }
+  });
+
+  app.delete('/api/admin/shops/:id', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      await storage.deleteShop(shopId);
+      res.json({ message: 'Shop deleted successfully' });
+    } catch (error) {
+      console.error('Delete shop error:', error);
+      res.status(500).json({ message: 'Failed to delete shop' });
+    }
+  });
+
+  app.delete('/api/admin/shops/:id', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      await storage.deleteShop(shopId);
+      res.json({ message: 'Shop deleted successfully' });
+    } catch (error) {
+      console.error('Delete shop error:', error);
+      res.status(500).json({ message: 'Failed to delete shop' });
     }
   });
 

@@ -52,6 +52,7 @@ export const shops = pgTable("shops", {
   // Admin and Status
   isApproved: boolean("is_approved").notNull().default(false),
   isPublic: boolean("is_public").notNull().default(true),
+  status: text("status").default('active').$type<'active' | 'deactivated' | 'banned'>(),
   qrCode: text("qr_code"), // Generated QR code data
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   totalOrders: integer("total_orders").notNull().default(0),

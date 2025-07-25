@@ -21,6 +21,7 @@ import AdminUserEditModal from '@/components/admin-user-edit-modal';
 import ShopViewModal from '@/components/shop-view-modal';
 import ShopContactModal from '@/components/shop-contact-modal';
 import ShopAnalyticsView from '@/components/shop-analytics-view';
+import ShopManagementDropdown from '@/components/shop-management-dropdown';
 
 interface PlatformStats {
   totalUsers: number;
@@ -75,6 +76,7 @@ export default function EnhancedAdminDashboard() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [viewingShop, setViewingShop] = useState<any>(null);
   const [contactingShop, setContactingShop] = useState<any>(null);
+  const [editingShop, setEditingShop] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [searchQueries, setSearchQueries] = useState({
     applications: '',
@@ -736,18 +738,17 @@ export default function EnhancedAdminDashboard() {
                       <Button 
                         size="sm" 
                         className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                        onClick={() => {
-                          const application = applications.find((app: ShopApplication) => 
-                            app.shopName === shop.name && app.status === 'approved'
-                          );
-                          if (application) {
-                            setEditingApplication(application);
-                          }
-                        }}
+                        onClick={() => setEditingShop(shop)}
                       >
                         <Edit3 className="w-3 h-3 mr-1" />
                         Edit
                       </Button>
+                      <ShopManagementDropdown 
+                        shop={shop} 
+                        onUpdate={() => {
+                          queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+                        }}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -789,6 +790,18 @@ export default function EnhancedAdminDashboard() {
             onStatusUpdate={(id: number, status: string, notes?: string) => {
               handleApplicationAction(selectedApplication, status as 'approved' | 'rejected', notes);
               setSelectedApplication(null);
+            }}
+          />
+        )}
+
+        {/* Shop Edit Modal */}
+        {editingShop && (
+          <ComprehensiveAdminShopEdit
+            shop={editingShop}
+            onClose={() => setEditingShop(null)}
+            onUpdate={() => {
+              queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+              setEditingShop(null);
             }}
           />
         )}

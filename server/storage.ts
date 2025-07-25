@@ -54,6 +54,10 @@ export interface IStorage {
     activeShops: number;
     totalOrders: number;
   }>;
+
+  // Admin shop management operations
+  updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void>;
+  deleteShop(shopId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -325,22 +329,17 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async updateShopApplication(id: number, updates: any): Promise<any | null> {
-    try {
-      const [updatedApplication] = await db
-        .update(shopApplications)
-        .set({
-          ...updates,
-          updatedAt: new Date(),
-        })
-        .where(eq(shopApplications.id, id))
-        .returning();
-      
-      return updatedApplication;
-    } catch (error) {
-      console.error("Update shop application error:", error);
-      return null;
-    }
+
+
+  async updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void> {
+    await db.update(shops).set({ 
+      status,
+      updatedAt: new Date() 
+    }).where(eq(shops.id, shopId));
+  }
+
+  async deleteShop(shopId: number): Promise<void> {
+    await db.delete(shops).where(eq(shops.id, shopId));
   }
 }
 
