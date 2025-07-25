@@ -304,8 +304,6 @@ export default function EnhancedAdminDashboard() {
               </Badge>
             </div>
 
-            <ComprehensiveAdminApplicationView applications={applications} />
-
             {applicationsLoading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (

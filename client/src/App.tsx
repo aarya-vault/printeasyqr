@@ -12,7 +12,7 @@ import CustomerNotifications from "@/pages/customer-notifications";
 import CustomerAccountSettings from "@/pages/customer-account-settings";
 import ImprovedShopDashboard from "@/pages/improved-shop-dashboard";
 import ShopChatSystem from "@/pages/shop-chat-system";
-import ShopSettings from "@/pages/shop-settings";
+import ComprehensiveShopSettings from "@/components/comprehensive-shop-settings";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
 import ComprehensiveApplicationPage from "@/pages/comprehensive-application";
@@ -26,7 +26,7 @@ function Router() {
       <Route path="/customer-account-settings" component={CustomerAccountSettings} />
       <Route path="/shop-dashboard" component={ImprovedShopDashboard} />
       <Route path="/shop-chat" component={ShopChatSystem} />
-      <Route path="/shop-settings" component={ShopSettings} />
+      <Route path="/shop-settings" component={ComprehensiveShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/apply-shop" component={ComprehensiveApplicationPage} />

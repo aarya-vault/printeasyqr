@@ -519,9 +519,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: req.body.phoneNumber,
           name: req.body.ownerFullName,
           email: req.body.email,
-          password: req.body.password,
           role: 'shop_owner',
         });
+        
+        // Store password separately if needed (in real app, hash this)
+        await storage.updateUser(shopOwner.id, { password: req.body.password });
         
         // Add applicant ID to application
         req.body.applicantId = shopOwner.id;
@@ -599,7 +601,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isOnline: true,
           autoAvailability: true,
           isPublic: true,
-          rating: "0.00",
+
           totalOrders: 0
         });
         

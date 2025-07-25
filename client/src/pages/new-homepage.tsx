@@ -134,7 +134,6 @@ export default function NewHomepage() {
     <div className="min-h-screen bg-white">
       <Navbar 
         onShopLogin={() => setShowShopLogin(true)}
-        onShopApplication={() => window.location.href = '/apply-shop'}
       />
       
       {showShopLogin && (

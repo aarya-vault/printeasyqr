@@ -26,13 +26,14 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={onShopApplication}
-              className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-            >
-              Shop Application
-            </Button>
+            <Link href="/apply-shop">
+              <Button 
+                variant="outline"
+                className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
+              >
+                Shop Application
+              </Button>
+            </Link>
             <Button 
               onClick={onShopLogin}
               className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
@@ -58,16 +59,15 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
             </SheetTrigger>
             <SheetContent side="right" className="w-64">
               <div className="flex flex-col space-y-4 mt-6">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    onShopApplication?.();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-                >
-                  Shop Application
-                </Button>
+                <Link href="/apply-shop">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
+                  >
+                    Shop Application
+                  </Button>
+                </Link>
                 <Button 
                   onClick={() => {
                     onShopLogin?.();
