@@ -89,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('printeasy_user');
+    window.location.href = '/';
   };
 
   const updateUser = (updates: Partial<User>) => {
