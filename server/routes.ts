@@ -275,14 +275,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      // For security, check admin credentials
+      // For security, check admin credentials first
       if (email !== 'admin@printeasy.com' || password !== 'admin123') {
         return res.status(401).json({ message: "Invalid admin credentials" });
       }
       
-      const user = await storage.getUserByEmail(email);
-      if (!user || user.role !== 'admin') {
-        return res.status(401).json({ message: "Admin account not found" });
+      // Try to get admin user, create if doesn't exist
+      let user = await storage.getUserByEmail(email);
+      if (!user) {
+        user = await storage.createUser({
+          phone: "0000000000", // Dummy phone for admin
+          email: email,
+          name: "Admin",
+          role: "admin"
+        });
+      }
+      
+      if (user.role !== 'admin') {
+        return res.status(401).json({ message: "Access denied - admin role required" });
       }
       
       res.json({ user });
@@ -348,7 +358,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Order routes
   app.post("/api/orders", upload.array('files'), async (req, res) => {
     try {
-      const orderData = JSON.parse(req.body.orderData);
+      // Handle both form data and JSON body
+      let orderData;
+      if (req.body.orderData) {
+        orderData = JSON.parse(req.body.orderData);
+      } else {
+        orderData = req.body;
+      }
+      
       const validation = insertOrderSchema.safeParse(orderData);
       
       if (!validation.success) {

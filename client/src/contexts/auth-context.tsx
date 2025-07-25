@@ -13,6 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (credentials: { phone?: string; email?: string; password?: string }) => Promise<User>;
+  adminLogin: (email: string, password: string) => Promise<User>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
   isLoading: boolean;
@@ -113,8 +114,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const adminLogin = async (email: string, password: string): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return data.user;
+    } catch (error) {
+      console.error('Admin login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ user, login, adminLogin, logout, updateUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
