@@ -16,6 +16,7 @@ import {
   BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3
 } from 'lucide-react';
 import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
+import ComprehensiveAdminApplicationEdit from '@/components/comprehensive-admin-application-edit';
 import ComprehensiveAdminShopEdit from '@/components/comprehensive-admin-shop-edit';
 import AdminUserEditModal from '@/components/admin-user-edit-modal';
 import ShopViewModal from '@/components/shop-view-modal';
@@ -788,7 +789,7 @@ export default function EnhancedAdminDashboard() {
             application={selectedApplication}
             onClose={() => setSelectedApplication(null)}
             onStatusUpdate={(id: number, status: string, notes?: string) => {
-              handleApplicationAction(selectedApplication, status as 'approved' | 'rejected', notes);
+              handleApplicationAction(selectedApplication, status as 'approved' | 'rejected');
               setSelectedApplication(null);
             }}
           />
@@ -806,17 +807,19 @@ export default function EnhancedAdminDashboard() {
           />
         )}
 
-        {/* Comprehensive Admin Shop Edit Modal */}
+        {/* Comprehensive Application Edit Modal */}
         {editingApplication && (
-          <ComprehensiveAdminShopEdit
+          <ComprehensiveAdminApplicationEdit
             application={editingApplication}
             onClose={() => setEditingApplication(null)}
-            onSave={() => {
+            onUpdate={() => {
               setEditingApplication(null);
               queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
             }}
           />
         )}
+
+
 
         {/* Admin User Edit Modal */}
         {editingUser && (

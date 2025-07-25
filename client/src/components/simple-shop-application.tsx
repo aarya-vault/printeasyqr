@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,9 +12,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Store, User, Settings, CheckCircle, ArrowRight, 
-  Plus, Clock, Phone, Mail, MapPin, Briefcase, Globe, Lock
+  Store, User, Settings, CheckCircle, ArrowRight, XCircle,
+  Plus, Clock, Phone, Mail, MapPin, Briefcase, Globe, Lock, CheckCircle2
 } from 'lucide-react';
 
 const applicationSchema = z.object({
@@ -38,9 +39,9 @@ const applicationSchema = z.object({
   // Business Details
   yearsOfExperience: z.string().min(1, 'Years of experience is required'),
   servicesOffered: z.array(z.string()).min(1, 'Select at least one service'),
-  customServices: z.array(z.string()).max(5, 'Maximum 5 custom services allowed').optional(),
+  customServices: z.array(z.string()).max(10, 'Maximum 10 custom services allowed').optional(),
   equipmentAvailable: z.array(z.string()).min(1, 'Select at least one equipment'),
-  customEquipment: z.array(z.string()).max(6, 'Maximum 6 custom equipment allowed').optional(),
+  customEquipment: z.array(z.string()).max(10, 'Maximum 10 custom equipment allowed').optional(),
   
   // Working Hours
   workingHours: z.object({
@@ -101,6 +102,8 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
   const [, setLocation] = useLocation();
   const [customServices, setCustomServices] = useState<string[]>([]);
   const [customEquipment, setCustomEquipment] = useState<string[]>([]);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [checkingSlug, setCheckingSlug] = useState(false);
 
   const form = useForm<ApplicationForm>({
     resolver: zodResolver(applicationSchema),
@@ -303,15 +306,49 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                         <FormItem>
                           <FormLabel>Shop Slug * (URL identifier)</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., quick-print-solutions" 
-                              {...field}
-                              onChange={(e) => {
-                                const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                                field.onChange(slug);
-                              }}
-                            />
+                            <div className="relative">
+                              <Input 
+                                placeholder="e.g., quick-print-solutions" 
+                                {...field}
+                                onChange={async (e) => {
+                                  const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                  field.onChange(slug);
+                                  
+                                  if (slug) {
+                                    setCheckingSlug(true);
+                                    try {
+                                      const response = await fetch(`/api/shops/check-slug/${slug}`);
+                                      const { available } = await response.json();
+                                      setSlugAvailable(available);
+                                    } catch (error) {
+                                      setSlugAvailable(null);
+                                    } finally {
+                                      setCheckingSlug(false);
+                                    }
+                                  } else {
+                                    setSlugAvailable(null);
+                                  }
+                                }}
+                              />
+                              {checkingSlug && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                  <div className="w-4 h-4 border-2 border-brand-yellow border-t-transparent rounded-full animate-spin" />
+                                </div>
+                              )}
+                              {!checkingSlug && slugAvailable !== null && field.value && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                  {slugAvailable ? (
+                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4 text-red-500" />
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </FormControl>
+                          {slugAvailable === false && (
+                            <p className="text-sm text-red-500">This slug is already taken</p>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -459,9 +496,20 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Years of Experience *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., 5 years" {...field} />
-                        </FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select years of experience" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {[...Array(30)].map((_, i) => (
+                              <SelectItem key={i + 1} value={(i + 1).toString()}>
+                                {i + 1} {i === 0 ? 'year' : 'years'}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -503,19 +551,19 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                         </div>
                         <div className="mt-4 space-y-3">
                           <div className="flex items-center justify-between">
-                            <FormLabel className="text-sm font-medium">Custom Services (up to 5)</FormLabel>
+                            <FormLabel className="text-sm font-medium">Custom Services (up to 10)</FormLabel>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                if (customServices.length < 5) {
+                                if (customServices.length < 10) {
                                   const newServices = [...customServices, ''];
                                   setCustomServices(newServices);
                                   form.setValue('customServices', newServices);
                                 }
                               }}
-                              disabled={customServices.length >= 5}
+                              disabled={customServices.length >= 10}
                             >
                               <Plus className="w-4 h-4 mr-1" />
                               Add Custom Service
@@ -589,19 +637,19 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                         </div>
                         <div className="mt-4 space-y-3">
                           <div className="flex items-center justify-between">
-                            <FormLabel className="text-sm font-medium">Custom Equipment (up to 6)</FormLabel>
+                            <FormLabel className="text-sm font-medium">Custom Equipment (up to 10)</FormLabel>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                if (customEquipment.length < 6) {
+                                if (customEquipment.length < 10) {
                                   const newEquipment = [...customEquipment, ''];
                                   setCustomEquipment(newEquipment);
                                   form.setValue('customEquipment', newEquipment);
                                 }
                               }}
-                              disabled={customEquipment.length >= 6}
+                              disabled={customEquipment.length >= 10}
                             >
                               <Plus className="w-4 h-4 mr-1" />
                               Add Custom Equipment
