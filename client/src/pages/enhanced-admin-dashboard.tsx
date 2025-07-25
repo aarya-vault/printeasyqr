@@ -9,10 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Shield, Users, Store, Package, TrendingUp, CheckCircle2, 
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
-  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings
+  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3
 } from 'lucide-react';
 import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
 import ComprehensiveAdminShopEdit from '@/components/comprehensive-admin-shop-edit';
@@ -32,6 +33,8 @@ interface ShopApplication {
   shopName: string;
   shopSlug: string;
   applicantName: string;
+  ownerFullName?: string;
+  publicOwnerName?: string;
   email: string;
   city: string;
   state: string;
@@ -39,6 +42,7 @@ interface ShopApplication {
   createdAt: string;
   services: string[];
   yearsOfExperience: string;
+  [key: string]: any;
 }
 
 interface User {
@@ -72,6 +76,13 @@ export default function EnhancedAdminDashboard() {
   const [viewingShop, setViewingShop] = useState<any>(null);
   const [contactingShop, setContactingShop] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [searchQueries, setSearchQueries] = useState({
+    applications: '',
+    users: '',
+    shops: '',
+    analytics: ''
+  });
+  const [userFilter, setUserFilter] = useState<'all' | 'customer' | 'shop_owner'>('all');
 
   // Fetch platform statistics
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -306,11 +317,24 @@ export default function EnhancedAdminDashboard() {
 
           {/* Shop Applications Tab */}
           <TabsContent value="applications" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-rich-black">Shop Applications</h2>
               <Badge variant="outline" className="text-sm">
                 {applications.filter((app: ShopApplication) => app.status === 'pending').length} Pending
               </Badge>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
+                <Input
+                  placeholder="Search applications by shop name, owner, city..."
+                  value={searchQueries.applications}
+                  onChange={(e) => setSearchQueries({ ...searchQueries, applications: e.target.value })}
+                  className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
+                />
+              </div>
             </div>
 
             {applicationsLoading ? (
@@ -335,7 +359,18 @@ export default function EnhancedAdminDashboard() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {applications.map((application: ShopApplication) => (
+                {applications
+                  .filter((app: ShopApplication) => {
+                    if (!searchQueries.applications) return true;
+                    const search = searchQueries.applications.toLowerCase();
+                    return (
+                      app.shopName?.toLowerCase().includes(search) ||
+                      app.ownerFullName?.toLowerCase().includes(search) ||
+                      app.city?.toLowerCase().includes(search) ||
+                      app.publicOwnerName?.toLowerCase().includes(search)
+                    );
+                  })
+                  .map((application: ShopApplication) => (
                   <Card key={application.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -489,7 +524,7 @@ export default function EnhancedAdminDashboard() {
                         <Button 
                           onClick={() => handleApplicationAction(selectedApplication, 'approved')}
                           disabled={updateApplicationMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
                         >
                           <CheckCircle2 className="w-4 h-4 mr-2" />
                           Approve Application
@@ -504,56 +539,31 @@ export default function EnhancedAdminDashboard() {
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-rich-black">User Management</h2>
-              <div className="flex space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input placeholder="Search users..." className="pl-10" />
-                </div>
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <Filter className="w-4 h-4" />
-                  <span>Filter</span>
-                </Button>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="border-l-4 border-l-brand-yellow">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-6 h-6 text-rich-black" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-rich-black mb-2">Total Customers</h3>
-                  <p className="text-3xl font-bold text-brand-yellow">
-                    {users.filter((u: User) => u.role === 'customer').length}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-l-4 border-l-brand-yellow">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Store className="w-6 h-6 text-rich-black" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-rich-black mb-2">Shop Owners</h3>
-                  <p className="text-3xl font-bold text-brand-yellow">
-                    {users.filter((u: User) => u.role === 'shop_owner').length}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-l-4 border-l-brand-yellow">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Shield className="w-6 h-6 text-rich-black" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-rich-black mb-2">Administrators</h3>
-                  <p className="text-3xl font-bold text-brand-yellow">
-                    {users.filter((u: User) => u.role === 'admin').length}
-                  </p>
-                </CardContent>
-              </Card>
+            {/* Search and Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
+                <Input
+                  placeholder="Search users by name, phone, email..."
+                  value={searchQueries.users}
+                  onChange={(e) => setSearchQueries({ ...searchQueries, users: e.target.value })}
+                  className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
+                />
+              </div>
+              <Select value={userFilter} onValueChange={(value: any) => setUserFilter(value)}>
+                <SelectTrigger className="w-full sm:w-[200px] border-brand-yellow/30">
+                  <SelectValue placeholder="Filter by role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="customer">Customers Only</SelectItem>
+                  <SelectItem value="shop_owner">Shop Owners Only</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* User List */}
@@ -579,7 +589,21 @@ export default function EnhancedAdminDashboard() {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {users.map((user: any) => (
+                  {users
+                    .filter((user: any) => {
+                      // Filter by role
+                      if (userFilter !== 'all' && user.role !== userFilter) return false;
+                      // Filter by search
+                      if (!searchQueries.users) return true;
+                      const search = searchQueries.users.toLowerCase();
+                      return (
+                        user.name?.toLowerCase().includes(search) ||
+                        user.phone?.toLowerCase().includes(search) ||
+                        user.email?.toLowerCase().includes(search)
+                      );
+                    })
+                    .filter((user: any) => user.role !== 'admin') // Hide admin users
+                    .map((user: any) => (
                     <Card key={user.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-3">
@@ -628,15 +652,38 @@ export default function EnhancedAdminDashboard() {
 
           {/* Shops Tab */}
           <TabsContent value="shops" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-rich-black">Shop Management</h2>
               <Badge variant="outline" className="text-sm">
                 {shops.filter((shop: Shop) => shop.isOnline).length} Online
               </Badge>
             </div>
 
+            {/* Search Bar */}
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
+                <Input
+                  placeholder="Search shops by name, owner, city..."
+                  value={searchQueries.shops}
+                  onChange={(e) => setSearchQueries({ ...searchQueries, shops: e.target.value })}
+                  className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
+                />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shops.map((shop: Shop) => (
+              {shops
+                .filter((shop: Shop) => {
+                  if (!searchQueries.shops) return true;
+                  const search = searchQueries.shops.toLowerCase();
+                  return (
+                    shop.name?.toLowerCase().includes(search) ||
+                    shop.ownerName?.toLowerCase().includes(search) ||
+                    shop.city?.toLowerCase().includes(search)
+                  );
+                })
+                .map((shop: Shop) => (
                 <Card key={shop.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
@@ -654,10 +701,7 @@ export default function EnhancedAdminDashboard() {
                     </div>
                     
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-medium-gray">Rating:</span>
-                        <span className="font-medium">⭐ {shop.rating}</span>
-                      </div>
+
                       <div className="flex justify-between">
                         <span className="text-medium-gray">Total Orders:</span>
                         <span className="font-medium">{shop.totalOrders}</span>
@@ -674,7 +718,7 @@ export default function EnhancedAdminDashboard() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="flex-1"
+                        className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
                         onClick={() => setViewingShop(shop)}
                       >
                         <Eye className="w-3 h-3 mr-1" />
@@ -683,11 +727,26 @@ export default function EnhancedAdminDashboard() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="flex-1"
+                        className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
                         onClick={() => setContactingShop(shop)}
                       >
                         <MessageSquare className="w-3 h-3 mr-1" />
                         Contact
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                        onClick={() => {
+                          const application = applications.find((app: ShopApplication) => 
+                            app.shopName === shop.name && app.status === 'approved'
+                          );
+                          if (application) {
+                            setEditingApplication(application);
+                          }
+                        }}
+                      >
+                        <Edit3 className="w-3 h-3 mr-1" />
+                        Edit
                       </Button>
                     </div>
                   </CardContent>
@@ -698,16 +757,36 @@ export default function EnhancedAdminDashboard() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <ShopAnalyticsView shops={shops} />
+            <div className="mb-6">
+              <div className="flex items-center space-x-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
+                  <Input
+                    placeholder="Search analytics by shop name..."
+                    value={searchQueries.analytics}
+                    onChange={(e) => setSearchQueries({ ...searchQueries, analytics: e.target.value })}
+                    className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <ShopAnalyticsView 
+              shops={shops.filter((shop: Shop) => {
+                if (!searchQueries.analytics) return true;
+                const search = searchQueries.analytics.toLowerCase();
+                return shop.name?.toLowerCase().includes(search);
+              })} 
+            />
           </TabsContent>
         </Tabs>
 
         {/* Comprehensive Application View Modal */}
         {selectedApplication && (
           <ComprehensiveAdminApplicationView
-            applications={[selectedApplication]}
+            application={selectedApplication}
             onClose={() => setSelectedApplication(null)}
-            onStatusUpdate={(status: string, notes?: string) => {
+            onStatusUpdate={(id: number, status: string, notes?: string) => {
               handleApplicationAction(selectedApplication, status as 'approved' | 'rejected', notes);
               setSelectedApplication(null);
             }}

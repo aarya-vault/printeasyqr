@@ -210,10 +210,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   <p className="text-sm text-medium-gray">Total Orders</p>
                   <p className="text-2xl font-bold text-brand-yellow">{shop.totalOrders || 0}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-medium-gray">Rating</p>
-                  <p className="text-2xl font-bold text-brand-yellow">⭐ {shop.rating || '0.00'}</p>
-                </div>
+
                 <div>
                   <p className="text-sm text-medium-gray">Status</p>
                   <Badge className={shop.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>

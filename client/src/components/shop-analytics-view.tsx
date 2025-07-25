@@ -166,8 +166,8 @@ export default function ShopAnalyticsView({ shops }: ShopAnalyticsViewProps) {
                   <div className="flex items-center space-x-3">
                     <TrendingUp className="w-5 h-5 text-brand-yellow" />
                     <div>
-                      <p className="text-sm text-medium-gray">Rating</p>
-                      <p className="font-semibold">⭐ {shop.rating || '0.00'}</p>
+                      <p className="text-sm text-medium-gray">Completion Rate</p>
+                      <p className="font-semibold">{analytics.completionRate}%</p>
                     </div>
                   </div>
                   
