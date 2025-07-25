@@ -120,7 +120,9 @@ export const shopApplications = pgTable("shop_applications", {
   
   // Business Details
   services: jsonb("services").notNull(),
+  customServices: jsonb("custom_services").default([]),
   equipment: jsonb("equipment").notNull().default([]),
+  customEquipment: jsonb("custom_equipment").default([]),
   yearsOfExperience: text("years_of_experience").notNull(),
   
   // Working Hours and Settings

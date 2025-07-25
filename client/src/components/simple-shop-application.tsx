@@ -23,6 +23,7 @@ const applicationSchema = z.object({
   publicName: z.string().min(1, 'Public name is required'), // Mandatory for customer chat
   publicAddress: z.string().min(1, 'Public address is required'),
   publicContactNumber: z.string().min(1, 'Public contact number is required'), // Mandatory for customer calls
+  shopSlug: z.string().min(1, 'Shop slug is required'),
   
   // Contact Details - Internal information and login credentials
   ownerFullName: z.string().min(1, 'Owner full name is required'),
@@ -37,9 +38,9 @@ const applicationSchema = z.object({
   // Business Details
   yearsOfExperience: z.string().min(1, 'Years of experience is required'),
   servicesOffered: z.array(z.string()).min(1, 'Select at least one service'),
-  customServices: z.string().optional(),
+  customServices: z.array(z.string()).max(5, 'Maximum 5 custom services allowed').optional(),
   equipmentAvailable: z.array(z.string()).min(1, 'Select at least one equipment'),
-  customEquipment: z.string().optional(),
+  customEquipment: z.array(z.string()).max(6, 'Maximum 6 custom equipment allowed').optional(),
   
   // Working Hours
   workingHours: z.object({
@@ -98,6 +99,8 @@ interface SimpleShopApplicationProps {
 export default function SimpleShopApplication({ onComplete }: SimpleShopApplicationProps) {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [customServices, setCustomServices] = useState<string[]>([]);
+  const [customEquipment, setCustomEquipment] = useState<string[]>([]);
 
   const form = useForm<ApplicationForm>({
     resolver: zodResolver(applicationSchema),
@@ -106,6 +109,7 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
       publicName: '',
       publicAddress: '',
       publicContactNumber: '',
+      shopSlug: '',
       ownerFullName: '',
       email: '',
       ownerContactNumber: '',
@@ -116,9 +120,9 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
       pinCode: '',
       yearsOfExperience: '',
       servicesOffered: [],
-      customServices: '',
+      customServices: [],
       equipmentAvailable: [],
-      customEquipment: '',
+      customEquipment: [],
       workingHours: defaultWorkingHours,
       acceptsWalkinOrders: true,
     },
@@ -159,8 +163,10 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
         state: data.state,
         pinCode: data.pinCode,
         yearsOfExperience: data.yearsOfExperience,
-        services: data.servicesOffered.concat(data.customServices ? [data.customServices] : []),
-        equipment: data.equipmentAvailable.concat(data.customEquipment ? [data.customEquipment] : []),
+        services: [...data.servicesOffered, ...(data.customServices?.filter(Boolean) || [])],
+        customServices: data.customServices?.filter(Boolean) || [],
+        equipment: [...data.equipmentAvailable, ...(data.customEquipment?.filter(Boolean) || [])],
+        customEquipment: data.customEquipment?.filter(Boolean) || [],
         workingHours: data.workingHours,
         acceptsWalkinOrders: data.acceptsWalkinOrders,
         shopSlug,
@@ -275,19 +281,42 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="publicContactNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Public Contact Number * (for customer calls)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Phone number customers can call" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="publicContactNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Public Contact Number * (for customer calls)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Phone number customers can call" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="shopSlug"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Shop Slug * (URL identifier)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., quick-print-solutions" 
+                              {...field}
+                              onChange={(e) => {
+                                const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                field.onChange(slug);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* Contact Details Section */}
@@ -472,19 +501,53 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                             />
                           ))}
                         </div>
-                        <FormField
-                          control={form.control}
-                          name="customServices"
-                          render={({ field }) => (
-                            <FormControl>
-                              <Input 
-                                placeholder="Other services (optional)" 
-                                {...field} 
-                                className="mt-3"
+                        <div className="mt-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">Custom Services (up to 5)</FormLabel>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (customServices.length < 5) {
+                                  const newServices = [...customServices, ''];
+                                  setCustomServices(newServices);
+                                  form.setValue('customServices', newServices);
+                                }
+                              }}
+                              disabled={customServices.length >= 5}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Custom Service
+                            </Button>
+                          </div>
+                          {customServices.map((service, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <Input
+                                placeholder={`Custom service ${index + 1}`}
+                                value={service}
+                                onChange={(e) => {
+                                  const newServices = [...customServices];
+                                  newServices[index] = e.target.value;
+                                  setCustomServices(newServices);
+                                  form.setValue('customServices', newServices);
+                                }}
                               />
-                            </FormControl>
-                          )}
-                        />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newServices = customServices.filter((_, i) => i !== index);
+                                  setCustomServices(newServices);
+                                  form.setValue('customServices', newServices);
+                                }}
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -524,19 +587,53 @@ export default function SimpleShopApplication({ onComplete }: SimpleShopApplicat
                             />
                           ))}
                         </div>
-                        <FormField
-                          control={form.control}
-                          name="customEquipment"
-                          render={({ field }) => (
-                            <FormControl>
-                              <Input 
-                                placeholder="Other equipment (optional)" 
-                                {...field} 
-                                className="mt-3"
+                        <div className="mt-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium">Custom Equipment (up to 6)</FormLabel>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (customEquipment.length < 6) {
+                                  const newEquipment = [...customEquipment, ''];
+                                  setCustomEquipment(newEquipment);
+                                  form.setValue('customEquipment', newEquipment);
+                                }
+                              }}
+                              disabled={customEquipment.length >= 6}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Add Custom Equipment
+                            </Button>
+                          </div>
+                          {customEquipment.map((equipment, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <Input
+                                placeholder={`Custom equipment ${index + 1}`}
+                                value={equipment}
+                                onChange={(e) => {
+                                  const newEquipment = [...customEquipment];
+                                  newEquipment[index] = e.target.value;
+                                  setCustomEquipment(newEquipment);
+                                  form.setValue('customEquipment', newEquipment);
+                                }}
                               />
-                            </FormControl>
-                          )}
-                        />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newEquipment = customEquipment.filter((_, i) => i !== index);
+                                  setCustomEquipment(newEquipment);
+                                  form.setValue('customEquipment', newEquipment);
+                                }}
+                              >
+                                ×
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
