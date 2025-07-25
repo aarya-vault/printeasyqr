@@ -715,6 +715,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin comprehensive shop application editing
+  app.put("/api/admin/shop-applications/:id", async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const application = await storage.updateShopApplication(applicationId, updateData);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error("Update shop application error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // File serving
   app.get("/api/files/:filename", (req, res) => {
     const filename = req.params.filename;

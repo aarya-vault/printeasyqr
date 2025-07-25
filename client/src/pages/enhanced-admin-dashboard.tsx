@@ -12,9 +12,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Shield, Users, Store, Package, TrendingUp, CheckCircle2, 
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
-  BarChart3, DollarSign, AlertTriangle, UserCheck
+  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings
 } from 'lucide-react';
 import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
+import ComprehensiveAdminShopEdit from '@/components/comprehensive-admin-shop-edit';
 
 interface PlatformStats {
   totalUsers: number;
@@ -62,6 +63,7 @@ export default function EnhancedAdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
+  const [editingApplication, setEditingApplication] = useState<ShopApplication | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
 
   // Fetch platform statistics
@@ -368,6 +370,15 @@ export default function EnhancedAdminDashboard() {
                             <Eye className="w-4 h-4" />
                             <span>Review</span>
                           </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setEditingApplication(application)}
+                            className="flex items-center space-x-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span>Edit All</span>
+                          </Button>
                           {application.status === 'pending' && (
                             <>
                               <Button 
@@ -666,6 +677,30 @@ export default function EnhancedAdminDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Comprehensive Application View Modal */}
+        {selectedApplication && (
+          <ComprehensiveAdminApplicationView
+            applications={[selectedApplication]}
+            onClose={() => setSelectedApplication(null)}
+            onStatusUpdate={(status: string, notes?: string) => {
+              handleApplicationAction(selectedApplication, status as 'approved' | 'rejected', notes);
+              setSelectedApplication(null);
+            }}
+          />
+        )}
+
+        {/* Comprehensive Admin Shop Edit Modal */}
+        {editingApplication && (
+          <ComprehensiveAdminShopEdit
+            application={editingApplication}
+            onClose={() => setEditingApplication(null)}
+            onSave={() => {
+              setEditingApplication(null);
+              queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
+            }}
+          />
+        )}
       </div>
     </div>
   );

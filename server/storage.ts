@@ -324,6 +324,24 @@ export class DatabaseStorage implements IStorage {
       totalOrders: orderCount.count,
     };
   }
+
+  async updateShopApplication(id: number, updates: any): Promise<any | null> {
+    try {
+      const [updatedApplication] = await db
+        .update(shopApplications)
+        .set({
+          ...updates,
+          updatedAt: new Date(),
+        })
+        .where(eq(shopApplications.id, id))
+        .returning();
+      
+      return updatedApplication;
+    } catch (error) {
+      console.error("Update shop application error:", error);
+      return null;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
