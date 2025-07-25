@@ -18,7 +18,7 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { shopLogin } = useAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -35,7 +35,7 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
 
     setIsLoading(true);
     try {
-      await shopLogin(email);
+      await login({ email, password });
       onClose();
       setLocation('/shop-dashboard');
       toast({

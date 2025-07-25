@@ -333,7 +333,7 @@ export default function EnhancedCustomerDashboard() {
                   <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-rich-black mb-2">No orders yet</h3>
                   <p className="text-medium-gray mb-6">Start by finding a print shop and placing your first order</p>
-                  <Button onClick={() => document.querySelector('[value="shops"]')?.click()}>
+                  <Button onClick={() => (document.querySelector('[value="shops"]') as HTMLElement)?.click()}>
                     Find Print Shops
                   </Button>
                 </CardContent>
@@ -387,7 +387,7 @@ export default function EnhancedCustomerDashboard() {
                   <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-rich-black mb-2">Select a Print Shop First</h3>
                   <p className="text-medium-gray mb-6">Choose a print shop from the "Find Shops" tab to create a new order</p>
-                  <Button onClick={() => document.querySelector('[value="shops"]')?.click()}>
+                  <Button onClick={() => (document.querySelector('[value="shops"]') as HTMLElement)?.click()}>
                     Browse Print Shops
                   </Button>
                 </CardContent>

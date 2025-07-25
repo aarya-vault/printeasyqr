@@ -517,6 +517,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Email already registered' });
         }
         
+        // Check if phone number already exists
+        const existingPhoneUser = await storage.getUserByPhone(req.body.phoneNumber);
+        if (existingPhoneUser) {
+          return res.status(400).json({ error: 'Phone number already registered' });
+        }
+        
         // Create shop owner user account
         const shopOwner = await storage.createUser({
           phone: req.body.phoneNumber,
@@ -540,9 +546,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/shop-applications/pending", async (req, res) => {
+    try {
+      const applications = await storage.getPendingShopApplications();
+      res.json(applications);
+    } catch (error) {
+      console.error("Pending applications error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   app.get('/api/shop-applications/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid application ID' });
+      }
       const application = await storage.getShopApplication(id);
       if (!application) {
         return res.status(404).json({ error: 'Application not found' });
@@ -551,15 +570,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching shop application:', error);
       res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-  app.get("/api/shop-applications/pending", async (req, res) => {
-    try {
-      const applications = await storage.getPendingShopApplications();
-      res.json(applications);
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
     }
   });
 
