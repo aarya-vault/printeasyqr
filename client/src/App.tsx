@@ -15,7 +15,7 @@ import ShopChatSystem from "@/pages/shop-chat-system";
 import ComprehensiveShopSettings from "@/components/comprehensive-shop-settings";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
-import ComprehensiveApplicationPage from "@/pages/comprehensive-application";
+import SimpleShopApplication from "@/components/simple-shop-application";
 
 function Router() {
   return (
@@ -29,7 +29,7 @@ function Router() {
       <Route path="/shop-settings" component={ComprehensiveShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
-      <Route path="/apply-shop" component={ComprehensiveApplicationPage} />
+      <Route path="/apply-shop" component={SimpleShopApplication} />
       <Route component={NotFound} />
     </Switch>
   );

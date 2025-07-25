@@ -48,23 +48,26 @@ const servicesSchema = z.object({
 const finalApplicationSchema = z.object({
   // Public Information
   publicShopName: z.string().min(1, 'Public shop name is required'),
-  publicOwnerName: z.string().optional(),
+  publicName: z.string().min(1, 'Public name is required'), // Renamed from publicOwnerName - mandatory for customer chat display
   publicAddress: z.string().min(1, 'Public address is required'),
-  publicContactNumber: z.string().optional(),
+  publicContactNumber: z.string().min(1, 'Public contact number is required'), // Made mandatory for customer calls
   
-  // Internal Details
-  internalShopName: z.string().min(1, 'Internal shop name is required'),
+  // Contact Details - Internal information and login credentials
   ownerFullName: z.string().min(1, 'Owner full name is required'),
   email: z.string().email('Enter valid email'),
-  phoneNumber: z.string().regex(/^[6-9]\d{9}$/, 'Enter valid phone number'),
+  ownerContactNumber: z.string().regex(/^[6-9]\d{9}$/, 'Enter valid owner contact number'), // Renamed from phoneNumber
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string().min(6, 'Confirm password is required'),
-  completeAddress: z.string().min(1, 'Complete address is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  pinCode: z.string().min(1, 'Pin code is required'),
   
-  // Additional Info
+  // Business Details
   yearsOfExperience: z.string().min(1, 'Years of experience is required'),
-  servicesOffered: z.string().min(1, 'Services offered description is required'),
-  equipmentAvailable: z.string().min(1, 'Equipment available description is required'),
+  servicesOffered: z.array(z.string()).min(1, 'Select at least one service'), // Changed to array for checkboxes
+  customServices: z.string().optional(), // Custom services input
+  equipmentAvailable: z.array(z.string()).min(1, 'Select at least one equipment'), // Changed to array for checkboxes
+  customEquipment: z.string().optional(), // Custom equipment input
   
   // Working Hours
   workingHours: z.object({
@@ -166,19 +169,22 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
     resolver: zodResolver(finalApplicationSchema),
     defaultValues: {
       publicShopName: '',
-      publicOwnerName: '',
+      publicName: '',
       publicAddress: '',
       publicContactNumber: '',
-      internalShopName: '',
       ownerFullName: '',
       email: '',
-      phoneNumber: '',
+      ownerContactNumber: '',
       password: '',
       confirmPassword: '',
-      completeAddress: '',
+      city: '',
+      state: '',
+      pinCode: '',
       yearsOfExperience: '',
-      servicesOffered: '',
-      equipmentAvailable: '',
+      servicesOffered: [],
+      customServices: '',
+      equipmentAvailable: [],
+      customEquipment: '',
       workingHours: defaultWorkingHours,
       acceptsWalkinOrders: true,
     },
@@ -208,21 +214,22 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
       const applicationData = {
         // Map form data to database schema
         publicShopName: data.publicShopName,
-        publicOwnerName: data.publicOwnerName || '',
+        publicOwnerName: data.publicName, // Use publicName field
         publicAddress: data.publicAddress,
-        publicContactNumber: data.publicContactNumber || '',
-        internalShopName: data.internalShopName,
+        publicContactNumber: data.publicContactNumber,
+
         ownerFullName: data.ownerFullName,
         email: data.email,
-        phoneNumber: data.phoneNumber,
+        phoneNumber: data.ownerContactNumber, // Use ownerContactNumber field
         password: data.password,
-        completeAddress: data.completeAddress,
-        city: 'Ahmedabad', // Default city from screenshots
-        state: 'Gujarat', // Default state
-        pinCode: '380001', // Default pin code
+        city: data.city,
+        state: data.state,
+        pinCode: data.pinCode,
         services: servicesData?.services || [],
         equipment: servicesData?.equipment || [],
         yearsOfExperience: data.yearsOfExperience,
+        servicesOffered: data.servicesOffered.concat(data.customServices ? [data.customServices] : []),
+        equipmentAvailable: data.equipmentAvailable.concat(data.customEquipment ? [data.customEquipment] : []),
         workingHours: data.workingHours,
         acceptsWalkinOrders: data.acceptsWalkinOrders,
         shopSlug,

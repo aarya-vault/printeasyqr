@@ -31,20 +31,34 @@ export async function seedDatabase() {
       }).returning();
       console.log("Created shop owner:", shopOwner.email);
 
-      // Create associated shop
+      // Create associated shop with comprehensive fields
       const existingShop = await db.select().from(shops).where(eq(shops.ownerId, shopOwner.id));
       if (existingShop.length === 0) {
         const [shop] = await db.insert(shops).values({
           ownerId: shopOwner.id,
           name: "Digital Print Solutions",
           slug: "digital-print-solutions",
-          address: "123 Print Street, Tech Hub",
+          address: "123 Print Street, Tech Hub, Mumbai",
           city: "Mumbai",
           state: "Maharashtra",
           pinCode: "400001",
-          email: "contact@digitalprint.com",
-          services: ["document_printing", "photo_printing", "binding", "lamination"],
-          workingHours: {
+          phone: "9876543210", // Public contact number
+          publicOwnerName: "Rajesh Kumar", // Public name for customer chat
+          internalName: "Digital Print Solutions Pvt Ltd",
+          ownerFullName: "Rajesh Kumar Singh",
+          email: "owner@digitalprint.com",
+          ownerPhone: "9876543216", // Owner contact number
+          completeAddress: "Shop No. 123, Print Street, Tech Hub, Andheri East, Mumbai, Maharashtra 400001",
+          services: JSON.stringify([
+            "Color Printing", "B&W Printing", "Photocopying", "Scanning", 
+            "Binding", "Lamination", "ID Card Printing", "Photo Printing"
+          ]),
+          equipment: JSON.stringify([
+            "HP LaserJet Pro", "Canon ImageRunner", "Xerox WorkCentre", 
+            "Epson EcoTank", "Binding Machine", "Lamination Machine"
+          ]),
+          yearsOfExperience: "8 years",
+          workingHours: JSON.stringify({
             monday: { open: "09:00", close: "21:00", closed: false },
             tuesday: { open: "09:00", close: "21:00", closed: false },
             wednesday: { open: "09:00", close: "21:00", closed: false },
@@ -52,12 +66,13 @@ export async function seedDatabase() {
             friday: { open: "09:00", close: "21:00", closed: false },
             saturday: { open: "10:00", close: "18:00", closed: false },
             sunday: { open: "10:00", close: "16:00", closed: false }
-          },
-          yearsOfExperience: "5+ years",
+          }),
           qrCode: "https://printeasy.com/shop/digital-print-solutions",
-          isOnline: true,
+          acceptsWalkinOrders: true,
           isApproved: true,
-          rating: "4.5",
+          isOnline: true,
+          autoAvailability: true,
+          isPublic: true,
           totalOrders: 0
         }).returning();
         console.log("Created shop:", shop.name);

@@ -316,6 +316,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/shops/owner/:ownerId", async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
+      if (isNaN(ownerId)) {
+        return res.status(400).json({ message: "Invalid owner ID" });
+      }
       const shops = await storage.getShopsByOwner(ownerId);
       const shop = shops.find(s => s.isApproved);
       
@@ -587,11 +590,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pinCode: application.pinCode,
           phone: application.publicContactNumber || application.phoneNumber,
           publicOwnerName: application.publicOwnerName,
-          internalName: application.internalShopName,
+          internalName: application.publicShopName, // Use public name since internal name was removed
           ownerFullName: application.ownerFullName,
           email: application.email,
           ownerPhone: application.phoneNumber,
-          completeAddress: application.completeAddress,
+          completeAddress: application.publicAddress, // Use public address since complete address was removed
           services: application.services as any,
           equipment: application.equipment as any,
           workingHours: application.workingHours as any,
