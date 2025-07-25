@@ -733,6 +733,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin user management routes
+  app.put("/api/admin/users/:id", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Update user error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/status", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          isActive,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Update user status error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Check if user has associated data that needs to be handled
+      const userShops = await db.select().from(shops).where(eq(shops.ownerId, userId));
+      if (userShops.length > 0) {
+        return res.status(400).json({ message: "Cannot delete user with active shops" });
+      }
+      
+      await db.delete(users).where(eq(users.id, userId));
+      
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Delete user error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin shop orders analytics
+  app.get("/api/admin/shop-orders", async (req, res) => {
+    try {
+      const allOrders = await db
+        .select({
+          id: orders.id,
+          shopId: orders.shopId,
+          customerId: orders.customerId,
+          type: orders.type,
+          title: orders.title,
+          status: orders.status,
+          createdAt: orders.createdAt,
+          customerName: users.name,
+        })
+        .from(orders)
+        .leftJoin(users, eq(orders.customerId, users.id))
+        .orderBy(desc(orders.createdAt));
+      
+      res.json(allOrders);
+    } catch (error) {
+      console.error("Admin shop orders error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // File serving
   app.get("/api/files/:filename", (req, res) => {
     const filename = req.params.filename;

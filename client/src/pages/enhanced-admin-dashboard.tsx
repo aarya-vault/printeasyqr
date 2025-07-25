@@ -16,6 +16,10 @@ import {
 } from 'lucide-react';
 import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
 import ComprehensiveAdminShopEdit from '@/components/comprehensive-admin-shop-edit';
+import AdminUserEditModal from '@/components/admin-user-edit-modal';
+import ShopViewModal from '@/components/shop-view-modal';
+import ShopContactModal from '@/components/shop-contact-modal';
+import ShopAnalyticsView from '@/components/shop-analytics-view';
 
 interface PlatformStats {
   totalUsers: number;
@@ -64,6 +68,9 @@ export default function EnhancedAdminDashboard() {
   const queryClient = useQueryClient();
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
   const [editingApplication, setEditingApplication] = useState<ShopApplication | null>(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [viewingShop, setViewingShop] = useState<any>(null);
+  const [contactingShop, setContactingShop] = useState<any>(null);
   const [adminNotes, setAdminNotes] = useState('');
 
   // Fetch platform statistics
@@ -146,7 +153,7 @@ export default function EnhancedAdminDashboard() {
 
   const getApplicationStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="w-5 h-5 text-yellow-500" />;
+      case 'pending': return <Clock className="w-5 h-5 text-brand-yellow" />;
       case 'approved': return <CheckCircle2 className="w-5 h-5 text-green-500" />;
       case 'rejected': return <XCircle className="w-5 h-5 text-red-500" />;
       default: return <Clock className="w-5 h-5 text-gray-500" />;
@@ -155,7 +162,7 @@ export default function EnhancedAdminDashboard() {
 
   const getApplicationStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'pending': return 'bg-brand-yellow/20 text-rich-black';
       case 'approved': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -182,8 +189,8 @@ export default function EnhancedAdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
+                <Shield className="w-6 h-6 text-rich-black" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-rich-black">Admin Dashboard</h1>
@@ -200,7 +207,7 @@ export default function EnhancedAdminDashboard() {
                 });
               }} 
               variant="outline" 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
@@ -217,12 +224,12 @@ export default function EnhancedAdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-medium-gray">Total Users</p>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {statsLoading ? '...' : stats?.totalUsers || 0}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center">
+                  <Users className="w-6 h-6 text-rich-black" />
                 </div>
               </div>
             </CardContent>
@@ -233,12 +240,12 @@ export default function EnhancedAdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-medium-gray">Active Shops</p>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {statsLoading ? '...' : stats?.activeShops || 0}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Store className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center">
+                  <Store className="w-6 h-6 text-rich-black" />
                 </div>
               </div>
             </CardContent>
@@ -249,12 +256,12 @@ export default function EnhancedAdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-medium-gray">Total Orders</p>
-                  <p className="text-3xl font-bold text-purple-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {statsLoading ? '...' : stats?.totalOrders || 0}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Package className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center">
+                  <Package className="w-6 h-6 text-rich-black" />
                 </div>
               </div>
             </CardContent>
@@ -512,41 +519,110 @@ export default function EnhancedAdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card className="border-l-4 border-l-brand-yellow">
                 <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-6 h-6 text-rich-black" />
                   </div>
                   <h3 className="text-lg font-semibold text-rich-black mb-2">Total Customers</h3>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {users.filter((u: User) => u.role === 'customer').length}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-l-4 border-l-brand-yellow">
                 <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Store className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Store className="w-6 h-6 text-rich-black" />
                   </div>
                   <h3 className="text-lg font-semibold text-rich-black mb-2">Shop Owners</h3>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {users.filter((u: User) => u.role === 'shop_owner').length}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-l-4 border-l-brand-yellow">
                 <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Shield className="w-6 h-6 text-red-600" />
+                  <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-6 h-6 text-rich-black" />
                   </div>
                   <h3 className="text-lg font-semibold text-rich-black mb-2">Administrators</h3>
-                  <p className="text-3xl font-bold text-red-600">
+                  <p className="text-3xl font-bold text-brand-yellow">
                     {users.filter((u: User) => u.role === 'admin').length}
                   </p>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* User List */}
+            <div className="space-y-4">
+              {usersLoading ? (
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Card key={i} className="animate-pulse">
+                      <CardContent className="p-4">
+                        <div className="h-5 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : users.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-rich-black mb-2">No users found</h3>
+                    <p className="text-medium-gray">User accounts will appear here</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {users.map((user: any) => (
+                    <Card key={user.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-rich-black">{user.name || 'Unnamed User'}</h4>
+                            <p className="text-sm text-medium-gray">{user.phone}</p>
+                            {user.email && (
+                              <p className="text-xs text-medium-gray">{user.email}</p>
+                            )}
+                          </div>
+                          <Badge 
+                            className={
+                              user.role === 'admin' ? 'bg-brand-yellow text-rich-black' :
+                              user.role === 'shop_owner' ? 'bg-gray-100 text-gray-800' :
+                              'bg-light-gray text-medium-gray'
+                            }
+                          >
+                            {user.role.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs text-medium-gray mb-3">
+                          <span>ID: {user.id}</span>
+                          <span className={`flex items-center ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`w-2 h-2 rounded-full mr-1 ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                            {user.isActive ? 'Active' : 'Deactivated'}
+                          </span>
+                        </div>
+
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setEditingUser(user)}
+                          className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                        >
+                          <Settings className="w-3 h-3 mr-1" />
+                          Edit User
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -595,11 +671,21 @@ export default function EnhancedAdminDashboard() {
                     </div>
 
                     <div className="flex space-x-2 mt-4">
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => setViewingShop(shop)}
+                      >
                         <Eye className="w-3 h-3 mr-1" />
                         View
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => setContactingShop(shop)}
+                      >
                         <MessageSquare className="w-3 h-3 mr-1" />
                         Contact
                       </Button>
@@ -612,69 +698,7 @@ export default function EnhancedAdminDashboard() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-rich-black">Platform Analytics</h2>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>Export Report</span>
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="w-5 h-5" />
-                    <span>Growth Metrics</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">User Growth:</span>
-                      <span className="font-semibold text-green-600">+12% this month</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Shop Growth:</span>
-                      <span className="font-semibold text-green-600">+8% this month</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Order Growth:</span>
-                      <span className="font-semibold text-green-600">+15% this month</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <BarChart3 className="w-5 h-5" />
-                    <span>Order Distribution</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Document Printing:</span>
-                      <span className="font-semibold">45%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Photo Printing:</span>
-                      <span className="font-semibold">25%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Business Materials:</span>
-                      <span className="font-semibold">20%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-medium-gray">Others:</span>
-                      <span className="font-semibold">10%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <ShopAnalyticsView shops={shops} />
           </TabsContent>
         </Tabs>
 
@@ -699,6 +723,34 @@ export default function EnhancedAdminDashboard() {
               setEditingApplication(null);
               queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
             }}
+          />
+        )}
+
+        {/* Admin User Edit Modal */}
+        {editingUser && (
+          <AdminUserEditModal
+            user={editingUser}
+            onClose={() => setEditingUser(null)}
+            onSave={() => {
+              setEditingUser(null);
+              queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+            }}
+          />
+        )}
+
+        {/* Shop View Modal */}
+        {viewingShop && (
+          <ShopViewModal
+            shop={viewingShop}
+            onClose={() => setViewingShop(null)}
+          />
+        )}
+
+        {/* Shop Contact Modal */}
+        {contactingShop && (
+          <ShopContactModal
+            shop={contactingShop}
+            onClose={() => setContactingShop(null)}
           />
         )}
       </div>
