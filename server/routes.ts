@@ -2,7 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertOrderSchema, insertMessageSchema, insertShopApplicationSchema } from "@shared/schema";
+import { insertUserSchema, insertOrderSchema, insertMessageSchema, insertShopApplicationSchema, users } from "@shared/schema";
+import { eq, desc, and, or, sql } from "drizzle-orm";
+import { db } from "./db";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -85,15 +87,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
-      // Simple password verification (in production, use proper hashing)
-      let isValidPassword = false;
-      if (email === 'admin@printeasy.com' && password === 'admin123') {
-        isValidPassword = true;
-      } else if (email === 'owner@digitalprint.com' && password === 'password') {
-        isValidPassword = true;
-      }
-
-      if (!isValidPassword) {
+      // Check password from database (stored in password field)
+      if (!user.password || user.password !== password) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
@@ -665,12 +660,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes
+  // Admin routes - moved higher in priority
+  app.get("/api/admin", (req, res) => {
+    res.json({ message: "Admin API active" });
+  });
+
   app.get("/api/admin/stats", async (req, res) => {
     try {
       const stats = await storage.getPlatformStats();
       res.json(stats);
     } catch (error) {
+      console.error("Admin stats error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -680,6 +680,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const applications = await storage.getAllShopApplications();
       res.json(applications);
     } catch (error) {
+      console.error("Admin shop applications error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/shops", async (req, res) => {
+    try {
+      const shops = await storage.getActiveShops();
+      res.json(shops);
+    } catch (error) {
+      console.error("Admin shops error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/users", async (req, res) => {
+    try {
+      const allUsers = await db.select().from(users).where(eq(users.isActive, true));
+      res.json(allUsers);
+    } catch (error) {
+      console.error("Admin users error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
