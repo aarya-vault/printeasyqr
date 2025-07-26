@@ -114,9 +114,9 @@ export default function ShopNotifications() {
 
     // Navigate based on type
     if (notification.type === 'order_update' && notification.relatedId) {
-      navigate(`/shop-dashboard/orders/${notification.relatedId}`);
+      navigate('/shop-dashboard');
     } else if (notification.type === 'message' && notification.relatedId) {
-      navigate(`/shop-dashboard/chat/${notification.relatedId}`);
+      navigate('/shop-dashboard');
     }
   };
 
