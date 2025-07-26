@@ -651,18 +651,15 @@ app.patch('/api/debug/patch-test', (req, res) => {
       const shopId = parseInt(req.params.shopId);
       const orders = await storage.getOrdersByShop(shopId);
       
-      // Add customer names and unread message counts
+      // Add unread message counts - customer names already included from storage method
       const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-        const customer = await storage.getUser(order.customerId);
         const messages = await storage.getMessagesByOrder(order.id);
         const unreadMessages = messages.filter(m => 
-          !m.isRead
+          !m.isRead && m.senderId !== order.customerId // Count messages not from shop owner
         ).length;
         
         return {
           ...order,
-          customerName: customer?.name || 'Unknown',
-          customerPhone: customer?.phone || '',
           unreadMessages
         };
       }));

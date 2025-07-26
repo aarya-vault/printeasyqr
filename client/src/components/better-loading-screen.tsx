@@ -1,33 +1,39 @@
 import React from 'react';
 
-interface LoadingScreenProps {
+interface BetterLoadingScreenProps {
   message?: string;
+  isFullScreen?: boolean;
 }
 
 export default function BetterLoadingScreen({ 
-  message = "Loading..." 
-}: LoadingScreenProps) {
+  message = "Loading...", 
+  isFullScreen = false 
+}: BetterLoadingScreenProps) {
+  const containerClass = isFullScreen 
+    ? "fixed inset-0 bg-white z-50 flex items-center justify-center"
+    : "flex items-center justify-center p-8";
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto px-6">
-        {/* PrintEasy Logo/Brand */}
-        <div className="mb-8">
-          <div className="w-20 h-20 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <div className="text-3xl font-bold text-rich-black">P</div>
-          </div>
-          <h1 className="text-2xl font-bold text-rich-black">PrintEasy</h1>
-          <p className="text-sm text-medium-gray mt-1">Your Printing Made Simple</p>
+    <div className={containerClass}>
+      <div className="text-center">
+        {/* PrintEasy Branding */}
+        <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-rich-black font-bold text-xl">PE</span>
         </div>
-
-        {/* Loading Animation */}
-        <div className="mb-6">
-          <div className="w-16 h-1 bg-gray-200 rounded-full mx-auto overflow-hidden">
-            <div className="h-full bg-brand-yellow rounded-full animate-loading-bar"></div>
-          </div>
+        
+        {/* Loading Progress Bar */}
+        <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+          <div 
+            className="h-full bg-brand-yellow rounded-full"
+            style={{
+              width: '100%',
+              transition: 'width 2s linear'
+            }}
+          />
         </div>
-
-        {/* Loading Message */}
-        <p className="text-medium-gray text-base">{message}</p>
+        
+        <h2 className="text-lg font-semibold text-rich-black mb-2">PrintEasy</h2>
+        <p className="text-medium-gray">{message}</p>
       </div>
     </div>
   );

@@ -1,14 +1,12 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { useAuth } from './auth-context';
-import { Message, Order } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface WebSocketContextType {
   socket: WebSocket | null;
   isConnected: boolean;
   sendMessage: (message: any) => void;
-  onNewMessage: (callback: (message: Message) => void) => void;
-  onOrderUpdate: (callback: (order: Order) => void) => void;
-  onNewOrder: (callback: (order: Order) => void) => void;
+  reconnect: () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -17,25 +15,24 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const messageCallbacks = useState<((message: Message) => void)[]>([]);
-  const orderUpdateCallbacks = useState<((order: Order) => void)[]>([]);
-  const newOrderCallbacks = useState<((order: Order) => void)[]>([]);
+  const connect = () => {
+    if (!user?.id) return;
 
-  useEffect(() => {
-    if (user) {
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
-      
-      const ws = new WebSocket(wsUrl);
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
       ws.onopen = () => {
         console.log('WebSocket connected');
         setIsConnected(true);
+        setSocket(ws);
         
-        // Authenticate with user ID
+        // Send authentication message
         ws.send(JSON.stringify({
-          type: 'authenticate',
+          type: 'auth',
           userId: user.id
         }));
       };
@@ -43,16 +40,35 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          console.log('WebSocket message received:', data);
           
+          // Handle different message types and invalidate relevant queries for real-time updates
           switch (data.type) {
             case 'new_message':
-              messageCallbacks[0].forEach(callback => callback(data.message));
+              // Invalidate message queries for real-time chat updates
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/messages/order/${data.message.orderId}`] 
+              });
               break;
+              
             case 'order_update':
-              orderUpdateCallbacks[0].forEach(callback => callback(data.order));
+              // Invalidate order queries for real-time status updates
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/shop/${data.order.shopId}`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/customer/${data.order.customerId}`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/${data.order.id}`] 
+              });
               break;
+              
             case 'new_order':
-              newOrderCallbacks[0].forEach(callback => callback(data.order));
+              // Invalidate shop order queries for new orders
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/shop/${data.order.shopId}`] 
+              });
               break;
           }
         } catch (error) {
@@ -63,53 +79,59 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       ws.onclose = () => {
         console.log('WebSocket disconnected');
         setIsConnected(false);
+        setSocket(null);
+        
+        // Auto-reconnect after 3 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log('Attempting to reconnect...');
+          connect();
+        }, 3000);
       };
 
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
       };
 
-      setSocket(ws);
+    } catch (error) {
+      console.error('Failed to create WebSocket connection:', error);
+    }
+  };
 
-      return () => {
-        ws.close();
-      };
-    } else {
+  const reconnect = () => {
+    if (socket) {
+      socket.close();
+    }
+    connect();
+  };
+
+  useEffect(() => {
+    connect();
+    
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
       if (socket) {
         socket.close();
-        setSocket(null);
-        setIsConnected(false);
       }
-    }
-  }, [user]);
+    };
+  }, [user?.id]);
 
   const sendMessage = (message: any) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (socket && isConnected) {
       socket.send(JSON.stringify(message));
     }
   };
 
-  const onNewMessage = (callback: (message: Message) => void) => {
-    messageCallbacks[0].push(callback);
-  };
-
-  const onOrderUpdate = (callback: (order: Order) => void) => {
-    orderUpdateCallbacks[0].push(callback);
-  };
-
-  const onNewOrder = (callback: (order: Order) => void) => {
-    newOrderCallbacks[0].push(callback);
-  };
-
   return (
-    <WebSocketContext.Provider value={{
-      socket,
-      isConnected,
-      sendMessage,
-      onNewMessage,
-      onOrderUpdate,
-      onNewOrder,
-    }}>
+    <WebSocketContext.Provider 
+      value={{ 
+        socket, 
+        isConnected, 
+        sendMessage,
+        reconnect
+      }}
+    >
       {children}
     </WebSocketContext.Provider>
   );

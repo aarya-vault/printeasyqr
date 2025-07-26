@@ -58,7 +58,11 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
   const { data: messages = [], isLoading } = useQuery<Message[]>({
     queryKey: [`/api/messages/order/${orderId}`],
     enabled: !!orderId,
-    refetchInterval: 3000, // Refetch every 3 seconds for real-time feel
+    refetchInterval: 2000, // Poll less frequently since WebSocket handles real-time updates
+    select: (data) => {
+      // Sort messages by creation time to ensure proper ordering (oldest first, latest last)
+      return data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
   });
 
   // Send message mutation

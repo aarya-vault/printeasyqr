@@ -24,7 +24,7 @@
   --ring: hsl(48, 100%, 50%);
   --radius: 0.5rem;
   
-  /* PrintEasy Custom Colors */
+  /* PrintEasy Custom Colors - STRICT YELLOW/WHITE/BLACK ONLY */
   --brand-yellow: hsl(48, 100%, 50%);
   --rich-black: hsl(0, 0%, 0%);
   --light-gray: hsl(210, 20%, 98%);
@@ -104,60 +104,16 @@
     @apply bg-gray-100 text-gray-800;
   }
   
-  .floating-animation {
-    animation: float 6s ease-in-out infinite;
+  /* REMOVED ALL ANIMATIONS PER UI REDESIGN REQUIREMENTS */
+  
+  /* Optimized performance classes */
+  .optimized-performance {
+    will-change: auto;
+    transform: translateZ(0);
   }
   
-  @keyframes float {
-    0%, 100% { 
-      transform: translateY(0px); 
-    }
-    50% { 
-      transform: translateY(-10px); 
-    }
-  }
-  
-  .slide-in-right {
-    animation: slideInRight 0.5s ease-out;
-  }
-  
-  @keyframes slideInRight {
-    from { 
-      transform: translateX(100%); 
-      opacity: 0; 
-    }
-    to { 
-      transform: translateX(0); 
-      opacity: 1; 
-    }
-  }
-  
-  .fade-in {
-    animation: fadeIn 0.3s ease-in;
-  }
-  
-  @keyframes fadeIn {
-    from { 
-      opacity: 0; 
-    }
-    to { 
-      opacity: 1; 
-    }
-  }
-  
-  .skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-  }
-  
-  @keyframes loading {
-    0% { 
-      background-position: 200% 0; 
-    }
-    100% { 
-      background-position: -200% 0; 
-    }
+  .strict-color-scheme {
+    background: transparent; /* No gradients - solid colors only */
   }
 }
 
@@ -209,37 +165,8 @@
   .bg-error-red {
     background-color: var(--error-red);
   }
-}
-
-/* Custom scrollbar styles */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--light-gray);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--medium-gray);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--rich-black);
-}
-
-/* Mobile-first responsive touch targets */
-@media (max-width: 768px) {
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
+  
+  .text-light-gray {
+    color: var(--light-gray);
   }
 }

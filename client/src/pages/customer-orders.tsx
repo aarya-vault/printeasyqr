@@ -196,10 +196,16 @@ export default function CustomerOrders() {
                         <div className="flex items-center gap-1">
                           <FileText className="w-3 h-3" />
                           <span>
-                            {Array.isArray(order.files) 
-                              ? order.files.length 
-                              : JSON.parse(order.files || '[]').length
-                            } files
+                            {(() => {
+                              try {
+                                const files = typeof order.files === 'string' 
+                                  ? JSON.parse(order.files) 
+                                  : order.files;
+                                return Array.isArray(files) ? files.length : 0;
+                              } catch {
+                                return 0;
+                              }
+                            })()} files
                           </span>
                         </div>
                       )}

@@ -189,19 +189,47 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByCustomer(customerId: number): Promise<Order[]> {
-    return await db
-      .select()
+    const orderList = await db
+      .select({
+        order: orders,
+        shop: {
+          id: shops.id,
+          name: shops.name,
+          phone: shops.phone,
+          city: shops.city,
+        }
+      })
       .from(orders)
+      .leftJoin(shops, eq(orders.shopId, shops.id))
       .where(eq(orders.customerId, customerId))
       .orderBy(desc(orders.createdAt));
+
+    return orderList.map(row => ({
+      ...row.order,
+      shop: row.shop
+    })) as Order[];
   }
 
   async getOrdersByShop(shopId: number): Promise<Order[]> {
-    return await db
-      .select()
+    const orderList = await db
+      .select({
+        order: orders,
+        customer: {
+          id: users.id,
+          name: users.name,
+          phone: users.phone,
+        }
+      })
       .from(orders)
+      .leftJoin(users, eq(orders.customerId, users.id))
       .where(eq(orders.shopId, shopId))
       .orderBy(desc(orders.createdAt));
+
+    return orderList.map(row => ({
+      ...row.order,
+      customerName: row.customer?.name || 'Unknown',
+      customerPhone: row.customer?.phone || '',
+    })) as Order[];
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
@@ -233,7 +261,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(messages)
       .where(eq(messages.orderId, orderId))
-      .orderBy(desc(messages.createdAt));
+      .orderBy(messages.createdAt); // Sort ascending so latest messages appear last
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
