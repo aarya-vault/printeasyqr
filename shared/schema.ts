@@ -113,7 +113,7 @@ export const shopApplications = pgTable("shop_applications", {
   email: text("email").notNull(), // Login email
   phoneNumber: text("phone_number").notNull(), // Owner phone
   password: text("password").notNull(), // Shop owner login password
-  completeAddress: text("complete_address").notNull(),
+  completeAddress: text("complete_address"), // Made nullable as per requirements
   
   // Location
   city: text("city").notNull(),

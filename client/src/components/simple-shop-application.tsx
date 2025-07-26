@@ -194,7 +194,6 @@ export default function SimpleShopApplication() {
         description: 'Your shop application has been submitted for review. You will be notified once approved.',
       });
       setLocation('/');
-      onComplete?.();
     },
     onError: (error: any) => {
       toast({

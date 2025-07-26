@@ -866,15 +866,15 @@ app.patch('/api/debug/patch-test', (req, res) => {
           return res.status(400).json({ error: 'Email already registered' });
         }
         
-        // Check if phone number already exists
-        const existingPhoneUser = await storage.getUserByPhone(req.body.phoneNumber);
+        // Check if phone number already exists (using correct field name)
+        const existingPhoneUser = await storage.getUserByPhone(req.body.ownerContactNumber);
         if (existingPhoneUser) {
           return res.status(400).json({ error: 'Phone number already registered' });
         }
         
         // Create shop owner user account
         const shopOwner = await storage.createUser({
-          phone: req.body.phoneNumber,
+          phone: req.body.ownerContactNumber,
           name: req.body.ownerFullName,
           email: req.body.email,
           role: 'shop_owner',
