@@ -21,6 +21,7 @@ import SimpleShopApplication from "@/components/simple-shop-application";
 import ShopOrder from "@/pages/shop-order";
 import OrderConfirmation from "@/pages/order-confirmation";
 import ShopNotifications from "@/pages/shop-notifications";
+import EnhancedShopOrderHistory from "./pages/enhanced-shop-order-history";
 
 function Router() {
   return (
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/shop/:slug" component={ShopOrder} />
       <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
       <Route path="/shop-notifications" component={ShopNotifications} />
+      <Route path="/enhanced-shop-order-history" component={EnhancedShopOrderHistory} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -59,17 +59,34 @@ export default function OrderConfirmation() {
   const handleChatWithShop = async () => {
     if (!user && order) {
       // Auto-login the customer
-      await login(order.customer.phone, undefined, 'customer');
+      try {
+        await login(order.customer.phone, undefined, 'customer');
+        setTimeout(() => {
+          navigate(`/customer-dashboard/chat/${order.id}`);
+        }, 100);
+      } catch (error) {
+        console.error('Login failed:', error);
+        navigate(`/customer-dashboard/chat/${order.id}`);
+      }
+    } else {
+      navigate(`/customer-dashboard/chat/${order.id}`);
     }
-    navigate(`/customer-dashboard/chat/${order?.id}`);
   };
 
   const handleGoToDashboard = async () => {
     if (!user && order) {
       // Auto-login the customer
-      await login(order.customer.phone, undefined, 'customer');
+      try {
+        await login(order.customer.phone, undefined, 'customer');
+        setTimeout(() => {
+          navigate('/customer-dashboard');
+        }, 100);
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    } else {
+      navigate('/customer-dashboard');
     }
-    navigate('/customer-dashboard');
   };
 
   if (isLoading) {

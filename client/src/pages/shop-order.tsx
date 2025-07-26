@@ -286,10 +286,10 @@ export default function ShopOrder() {
                             <p className="text-sm font-medium">Selected Files ({selectedFiles.length}):</p>
                             {selectedFiles.map((file, index) => (
                               <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                <div className="flex items-center gap-2">
-                                  <FileText className="w-4 h-4 text-gray-500" />
-                                  <span className="text-sm">{file.name}</span>
-                                  <span className="text-xs text-gray-500">
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <FileText className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                  <span className="text-sm truncate" title={file.name}>{file.name}</span>
+                                  <span className="text-xs text-gray-500 flex-shrink-0">
                                     ({(file.size / 1024 / 1024).toFixed(2)} MB)
                                   </span>
                                 </div>
@@ -298,6 +298,7 @@ export default function ShopOrder() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removeFile(index)}
+                                  className="flex-shrink-0"
                                 >
                                   <X className="w-4 h-4" />
                                 </Button>

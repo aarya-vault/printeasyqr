@@ -72,6 +72,7 @@ export const orders = pgTable("orders", {
   description: text("description"),
   specifications: jsonb("specifications"), // Print specs like copies, color, binding, etc.
   files: jsonb("files"), // Array of file metadata for upload orders
+  walkinTime: text("walkin_time"), // Time for walk-in appointments
   status: text("status").notNull().default("new"), // 'new', 'processing', 'ready', 'completed'
   isUrgent: boolean("is_urgent").notNull().default(false),
   estimatedPages: integer("estimated_pages"),

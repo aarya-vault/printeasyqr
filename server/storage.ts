@@ -274,6 +274,10 @@ export class DatabaseStorage implements IStorage {
     await db.delete(notifications).where(eq(notifications.id, id));
   }
 
+  async deleteOrder(id: number): Promise<void> {
+    await db.delete(orders).where(eq(orders.id, id));
+  }
+
   async createShopApplication(insertApplication: InsertShopApplication): Promise<ShopApplication> {
     const [application] = await db
       .insert(shopApplications)
@@ -319,13 +323,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(shopApplications.id, id))
       .returning();
     return updated;
-  }
-
-  async markNotificationAsRead(id: number): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isRead: true })
-      .where(eq(notifications.id, id));
   }
 
   async getPlatformStats(): Promise<{

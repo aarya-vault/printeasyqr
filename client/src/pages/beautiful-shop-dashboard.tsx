@@ -45,6 +45,8 @@ import {
 import { Power } from 'lucide-react';
 import RedesignedShopQRModal from '@/components/redesigned-shop-qr-modal';
 import ChatFloatingButton from '@/components/chat-floating-button';
+import ShopChatModal from '@/components/shop-chat-modal';
+import OrderDetailsModal from '@/components/order-details-modal';
 import { format } from 'date-fns';
 
 interface Shop {
@@ -94,6 +96,8 @@ export default function BeautifulShopDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
   // Fetch shop data
   const { data: shopData } = useQuery<{ shop: Shop }>({
@@ -106,7 +110,7 @@ export default function BeautifulShopDashboard() {
     enabled: !!shopData?.shop?.id,
   });
 
-  // Filter orders by search and status
+  // Filter orders by search and status - exclude completed orders from main dashboard
   const filteredOrders = orders.filter(order => {
     const search = searchQuery.toLowerCase();
     const matchesSearch = (
@@ -116,7 +120,8 @@ export default function BeautifulShopDashboard() {
       order.id.toString().includes(search)
     );
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+    const notCompleted = order.status !== 'completed'; // Hide completed orders
+    return matchesSearch && matchesStatus && notCompleted;
   });
 
   const uploadOrders = filteredOrders.filter(order => order.type === 'upload');
@@ -183,27 +188,41 @@ export default function BeautifulShopDashboard() {
 
   const handlePrintAll = (order: Order) => {
     if (order.files && order.files.length > 0) {
-      order.files.forEach(file => {
-        const printWindow = window.open(`/api/files/${file}`, '_blank');
-        if (printWindow) {
-          printWindow.onload = () => {
-            printWindow.print();
-          };
-        }
-      });
+      try {
+        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        files.forEach((file: any) => {
+          const printWindow = window.open(`/api/files/${file.filename || file}`, '_blank');
+          if (printWindow) {
+            printWindow.onload = () => {
+              printWindow.print();
+            };
+          }
+        });
+        toast({ title: `Opening ${files.length} print dialogs` });
+      } catch (error) {
+        toast({ title: 'Error opening print dialogs', variant: 'destructive' });
+      }
     }
   };
 
   const handleDownloadAll = (order: Order) => {
     if (order.files && order.files.length > 0) {
-      order.files.forEach(file => {
-        const link = document.createElement('a');
-        link.href = `/api/files/${file}`;
-        link.download = file;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
+      try {
+        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        files.forEach((file: any, index: number) => {
+          setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = `/api/files/${file.filename || file}`;
+            link.download = file.originalName || `file_${index + 1}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }, index * 500); // Stagger downloads
+        });
+        toast({ title: `Downloading ${files.length} files` });
+      } catch (error) {
+        toast({ title: 'Error downloading files', variant: 'destructive' });
+      }
     }
   };
 
@@ -284,8 +303,8 @@ export default function BeautifulShopDashboard() {
         {/* Order Info */}
         <div className="space-y-3 mb-4">
           <div className="flex items-center text-sm text-gray-600">
-            <FileText className="w-4 h-4 mr-2" />
-            <span className="line-clamp-1">{order.title}</span>
+            <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span className="truncate" title={order.title}>{order.title}</span>
           </div>
           {order.type === 'upload' && order.files && (
             <div className="flex items-center text-sm text-gray-600">
@@ -312,15 +331,18 @@ export default function BeautifulShopDashboard() {
             <Phone className="w-3 h-3 mr-2" />
             Call
           </Button>
-          <Link href={`/shop-dashboard/chat/${order.id}`}>
-            <Button size="sm" variant="outline" className="w-full relative border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5">
-              <MessageSquare className="w-3 h-3 mr-2" />
-              Chat
-              {order.unreadMessages && order.unreadMessages > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
-              )}
-            </Button>
-          </Link>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="w-full relative border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
+            onClick={() => setSelectedOrderForChat(order.id)}
+          >
+            <MessageSquare className="w-3 h-3 mr-2" />
+            Chat
+            {order.unreadMessages && order.unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+            )}
+          </Button>
         </div>
 
         {/* File Actions for Upload Orders */}
@@ -374,12 +396,15 @@ export default function BeautifulShopDashboard() {
         )}
 
         {/* View Details */}
-        <Link href={`/shop-dashboard/orders/${order.id}`}>
-          <Button variant="ghost" size="sm" className="w-full mt-2 text-gray-600 hover:text-rich-black">
-            <Eye className="w-3 h-3 mr-2" />
-            View Details
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full mt-2 text-gray-600 hover:text-rich-black"
+          onClick={() => setSelectedOrderForDetails(order)}
+        >
+          <Eye className="w-3 h-3 mr-2" />
+          View Details
+        </Button>
       </CardContent>
     </Card>
   );
@@ -425,7 +450,11 @@ export default function BeautifulShopDashboard() {
               <Button
                 variant={shopData.shop.isOnline ? "destructive" : "default"}
                 onClick={() => toggleShopStatus.mutate()}
-                className={shopData.shop.isOnline ? "bg-red-500 text-white hover:bg-red-600" : "bg-green-500 text-white hover:bg-green-600"}
+                className={`px-6 py-2 font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                  shopData.shop.isOnline 
+                    ? "bg-red-500 text-white hover:bg-red-600" 
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
                 disabled={toggleShopStatus.isPending}
               >
                 <Power className="w-4 h-4 mr-2" />
@@ -439,7 +468,7 @@ export default function BeautifulShopDashboard() {
                 <QrCode className="w-4 h-4 mr-2" />
                 Shop QR
               </Button>
-              <Link href="/shop-order-history">
+              <Link href="/enhanced-shop-order-history">
                 <Button variant="outline" className="border-gray-200 hover:border-gray-300">
                   <History className="w-4 h-4 mr-2" />
                   History
@@ -617,6 +646,22 @@ export default function BeautifulShopDashboard() {
         <RedesignedShopQRModal
           shop={shopData.shop}
           onClose={() => setShowQRModal(false)}
+        />
+      )}
+
+      {/* Chat Modal */}
+      {selectedOrderForChat && (
+        <ShopChatModal
+          orderId={selectedOrderForChat}
+          onClose={() => setSelectedOrderForChat(null)}
+        />
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrderForDetails && (
+        <OrderDetailsModal
+          order={selectedOrderForDetails}
+          onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
 
