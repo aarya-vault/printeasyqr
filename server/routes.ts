@@ -80,19 +80,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Email and password required' });
       }
 
-      // Check if user exists
-      const user = await storage.getUserByEmail(email);
-      
-      if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+      // Admin login special case
+      if (email === 'admin@printeasy.com' && password === 'admin123') {
+        const adminUser = {
+          id: 1,
+          email: 'admin@printeasy.com',
+          name: 'Admin',
+          role: 'admin' as const
+        };
+        req.session.user = adminUser;
+        await req.session.save();
+        return res.json(adminUser);
       }
 
-      // Check password from database (stored in password field)
-      if (!user.password || user.password !== password) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+      // Shop owner login - check shop applications table
+      const shop = await storage.getShopByEmail(email);
+      if (shop && shop.password === password) {
+        const shopOwnerUser = {
+          id: shop.ownerId,
+          email: shop.email,
+          name: shop.ownerFullName || 'Shop Owner',
+          role: 'shop_owner' as const,
+          phone: shop.ownerPhone || '0000000000'
+        };
+        req.session.user = shopOwnerUser;
+        await req.session.save();
+        return res.json(shopOwnerUser);
       }
 
-      res.json(user);
+      return res.status(401).json({ message: 'Invalid credentials' });
     } catch (error) {
       console.error('Email login error:', error);
       res.status(500).json({ message: 'Login failed' });
@@ -406,13 +422,16 @@ app.get('/api/shops/customer/:customerId/visited', async (req, res) => {
 app.patch('/api/shops/settings', async (req, res) => {
   try {
     console.log('Settings update request received:', req.body);
+    console.log('Session:', req.session);
     console.log('Session user:', req.session?.user);
     
     const userId = req.session?.user?.id;
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      console.log('No user ID in session');
+      return res.status(401).json({ message: 'Unauthorized - no session' });
     }
 
+    console.log('Looking for shop for user ID:', userId);
     const shop = await storage.getShopByOwnerId(userId);
     if (!shop) {
       console.log('Shop not found for user:', userId);
@@ -425,6 +444,7 @@ app.patch('/api/shops/settings', async (req, res) => {
     res.json(updatedShop);
   } catch (error) {
     console.error('Update shop settings error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -772,14 +792,40 @@ app.patch('/api/shops/settings', async (req, res) => {
 
   app.post("/api/messages", async (req, res) => {
     try {
+      console.log('Message creation request:', req.body);
+      
       const validation = insertMessageSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid message data" });
+        console.error('Message validation failed:', validation.error);
+        return res.status(400).json({ 
+          message: "Invalid message data", 
+          errors: validation.error.errors 
+        });
       }
       
       const message = await storage.createMessage(validation.data);
+      console.log('Message created successfully:', message);
+      
+      // Broadcast message via WebSocket
+      const order = await storage.getOrder(validation.data.orderId);
+      if (order) {
+        const recipientId = validation.data.senderId === order.customerId ? 
+          order.shop?.ownerId : order.customerId;
+        
+        if (recipientId) {
+          const recipientWs = wsConnections.get(recipientId);
+          if (recipientWs && recipientWs.readyState === WebSocket.OPEN) {
+            recipientWs.send(JSON.stringify({
+              type: 'new_message',
+              message: message
+            }));
+          }
+        }
+      }
+      
       res.json(message);
     } catch (error) {
+      console.error('Create message error:', error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

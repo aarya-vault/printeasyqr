@@ -18,10 +18,14 @@ export interface IStorage {
 
   // Shop operations
   getShop(id: number): Promise<Shop | undefined>;
+  getShopByOwnerId(ownerId: number): Promise<Shop | undefined>;
+  getShopByEmail(email: string): Promise<Shop | undefined>;
   getShopsByOwner(ownerId: number): Promise<Shop[]>;
   getActiveShops(): Promise<Shop[]>;
+  getVisitedShopsByCustomer(customerId: number): Promise<Shop[]>;
   createShop(shop: InsertShop): Promise<Shop>;
   updateShop(id: number, updates: Partial<Shop>): Promise<Shop | undefined>;
+  updateShopSettings(shopId: number, settings: any): Promise<Shop>;
   getShopBySlug(slug: string): Promise<Shop | undefined>;
   
   // Order operations
@@ -103,6 +107,41 @@ export class DatabaseStorage implements IStorage {
     return shop || undefined;
   }
 
+  async getShopByOwnerId(ownerId: number): Promise<Shop | undefined> {
+    const [shop] = await db.select().from(shops).where(eq(shops.ownerId, ownerId));
+    return shop || undefined;
+  }
+
+  async getShopByEmail(email: string): Promise<any> {
+    // Get shop application by email (contains password)
+    const [application] = await db
+      .select()
+      .from(shopApplications)
+      .where(and(
+        eq(shopApplications.email, email),
+        eq(shopApplications.status, 'approved')
+      ));
+    
+    if (!application) return undefined;
+    
+    // Get the actual shop
+    const [shop] = await db
+      .select()
+      .from(shops)
+      .where(eq(shops.ownerId, application.applicantId));
+    
+    if (!shop) return undefined;
+    
+    // Return combined data
+    return {
+      ...shop,
+      email: application.email,
+      password: application.password,
+      ownerFullName: application.ownerFullName,
+      ownerPhone: application.phoneNumber
+    };
+  }
+
   async getShopsByOwner(ownerId: number): Promise<Shop[]> {
     return await db.select().from(shops).where(eq(shops.ownerId, ownerId));
   }
@@ -128,6 +167,7 @@ export class DatabaseStorage implements IStorage {
       .update(shops)
       .set({
         ...updates,
+        status: updates.status as any,
         updatedAt: new Date(),
       })
       .where(eq(shops.id, id))

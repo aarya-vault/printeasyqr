@@ -57,19 +57,23 @@ export default function ShopChatModal({ orderId, onClose }: ShopChatModalProps) 
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      return apiRequest(`/api/messages/order/${orderId}`, {
+      const response = await fetch('/api/messages', {
         method: 'POST',
-        body: {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: parseInt(orderId.toString()),
           senderId: user?.id,
           content,
           messageType: 'text'
-        }
+        })
       });
+      if (!response.ok) throw new Error('Failed to send message');
+      return response.json();
     },
     onSuccess: () => {
       setNewMessage('');
       queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${orderId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${user?.shop?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopId}`] });
       toast({ title: 'Message sent' });
     },
     onError: () => {
@@ -80,14 +84,15 @@ export default function ShopChatModal({ orderId, onClose }: ShopChatModalProps) 
   // Mark messages as read when opening
   useEffect(() => {
     if (messages.length > 0 && user?.id) {
-      apiRequest(`/api/messages/order/${orderId}/read`, {
+      fetch(`/api/messages/order/${orderId}/read`, {
         method: 'PATCH',
-        body: { userId: user.id }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
       }).then(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${user?.shop?.id}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopId}`] });
       });
     }
-  }, [messages.length, orderId, user?.id, queryClient]);
+  }, [messages.length, orderId, user?.id, queryClient, shopId]);
 
   // Auto scroll to bottom
   useEffect(() => {

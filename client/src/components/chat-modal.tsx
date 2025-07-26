@@ -56,7 +56,7 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
 
   // Get messages for this order
   const { data: messages = [], isLoading } = useQuery<Message[]>({
-    queryKey: [`/api/orders/${orderId}/messages`],
+    queryKey: [`/api/messages/order/${orderId}`],
     enabled: !!orderId,
     refetchInterval: 3000, // Refetch every 3 seconds for real-time feel
   });
@@ -64,13 +64,14 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await fetch(`/api/orders/${orderId}/messages`, {
+      const response = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+          orderId: parseInt(orderId.toString()),
           senderId: user?.id,
-          senderName: user?.name || (userRole === 'customer' ? 'Customer' : 'Shop Owner'),
-          content 
+          content,
+          messageType: 'text'
         })
       });
       if (!response.ok) throw new Error('Failed to send message');
@@ -78,7 +79,7 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
     },
     onSuccess: () => {
       setMessageInput('');
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}/messages`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${orderId}`] });
       toast({ title: 'Message sent successfully' });
     },
     onError: () => {
