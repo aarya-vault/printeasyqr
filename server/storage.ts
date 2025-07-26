@@ -344,10 +344,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateShopSettings(shopId: number, settings: any): Promise<any> {
+    // Handle working hours properly
+    const updateData: any = { ...settings };
+    if (settings.workingHours && typeof settings.workingHours === 'object') {
+      updateData.workingHours = JSON.stringify(settings.workingHours);
+    }
+    if (settings.services && Array.isArray(settings.services)) {
+      updateData.services = JSON.stringify(settings.services);
+    }
+    if (settings.equipment && Array.isArray(settings.equipment)) {
+      updateData.equipment = JSON.stringify(settings.equipment);
+    }
+    
     const [updated] = await db
       .update(shops)
       .set({
-        ...settings,
+        ...updateData,
         updatedAt: new Date()
       })
       .where(eq(shops.id, shopId))
@@ -385,7 +397,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void> {
     await db.update(shops).set({ 
-      status: status as any,
+      status,
       updatedAt: new Date() 
     }).where(eq(shops.id, shopId));
   }

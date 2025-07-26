@@ -405,6 +405,9 @@ app.get('/api/shops/customer/:customerId/visited', async (req, res) => {
 // Update shop settings endpoint
 app.patch('/api/shops/settings', async (req, res) => {
   try {
+    console.log('Settings update request received:', req.body);
+    console.log('Session user:', req.session?.user);
+    
     const userId = req.session?.user?.id;
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -412,10 +415,13 @@ app.patch('/api/shops/settings', async (req, res) => {
 
     const shop = await storage.getShopByOwnerId(userId);
     if (!shop) {
+      console.log('Shop not found for user:', userId);
       return res.status(404).json({ message: 'Shop not found' });
     }
 
+    console.log('Updating settings for shop:', shop.id, 'with data:', req.body);
     const updatedShop = await storage.updateShopSettings(shop.id, req.body);
+    console.log('Settings updated successfully:', updatedShop);
     res.json(updatedShop);
   } catch (error) {
     console.error('Update shop settings error:', error);

@@ -149,7 +149,7 @@ export default function RefinedCustomerDashboard() {
                         <Button
                           size="sm"
                           className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                          onClick={() => navigate(`/shop/${shop.slug}/upload`)}
+                          onClick={() => navigate(`/shop/${shop.slug}?type=upload`)}
                         >
                           <Upload className="w-3 h-3 mr-1" />
                           Upload Files
@@ -157,7 +157,7 @@ export default function RefinedCustomerDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/shop/${shop.slug}/walkin`)}
+                          onClick={() => navigate(`/shop/${shop.slug}?type=walkin`)}
                         >
                           <Users className="w-3 h-3 mr-1" />
                           Walk-in Order
@@ -169,12 +169,14 @@ export default function RefinedCustomerDashboard() {
               </div>
               
               {visitedShops.length > 3 && (
-                <Link href="/">
-                  <Button variant="outline" className="w-full">
-                    Browse More Shops
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate('/customer-visited-shops')}
+                >
+                  View All Previously Visited Shops
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               )}
             </div>
           )}
@@ -288,11 +290,10 @@ export default function RefinedCustomerDashboard() {
               <span className="text-xs">Orders</span>
             </a>
           </Link>
-          <Link href="/customer-notifications">
-            <a className="flex flex-col items-center justify-center py-3 text-gray-500 relative">
-              <Bell className="w-5 h-5 mb-1" />
-              <span className="text-xs">Notifications</span>
-              <div className="absolute top-2 right-4 w-2 h-2 bg-red-500 rounded-full"></div>
+          <Link href="/customer-visited-shops">
+            <a className="flex flex-col items-center justify-center py-3 text-gray-500">
+              <Star className="w-5 h-5 mb-1" />
+              <span className="text-xs">Shops</span>
             </a>
           </Link>
           <Link href="/customer-account-settings">

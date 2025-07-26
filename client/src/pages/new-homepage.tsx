@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import PhoneInput from '@/components/phone-input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
@@ -159,11 +160,10 @@ export default function NewHomepage() {
               <div className="bg-gray-50 p-6 rounded-2xl mb-8 max-w-md mx-auto lg:mx-0">
                 <h3 className="text-lg font-semibold text-rich-black mb-4">Get Started Now</h3>
                 <div className="flex gap-3">
-                  <Input
-                    type="tel"
-                    placeholder="Enter phone number"
+                  <PhoneInput
                     value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onChange={setCustomerPhone}
+                    placeholder="Enter 10-digit phone number"
                     className="flex-1"
                   />
                   <Button 

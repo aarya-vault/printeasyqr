@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import PhoneInput from '@/components/phone-input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { 
@@ -949,7 +950,11 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
                                 <div className="flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md">
                                   <span className="text-medium-gray">+91</span>
                                 </div>
-                                <Input {...field} className="rounded-l-none" />
+                                <PhoneInput 
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="rounded-none border-l-0 border-r-0"
+                                />
                                 <div className="flex items-center px-3 border border-l-0 rounded-r-md">
                                   <Phone className="w-4 h-4 text-gray-400" />
                                 </div>
