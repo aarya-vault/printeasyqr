@@ -10,6 +10,7 @@ import NewHomepage from "@/pages/new-homepage";
 import RefinedCustomerDashboard from "@/pages/refined-customer-dashboard";
 import CustomerNotifications from "@/pages/customer-notifications";
 import CustomerAccountSettings from "@/pages/customer-account-settings";
+import CustomerOrders from "@/pages/customer-orders";
 import BeautifulShopDashboard from "@/pages/beautiful-shop-dashboard";
 import ShopOrderHistory from "@/pages/shop-order-history";
 import ShopOrderDetails from "@/pages/shop-order-details";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/customer-dashboard" component={RefinedCustomerDashboard} />
       <Route path="/customer-notifications" component={CustomerNotifications} />
       <Route path="/customer-account-settings" component={CustomerAccountSettings} />
+      <Route path="/customer-orders" component={CustomerOrders} />
       <Route path="/shop-dashboard" component={BeautifulShopDashboard} />
       <Route path="/shop-order-history" component={ShopOrderHistory} />
       <Route path="/shop-dashboard/chat/:orderId" component={ShopChatSystem} />

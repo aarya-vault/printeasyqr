@@ -390,6 +390,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+// Get shops by customer (visited shops)
+app.get('/api/shops/customer/:customerId/visited', async (req, res) => {
+  try {
+    const customerId = parseInt(req.params.customerId);
+    const visitedShops = await storage.getVisitedShopsByCustomer(customerId);
+    res.json(visitedShops);
+  } catch (error) {
+    console.error('Get visited shops error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Update shop settings endpoint
+app.patch('/api/shops/settings', async (req, res) => {
+  try {
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const shop = await storage.getShopByOwnerId(userId);
+    if (!shop) {
+      return res.status(404).json({ message: 'Shop not found' });
+    }
+
+    const updatedShop = await storage.updateShopSettings(shop.id, req.body);
+    res.json(updatedShop);
+  } catch (error) {
+    console.error('Update shop settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
   // Order routes
   app.post("/api/orders", upload.array('files'), async (req, res) => {
     try {

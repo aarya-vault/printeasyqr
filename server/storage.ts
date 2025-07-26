@@ -325,6 +325,36 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async getVisitedShopsByCustomer(customerId: number): Promise<any[]> {
+    const result = await db
+      .select({
+        id: shops.id,
+        name: shops.name,
+        slug: shops.slug,
+        city: shops.city,
+        isOnline: shops.isOnline,
+        phone: shops.phone,
+      })
+      .from(orders)
+      .innerJoin(shops, eq(orders.shopId, shops.id))
+      .where(eq(orders.customerId, customerId))
+      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone);
+    
+    return result;
+  }
+
+  async updateShopSettings(shopId: number, settings: any): Promise<any> {
+    const [updated] = await db
+      .update(shops)
+      .set({
+        ...settings,
+        updatedAt: new Date()
+      })
+      .where(eq(shops.id, shopId))
+      .returning();
+    return updated;
+  }
+
   async getPlatformStats(): Promise<{
     totalUsers: number;
     activeShops: number;

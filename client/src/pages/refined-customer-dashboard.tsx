@@ -5,14 +5,14 @@ import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Link, useLocation } from 'wouter';
 import { 
   Upload, Users, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, Bell, User, ArrowLeft, ChevronRight
+  Home, ShoppingCart, Bell, User, ArrowRight, MapPin, Phone, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
+import LoadingScreen from '@/components/loading-screen';
 import ShopChatModal from '@/components/shop-chat-modal';
 import OrderDetailsModal from '@/components/order-details-modal';
 
@@ -64,16 +64,11 @@ export default function RefinedCustomerDashboard() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
-  // Get unique shops the customer has ordered from
-  const visitedShops = orders.reduce((shops, order) => {
-    if (order.shop && !shops.find(s => s.shopId === order.shopId)) {
-      shops.push({
-        shopId: order.shopId,
-        shopName: order.shop.name,
-      });
-    }
-    return shops;
-  }, [] as { shopId: number; shopName: string }[]);
+  // Get unique shops the customer has ordered from with details
+  const { data: visitedShops = [] } = useQuery<any[]>({
+    queryKey: [`/api/shops/customer/${user?.id}/visited`],
+    enabled: !!user?.id,
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -96,14 +91,7 @@ export default function RefinedCustomerDashboard() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading your dashboard..." />;
   }
 
   return (
@@ -120,33 +108,76 @@ export default function RefinedCustomerDashboard() {
         
         <div className="bg-white rounded-2xl shadow-sm p-4">
           <h2 className="text-lg font-semibold text-rich-black mb-4">Ready to Print?</h2>
-          <p className="text-sm text-gray-600 mb-4">Choose how you want to place your order</p>
           
-          <div className="grid grid-cols-2 gap-4">
-            {/* Upload Files Card */}
-            <Card 
-              className="bg-brand-yellow text-rich-black cursor-pointer hover:shadow-lg transition-all"
-              onClick={() => visitedShops.length > 0 && navigate(`/shop/${visitedShops[0].shopName.toLowerCase().replace(/\s+/g, '-')}`)}
-            >
-              <CardContent className="p-4 text-center">
-                <Upload className="w-8 h-8 mx-auto mb-2" />
-                <h3 className="font-semibold">Upload Files</h3>
-                <p className="text-xs opacity-80">Digital printing</p>
-              </CardContent>
-            </Card>
-
-            {/* Walk-in Order Card */}
-            <Card 
-              className="bg-white border-2 border-gray-200 cursor-pointer hover:shadow-lg transition-all"
-              onClick={() => visitedShops.length > 0 && navigate(`/shop/${visitedShops[0].shopName.toLowerCase().replace(/\s+/g, '-')}`)}
-            >
-              <CardContent className="p-4 text-center">
-                <Users className="w-8 h-8 mx-auto mb-2 text-gray-600" />
-                <h3 className="font-semibold">Walk-in Order</h3>
-                <p className="text-xs text-gray-500">Place order details</p>
-              </CardContent>
-            </Card>
-          </div>
+          {visitedShops.length === 0 ? (
+            <div className="text-center py-6">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm text-gray-600 mb-4">No shops visited yet</p>
+              <Link href="/">
+                <Button className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+                  Browse Print Shops
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">Choose from your previously visited shops</p>
+              
+              {/* Previously Visited Shops */}
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {visitedShops.slice(0, 3).map((shop: any) => (
+                  <Card key={shop.id} className="border hover:shadow-md transition-all">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-rich-black">{shop.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <MapPin className="w-3 h-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">{shop.city}</span>
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-green-600">Online</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">
+                            {orders.filter(o => o.shopId === shop.id).length} orders
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                          onClick={() => navigate(`/shop/${shop.slug}/upload`)}
+                        >
+                          <Upload className="w-3 h-3 mr-1" />
+                          Upload Files
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/shop/${shop.slug}/walkin`)}
+                        >
+                          <Users className="w-3 h-3 mr-1" />
+                          Walk-in Order
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {visitedShops.length > 3 && (
+                <Link href="/">
+                  <Button variant="outline" className="w-full">
+                    Browse More Shops
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+          )}
 
           {/* Order Statistics */}
           <div className="grid grid-cols-3 gap-4 mt-6">

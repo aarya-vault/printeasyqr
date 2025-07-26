@@ -95,7 +95,7 @@ export default function ShopSettings() {
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/shops/${user?.shopId}`, {
+      const response = await fetch('/api/shops/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

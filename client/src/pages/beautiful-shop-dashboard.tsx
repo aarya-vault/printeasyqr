@@ -199,16 +199,14 @@ export default function BeautifulShopDashboard() {
   });
 
   const handlePrintAll = (order: Order) => {
-    if (order.files && order.files.length > 0) {
+    if (order.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-        files.forEach((file: any) => {
-          const printWindow = window.open(`/api/files/${file.filename || file}`, '_blank');
-          if (printWindow) {
-            printWindow.onload = () => {
-              printWindow.print();
-            };
-          }
+        files.forEach((file: any, index: number) => {
+          setTimeout(() => {
+            const fileUrl = `/uploads/${file.filename || file}`;
+            window.open(fileUrl, '_blank');
+          }, index * 500);
         });
         toast({ title: `Opening ${files.length} print dialogs` });
       } catch (error) {
@@ -218,39 +216,53 @@ export default function BeautifulShopDashboard() {
   };
 
   const handleDownloadAll = (order: Order) => {
-    if (order.files && order.files.length > 0) {
+    if (order.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        let downloadCount = 0;
+        
         files.forEach((file: any, index: number) => {
           setTimeout(() => {
+            const fileUrl = `/uploads/${file.filename || file}`;
             const link = document.createElement('a');
-            link.href = `/api/files/${file.filename || file}`;
-            link.download = file.originalName || `file_${index + 1}`;
+            link.href = fileUrl;
+            link.download = file.originalName || file.filename || `file_${index + 1}`;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-          }, index * 500); // Stagger downloads
+            
+            downloadCount++;
+            if (downloadCount === files.length) {
+              toast({
+                title: "Downloads Complete",
+                description: `${files.length} files downloaded successfully`
+              });
+            }
+          }, index * 300);
         });
-        toast({ title: `Downloading ${files.length} files` });
       } catch (error) {
-        toast({ title: 'Error downloading files', variant: 'destructive' });
+        console.error('Error downloading files:', error);
+        toast({
+          title: "Download Error",
+          description: "Failed to download files",
+          variant: "destructive"
+        });
       }
     }
   };
 
-  const handlePrintFile = (file: any) => {
-    const printWindow = window.open(`/api/files/${file.filename || file}`, '_blank');
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print();
-      };
-    }
+  const handleIndividualPrintFile = (file: any) => {
+    const fileUrl = `/uploads/${file.filename || file}`;
+    window.open(fileUrl, '_blank');
   };
 
-  const handleDownloadFile = (file: any, fileName: string) => {
+  const handleIndividualDownloadFile = (file: any, filename: string) => {
+    const fileUrl = `/uploads/${file.filename || file}`;
     const link = document.createElement('a');
-    link.href = `/api/files/${file.filename || file}`;
-    link.download = fileName;
+    link.href = fileUrl;
+    link.download = filename;
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
