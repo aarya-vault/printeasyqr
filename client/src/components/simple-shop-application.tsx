@@ -97,7 +97,7 @@ interface SimpleShopApplicationProps {
   onComplete?: () => void;
 }
 
-export default function SimpleShopApplication({ onComplete }: SimpleShopApplicationProps) {
+export default function SimpleShopApplication() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [customServices, setCustomServices] = useState<string[]>([]);

@@ -47,7 +47,7 @@ export default function ShopOrderHistory() {
   });
 
   const { data: orders = [], isLoading } = useQuery<Order[]>({
-    queryKey: [`/api/orders/shop/history?shopId=${shopData?.shop?.id}`],
+    queryKey: [`/api/orders/shop/${shopData?.shop?.id}/history`],
     enabled: !!shopData?.shop?.id,
   });
 

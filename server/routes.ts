@@ -435,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customer = await storage.getUser(order.customerId);
         const messages = await storage.getMessagesByOrder(order.id);
         const unreadMessages = messages.filter(m => 
-          m.senderRole === 'customer' && !m.isRead
+          !m.isRead
         ).length;
         
         return {
@@ -453,11 +453,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders/shop/history", async (req, res) => {
+  app.get("/api/orders/shop/:shopId/history", async (req, res) => {
     try {
-      const shopId = parseInt(req.query.shopId as string);
+      const shopId = parseInt(req.params.shopId);
       if (isNaN(shopId)) {
-        return res.status(400).json({ message: "Shop ID required" });
+        return res.status(400).json({ message: "Invalid shop ID" });
       }
       
       const orders = await storage.getOrdersByShop(shopId);
