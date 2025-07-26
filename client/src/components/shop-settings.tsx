@@ -210,14 +210,26 @@ export default function ShopSettings() {
     
     if (shop.autoAvailability) {
       const now = new Date();
-      const day = now.toLocaleLowerCase().slice(0, 3) + now.toLocaleLowerCase().slice(3);
-      const currentTime = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0');
-      const dayHours = shop.workingHours?.[day];
+      const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const currentTimeInMinutes = currentHours * 60 + currentMinutes;
       
-      if (dayHours && !dayHours.closed && currentTime >= dayHours.open && currentTime <= dayHours.close) {
-        return { status: 'Available', color: 'bg-green-500' };
+      const dayHours = shop.workingHours?.[dayName];
+      
+      if (dayHours && !dayHours.closed) {
+        const [openHour, openMin] = dayHours.open.split(':').map(Number);
+        const [closeHour, closeMin] = dayHours.close.split(':').map(Number);
+        const openTimeInMinutes = openHour * 60 + openMin;
+        const closeTimeInMinutes = closeHour * 60 + closeMin;
+        
+        if (currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes <= closeTimeInMinutes) {
+          return { status: 'Available', color: 'bg-green-500' };
+        } else {
+          return { status: 'Closed', color: 'bg-yellow-500' };
+        }
       } else {
-        return { status: 'Closed', color: 'bg-yellow-500' };
+        return { status: 'Closed Today', color: 'bg-yellow-500' };
       }
     }
     

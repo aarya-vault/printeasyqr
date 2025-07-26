@@ -105,6 +105,7 @@ export default function ShopSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/shops', user?.shopId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
       toast({
         title: "Success",
         description: "Shop settings saved successfully"
@@ -133,12 +134,15 @@ export default function ShopSettings() {
   };
 
   const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed', value: string | boolean) => {
+    const dayKey = day.toLowerCase();
+    const currentDayHours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+    
     setFormData(prev => ({
       ...prev,
       workingHours: {
         ...prev.workingHours,
-        [day.toLowerCase()]: {
-          ...prev.workingHours[day.toLowerCase()],
+        [dayKey]: {
+          ...currentDayHours,
           [field]: value
         }
       }

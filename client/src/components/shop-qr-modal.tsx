@@ -15,6 +15,7 @@ interface ShopQRModalProps {
     address: string;
     city: string;
     publicContactNumber?: string;
+    workingHours?: Record<string, { open: string; close: string; closed: boolean }>;
   };
   onClose: () => void;
 }
@@ -126,6 +127,23 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
                   <span className="text-xl mr-2">📞</span>
                   {shop.publicContactNumber || shop.phone}
                 </p>
+                
+                {/* Working Hours */}
+                {shop.workingHours && (
+                  <div className="mt-4 text-xs text-medium-gray">
+                    <p className="font-semibold mb-1">Working Hours:</p>
+                    <div className="space-y-1">
+                      {Object.entries(shop.workingHours).map(([day, hours]) => (
+                        <p key={day} className="flex justify-between">
+                          <span className="capitalize">{day.slice(0, 3)}:</span>
+                          <span>
+                            {hours.closed ? 'Closed' : `${hours.open} - ${hours.close}`}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* QR Code */}

@@ -392,3 +392,30 @@ The platform is now production-ready with all critical issues resolved, optimize
 - **Mobile Responsive**: All new features work perfectly on mobile and desktop
 
 The shop owner experience has been completely transformed with a professional dashboard that provides all necessary tools for efficient order management while maintaining the platform's commitment to simplicity and usability.
+
+## Working Hours System Fixes (January 26, 2025 - Latest)
+
+### Issues Resolved
+- **Shop Settings UI Working Hours Updates**: Fixed the working hours update functionality in shop settings where changes weren't being properly reflected in the UI
+- **Dynamic QR Code Working Hours**: Enhanced QR code generation to include current working hours information, making QR codes display real-time shop timings
+- **Order Page Availability Checking**: Fixed availability checking logic that wasn't reflecting updated shop timings, causing shops to show as closed despite extended hours
+
+### Technical Fixes
+- **Working Hours State Management**: Fixed state updates in `shop-settings.tsx` and `comprehensive-shop-settings.tsx` to properly handle working hours changes with proper default values
+- **Availability Calculation Logic**: Updated availability checking to use proper day name calculation and time comparison in minutes for accurate open/closed status
+- **QR Code Enhancement**: Added dynamic working hours display to QR codes showing Mon-Sun schedule with open/close times or "Closed" status
+- **Query Invalidation**: Fixed cache invalidation to refresh all relevant shop data when working hours are updated
+- **TypeScript Fixes**: Resolved type errors in admin shop edit component for working hours updates
+
+### UI/UX Improvements  
+- **Real-time Availability**: Shop availability now correctly reflects changes to working hours immediately across all components
+- **Dynamic Status Display**: Order pages and shop listings now show accurate open/closed status based on current time and updated working hours
+- **Enhanced QR Codes**: QR codes now include complete weekly schedule making them more informative for customers
+- **Consistent Updates**: All shop settings interfaces now properly sync working hours changes across the platform
+
+### System Integration
+- **Multi-Component Updates**: Fixed working hours updates across shop settings, admin panel, and customer-facing components
+- **Cache Management**: Proper query cache invalidation ensures all components receive updated working hours data
+- **Database Synchronization**: Working hours changes properly sync between frontend state and database storage
+
+The working hours system now provides complete accuracy across all platform interfaces, ensuring customers see correct shop availability and QR codes display current schedule information.

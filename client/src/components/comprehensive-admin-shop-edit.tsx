@@ -106,12 +106,15 @@ export default function ComprehensiveAdminShopEdit({
   };
 
   const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed', value: string | boolean) => {
+    const dayKey = day.toLowerCase() as keyof typeof editingShop.workingHours;
+    const currentDayHours = editingShop.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+    
     setEditingShop({
       ...editingShop,
       workingHours: {
         ...editingShop.workingHours,
-        [day]: {
-          ...editingShop.workingHours[day as keyof typeof editingShop.workingHours],
+        [dayKey]: {
+          ...currentDayHours,
           [field]: value,
         },
       },

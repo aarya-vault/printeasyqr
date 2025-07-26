@@ -153,11 +153,19 @@ export default function ComprehensiveShopSettings() {
     if (shop && shop.workingHours) {
       const now = new Date();
       const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-      const currentTime = now.toTimeString().slice(0, 5);
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+      
       const todayHours = shop.workingHours[currentDay];
 
       if (todayHours && !todayHours.closed) {
-        const isOpen = currentTime >= todayHours.open && currentTime <= todayHours.close;
+        const [openHour, openMin] = todayHours.open.split(':').map(Number);
+        const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
+        const openTimeInMinutes = openHour * 60 + openMin;
+        const closeTimeInMinutes = closeHour * 60 + closeMin;
+        
+        const isOpen = currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes <= closeTimeInMinutes;
         setCurrentAvailability(isOpen ? 'Open Now' : 'Closed Now');
       } else {
         setCurrentAvailability('Closed Today');
@@ -180,7 +188,7 @@ export default function ComprehensiveShopSettings() {
         title: 'Settings Updated',
         description: 'Your shop settings have been saved successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/shops/owner/current'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
     },
     onError: () => {
       toast({
