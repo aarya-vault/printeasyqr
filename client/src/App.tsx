@@ -10,7 +10,9 @@ import NewHomepage from "@/pages/new-homepage";
 import OptimizedCustomerDashboard from "@/pages/optimized-customer-dashboard";
 import CustomerNotifications from "@/pages/customer-notifications";
 import CustomerAccountSettings from "@/pages/customer-account-settings";
-import ImprovedShopDashboard from "@/pages/improved-shop-dashboard";
+import RedesignedShopDashboard from "@/pages/redesigned-shop-dashboard";
+import ShopOrderHistory from "@/pages/shop-order-history";
+import ShopOrderDetails from "@/pages/shop-order-details";
 import ShopChatSystem from "@/pages/shop-chat-system";
 import ComprehensiveShopSettings from "@/components/comprehensive-shop-settings";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
@@ -24,8 +26,10 @@ function Router() {
       <Route path="/customer-dashboard" component={OptimizedCustomerDashboard} />
       <Route path="/customer-notifications" component={CustomerNotifications} />
       <Route path="/customer-account-settings" component={CustomerAccountSettings} />
-      <Route path="/shop-dashboard" component={ImprovedShopDashboard} />
-      <Route path="/shop-chat" component={ShopChatSystem} />
+      <Route path="/shop-dashboard" component={RedesignedShopDashboard} />
+      <Route path="/shop-order-history" component={ShopOrderHistory} />
+      <Route path="/shop-dashboard/chat/:orderId" component={ShopChatSystem} />
+      <Route path="/shop-dashboard/orders/:orderId" component={ShopOrderDetails} />
       <Route path="/shop-settings" component={ComprehensiveShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />

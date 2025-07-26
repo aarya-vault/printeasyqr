@@ -427,8 +427,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/orders/shop/:shopId", async (req, res) => {
     try {
-      const orders = await storage.getOrdersByShop(parseInt(req.params.shopId));
-      res.json(orders);
+      const shopId = parseInt(req.params.shopId);
+      const orders = await storage.getOrdersByShop(shopId);
+      
+      // Add customer names and unread message counts
+      const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+        const customer = await storage.getUser(order.customerId);
+        const messages = await storage.getMessagesByOrder(order.id);
+        const unreadMessages = messages.filter(m => 
+          m.senderRole === 'customer' && !m.isRead
+        ).length;
+        
+        return {
+          ...order,
+          customerName: customer?.name || 'Unknown',
+          customerPhone: customer?.phone || '',
+          unreadMessages
+        };
+      }));
+      
+      res.json(ordersWithDetails);
+    } catch (error) {
+      console.error('Get shop orders error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/orders/shop/history", async (req, res) => {
+    try {
+      const shopId = parseInt(req.query.shopId as string);
+      if (isNaN(shopId)) {
+        return res.status(400).json({ message: "Shop ID required" });
+      }
+      
+      const orders = await storage.getOrdersByShop(shopId);
+      const completedOrders = orders.filter(order => order.status === 'completed');
+      
+      // Add customer names
+      const ordersWithDetails = await Promise.all(completedOrders.map(async (order) => {
+        const customer = await storage.getUser(order.customerId);
+        return {
+          ...order,
+          customerName: customer?.name || 'Unknown',
+          customerPhone: customer?.phone || '',
+          completedAt: order.updatedAt // Assuming updatedAt is when order was completed
+        };
+      }));
+      
+      res.json(ordersWithDetails);
+    } catch (error) {
+      console.error('Get order history error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/orders/:id", async (req, res) => {
+    try {
+      const order = await storage.getOrder(parseInt(req.params.id));
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Add customer info
+      const customer = await storage.getUser(order.customerId);
+      const shop = await storage.getShop(order.shopId);
+      
+      res.json({
+        ...order,
+        customerName: customer?.name || 'Unknown',
+        customerPhone: customer?.phone || '',
+        shopName: shop?.name || 'Unknown'
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/orders/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ message: "Status required" });
+      }
+      
+      const order = await storage.updateOrder(parseInt(req.params.id), { status });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Send status update notification
+      const customerWs = wsConnections.get(order.customerId);
+      if (customerWs && customerWs.readyState === WebSocket.OPEN) {
+        customerWs.send(JSON.stringify({
+          type: 'order_update',
+          order
+        }));
+      }
+      
+      await storage.createNotification({
+        userId: order.customerId,
+        title: "Order Status Updated",
+        message: `Your order "${order.title}" is now ${order.status}`,
+        type: "order_update",
+        relatedId: order.id,
+        isRead: false
+      });
+      
+      res.json(order);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }
