@@ -310,8 +310,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/shops/owner/:ownerId", async (req, res) => {
     try {
-      const ownerId = parseInt(req.params.ownerId);
-      if (isNaN(ownerId)) {
+      const ownerId = req.params.ownerId === 'current' ? 
+        parseInt(req.headers['x-user-id'] as string || '0') : 
+        parseInt(req.params.ownerId);
+        
+      if (isNaN(ownerId) || ownerId === 0) {
         return res.status(400).json({ message: "Invalid owner ID" });
       }
       const shops = await storage.getShopsByOwner(ownerId);
@@ -994,14 +997,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/shops/:id', async (req, res) => {
+  // Chat orders endpoint for shop owners
+  app.get("/api/shop/:shopId/chat-orders", async (req, res) => {
     try {
-      const shopId = parseInt(req.params.id);
-      await storage.deleteShop(shopId);
-      res.json({ message: 'Shop deleted successfully' });
+      const shopId = parseInt(req.params.shopId);
+      const orders = await storage.getOrdersByShop(shopId);
+      
+      // Get chat activity for each order
+      const ordersWithChat = await Promise.all(orders.map(async (order) => {
+        const messages = await storage.getMessagesByOrder(order.id);
+        const customer = await storage.getUser(order.customerId);
+        const unreadCount = messages.filter(m => !m.isRead && m.senderId !== order.shopId).length;
+        const lastMessage = messages[messages.length - 1];
+        
+        return {
+          id: order.id,
+          customerId: order.customerId,
+          customerName: customer?.name || 'Unknown',
+          title: order.title,
+          status: order.status,
+          lastMessage: lastMessage?.content,
+          lastMessageTime: lastMessage?.createdAt,
+          unreadCount
+        };
+      }));
+      
+      // Filter orders with messages
+      const activeChats = ordersWithChat.filter(o => o.lastMessage);
+      res.json(activeChats);
     } catch (error) {
-      console.error('Delete shop error:', error);
-      res.status(500).json({ message: 'Failed to delete shop' });
+      console.error('Get chat orders error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Notifications endpoints
+  app.get("/api/notifications/user/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const notifications = await storage.getNotificationsByUser(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Get notifications error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      await storage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark notification read error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/notifications/user/:userId/read-all", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      await storage.markAllNotificationsAsRead(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark all notifications read error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/notifications/:id", async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      await storage.deleteNotification(notificationId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete notification error:', error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

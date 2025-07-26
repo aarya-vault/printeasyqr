@@ -280,3 +280,13 @@ export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type ShopApplication = typeof shopApplications.$inferSelect;
 export type InsertShopApplication = z.infer<typeof insertShopApplicationSchema>;
 export type Notification = typeof notifications.$inferSelect;
+
+export const insertNotificationSchema = createInsertSchema(notifications).pick({
+  userId: true,
+  title: true,
+  message: true,
+  type: true,
+  relatedId: true,
+});
+
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;

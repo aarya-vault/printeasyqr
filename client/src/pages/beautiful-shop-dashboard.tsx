@@ -42,7 +42,8 @@ import {
   MapPin,
   Timer
 } from 'lucide-react';
-import ShopQRModal from '@/components/shop-qr-modal';
+import RedesignedShopQRModal from '@/components/redesigned-shop-qr-modal';
+import ChatFloatingButton from '@/components/chat-floating-button';
 import { format } from 'date-fns';
 
 interface Shop {
@@ -444,7 +445,7 @@ export default function BeautifulShopDashboard() {
             title="Orders Today"
             value={dashboardStats.totalOrdersToday}
             icon={ShoppingCart}
-            color="bg-blue-500"
+            color="bg-rich-black"
             subtitle="New orders received"
           />
           <StatCard
@@ -458,45 +459,19 @@ export default function BeautifulShopDashboard() {
             title="Completed Today"
             value={dashboardStats.completedToday}
             icon={CheckCircle2}
-            color="bg-green-500"
+            color="bg-rich-black"
             subtitle="Successfully delivered"
           />
           <StatCard
-            title="Avg Processing"
-            value={dashboardStats.avgProcessingTime}
-            icon={TrendingUp}
-            color="bg-purple-500"
-            subtitle="Time per order"
+            title="Total Orders"
+            value={orders.length}
+            icon={Package}
+            color="bg-brand-yellow"
+            subtitle="All time orders"
           />
         </div>
 
-        {/* Quick Stats Bar */}
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-blue-600">{statusCounts.new}</p>
-                <p className="text-sm text-gray-600">New</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-brand-yellow">{statusCounts.processing}</p>
-                <p className="text-sm text-gray-600">Processing</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-green-600">{statusCounts.ready}</p>
-                <p className="text-sm text-gray-600">Ready</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-gray-600">{statusCounts.completed}</p>
-                <p className="text-sm text-gray-600">Completed</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-red-600">{statusCounts.urgent}</p>
-                <p className="text-sm text-gray-600">Urgent</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Search and Filter Bar */}
         <Card className="border-0 shadow-md">
@@ -608,11 +583,14 @@ export default function BeautifulShopDashboard() {
 
       {/* QR Code Modal */}
       {showQRModal && shopData.shop && (
-        <ShopQRModal
+        <RedesignedShopQRModal
           shop={shopData.shop}
           onClose={() => setShowQRModal(false)}
         />
       )}
+
+      {/* Chat Floating Button */}
+      <ChatFloatingButton />
     </div>
   );
 }

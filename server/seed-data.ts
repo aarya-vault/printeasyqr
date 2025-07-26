@@ -6,6 +6,22 @@ export async function seedDatabase() {
   try {
     console.log("Starting database seeding...");
     
+    // Create test customer  
+    const existingCustomer = await db.select().from(users).where(eq(users.phone, "9876543211"));
+    let customerId: number;
+    if (existingCustomer.length === 0) {
+      const [customer] = await db.insert(users).values({
+        phone: "9876543211",
+        name: "Test Customer",
+        email: "customer@test.com",
+        role: "customer"
+      }).returning();
+      customerId = customer.id;
+      console.log("Created test customer:", customer.phone);
+    } else {
+      customerId = existingCustomer[0].id;
+    }
+    
     // Create admin user
     const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@printeasy.com"));
     if (existingAdmin.length === 0) {
@@ -76,18 +92,73 @@ export async function seedDatabase() {
           totalOrders: 0
         }).returning();
         console.log("Created shop:", shop.name);
+        
+        // Create test orders for the shop
+        const existingOrders = await db.select().from(orders).where(eq(orders.shopId, shop.id));
+        if (existingOrders.length === 0) {
+          // Create upload order
+          const [uploadOrder] = await db.insert(orders).values({
+            customerId: customerId,
+            shopId: shop.id,
+            type: "upload",
+            title: "Business Cards - 500 Qty",
+            description: "Need 500 business cards printed on premium matte finish paper",
+            specifications: JSON.stringify({
+              quantity: 500,
+              paperType: "Premium Matte",
+              size: "Standard",
+              sides: "Double-sided"
+            }),
+            files: JSON.stringify(["business_card_design.pdf"]),
+            status: "new",
+            isUrgent: false,
+            estimatedPages: 1,
+            estimatedBudget: "1000"
+          }).returning();
+          console.log("Created upload order:", uploadOrder.id);
+          
+          // Create walk-in order
+          const [walkinOrder] = await db.insert(orders).values({
+            customerId: customerId,
+            shopId: shop.id,
+            type: "walkin",
+            title: "Xerox - 50 Pages",
+            description: "Black and white photocopying of documents",
+            specifications: JSON.stringify({
+              service: "Photocopying",
+              pages: 50,
+              color: "B&W"
+            }),
+            walkinTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+            status: "processing",
+            isUrgent: true,
+            estimatedPages: 50,
+            estimatedBudget: "100"
+          }).returning();
+          console.log("Created walk-in order:", walkinOrder.id);
+          
+          // Create notifications for orders
+          await db.insert(notifications).values([
+            {
+              userId: shopOwner.id,
+              title: "New Order Received",
+              message: `New upload order #${uploadOrder.id} from Test Customer`,
+              type: "order_update",
+              relatedId: uploadOrder.id,
+              isRead: false
+            },
+            {
+              userId: shopOwner.id,
+              title: "Urgent Walk-in Order",
+              message: `Urgent walk-in order #${walkinOrder.id} scheduled for today`,
+              type: "order_update",
+              relatedId: walkinOrder.id,
+              isRead: false
+            }
+          ]);
+          console.log("Created test notifications");
+        }
       }
-    }
-
-    // Create customer user
-    const existingCustomer = await db.select().from(users).where(eq(users.phone, "9876543211"));
-    if (existingCustomer.length === 0) {
-      const [customer] = await db.insert(users).values({
-        phone: "9876543211",
-        name: "Test Customer",
-        role: "customer"
-      }).returning();
-      console.log("Created customer:", customer.phone);
     }
 
     console.log("Database seeding completed successfully!");

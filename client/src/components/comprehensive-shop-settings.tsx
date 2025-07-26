@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import { 
   Store, Clock, Globe, Lock, Settings, Save, User, 
   Phone, Mail, MapPin, Timer, Users, CheckCircle
@@ -89,11 +90,15 @@ export default function ComprehensiveShopSettings() {
   const [currentAvailability, setCurrentAvailability] = useState<string>('Checking...');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   // Get shop data
-  const { data: shop, isLoading } = useQuery<Shop>({
-    queryKey: ['/api/shops/owner/current'],
+  const { data: shopData, isLoading } = useQuery<{ shop: Shop }>({
+    queryKey: [`/api/shops/owner/${user?.id}`],
+    enabled: !!user?.id,
   });
+
+  const shop = shopData?.shop;
 
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),

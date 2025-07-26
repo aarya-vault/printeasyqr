@@ -2,7 +2,8 @@ import {
   users, shops, orders, messages, shopApplications, notifications,
   type User, type InsertUser, type Shop, type InsertShop, 
   type Order, type InsertOrder, type Message, type InsertMessage,
-  type ShopApplication, type InsertShopApplication, type Notification
+  type ShopApplication, type InsertShopApplication, type Notification,
+  type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql } from "drizzle-orm";
@@ -45,8 +46,10 @@ export interface IStorage {
   
   // Notification operations
   getNotificationsByUser(userId: number): Promise<Notification[]>;
-  createNotification(notification: Omit<Notification, 'id' | 'createdAt'>): Promise<Notification>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
   markNotificationAsRead(id: number): Promise<void>;
+  markAllNotificationsAsRead(userId: number): Promise<void>;
+  deleteNotification(id: number): Promise<void>;
   
   // Analytics operations
   getPlatformStats(): Promise<{
@@ -230,6 +233,41 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(shopApplications.createdAt));
   }
 
+  // Notification operations
+  async getNotificationsByUser(userId: number): Promise<Notification[]> {
+    return await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [created] = await db
+      .insert(notifications)
+      .values(notification)
+      .returning();
+    return created;
+  }
+
+  async markNotificationAsRead(id: number): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.id, id));
+  }
+
+  async markAllNotificationsAsRead(userId: number): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.userId, userId));
+  }
+
+  async deleteNotification(id: number): Promise<void> {
+    await db.delete(notifications).where(eq(notifications.id, id));
+  }
+
   async createShopApplication(insertApplication: InsertShopApplication): Promise<ShopApplication> {
     const [application] = await db
       .insert(shopApplications)
@@ -277,25 +315,6 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async getNotificationsByUser(userId: number): Promise<Notification[]> {
-    return await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId))
-      .orderBy(desc(notifications.createdAt));
-  }
-
-  async createNotification(notification: Omit<Notification, 'id' | 'createdAt'>): Promise<Notification> {
-    const [newNotification] = await db
-      .insert(notifications)
-      .values({
-        ...notification,
-        createdAt: new Date()
-      })
-      .returning();
-    return newNotification;
-  }
-
   async markNotificationAsRead(id: number): Promise<void> {
     await db
       .update(notifications)
@@ -333,7 +352,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void> {
     await db.update(shops).set({ 
-      status,
+      status: status as any,
       updatedAt: new Date() 
     }).where(eq(shops.id, shopId));
   }
