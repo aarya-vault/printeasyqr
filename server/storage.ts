@@ -157,7 +157,10 @@ export class DatabaseStorage implements IStorage {
   async createShop(insertShop: InsertShop): Promise<Shop> {
     const [shop] = await db
       .insert(shops)
-      .values([insertShop])
+      .values({
+        ...insertShop,
+        status: (insertShop as any).status || 'active'
+      })
       .returning();
     return shop;
   }

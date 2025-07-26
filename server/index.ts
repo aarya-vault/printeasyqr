@@ -5,6 +5,19 @@ import seedDatabase from "./seed-data";
 import { setupVite, serveStatic, log } from "./vite";
 import { errorHandler, notFoundHandler } from "./error-handler";
 
+// Extend session interface
+declare module 'express-session' {
+  interface SessionData {
+    user?: {
+      id: number;
+      email?: string;
+      phone?: string;
+      name: string;
+      role: string;
+    };
+  }
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

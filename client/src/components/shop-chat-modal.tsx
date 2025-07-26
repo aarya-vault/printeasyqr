@@ -25,6 +25,7 @@ interface Message {
 interface Order {
   id: number;
   customerId: number;
+  shopId: number;
   customerName: string;
   title: string;
   type: string;
@@ -73,7 +74,9 @@ export default function ShopChatModal({ orderId, onClose }: ShopChatModalProps) 
     onSuccess: () => {
       setNewMessage('');
       queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${orderId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopId}`] });
+      if (order?.shopId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${order.shopId}`] });
+      }
       toast({ title: 'Message sent' });
     },
     onError: () => {
@@ -83,16 +86,18 @@ export default function ShopChatModal({ orderId, onClose }: ShopChatModalProps) 
 
   // Mark messages as read when opening
   useEffect(() => {
-    if (messages.length > 0 && user?.id) {
+    if (messages.length > 0 && user?.id && order) {
       fetch(`/api/messages/order/${orderId}/read`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id })
       }).then(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopId}`] });
+        if (order.shopId) {
+          queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${order.shopId}`] });
+        }
       });
     }
-  }, [messages.length, orderId, user?.id, queryClient, shopId]);
+  }, [messages.length, orderId, user?.id, queryClient, order]);
 
   // Auto scroll to bottom
   useEffect(() => {

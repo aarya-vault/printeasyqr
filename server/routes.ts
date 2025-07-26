@@ -418,33 +418,43 @@ app.get('/api/shops/customer/:customerId/visited', async (req, res) => {
   }
 });
 
+// Test session endpoint
+app.get('/api/debug/session', (req, res) => {
+  res.json({ 
+    hasSession: !!req.session,
+    user: req.session?.user,
+    sessionId: req.session?.id 
+  });
+});
+
+// Test simple endpoint to verify route registration
+app.get('/api/debug/test', (req, res) => {
+  console.log('TEST ENDPOINT HIT - This should appear in logs!');
+  res.json({ message: 'Test endpoint working', timestamp: new Date().toISOString() });
+});
+
+// Test PATCH endpoint
+app.patch('/api/debug/patch-test', (req, res) => {
+  res.json({ message: 'PATCH test working', body: req.body });
+});
+
 // Update shop settings endpoint
 app.patch('/api/shops/settings', async (req, res) => {
   try {
-    console.log('Settings update request received:', req.body);
-    console.log('Session:', req.session);
-    console.log('Session user:', req.session?.user);
-    
     const userId = req.session?.user?.id;
     if (!userId) {
-      console.log('No user ID in session');
-      return res.status(401).json({ message: 'Unauthorized - no session' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    console.log('Looking for shop for user ID:', userId);
     const shop = await storage.getShopByOwnerId(userId);
     if (!shop) {
-      console.log('Shop not found for user:', userId);
       return res.status(404).json({ message: 'Shop not found' });
     }
 
-    console.log('Updating settings for shop:', shop.id, 'with data:', req.body);
     const updatedShop = await storage.updateShopSettings(shop.id, req.body);
-    console.log('Settings updated successfully:', updatedShop);
     res.json(updatedShop);
   } catch (error) {
-    console.error('Update shop settings error:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Shop settings update error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -500,8 +510,7 @@ app.patch('/api/shops/settings', async (req, res) => {
           title: "New Order Received",
           message: `New ${order.type} order: ${order.title}`,
           type: "order_update",
-          relatedId: order.id,
-          isRead: false
+          relatedId: order.id
         });
       }
       
@@ -548,7 +557,7 @@ app.patch('/api/shops/settings', async (req, res) => {
         specifications: JSON.stringify({ urgent: isUrgent === 'true' }),
         files: files.length > 0 ? JSON.stringify(files) : null,
         isUrgent: isUrgent === 'true',
-        walkinTime: orderType === 'walkin' ? new Date().toISOString() : undefined
+        // walkinTime removed as it's not in schema
       });
       
       // Get order with customer and shop details
@@ -738,8 +747,7 @@ app.patch('/api/shops/settings', async (req, res) => {
         title: "Order Status Updated",
         message: `Your order "${order.title}" is now ${order.status}`,
         type: "order_update",
-        relatedId: order.id,
-        isRead: false
+        relatedId: order.id
       });
       
       res.json(order);
@@ -770,8 +778,7 @@ app.patch('/api/shops/settings', async (req, res) => {
         title: "Order Status Updated",
         message: `Your order "${order.title}" is now ${order.status}`,
         type: "order_update",
-        relatedId: order.id,
-        isRead: false
+        relatedId: order.id
       });
       
       res.json(order);
@@ -809,8 +816,12 @@ app.patch('/api/shops/settings', async (req, res) => {
       // Broadcast message via WebSocket
       const order = await storage.getOrder(validation.data.orderId);
       if (order) {
-        const recipientId = validation.data.senderId === order.customerId ? 
-          order.shop?.ownerId : order.customerId;
+        // Get shop owner ID if the sender is the customer
+        let recipientId = order.customerId;
+        if (validation.data.senderId === order.customerId) {
+          const shop = await storage.getShop(order.shopId);
+          recipientId = shop?.ownerId || order.customerId;
+        }
         
         if (recipientId) {
           const recipientWs = wsConnections.get(recipientId);
@@ -968,8 +979,7 @@ app.patch('/api/shops/settings', async (req, res) => {
           ? "Congratulations! Your shop application has been approved."
           : `Your shop application has been rejected. ${adminNotes || ''}`,
         type: "system",
-        relatedId: application.id,
-        isRead: false
+        relatedId: application.id
       });
       
       res.json(application);
