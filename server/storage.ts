@@ -387,16 +387,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateShopSettings(shopId: number, settings: any): Promise<any> {
-    // Handle working hours properly
-    const updateData: any = { ...settings };
-    if (settings.workingHours && typeof settings.workingHours === 'object') {
+    // Handle JSON fields properly
+    const updateData: any = {};
+    
+    // Only include fields that are actually being updated
+    if ('acceptsOrders' in settings) {
+      updateData.isOnline = settings.acceptsOrders;
+    }
+    if ('acceptsWalkinOrders' in settings) {
+      updateData.acceptsWalkinOrders = settings.acceptsWalkinOrders;
+    }
+    if ('autoAvailability' in settings) {
+      updateData.autoAvailability = settings.autoAvailability;
+    }
+    if ('workingHours' in settings && typeof settings.workingHours === 'object') {
       updateData.workingHours = JSON.stringify(settings.workingHours);
     }
-    if (settings.services && Array.isArray(settings.services)) {
+    if ('services' in settings && Array.isArray(settings.services)) {
       updateData.services = JSON.stringify(settings.services);
     }
-    if (settings.equipment && Array.isArray(settings.equipment)) {
+    if ('equipment' in settings && Array.isArray(settings.equipment)) {
       updateData.equipment = JSON.stringify(settings.equipment);
+    }
+    
+    // Only update if there are fields to update
+    if (Object.keys(updateData).length === 0) {
+      const [existingShop] = await db.select().from(shops).where(eq(shops.id, shopId));
+      return existingShop;
     }
     
     const [updated] = await db

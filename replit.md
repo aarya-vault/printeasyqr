@@ -287,6 +287,20 @@ The platform now provides a complete, production-ready solution with real test d
 
 The platform now offers a polished, feature-complete B2B2C printing solution with enhanced admin control, better user experience, and robust technical implementation while strictly adhering to all design and business requirements.
 
+## Critical Fixes (January 26, 2025 - Latest Update)
+
+### Shop Settings Route Fix
+- **Issue**: Shop settings endpoint was returning 500 error system-wide - failed from both admin panel and shop settings pages
+- **Root Cause**: Route ordering conflict - the generic route `/api/shops/:id` was catching `/api/shops/settings` before the specific route could be matched
+- **Solution**: Moved shop settings route BEFORE all generic `:id` routes in the routing order hierarchy
+- **Result**: Shop settings now work properly from both shop dashboard and admin panel with full functionality restored
+
+### Order Confirmation Page Fix
+- **Issue**: Buttons on order confirmation page were not working due to incorrect login function signature
+- **Root Cause**: The `login` function was being called with 3 arguments but only accepts 1 object parameter
+- **Solution**: Updated to pass credentials as object: `login({ phone: order.customer.phone })`
+- **Result**: All buttons now function correctly - chat with shop, go to dashboard, and call shop buttons work as expected
+
 ## Critical Production Issues Resolved (January 26, 2025 - Latest)
 
 ### Performance & Loading Optimization

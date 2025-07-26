@@ -60,7 +60,7 @@ export default function OrderConfirmation() {
     if (!user && order) {
       // Auto-login the customer
       try {
-        await login(order.customer.phone, undefined, 'customer');
+        await login({ phone: order.customer.phone });
         setTimeout(() => {
           navigate(`/customer-dashboard/chat/${order.id}`);
         }, 100);
@@ -68,7 +68,7 @@ export default function OrderConfirmation() {
         console.error('Login failed:', error);
         navigate(`/customer-dashboard/chat/${order.id}`);
       }
-    } else {
+    } else if (order) {
       navigate(`/customer-dashboard/chat/${order.id}`);
     }
   };
@@ -77,7 +77,7 @@ export default function OrderConfirmation() {
     if (!user && order) {
       // Auto-login the customer
       try {
-        await login(order.customer.phone, undefined, 'customer');
+        await login({ phone: order.customer.phone });
         setTimeout(() => {
           navigate('/customer-dashboard');
         }, 100);

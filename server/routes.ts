@@ -314,6 +314,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Shop routes
+  
+  // Update shop settings endpoint - MUST be first to avoid being caught by :id routes
+  app.patch('/api/shops/settings', async (req, res) => {
+    try {
+      const userId = req.session?.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const shop = await storage.getShopByOwnerId(userId);
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+
+      const updatedShop = await storage.updateShopSettings(shop.id, req.body);
+      res.json(updatedShop);
+    } catch (error) {
+      console.error('Shop settings update error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
   app.get("/api/shops", async (req, res) => {
     try {
       const shops = await storage.getActiveShops();
@@ -347,6 +369,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Specific routes MUST come before generic :id routes
+  
   app.get("/api/shops/:id", async (req, res) => {
     try {
       const shop = await storage.getShop(parseInt(req.params.id));
@@ -436,27 +460,6 @@ app.get('/api/debug/test', (req, res) => {
 // Test PATCH endpoint
 app.patch('/api/debug/patch-test', (req, res) => {
   res.json({ message: 'PATCH test working', body: req.body });
-});
-
-// Update shop settings endpoint
-app.patch('/api/shops/settings', async (req, res) => {
-  try {
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    const shop = await storage.getShopByOwnerId(userId);
-    if (!shop) {
-      return res.status(404).json({ message: 'Shop not found' });
-    }
-
-    const updatedShop = await storage.updateShopSettings(shop.id, req.body);
-    res.json(updatedShop);
-  } catch (error) {
-    console.error('Shop settings update error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
 });
 
   // Order routes
@@ -1236,6 +1239,18 @@ app.patch('/api/shops/settings', async (req, res) => {
     } catch (error) {
       console.error('Delete shop error:', error);
       res.status(500).json({ message: 'Failed to delete shop' });
+    }
+  });
+
+  // Admin update shop settings
+  app.patch('/api/shops/:id/settings', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      const updatedShop = await storage.updateShopSettings(shopId, req.body);
+      res.json(updatedShop);
+    } catch (error) {
+      console.error('Admin shop settings update error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
