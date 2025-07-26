@@ -42,6 +42,7 @@ import {
   MapPin,
   Timer
 } from 'lucide-react';
+import { Power } from 'lucide-react';
 import RedesignedShopQRModal from '@/components/redesigned-shop-qr-modal';
 import ChatFloatingButton from '@/components/chat-floating-button';
 import { format } from 'date-fns';
@@ -56,6 +57,7 @@ interface Shop {
   publicContactNumber?: string;
   workingHours: any;
   acceptsWalkinOrders: boolean;
+  isOnline: boolean;
 }
 
 interface Order {
@@ -158,6 +160,24 @@ export default function BeautifulShopDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
       toast({ title: 'Order status updated successfully' });
+    },
+  });
+
+  const toggleShopStatus = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/shops/${shopData?.shop?.id}/toggle-status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to update shop status');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      toast({ 
+        title: shopData?.shop?.isOnline ? 'Shop Closed' : 'Shop Opened',
+        description: shopData?.shop?.isOnline ? 'You are no longer accepting orders' : 'You are now accepting orders'
+      });
     },
   });
 
@@ -403,6 +423,15 @@ export default function BeautifulShopDashboard() {
             </div>
             <div className="flex items-center space-x-3">
               <Button
+                variant={shopData.shop.isOnline ? "destructive" : "default"}
+                onClick={() => toggleShopStatus.mutate()}
+                className={shopData.shop.isOnline ? "bg-red-500 text-white hover:bg-red-600" : "bg-green-500 text-white hover:bg-green-600"}
+                disabled={toggleShopStatus.isPending}
+              >
+                <Power className="w-4 h-4 mr-2" />
+                {toggleShopStatus.isPending ? "Updating..." : shopData.shop.isOnline ? "Stop Accepting Orders" : "Start Accepting Orders"}
+              </Button>
+              <Button
                 variant="outline"
                 onClick={() => setShowQRModal(true)}
                 className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
@@ -416,14 +445,16 @@ export default function BeautifulShopDashboard() {
                   History
                 </Button>
               </Link>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5" />
-                {statusCounts.urgent > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {statusCounts.urgent}
-                  </span>
-                )}
-              </Button>
+              <Link href="/shop-notifications">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="w-5 h-5" />
+                  {statusCounts.urgent > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {statusCounts.urgent}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               <Link href="/shop-settings">
                 <Button variant="ghost" size="icon">
                   <Settings className="w-5 h-5" />

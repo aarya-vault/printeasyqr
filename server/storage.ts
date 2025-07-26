@@ -22,6 +22,7 @@ export interface IStorage {
   getActiveShops(): Promise<Shop[]>;
   createShop(shop: InsertShop): Promise<Shop>;
   updateShop(id: number, updates: Partial<Shop>): Promise<Shop | undefined>;
+  getShopBySlug(slug: string): Promise<Shop | undefined>;
   
   // Order operations
   getOrder(id: number): Promise<Order | undefined>;
@@ -131,6 +132,11 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(shops.id, id))
       .returning();
+    return shop || undefined;
+  }
+
+  async getShopBySlug(slug: string): Promise<Shop | undefined> {
+    const [shop] = await db.select().from(shops).where(eq(shops.slug, slug));
     return shop || undefined;
   }
 

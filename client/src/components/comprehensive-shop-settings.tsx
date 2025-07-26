@@ -30,7 +30,6 @@ const settingsSchema = z.object({
   ownerFullName: z.string().min(1, 'Full name is required'),
   email: z.string().email('Valid email is required'),
   phoneNumber: z.string().min(10, 'Valid phone is required'),
-  completeAddress: z.string().min(1, 'Complete address is required'),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   pinCode: z.string().min(6, 'Valid pin code is required'),
@@ -77,7 +76,6 @@ interface Shop {
   ownerFullName: string;
   email: string;
   ownerPhone: string;
-  completeAddress: string;
   workingHours: {
     [key: string]: { open: string; close: string; closed: boolean };
   };
@@ -111,7 +109,6 @@ export default function ComprehensiveShopSettings() {
       ownerFullName: '',
       email: '',
       phoneNumber: '',
-      completeAddress: '',
       city: '',
       state: '',
       pinCode: '',
@@ -141,7 +138,6 @@ export default function ComprehensiveShopSettings() {
         ownerFullName: shop.ownerFullName,
         email: shop.email,
         phoneNumber: shop.ownerPhone,
-        completeAddress: shop.completeAddress,
         city: shop.city,
         state: shop.state,
         pinCode: shop.pinCode,
@@ -398,23 +394,7 @@ export default function ComprehensiveShopSettings() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="completeAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Complete Address *</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Full business address"
-                        className="min-h-[80px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField

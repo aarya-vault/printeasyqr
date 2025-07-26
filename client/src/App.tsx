@@ -18,6 +18,9 @@ import ComprehensiveShopSettings from "@/components/comprehensive-shop-settings"
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
 import SimpleShopApplication from "@/components/simple-shop-application";
+import ShopOrder from "@/pages/shop-order";
+import OrderConfirmation from "@/pages/order-confirmation";
+import ShopNotifications from "@/pages/shop-notifications";
 
 function Router() {
   return (
@@ -34,6 +37,9 @@ function Router() {
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/apply-shop" component={SimpleShopApplication} />
+      <Route path="/shop/:slug" component={ShopOrder} />
+      <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
+      <Route path="/shop-notifications" component={ShopNotifications} />
       <Route component={NotFound} />
     </Switch>
   );

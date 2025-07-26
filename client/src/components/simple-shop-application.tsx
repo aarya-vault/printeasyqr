@@ -161,7 +161,7 @@ export default function SimpleShopApplication() {
         email: data.email,
         phoneNumber: data.ownerContactNumber,
         password: data.password,
-        completeAddress: data.publicAddress, // Use public address for complete address since removed
+
         city: data.city,
         state: data.state,
         pinCode: data.pinCode,

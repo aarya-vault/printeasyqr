@@ -1,29 +1,23 @@
-import { useState } from 'react';
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Link, useLocation } from 'wouter';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Bell,
-  Package,
-  MessageSquare,
-  CheckCircle,
-  Clock,
-  ArrowLeft,
-  BellOff,
-  Eye,
-  Trash2
-} from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
+import { 
+  Bell, BellOff, Package, MessageSquare, AlertCircle, 
+  CheckCircle, Info, ArrowLeft, Trash2, Check
+} from 'lucide-react';
 
 interface Notification {
   id: number;
   userId: number;
   title: string;
   message: string;
-  type: 'order_update' | 'system' | 'chat';
+  type: 'order_update' | 'message' | 'system' | 'promotion';
   relatedId?: number;
   isRead: boolean;
   createdAt: string;
@@ -33,13 +27,14 @@ export default function ShopNotifications() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
+  // Get notifications
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/user/${user?.id}`],
     enabled: !!user?.id,
   });
 
+  // Mark notification as read
   const markAsRead = useMutation({
     mutationFn: async (notificationId: number) => {
       const response = await fetch(`/api/notifications/${notificationId}/read`, {
@@ -53,19 +48,7 @@ export default function ShopNotifications() {
     },
   });
 
-  const markAllAsRead = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/notifications/user/${user?.id}/read-all`, {
-        method: 'PATCH',
-      });
-      if (!response.ok) throw new Error('Failed to mark all as read');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
-    },
-  });
-
+  // Delete notification
   const deleteNotification = useMutation({
     mutationFn: async (notificationId: number) => {
       const response = await fetch(`/api/notifications/${notificationId}`, {
@@ -79,11 +62,49 @@ export default function ShopNotifications() {
     },
   });
 
-  const filteredNotifications = notifications.filter(n => 
-    filter === 'all' || (filter === 'unread' && !n.isRead)
-  );
+  // Mark all as read
+  const markAllAsRead = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/notifications/user/${user?.id}/read-all`, {
+        method: 'PATCH',
+      });
+      if (!response.ok) throw new Error('Failed to mark all as read');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
+    },
+  });
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'order_update':
+        return <Package className="w-5 h-5" />;
+      case 'message':
+        return <MessageSquare className="w-5 h-5" />;
+      case 'system':
+        return <Info className="w-5 h-5" />;
+      case 'promotion':
+        return <AlertCircle className="w-5 h-5" />;
+      default:
+        return <Bell className="w-5 h-5" />;
+    }
+  };
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case 'order_update':
+        return 'text-blue-600 bg-blue-50';
+      case 'message':
+        return 'text-green-600 bg-green-50';
+      case 'system':
+        return 'text-gray-600 bg-gray-50';
+      case 'promotion':
+        return 'text-brand-yellow bg-brand-yellow/10';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  };
 
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
@@ -91,108 +112,85 @@ export default function ShopNotifications() {
       markAsRead.mutate(notification.id);
     }
 
-    // Navigate based on type and relatedId
+    // Navigate based on type
     if (notification.type === 'order_update' && notification.relatedId) {
       navigate(`/shop-dashboard/orders/${notification.relatedId}`);
-    } else if (notification.type === 'chat' && notification.relatedId) {
+    } else if (notification.type === 'message' && notification.relatedId) {
       navigate(`/shop-dashboard/chat/${notification.relatedId}`);
     }
   };
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'order_update': return <Package className="w-5 h-5" />;
-      case 'chat': return <MessageSquare className="w-5 h-5" />;
-      case 'system': return <Bell className="w-5 h-5" />;
-      default: return <Bell className="w-5 h-5" />;
-    }
-  };
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const getIconColor = (type: string) => {
-    switch (type) {
-      case 'order_update': return 'text-brand-yellow';
-      case 'chat': return 'text-blue-500';
-      case 'system': return 'text-gray-500';
-      default: return 'text-gray-500';
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-32"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-white border-b shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link href="/shop-dashboard">
-                <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+                <Button variant="ghost" size="icon">
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
               </Link>
-              <h1 className="text-xl font-bold text-rich-black">Notifications</h1>
-              {unreadCount > 0 && (
-                <Badge className="bg-brand-yellow text-rich-black">
-                  {unreadCount} new
-                </Badge>
-              )}
+              <div>
+                <h1 className="text-xl font-bold text-rich-black">Notifications</h1>
+                <p className="text-sm text-gray-500">
+                  {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
+            {notifications.length > 0 && unreadCount > 0 && (
               <Button
-                variant={filter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('all')}
-                className={filter === 'all' ? 'bg-brand-yellow text-rich-black hover:bg-brand-yellow/90' : ''}
+                variant="outline"
+                onClick={() => markAllAsRead.mutate()}
+                disabled={markAllAsRead.isPending}
               >
-                All
+                <Check className="w-4 h-4 mr-2" />
+                Mark all as read
               </Button>
-              <Button
-                variant={filter === 'unread' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('unread')}
-                className={filter === 'unread' ? 'bg-brand-yellow text-rich-black hover:bg-brand-yellow/90' : ''}
-              >
-                Unread
-              </Button>
-              {unreadCount > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => markAllAsRead.mutate()}
-                  disabled={markAllAsRead.isPending}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Mark all read
-                </Button>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Notifications List */}
+      {/* Notifications */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow"></div>
-          </div>
-        ) : filteredNotifications.length === 0 ? (
-          <Card className="py-12">
-            <CardContent className="text-center">
-              <BellOff className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Notifications</h3>
+        {notifications.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BellOff className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications yet</h3>
               <p className="text-gray-500">
-                {filter === 'unread' 
-                  ? 'You have no unread notifications' 
-                  : 'You have no notifications yet'}
+                When you receive new orders or messages, they'll appear here
               </p>
+              <Link href="/shop-dashboard">
+                <Button className="mt-6 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+                  Back to Dashboard
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
-            {filteredNotifications.map((notification) => (
+          <div className="space-y-2">
+            {notifications.map((notification) => (
               <Card 
-                key={notification.id} 
-                className={`cursor-pointer hover:shadow-md transition-shadow ${
+                key={notification.id}
+                className={`cursor-pointer transition-all hover:shadow-md ${
                   !notification.isRead ? 'border-brand-yellow' : ''
                 }`}
                 onClick={() => handleNotificationClick(notification)}
@@ -200,49 +198,39 @@ export default function ShopNotifications() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3 flex-1">
-                      <div className={`p-2 rounded-full ${
-                        !notification.isRead ? 'bg-brand-yellow/20' : 'bg-gray-100'
-                      }`}>
-                        <span className={getIconColor(notification.type)}>
-                          {getIcon(notification.type)}
-                        </span>
+                      <div className={`p-2 rounded-full ${getNotificationColor(notification.type)}`}>
+                        {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1">
-                        <h4 className={`font-medium text-rich-black ${
-                          !notification.isRead ? 'font-bold' : ''
-                        }`}>
-                          {notification.title}
-                        </h4>
-                        <p className="text-gray-600 text-sm mt-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-medium text-rich-black">
+                            {notification.title}
+                          </h3>
+                          {!notification.isRead && (
+                            <Badge className="bg-brand-yellow text-rich-black text-xs">
+                              New
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          {format(new Date(notification.createdAt), 'MMM dd, yyyy HH:mm')}
+                        <p className="text-xs text-gray-400">
+                          {format(new Date(notification.createdAt), 'MMM dd, HH:mm')}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 ml-4">
-                      {notification.relatedId && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:bg-gray-100"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNotification.mutate(notification.id);
-                        }}
-                        className="hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification.mutate(notification.id);
+                      }}
+                      className="ml-2 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

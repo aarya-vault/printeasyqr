@@ -356,6 +356,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get shop by slug for anonymous orders
+  app.get("/api/shops/slug/:slug", async (req, res) => {
+    try {
+      const shop = await storage.getShopBySlug(req.params.slug);
+      if (!shop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      res.json({ shop });
+    } catch (error) {
+      console.error("Error getting shop by slug:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Toggle shop online status
+  app.patch("/api/shops/:id/toggle-status", async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      const shop = await storage.getShop(shopId);
+      if (!shop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      const updatedShop = await storage.updateShop(shopId, {
+        isOnline: !shop.isOnline
+      });
+      
+      res.json({ shop: updatedShop });
+    } catch (error) {
+      console.error("Error toggling shop status:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // Order routes
   app.post("/api/orders", upload.array('files'), async (req, res) => {
     try {
@@ -416,6 +450,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Create order error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create anonymous order from QR code
+  app.post("/api/orders/anonymous", upload.array('files'), async (req, res) => {
+    try {
+      const { shopId, name, contactNumber, orderType, isUrgent, description } = req.body;
+      
+      if (!shopId || !name || !contactNumber || !orderType) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      // Check if customer exists by phone
+      let customer = await storage.getUserByPhone(contactNumber);
+      if (!customer) {
+        // Create new customer
+        customer = await storage.createUser({
+          phone: contactNumber,
+          name: name,
+          role: 'customer'
+        });
+      }
+      
+      // Handle file uploads
+      let files: any[] = [];
+      if (req.files && orderType === 'upload') {
+        files = (req.files as Express.Multer.File[]).map(file => file.filename);
+      }
+      
+      // Create order
+      const order = await storage.createOrder({
+        customerId: customer.id,
+        shopId: parseInt(shopId),
+        type: orderType,
+        title: orderType === 'upload' ? `File Upload - ${files.length} files` : 'Walk-in Order',
+        description: description || '',
+        specifications: JSON.stringify({ urgent: isUrgent === 'true' }),
+        files: files.length > 0 ? JSON.stringify(files) : null,
+        isUrgent: isUrgent === 'true',
+        walkinTime: orderType === 'walkin' ? new Date().toISOString() : undefined
+      });
+      
+      // Get order with customer and shop details
+      const orderDetails = await db.select({
+        order: orders,
+        customer: users,
+        shop: shops
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.customerId, users.id))
+      .innerJoin(shops, eq(orders.shopId, shops.id))
+      .where(eq(orders.id, order.id))
+      .limit(1);
+      
+      if (orderDetails.length === 0) {
+        throw new Error("Order created but not found");
+      }
+      
+      // Send notification to shop owner
+      const shop = await storage.getShop(order.shopId);
+      if (shop) {
+        await storage.createNotification({
+          userId: shop.ownerId,
+          title: "New Order Received",
+          message: `New ${order.type} order from ${name}`,
+          type: "order_update",
+          relatedId: order.id
+        });
+      }
+      
+      res.json({ 
+        order: {
+          ...orderDetails[0].order,
+          customer: orderDetails[0].customer,
+          shop: orderDetails[0].shop
+        }
+      });
+    } catch (error) {
+      console.error("Create anonymous order error:", error);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+  // Get order details with customer and shop info
+  app.get("/api/orders/:orderId/details", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      
+      const orderDetails = await db.select({
+        order: orders,
+        customer: users,
+        shop: shops
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.customerId, users.id))
+      .innerJoin(shops, eq(orders.shopId, shops.id))
+      .where(eq(orders.id, orderId))
+      .limit(1);
+      
+      if (orderDetails.length === 0) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      res.json({ 
+        order: {
+          ...orderDetails[0].order,
+          customer: orderDetails[0].customer,
+          shop: orderDetails[0].shop
+        }
+      });
+    } catch (error) {
+      console.error("Get order details error:", error);
+      res.status(500).json({ message: "Server error" });
     }
   });
 
