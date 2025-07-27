@@ -6,7 +6,7 @@ export const printFile = async (file: any): Promise<void> => {
 
   return new Promise((resolve) => {
     const printWindow = window.open('', '_blank');
-
+    
     if (!printWindow) {
       console.error('Popup blocked');
       resolve();
@@ -16,11 +16,12 @@ export const printFile = async (file: any): Promise<void> => {
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
     const isPDF = fileExtension === 'pdf';
 
+    // Images and iframes get onload print, PDFs use fallback only (more reliable)
     const content = isImage
-      ? `<img src="${fileUrl}" id="printContent" />`
+      ? `<img src="${fileUrl}" id="printContent" onload="window.print()" />`
       : isPDF
         ? `<embed src="${fileUrl}" type="application/pdf" id="printContent" />`
-        : `<iframe src="${fileUrl}" id="printContent"></iframe>`;
+        : `<iframe src="${fileUrl}" id="printContent" onload="window.print()"></iframe>`;
 
     printWindow.document.write(`
       <html>
@@ -33,8 +34,6 @@ export const printFile = async (file: any): Promise<void> => {
               html, body, img, embed, iframe {
                 width: 100%;
                 height: 100%;
-                page-break-inside: avoid;
-                break-inside: avoid;
               }
             }
             @page { margin: 0; size: auto; }
@@ -45,47 +44,48 @@ export const printFile = async (file: any): Promise<void> => {
     `);
     printWindow.document.close();
 
-    let printed = false;
-
-    const tryPrint = () => {
-      if (printed) return;
-      printed = true;
+    // Fallback print timer with extended timeout for large files
+    const fallback = setTimeout(() => {
       try {
         printWindow.focus();
         printWindow.print();
       } catch (e) {
-        console.error('Print failed:', e);
+        console.error('Fallback print failed', e);
       }
       resolve();
-    };
+    }, 6000); // 6 second fallback for large PDFs
 
-    const element = printWindow.document.getElementById('printContent');
-    if (element) {
-      element.onload = () => setTimeout(tryPrint, 200);  // short delay after load
-      element.onerror = tryPrint;
-
-      // fallback if onload never fires
-      setTimeout(tryPrint, 4000);
-    } else {
-      setTimeout(tryPrint, 3000); // fallback for unknown types
-    }
+    // Monitor print window closure to detect completion
+    const interval = setInterval(() => {
+      if (printWindow.closed) {
+        clearInterval(interval);
+        clearTimeout(fallback);
+        resolve();
+      }
+    }, 500);
   });
 };
 
-// Parallel print with controlled tab gaps
+// Sequential printing - one file at a time for reliability
 export const printAllFiles = async (
   files: any[],
-  onProgress?: (current: number, total: number) => void,
-  delayBetweenTabs = 600 // milliseconds
+  onProgress?: (current: number, total: number) => void
 ): Promise<void> => {
   const parsedFiles = typeof files === 'string' ? JSON.parse(files) : files;
 
   for (let i = 0; i < parsedFiles.length; i++) {
-    // Open each print task slightly delayed to avoid browser blocking
-    setTimeout(() => {
-      printFile(parsedFiles[i]).then(() => {
-        if (onProgress) onProgress(i + 1, parsedFiles.length);
-      });
-    }, i * delayBetweenTabs);
+    try {
+      await printFile(parsedFiles[i]); // Wait for each print to complete
+      if (onProgress) onProgress(i + 1, parsedFiles.length);
+      
+      // Small delay between prints to prevent browser overwhelming
+      if (i < parsedFiles.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    } catch (error) {
+      console.error(`Failed to print file ${i + 1}:`, error);
+      // Continue with next file even if one fails
+      if (onProgress) onProgress(i + 1, parsedFiles.length);
+    }
   }
 };

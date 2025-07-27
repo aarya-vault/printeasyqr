@@ -450,8 +450,9 @@ The working hours system now provides complete accuracy across all platform inte
 The print system now reliably opens print dialogs for all supported file types without any downloads, following browser best practices for printing.
 
 ### Critical Print Fixes (January 27, 2025 - Latest)
-- **Duplicate Print Prevention**: Added `printed` flag to prevent overlapping print triggers from load events and fallbacks
-- **Optimized Timing**: 200ms delay after content load, 4-second fallback with duplicate protection
-- **Parallel Printing**: Print All opens multiple tabs with 600ms delays instead of sequential 3-second waits
-- **Browser Popup Protection**: Controlled tab opening timing prevents browser popup blocking
+- **Sequential Printing Strategy**: Changed from parallel to sequential printing to prevent browser popup blocking and timing issues
+- **Reliable Load Detection**: Images and iframes use onload print triggers, PDFs use fallback-only for better reliability
+- **Print Window Monitoring**: Added interval checking for `printWindow.closed` to detect completion accurately
+- **Extended Fallback Timing**: 6-second fallback timeout for large PDF files with proper cleanup
+- **Error Handling**: Individual file print failures don't stop the entire batch, with comprehensive logging
 - **Perfect File Serving**: Server correctly detects file types and serves with proper Content-Type headers and inline disposition
