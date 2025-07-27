@@ -16,19 +16,56 @@ export const printFile = async (file: any): Promise<void> => {
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
     const isPDF = fileExtension === 'pdf';
     
+    // NO onload print triggers - JS control only
     const content = isImage
-      ? `<img src="${fileUrl}" style="width:100%;height:auto;" onload="window.print();" />`
+      ? `<img src="${fileUrl}" id="printContent" />`
       : isPDF
-        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" onload="window.print();" />`
-        : `<iframe src="${fileUrl}" width="100%" height="100%" onload="this.contentWindow.print();"></iframe>`;
+        ? `<embed src="${fileUrl}" type="application/pdf" id="printContent" />`
+        : `<iframe src="${fileUrl}" id="printContent"></iframe>`;
     
     printWindow.document.write(`
       <html>
         <head>
           <title>Print - ${filename}</title>
           <style>
-            body { margin: 0; padding: 0; }
-            img, embed, iframe { width: 100%; height: 100vh; border: none; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              overflow: hidden;
+            }
+            
+            img, embed, iframe { 
+              width: 100vw; 
+              height: 100vh; 
+              border: none; 
+              object-fit: contain;
+            }
+            
+            @media print {
+              body {
+                margin: 0;
+                padding: 0;
+                overflow: visible;
+              }
+              
+              img, embed, iframe {
+                width: 100vw;
+                height: 100vh;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                object-fit: contain;
+              }
+              
+              html, body {
+                width: 100%;
+                height: 100%;
+              }
+            }
+            
+            @page {
+              margin: 0;
+              size: auto;
+            }
           </style>
         </head>
         <body>
@@ -38,16 +75,33 @@ export const printFile = async (file: any): Promise<void> => {
     `);
     printWindow.document.close();
     
-    // Fallback timeout in case onload fails
-    setTimeout(() => {
+    // Wait for content to load, then print
+    const tryPrint = () => {
       try {
         printWindow.focus();
         printWindow.print();
+        resolve();
       } catch (e) {
-        console.error('Fallback print failed:', e);
+        console.error('Print failed:', e);
+        resolve();
       }
-      resolve();
-    }, 4000);
+    };
+    
+    // For images and PDFs, wait for load event
+    if (isImage || isPDF) {
+      const element = printWindow.document.getElementById('printContent');
+      if (element) {
+        element.onload = tryPrint;
+        element.onerror = tryPrint;
+        // Fallback after 3 seconds if load doesn't trigger
+        setTimeout(tryPrint, 3000);
+      } else {
+        setTimeout(tryPrint, 2000);
+      }
+    } else {
+      // For other files, shorter wait
+      setTimeout(tryPrint, 2000);
+    }
   });
 };
 
