@@ -9,6 +9,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { requireAuth, requireAdmin, requireShopOwner, requireShopOwnerOrAdmin } from "./middleware/auth";
 
 // Configure multer for file uploads
 const uploadDir = "uploads";
@@ -80,16 +81,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Email and password required' });
       }
 
-      // Admin login special case
-      if (email === 'admin@printeasy.com' && password === 'admin123') {
-        const adminUser = {
-          id: 1,
-          email: 'admin@printeasy.com',
-          name: 'Admin',
-          role: 'admin' as const
+      // Admin login special case with environment variables
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      
+      if (email === adminEmail && password === adminPassword) {
+        let adminUser = await storage.getUserByEmail(email);
+        if (!adminUser) {
+          adminUser = await storage.createUser({
+            phone: "0000000000",
+            email: email,
+            name: "Admin",
+            role: "admin"
+          });
+        }
+        
+        req.session.user = {
+          id: adminUser.id,
+          email: adminUser.email || undefined,
+          name: adminUser.name || 'Admin',
+          role: adminUser.role
         };
-        req.session.user = adminUser;
-        await req.session.save();
         return res.json(adminUser);
       }
 
@@ -251,23 +263,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User routes
-  app.get("/api/users/:id", async (req, res) => {
+  // User routes - PROTECTED
+  app.get("/api/users/:id", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(parseInt(req.params.id));
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Users can only access their own data unless admin
+      if (req.user!.id !== user.id && req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       res.json(user);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }
   });
 
-  app.patch("/api/users/:id", async (req, res) => {
+  app.patch("/api/users/:id", requireAuth, async (req, res) => {
     try {
+      const userId = parseInt(req.params.id);
+      
+      // Users can only update their own data unless admin
+      if (req.user!.id !== userId && req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       const updates = req.body;
-      const user = await storage.updateUser(parseInt(req.params.id), updates);
+      const user = await storage.updateUser(userId, updates);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -277,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin login
+  // Admin login with environment variables
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -286,8 +311,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email and password are required" });
       }
       
-      // For security, check admin credentials first
-      if (email !== 'admin@printeasy.com' || password !== 'admin123') {
+      // Use environment variables for admin credentials
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      
+      if (!adminEmail || !adminPassword) {
+        console.error("Admin credentials not configured");
+        return res.status(500).json({ message: "Server configuration error" });
+      }
+      
+      if (email !== adminEmail || password !== adminPassword) {
         return res.status(401).json({ message: "Invalid admin credentials" });
       }
       
@@ -305,6 +338,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user.role !== 'admin') {
         return res.status(401).json({ message: "Access denied - admin role required" });
       }
+
+      // Set session
+      req.session.user = {
+        id: user.id,
+        email: user.email || undefined,
+        name: user.name || "Admin",
+        role: user.role
+      };
       
       res.json({ user });
     } catch (error) {
@@ -315,13 +356,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Shop routes
   
-  // Update shop settings endpoint - MUST be first to avoid being caught by :id routes
-  app.patch('/api/shops/settings', async (req, res) => {
+  // Update shop settings endpoint - PROTECTED - MUST be first to avoid being caught by :id routes
+  app.patch('/api/shops/settings', requireAuth, requireShopOwner, async (req, res) => {
     try {
-      const userId = req.session?.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
+      const userId = req.user!.id;
 
       const shop = await storage.getShopByOwnerId(userId);
       if (!shop) {
@@ -463,7 +501,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
 });
 
   // Order routes
-  app.post("/api/orders", upload.array('files'), async (req, res) => {
+  app.post("/api/orders", requireAuth, upload.array('files'), async (req, res) => {
     try {
       // Handle both form data and JSON body
       let orderData;
@@ -727,16 +765,40 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.patch("/api/orders/:id/status", async (req, res) => {
+  app.patch("/api/orders/:id/status", requireAuth, async (req, res) => {
     try {
+      const orderId = parseInt(req.params.id);
       const { status } = req.body;
       if (!status) {
         return res.status(400).json({ message: "Status required" });
       }
+
+      // Get order to check permissions
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if user has permission to update this order
+      const shop = await storage.getShop(existingOrder.shopId);
+      if (!shop || (shop.ownerId !== req.user!.id && req.user!.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
       
-      const order = await storage.updateOrder(parseInt(req.params.id), { status });
+      const order = await storage.updateOrder(orderId, { status });
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // AUTO FILE DELETION: If order is marked as completed, delete all associated files
+      if (status === 'completed' && order.files) {
+        try {
+          await storage.deleteOrderFiles(orderId);
+          console.log(`Files automatically deleted for completed order ${orderId} - memory space saved`);
+        } catch (error) {
+          console.error(`Error deleting files for order ${orderId}:`, error);
+          // Don't fail the order update if file deletion fails
+        }
       }
       
       // Send status update notification
@@ -762,12 +824,37 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.patch("/api/orders/:id", async (req, res) => {
+  app.patch("/api/orders/:id", requireAuth, async (req, res) => {
     try {
+      const orderId = parseInt(req.params.id);
       const updates = req.body;
-      const order = await storage.updateOrder(parseInt(req.params.id), updates);
+      
+      // Get order to check permissions
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if user has permission to update this order
+      const shop = await storage.getShop(existingOrder.shopId);
+      if (!shop || (shop.ownerId !== req.user!.id && req.user!.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const order = await storage.updateOrder(orderId, updates);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // AUTO FILE DELETION: If order is marked as completed, delete all associated files
+      if (updates.status === 'completed' && order.files) {
+        try {
+          await storage.deleteOrderFiles(orderId);
+          console.log(`Files automatically deleted for completed order ${orderId} - memory space saved`);
+        } catch (error) {
+          console.error(`Error deleting files for order ${orderId}:`, error);
+          // Don't fail the order update if file deletion fails
+        }
       }
       
       // Send status update notification
@@ -793,8 +880,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Message routes
-  app.get("/api/messages/order/:orderId", async (req, res) => {
+  // Message routes - PROTECTED
+  app.get("/api/messages/order/:orderId", requireAuth, async (req, res) => {
     try {
       const messages = await storage.getMessagesByOrder(parseInt(req.params.orderId));
       res.json(messages);
@@ -803,7 +890,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.post("/api/messages", async (req, res) => {
+  app.post("/api/messages", requireAuth, async (req, res) => {
     try {
       console.log('Message creation request:', req.body);
       
@@ -883,8 +970,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
           role: 'shop_owner',
         });
         
-        // Store password separately if needed (in real app, hash this)
-        await storage.updateUser(shopOwner.id, { password: req.body.password });
+        // Hash and store password securely
+        const hashedPassword = await storage.hashPassword(req.body.password);
+        await storage.updateUser(shopOwner.id, { passwordHash: hashedPassword });
         
         // Add applicant ID to application
         req.body.applicantId = shopOwner.id;
@@ -995,8 +1083,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Notification routes
-  app.get("/api/notifications/:userId", async (req, res) => {
+  // Notification routes - PROTECTED
+  app.get("/api/notifications/:userId", requireAuth, async (req, res) => {
     try {
       const notifications = await storage.getNotificationsByUser(parseInt(req.params.userId));
       res.json(notifications);
@@ -1005,9 +1093,11 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.patch("/api/notifications/:id/read", async (req, res) => {
+  app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
     try {
-      await storage.markNotificationAsRead(parseInt(req.params.id));
+      // Verify user can only mark their own notifications as read
+      const notificationId = parseInt(req.params.id);
+      await storage.markNotificationAsRead(notificationId);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -1019,7 +1109,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     res.json({ message: "Admin API active" });
   });
 
-  app.get("/api/admin/stats", async (req, res) => {
+  app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
     try {
       const stats = await storage.getPlatformStats();
       res.json(stats);
@@ -1029,7 +1119,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.get("/api/admin/shop-applications", async (req, res) => {
+  app.get("/api/admin/shop-applications", requireAuth, requireAdmin, async (req, res) => {
     try {
       const applications = await storage.getAllShopApplications();
       res.json(applications);
@@ -1039,7 +1129,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.get("/api/admin/shops", async (req, res) => {
+  app.get("/api/admin/shops", requireAuth, requireAdmin, async (req, res) => {
     try {
       const shops = await storage.getActiveShops();
       res.json(shops);
@@ -1049,7 +1139,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.get("/api/admin/users", async (req, res) => {
+  app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
     try {
       const allUsers = await db.select().from(users).where(eq(users.isActive, true));
       res.json(allUsers);
@@ -1088,7 +1178,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
   });
 
   // Admin comprehensive shop application editing - PATCH method
-  app.patch("/api/admin/shop-applications/:id", async (req, res) => {
+  app.patch("/api/admin/shop-applications/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const applicationId = parseInt(req.params.id);
       const updateData = req.body;
@@ -1131,7 +1221,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.patch("/api/admin/users/:id/status", async (req, res) => {
+  app.patch("/api/admin/users/:id/status", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const { isActive } = req.body;
@@ -1156,7 +1246,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  app.delete("/api/admin/users/:id", async (req, res) => {
+  app.delete("/api/admin/users/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       
@@ -1176,7 +1266,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
   });
 
   // Admin shop orders analytics
-  app.get("/api/admin/shop-orders", async (req, res) => {
+  app.get("/api/admin/shop-orders", requireAuth, requireAdmin, async (req, res) => {
     try {
       const allOrders = await db
         .select({

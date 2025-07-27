@@ -9,7 +9,7 @@ export const users = pgTable("users", {
   phone: text("phone").notNull().unique(),
   name: text("name"),
   email: text("email"),
-  password: text("password"), // For shop owners and admins
+  passwordHash: text("password_hash"), // Hashed password for shop owners and admins
   role: text("role").notNull().default("customer"), // 'customer', 'shop_owner', 'admin'
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

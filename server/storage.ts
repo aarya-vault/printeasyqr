@@ -7,6 +7,9 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql } from "drizzle-orm";
+import bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 
 export interface IStorage {
   // User operations
@@ -34,6 +37,7 @@ export interface IStorage {
   getOrdersByShop(shopId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: number, updates: Partial<Order>): Promise<Order | undefined>;
+  deleteOrderFiles(orderId: number): Promise<void>;
   
   // Message operations
   getMessagesByOrder(orderId: number): Promise<Message[]>;
@@ -66,6 +70,10 @@ export interface IStorage {
   // Admin shop management operations
   updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void>;
   deleteShop(shopId: number): Promise<void>;
+
+  // Security operations
+  hashPassword(password: string): Promise<string>;
+  verifyPassword(password: string, hash: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -113,7 +121,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getShopByEmail(email: string): Promise<any> {
-    // Get shop application by email (contains password)
+    // Get shop application by email (contains password hash)
     const [application] = await db
       .select()
       .from(shopApplications)
@@ -492,6 +500,54 @@ export class DatabaseStorage implements IStorage {
 
   async deleteShop(shopId: number): Promise<void> {
     await db.delete(shops).where(eq(shops.id, shopId));
+  }
+
+  async deleteOrderFiles(orderId: number): Promise<void> {
+    // Get the order to access file information
+    const order = await this.getOrder(orderId);
+    if (!order || !order.files) return;
+
+    try {
+      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      
+      for (const file of files) {
+        try {
+          const filename = file.filename || file.path;
+          if (filename) {
+            const filePath = path.join(uploadDir, filename);
+            
+            // Check if file exists before attempting to delete
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+              console.log(`Deleted file: ${filename} for completed order ${orderId}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Error deleting file ${file.filename} for order ${orderId}:`, error);
+          // Continue deleting other files even if one fails
+        }
+      }
+
+      // Clear files data from database to save space
+      await db.update(orders)
+        .set({ files: null })
+        .where(eq(orders.id, orderId));
+        
+    } catch (error) {
+      console.error(`Error processing file deletion for order ${orderId}:`, error);
+    }
+  }
+
+  // Helper method to hash passwords
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 12;
+    return bcrypt.hash(password, saltRounds);
+  }
+
+  // Helper method to verify passwords
+  async verifyPassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 }
 
