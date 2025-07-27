@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import ChatModal from '@/components/chat-modal';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { printFile, printAllFiles } from '@/utils/print-helpers';
 
 interface Order {
   id: number;
@@ -83,54 +84,20 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
     });
   };
 
-  const handlePrintAll = () => {
+  const handlePrintAll = async () => {
     try {
       const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-      if (Array.isArray(files)) {
-        let printCount = 0;
-        files.forEach((file, index) => {
-          setTimeout(() => {
-            const filePath = `/uploads/${file.filename || file}`;
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = filePath;
-            document.body.appendChild(iframe);
-            
-            iframe.onload = () => {
-              try {
-                iframe.contentWindow?.focus();
-                iframe.contentWindow?.print();
-                printCount++;
-                
-                // Remove iframe after printing
-                setTimeout(() => {
-                  document.body.removeChild(iframe);
-                  if (printCount === files.length) {
-                    toast({ title: `All ${files.length} files sent to print` });
-                  }
-                }, 1000);
-              } catch (e) {
-                // If iframe print fails, try opening in new window
-                const printWindow = window.open(filePath, `print_${index}`, 'width=800,height=600');
-                if (printWindow) {
-                  printWindow.onload = () => {
-                    setTimeout(() => {
-                      printWindow.print();
-                      printCount++;
-                      if (printCount === files.length) {
-                        toast({ title: `All ${files.length} files sent to print` });
-                      }
-                    }, 500);
-                  };
-                }
-                document.body.removeChild(iframe);
-              }
-            };
-          }, index * 1000); // Stagger by 1 second to ensure proper loading
-        });
+      if (Array.isArray(files) && files.length > 0) {
         toast({ title: `Preparing ${files.length} files for printing...` });
+        
+        await printAllFiles(files, (current, total) => {
+          if (current === total) {
+            toast({ title: `All ${total} files sent to print` });
+          }
+        });
       }
     } catch (error) {
+      console.error('Error printing files:', error);
       toast({ title: 'Error printing files', variant: 'destructive' });
     }
   };
@@ -302,31 +269,13 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                onClick={() => {
-                                  const filePath = `/uploads/${file.filename || file}`;
-                                  const iframe = document.createElement('iframe');
-                                  iframe.style.display = 'none';
-                                  iframe.src = filePath;
-                                  document.body.appendChild(iframe);
-                                  
-                                  iframe.onload = () => {
-                                    try {
-                                      iframe.contentWindow?.focus();
-                                      iframe.contentWindow?.print();
-                                      setTimeout(() => {
-                                        document.body.removeChild(iframe);
-                                      }, 1000);
-                                    } catch (e) {
-                                      // Fallback to new window
-                                      const printWindow = window.open(filePath, '_blank', 'width=800,height=600');
-                                      if (printWindow) {
-                                        printWindow.onload = () => {
-                                          setTimeout(() => printWindow.print(), 500);
-                                        };
-                                      }
-                                      document.body.removeChild(iframe);
-                                    }
-                                  };
+                                onClick={async () => {
+                                  try {
+                                    await printFile(file);
+                                    toast({ title: 'File sent to print' });
+                                  } catch (error) {
+                                    toast({ title: 'Error printing file', variant: 'destructive' });
+                                  }
                                 }}
                               >
                                 <Printer className="w-4 h-4" />

@@ -19,6 +19,8 @@ import {
   Zap
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { useToast } from '@/hooks/use-toast';
 
 interface OrderDetails {
   id: number;
@@ -41,37 +43,21 @@ interface OrderDetails {
 
 export default function ShopOrderDetails() {
   const { orderId } = useParams();
+  const { toast } = useToast();
 
   const { data: order, isLoading } = useQuery<OrderDetails>({
     queryKey: [`/api/orders/${orderId}`],
     enabled: !!orderId,
   });
 
-  const handlePrintFile = (file: any) => {
-    const fileUrl = `/uploads/${file.filename || file}`;
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = fileUrl;
-    document.body.appendChild(iframe);
-    
-    iframe.onload = () => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      } catch (e) {
-        // Fallback to new window
-        const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
-        if (printWindow) {
-          printWindow.onload = () => {
-            setTimeout(() => printWindow.print(), 500);
-          };
-        }
-        document.body.removeChild(iframe);
-      }
-    };
+  const handlePrintFile = async (file: any) => {
+    try {
+      await printFile(file);
+      toast({ title: 'File sent to print' });
+    } catch (error) {
+      console.error('Error printing file:', error);
+      toast({ title: 'Error printing file', variant: 'destructive' });
+    }
   };
 
   const handleDownloadFile = (file: any) => {
@@ -83,15 +69,22 @@ export default function ShopOrderDetails() {
     document.body.removeChild(link);
   };
 
-  const handlePrintAll = () => {
+  const handlePrintAll = async () => {
     if (order?.files) {
-      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-      if (files.length > 0) {
-        files.forEach((file: any, index: number) => {
-          setTimeout(() => {
-            handlePrintFile(file);
-          }, index * 1000); // Stagger by 1 second
-        });
+      try {
+        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        if (files.length > 0) {
+          toast({ title: `Preparing ${files.length} files for printing...` });
+          
+          await printAllFiles(files, (current, total) => {
+            if (current === total) {
+              toast({ title: `All ${total} files sent to print` });
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error printing files:', error);
+        toast({ title: 'Error printing files', variant: 'destructive' });
       }
     }
   };

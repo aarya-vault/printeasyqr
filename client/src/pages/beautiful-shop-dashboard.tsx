@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { printFile, printAllFiles } from '@/utils/print-helpers';
 import {
   Search,
   Package,
@@ -198,62 +199,21 @@ export default function BeautifulShopDashboard() {
     },
   });
 
-  const handlePrintAll = (order: Order) => {
+  const handlePrintAll = async (order: Order) => {
     if (order.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-        let printCount = 0;
-        
-        files.forEach((file: any, index: number) => {
-          setTimeout(() => {
-            const fileUrl = `/uploads/${file.filename || file}`;
-            
-            // Create hidden iframe for printing
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.right = '0';
-            iframe.style.bottom = '0';
-            iframe.style.width = '0';
-            iframe.style.height = '0';
-            iframe.style.border = '0';
-            iframe.src = fileUrl;
-            document.body.appendChild(iframe);
-            
-            iframe.onload = () => {
-              try {
-                iframe.contentWindow?.focus();
-                iframe.contentWindow?.print();
-                printCount++;
-                
-                // Clean up iframe after print
-                setTimeout(() => {
-                  document.body.removeChild(iframe);
-                  if (printCount === files.length) {
-                    toast({ title: `All ${files.length} files sent to print` });
-                  }
-                }, 1000);
-              } catch (e) {
-                // Fallback: open in new window
-                const printWindow = window.open(fileUrl, `print_${index}`, 'width=800,height=600');
-                if (printWindow) {
-                  printWindow.onload = () => {
-                    setTimeout(() => {
-                      printWindow.print();
-                      printCount++;
-                      if (printCount === files.length) {
-                        toast({ title: `All ${files.length} files sent to print` });
-                      }
-                    }, 500);
-                  };
-                }
-                document.body.removeChild(iframe);
-              }
-            };
-          }, index * 1000); // Stagger by 1 second
-        });
-        
-        toast({ title: `Preparing ${files.length} files for printing...` });
+        if (files.length > 0) {
+          toast({ title: `Preparing ${files.length} files for printing...` });
+          
+          await printAllFiles(files, (current, total) => {
+            if (current === total) {
+              toast({ title: `All ${total} files sent to print` });
+            }
+          });
+        }
       } catch (error) {
+        console.error('Error printing files:', error);
         toast({ title: 'Error opening print dialogs', variant: 'destructive' });
       }
     }
@@ -296,36 +256,14 @@ export default function BeautifulShopDashboard() {
     }
   };
 
-  const handleIndividualPrintFile = (file: any) => {
-    const fileUrl = `/uploads/${file.filename || file}`;
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    iframe.src = fileUrl;
-    document.body.appendChild(iframe);
-    
-    iframe.onload = () => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      } catch (e) {
-        // Fallback to new window
-        const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
-        if (printWindow) {
-          printWindow.onload = () => {
-            setTimeout(() => printWindow.print(), 500);
-          };
-        }
-        document.body.removeChild(iframe);
-      }
-    };
+  const handleIndividualPrintFile = async (file: any) => {
+    try {
+      await printFile(file);
+      toast({ title: 'File sent to print' });
+    } catch (error) {
+      console.error('Error printing file:', error);
+      toast({ title: 'Error printing file', variant: 'destructive' });
+    }
   };
 
   const handleIndividualDownloadFile = (file: any, filename: string) => {
@@ -338,6 +276,10 @@ export default function BeautifulShopDashboard() {
     link.click();
     document.body.removeChild(link);
   };
+
+  // Alias functions for the order card buttons
+  const handlePrintFile = handleIndividualPrintFile;
+  const handleDownloadFile = handleIndividualDownloadFile;
 
   const getStatusColor = (status: string) => {
     switch (status) {
