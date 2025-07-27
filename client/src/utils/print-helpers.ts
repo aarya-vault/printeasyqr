@@ -1,105 +1,159 @@
 // Helper functions for printing files
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
-  const fileExtension = (file.originalName || file.filename || file).split('.').pop()?.toLowerCase();
+  const filename = file.originalName || file.filename || file;
+  const fileExtension = filename.split('.').pop()?.toLowerCase();
   
   return new Promise((resolve) => {
-    // For PDFs and images, we can use iframe printing
-    if (['pdf', 'jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '')) {
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'fixed';
-      iframe.style.right = '0';
-      iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = '0';
-      iframe.src = fileUrl;
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    if (!printWindow) {
+      console.error('Failed to open print window');
+      resolve();
+      return;
+    }
+
+    // For PDFs, embed directly
+    if (fileExtension === 'pdf') {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Print - ${filename}</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            embed { width: 100%; height: 100vh; }
+          </style>
+        </head>
+        <body>
+          <embed src="${fileUrl}" type="application/pdf" />
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
       
-      // Add to DOM
-      document.body.appendChild(iframe);
+      // Wait for PDF to load
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        resolve();
+      }, 1000);
+    } 
+    // For images, display in an img tag
+    else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '')) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Print - ${filename}</title>
+          <style>
+            body { 
+              margin: 0; 
+              padding: 20px; 
+              display: flex; 
+              justify-content: center; 
+              align-items: center; 
+              min-height: 100vh;
+            }
+            img { 
+              max-width: 100%; 
+              max-height: 100vh; 
+              object-fit: contain; 
+            }
+            @media print {
+              body { padding: 0; }
+              img { max-width: 100%; max-height: 100%; }
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${fileUrl}" alt="${filename}" onload="window.print();" />
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+    // For text files
+    else if (['txt', 'log', 'md'].includes(fileExtension || '')) {
+      // Fetch and display text content
+      fetch(fileUrl)
+        .then(response => response.text())
+        .then(text => {
+          printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Print - ${filename}</title>
+              <style>
+                body { 
+                  font-family: monospace; 
+                  white-space: pre-wrap; 
+                  padding: 20px;
+                  line-height: 1.5;
+                }
+                @media print {
+                  body { padding: 10px; font-size: 12px; }
+                }
+              </style>
+            </head>
+            <body>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
+            </html>
+          `);
+          printWindow.document.close();
+          setTimeout(() => {
+            printWindow.print();
+            resolve();
+          }, 500);
+        })
+        .catch(error => {
+          console.error('Error loading text file:', error);
+          printWindow.close();
+          resolve();
+        });
+    }
+    // For other files, try to display in iframe
+    else {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Print - ${filename}</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            iframe { width: 100%; height: 100vh; border: none; }
+          </style>
+        </head>
+        <body>
+          <iframe src="${fileUrl}" onload="setTimeout(() => window.print(), 1000);"></iframe>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
       
-      // Wait for iframe to load
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            // Focus and print
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-            
-            // Clean up after a delay
-            setTimeout(() => {
-              document.body.removeChild(iframe);
-              resolve();
-            }, 100);
-          } catch (error) {
-            console.error('Iframe print error:', error);
-            // Fallback to window.open
-            openPrintWindow(fileUrl, resolve);
-            document.body.removeChild(iframe);
-          }
-        }, 500); // Give the document time to render
-      };
-      
-      // Fallback if iframe fails to load
-      iframe.onerror = () => {
-        document.body.removeChild(iframe);
-        openPrintWindow(fileUrl, resolve);
-      };
-    } else {
-      // For other file types, use window.open
-      openPrintWindow(fileUrl, resolve);
+      setTimeout(() => {
+        resolve();
+      }, 2000);
     }
   });
 };
 
-const openPrintWindow = (fileUrl: string, resolve: () => void) => {
-  const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
-  
-  if (printWindow) {
-    // Poll to check if window is loaded
-    const checkLoaded = setInterval(() => {
-      try {
-        if (printWindow.document.readyState === 'complete') {
-          clearInterval(checkLoaded);
-          setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
-            resolve();
-          }, 500);
-        }
-      } catch (e) {
-        // Cross-origin, just wait and print
-        clearInterval(checkLoaded);
-        setTimeout(() => {
-          printWindow.focus();
-          printWindow.print();
-          resolve();
-        }, 2000);
-      }
-    }, 100);
-    
-    // Timeout fallback
-    setTimeout(() => {
-      clearInterval(checkLoaded);
-      resolve();
-    }, 5000);
-  } else {
-    resolve();
-  }
-};
+
 
 export const printAllFiles = async (files: any[], onProgress?: (current: number, total: number) => void): Promise<void> => {
   const parsedFiles = typeof files === 'string' ? JSON.parse(files) : files;
   
+  // Process all files sequentially
   for (let i = 0; i < parsedFiles.length; i++) {
+    await printFile(parsedFiles[i]);
+    
     if (onProgress) {
       onProgress(i + 1, parsedFiles.length);
     }
-    await printFile(parsedFiles[i]);
     
     // Wait between prints to avoid overwhelming the browser
     if (i < parsedFiles.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
 };

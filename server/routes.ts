@@ -1360,13 +1360,29 @@ app.patch('/api/debug/patch-test', (req, res) => {
   // Also serve uploads at /uploads path for direct access with proper headers
   app.use("/uploads", (req, res, next) => {
     const ext = path.extname(req.url).toLowerCase();
-    if (ext === '.pdf') {
-      res.setHeader('Content-Type', 'application/pdf');
+    
+    // Set proper content types
+    const contentTypes: { [key: string]: string } = {
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.bmp': 'image/bmp',
+      '.webp': 'image/webp',
+      '.txt': 'text/plain',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    };
+    
+    if (contentTypes[ext]) {
+      res.setHeader('Content-Type', contentTypes[ext]);
       res.setHeader('Content-Disposition', 'inline');
-    } else if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
-      res.setHeader('Content-Type', `image/${ext.substring(1)}`);
-      res.setHeader('Content-Disposition', 'inline');
+      
+      // Allow iframe embedding for printing
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     }
+    
     next();
   }, express.static(uploadDir));
 
