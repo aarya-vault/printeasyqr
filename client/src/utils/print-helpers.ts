@@ -2,96 +2,111 @@
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
   const filename = file.originalName || file.filename || file;
+  
+  return new Promise((resolve) => {
+    // Open file in new window and trigger print
+    const printWindow = window.open(fileUrl, '_blank');
+    
+    if (!printWindow) {
+      console.error('Failed to open print window - popup may be blocked');
+      // Fallback: use hidden iframe
+      printWithIframe(file).then(resolve);
+      return;
+    }
+    
+    // Set up print handling
+    let printed = false;
+    const printHandler = () => {
+      if (!printed) {
+        printed = true;
+        setTimeout(() => {
+          printWindow.focus();
+          printWindow.print();
+          resolve();
+        }, 1000);
+      }
+    };
+    
+    // Try multiple ways to detect when window is ready
+    printWindow.addEventListener('load', printHandler);
+    
+    // Fallback: try printing after timeout
+    setTimeout(() => {
+      if (!printed) {
+        printed = true;
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (e) {
+          console.error('Print failed:', e);
+        }
+        resolve();
+      }
+    }, 2000);
+  });
+};
+
+// Fallback iframe printing method
+const printWithIframe = async (file: any): Promise<void> => {
+  const fileUrl = `/uploads/${file.filename || file}`;
+  const filename = file.originalName || file.filename || file;
   const fileExtension = filename.split('.').pop()?.toLowerCase();
   
   return new Promise((resolve) => {
-    // Create hidden iframe for printing
+    // Create hidden iframe
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.left = '-99999px';
-    iframe.style.top = '-99999px';
     iframe.style.width = '1px';
     iframe.style.height = '1px';
     iframe.style.visibility = 'hidden';
-    iframe.style.opacity = '0';
     
-    // Add iframe to DOM
-    document.body.appendChild(iframe);
-    
-    // Handle different file types
-    if (fileExtension === 'pdf') {
-      // For PDFs, create a printable HTML page
+    // For PDFs and images, create printable HTML
+    if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '')) {
+      const isImage = fileExtension !== 'pdf';
       iframe.srcdoc = `
         <!DOCTYPE html>
         <html>
         <head>
-          <title>Print ${filename}</title>
+          <title>Print - ${filename}</title>
           <style>
             body { margin: 0; padding: 0; }
-            embed { width: 100%; height: 100vh; }
+            ${isImage ? `
+              img { width: 100%; height: auto; display: block; }
+              @media print { 
+                body { margin: 0; }
+                img { max-width: 100%; height: auto; }
+              }
+            ` : `
+              embed { width: 100%; height: 100vh; }
+            `}
           </style>
         </head>
         <body>
-          <embed src="${fileUrl}" type="application/pdf" />
-        </body>
-        </html>
-      `;
-    } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '')) {
-      // For images, create a printable HTML page
-      iframe.srcdoc = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Print ${filename}</title>
-          <style>
-            body { 
-              margin: 0; 
-              padding: 20px; 
-              display: flex; 
-              justify-content: center; 
-              align-items: center; 
-              min-height: 100vh;
-            }
-            img { 
-              max-width: 100%; 
-              max-height: 100vh; 
-              object-fit: contain; 
-            }
-            @media print {
-              body { padding: 0; }
-              img { max-width: 100%; max-height: 100%; }
-            }
-          </style>
-        </head>
-        <body>
-          <img src="${fileUrl}" alt="${filename}" />
+          ${isImage 
+            ? `<img src="${fileUrl}" alt="${filename}" onload="window.print();" />` 
+            : `<embed src="${fileUrl}" type="application/pdf" />`
+          }
         </body>
         </html>
       `;
     } else {
-      // For other files, just load directly
       iframe.src = fileUrl;
     }
     
-    // Wait for iframe to load, then print
+    document.body.appendChild(iframe);
+    
+    // Print after load
     iframe.onload = () => {
       setTimeout(() => {
         try {
           iframe.contentWindow?.focus();
           iframe.contentWindow?.print();
-        } catch (error) {
-          console.error('Print error:', error);
-          // Fallback: try to open in new tab
-          const printTab = window.open(fileUrl, '_blank');
-          if (printTab) {
-            printTab.onload = () => {
-              printTab.focus();
-              printTab.print();
-            };
-          }
+        } catch (e) {
+          console.error('Iframe print failed:', e);
         }
         
-        // Clean up iframe after printing
+        // Cleanup
         setTimeout(() => {
           if (document.body.contains(iframe)) {
             document.body.removeChild(iframe);
@@ -103,12 +118,20 @@ export const printFile = async (file: any): Promise<void> => {
     
     // Error handling
     iframe.onerror = () => {
-      console.error('Failed to load file for printing');
+      console.error('Failed to load file in iframe');
       if (document.body.contains(iframe)) {
         document.body.removeChild(iframe);
       }
       resolve();
     };
+    
+    // Timeout fallback
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+      resolve();
+    }, 5000);
   });
 };
 

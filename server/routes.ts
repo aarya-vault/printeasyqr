@@ -1359,7 +1359,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
 
   // Also serve uploads at /uploads path for direct access with proper headers
   app.use("/uploads", (req, res, next) => {
-    const ext = path.extname(req.url).toLowerCase();
+    const filename = decodeURIComponent(req.url.substring(1));
+    const ext = path.extname(filename).toLowerCase();
     
     // Set proper content types
     const contentTypes: { [key: string]: string } = {
@@ -1370,21 +1371,32 @@ app.patch('/api/debug/patch-test', (req, res) => {
       '.gif': 'image/gif',
       '.bmp': 'image/bmp',
       '.webp': 'image/webp',
-      '.txt': 'text/plain',
+      '.txt': 'text/plain; charset=utf-8',
       '.doc': 'application/msword',
       '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     };
     
     if (contentTypes[ext]) {
       res.setHeader('Content-Type', contentTypes[ext]);
-      res.setHeader('Content-Disposition', 'inline');
+      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filename)}"`);
+      res.setHeader('Cache-Control', 'no-cache');
       
-      // Allow iframe embedding for printing
+      // Security headers
+      res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     }
     
     next();
-  }, express.static(uploadDir));
+  }, express.static(uploadDir, {
+    setHeaders: (res, path, stat) => {
+      const ext = path.substring(path.lastIndexOf('.')).toLowerCase();
+      
+      // Force inline display for PDFs and images
+      if (['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].includes(ext)) {
+        res.setHeader('Content-Disposition', `inline; filename="${path.substring(path.lastIndexOf('/') + 1)}"`);
+      }
+    }
+  }));
 
   return httpServer;
 }
