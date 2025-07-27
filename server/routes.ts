@@ -1357,46 +1357,47 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Also serve uploads at /uploads path for direct access with proper headers
-  app.use("/uploads", (req, res, next) => {
-    const filename = decodeURIComponent(req.url.substring(1));
-    const ext = path.extname(filename).toLowerCase();
+  // Dedicated route for uploads with proper headers (must come before static middleware)
+  app.get("/uploads/:filename", async (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(uploadDir, filename);
     
-    // Set proper content types
-    const contentTypes: { [key: string]: string } = {
-      '.pdf': 'application/pdf',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.bmp': 'image/bmp',
-      '.webp': 'image/webp',
-      '.txt': 'text/plain; charset=utf-8',
-      '.doc': 'application/msword',
-      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    };
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send('File not found');
+    }
     
-    if (contentTypes[ext]) {
-      res.setHeader('Content-Type', contentTypes[ext]);
-      res.setHeader('Content-Disposition', `inline; filename="${path.basename(filename)}"`);
-      res.setHeader('Cache-Control', 'no-cache');
+    try {
+      // Detect content type from file content
+      const buffer = fs.readFileSync(filePath);
+      let contentType = 'application/octet-stream';
       
-      // Security headers
+      // File signature detection
+      if (buffer.slice(0, 4).toString() === '%PDF') {
+        contentType = 'application/pdf';
+      } else if (buffer.slice(0, 8).toString('hex') === '89504e470d0a1a0a') {
+        contentType = 'image/png';
+      } else if (buffer.slice(0, 3).toString('hex') === 'ffd8ff') {
+        contentType = 'image/jpeg';
+      } else if (buffer.slice(0, 6).toString() === 'GIF87a' || buffer.slice(0, 6).toString() === 'GIF89a') {
+        contentType = 'image/gif';
+      } else if (buffer.slice(0, 2).toString() === 'BM') {
+        contentType = 'image/bmp';
+      } else if (buffer.slice(0, 4).toString() === 'RIFF' && buffer.slice(8, 12).toString() === 'WEBP') {
+        contentType = 'image/webp';
+      }
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    }
-    
-    next();
-  }, express.static(uploadDir, {
-    setHeaders: (res, path, stat) => {
-      const ext = path.substring(path.lastIndexOf('.')).toLowerCase();
       
-      // Force inline display for PDFs and images
-      if (['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].includes(ext)) {
-        res.setHeader('Content-Disposition', `inline; filename="${path.substring(path.lastIndexOf('/') + 1)}"`);
-      }
+      res.sendFile(path.resolve(filePath));
+    } catch (error) {
+      console.error('Error serving file:', error);
+      res.status(500).send('Error serving file');
     }
-  }));
+  });
 
   return httpServer;
 }
