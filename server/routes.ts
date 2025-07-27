@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
@@ -547,7 +547,13 @@ app.patch('/api/debug/patch-test', (req, res) => {
       // Handle file uploads
       let files: any[] = [];
       if (req.files && orderType === 'upload') {
-        files = (req.files as Express.Multer.File[]).map(file => file.filename);
+        files = (req.files as Express.Multer.File[]).map(file => ({
+          originalName: file.originalname,
+          filename: file.filename,
+          mimetype: file.mimetype,
+          size: file.size,
+          path: file.path
+        }));
       }
       
       // Create order
@@ -1330,7 +1336,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // File serving
+  // File serving - serve at both /api/files and /uploads for compatibility
   app.get("/api/files/:filename", (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(uploadDir, filename);
@@ -1341,6 +1347,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
       res.status(404).json({ message: "File not found" });
     }
   });
+
+  // Also serve uploads at /uploads path for direct access
+  app.use("/uploads", express.static(uploadDir));
 
   return httpServer;
 }
