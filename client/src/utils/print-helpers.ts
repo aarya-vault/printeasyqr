@@ -2,61 +2,70 @@
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
   const filename = file.originalName || file.filename || file;
+  const fileExtension = filename.split('.').pop()?.toLowerCase();
   
   return new Promise((resolve) => {
-    // Simple approach: just open the file in a new window
-    const printWindow = window.open(fileUrl, '_blank');
+    const printWindow = window.open('', '_blank');
     
     if (!printWindow) {
-      console.error('Failed to open print window - popup may be blocked');
+      console.error('Popup blocked');
       resolve();
       return;
     }
     
-    // Give the window time to load, then trigger print
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
+    const isPDF = fileExtension === 'pdf';
+    
+    const content = isImage
+      ? `<img src="${fileUrl}" style="width:100%;height:auto;" onload="window.print();" />`
+      : isPDF
+        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" onload="window.print();" />`
+        : `<iframe src="${fileUrl}" width="100%" height="100%" onload="this.contentWindow.print();"></iframe>`;
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print - ${filename}</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            img, embed, iframe { width: 100%; height: 100vh; border: none; }
+          </style>
+        </head>
+        <body>
+          ${content}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    
+    // Fallback timeout in case onload fails
     setTimeout(() => {
       try {
         printWindow.focus();
         printWindow.print();
       } catch (e) {
-        console.error('Print failed:', e);
+        console.error('Fallback print failed:', e);
       }
       resolve();
-    }, 1500);
+    }, 4000);
   });
 };
 
-
-
-export const printAllFiles = async (files: any[], onProgress?: (current: number, total: number) => void): Promise<void> => {
+export const printAllFiles = async (
+  files: any[],
+  onProgress?: (current: number, total: number) => void
+): Promise<void> => {
   const parsedFiles = typeof files === 'string' ? JSON.parse(files) : files;
   
-  // Open all print windows with delays as per reference implementation
-  let delay = 0;
-  
-  parsedFiles.forEach((file, index) => {
-    setTimeout(() => {
-      const fileUrl = `/uploads/${file.filename || file}`;
-      const win = window.open(fileUrl, '_blank');
-      
-      if (win) {
-        // Wait for window to load then print
-        setTimeout(() => {
-          try {
-            win.focus();
-            win.print();
-          } catch (e) {
-            console.error('Print error:', e);
-          }
-        }, 1000);
-      }
-      
-      if (onProgress) {
-        onProgress(index + 1, parsedFiles.length);
-      }
-    }, delay);
+  for (let i = 0; i < parsedFiles.length; i++) {
+    await printFile(parsedFiles[i]);
     
-    // Add 3 second delay between each file as per reference
-    delay += 3000;
-  });
+    if (onProgress) {
+      onProgress(i + 1, parsedFiles.length);
+    }
+    
+    if (i < parsedFiles.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // 3s gap between prints
+    }
+  }
 };
