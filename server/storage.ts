@@ -62,6 +62,12 @@ export interface IStorage {
     activeShops: number;
     totalOrders: number;
   }>;
+  
+  // Additional operations
+  getShops(): Promise<Shop[]>;
+  getOrders(): Promise<Order[]>;
+  getUsers(): Promise<User[]>;
+  getUnreadMessagesCountForShop(shopId: number): Promise<number>;
 
   // Admin shop management operations
   updateShopStatus(shopId: number, status: 'active' | 'deactivated' | 'banned'): Promise<void>;
@@ -403,15 +409,34 @@ export class DatabaseStorage implements IStorage {
         name: shops.name,
         slug: shops.slug,
         city: shops.city,
-        isOnline: shops.isOnline,
+        address: shops.address,
         phone: shops.phone,
+        services: shops.services,
+        isOpen: shops.isOnline,
+        orderCount: sql<number>`COUNT(${orders.id})`.as('orderCount'),
+        lastVisited: sql<string>`MAX(${orders.createdAt})`.as('lastVisited')
       })
       .from(orders)
       .innerJoin(shops, eq(orders.shopId, shops.id))
       .where(eq(orders.customerId, customerId))
-      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone);
+      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.address, shops.phone, shops.services, shops.isOnline);
     
     return result;
+  }
+
+  async getUnreadMessagesCountForShop(shopId: number): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(messages)
+      .innerJoin(orders, eq(messages.orderId, orders.id))
+      .where(
+        and(
+          eq(orders.shopId, shopId),
+          eq(messages.isRead, false)
+        )
+      );
+    
+    return result[0]?.count || 0;
   }
 
   async updateShopSettings(shopId: number, settings: any): Promise<any> {
@@ -492,6 +517,34 @@ export class DatabaseStorage implements IStorage {
 
   async deleteShop(shopId: number): Promise<void> {
     await db.delete(shops).where(eq(shops.id, shopId));
+  }
+  
+  async getShops(): Promise<Shop[]> {
+    return await db.select().from(shops);
+  }
+  
+  async getOrders(): Promise<Order[]> {
+    return await db.select().from(orders);
+  }
+  
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+  
+  async getUnreadMessagesCountForShop(shopId: number): Promise<number> {
+    const shop = await this.getShop(shopId);
+    if (!shop) return 0;
+    
+    const shopOrders = await this.getOrdersByShop(shopId);
+    let totalUnread = 0;
+    
+    for (const order of shopOrders) {
+      const messages = await this.getMessagesByOrder(order.id);
+      const unreadCount = messages.filter(m => !m.isRead && m.senderId === order.customerId).length;
+      totalUnread += unreadCount;
+    }
+    
+    return totalUnread;
   }
 }
 

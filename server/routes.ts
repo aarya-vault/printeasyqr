@@ -313,7 +313,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Shop routes
+    // Shop routes
+  
+  // Shop settings update - placed before generic routes
+  app.patch('/api/shops/settings', async (req, res) => {
+    try {
+      // Get shop ID from header or body
+      const shopId = req.headers['x-shop-id'] || req.body.shopId;
+      
+      if (!shopId) {
+        return res.status(400).json({ message: 'Shop ID required' });
+      }
+      
+      const shop = await storage.getShop(parseInt(shopId as string));
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      const updatedShop = await storage.updateShopSettings(shop.id, req.body);
+      res.json({ shop: updatedShop });
+    } catch (error) {
+      console.error('Update shop settings error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
   
   // Get available shops for customers
   app.get('/api/shops/available', async (req, res) => {
@@ -858,6 +881,18 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Get unread messages count for shop
+  app.get('/api/messages/shop/:shopId/unread-count', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const count = await storage.getUnreadMessagesCountForShop(shopId);
+      res.json(count);
+    } catch (error) {
+      console.error('Get unread count error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Shop application routes
   // Shop slug availability check
   app.get('/api/shops/check-slug/:slug', async (req, res) => {
@@ -1032,8 +1067,24 @@ app.patch('/api/debug/patch-test', (req, res) => {
 
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      const stats = await storage.getPlatformStats();
-      res.json(stats);
+      const shops = await storage.getShops();
+      const activeShops = shops.filter(s => s.isOnline).length;
+      const orders = await storage.getOrders();
+      const users = await storage.getUsers();
+      const applications = await storage.getPendingShopApplications();
+      
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayOrders = orders.filter(o => new Date(o.createdAt) >= todayStart).length;
+      
+      res.json({
+        totalShops: shops.length,
+        activeShops,
+        totalOrders: orders.length,
+        pendingApplications: applications.length,
+        totalCustomers: users.filter(u => u.role === 'customer').length,
+        todayOrders
+      });
     } catch (error) {
       console.error("Admin stats error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -1049,11 +1100,52 @@ app.patch('/api/debug/patch-test', (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+  
+  app.get("/api/admin/applications", async (req, res) => {
+    try {
+      const applications = await storage.getAllShopApplications();
+      
+      // Enrich with extra data for desktop admin panel
+      const enrichedApplications = applications.map(app => ({
+        id: app.id,
+        shopName: app.publicShopName,
+        ownerName: app.ownerFullName,
+        email: app.email,
+        phone: app.phoneNumber,
+        city: app.city,
+        state: app.state,
+        status: app.status,
+        createdAt: app.createdAt,
+        services: app.services || [],
+        experience: app.yearsOfExperience || 0
+      }));
+      
+      res.json(enrichedApplications);
+    } catch (error) {
+      console.error('Get applications error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
   app.get("/api/admin/shops", async (req, res) => {
     try {
-      const shops = await storage.getActiveShops();
-      res.json(shops);
+      const shops = await storage.getShops();
+      const enrichedShops = await Promise.all(shops.map(async (shop) => {
+        const orders = await storage.getOrdersByShop(shop.id);
+        return {
+          id: shop.id,
+          name: shop.name,
+          ownerName: shop.ownerFullName,
+          email: shop.email,
+          city: shop.city,
+          state: shop.state,
+          isActive: shop.isOnline,
+          totalOrders: orders.length,
+          createdAt: shop.createdAt
+        };
+      }));
+      
+      res.json(enrichedShops);
     } catch (error) {
       console.error("Admin shops error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -1113,6 +1205,56 @@ app.patch('/api/debug/patch-test', (req, res) => {
     } catch (error) {
       console.error("Update shop application error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  app.patch("/api/admin/applications/:id", async (req, res) => {
+    try {
+      const { status } = req.body;
+      const application = await storage.updateShopApplicationStatus(
+        parseInt(req.params.id),
+        status,
+        req.body.adminNotes
+      );
+      
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found' });
+      }
+      
+      // Handle approval logic here if needed
+      if (status === 'approved') {
+        // Create shop from application
+        await storage.createShop({
+          ownerId: application.applicantId,
+          name: application.publicShopName,
+          slug: application.shopSlug,
+          address: application.publicAddress,
+          city: application.city,
+          state: application.state,
+          pinCode: application.pinCode,
+          phone: application.publicContactNumber || application.phoneNumber,
+          publicOwnerName: application.publicOwnerName,
+          internalName: application.publicShopName,
+          ownerFullName: application.ownerFullName,
+          email: application.email,
+          ownerPhone: application.phoneNumber,
+          completeAddress: application.publicAddress,
+          services: application.services as any,
+          equipment: application.equipment as any,
+          workingHours: application.workingHours as any,
+          yearsOfExperience: application.yearsOfExperience,
+          acceptsWalkinOrders: application.acceptsWalkinOrders,
+          isApproved: true,
+          isOnline: true,
+          autoAvailability: true,
+          isPublic: true
+        });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error('Update application error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 

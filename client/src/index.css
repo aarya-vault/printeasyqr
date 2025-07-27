@@ -218,6 +218,19 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
+  /* Fix dropdown menu transparency */
+  .dropdown-menu-fix {
+    @apply bg-white border border-gray-200 shadow-lg;
+  }
+  
+  /* Professional dropdown styling */
+  [role="menu"] {
+    @apply bg-white border border-gray-200 shadow-lg !important;
+  }
+  
+  [role="menuitem"] {
+    @apply bg-white hover:bg-gray-50 !important;
+  }
 }
 
 @layer utilities {

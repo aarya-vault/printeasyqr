@@ -28,6 +28,8 @@ import ProfessionalShopApplication from "@/pages/professional-shop-application";
 import ShopOrder from "@/pages/shop-order";
 import OrderConfirmation from "@/pages/order-confirmation";
 import ShopNotifications from "@/pages/shop-notifications";
+import ShopsPage from "@/pages/shops";
+import ShopQRCode from "@/pages/shop-qr-code";
 
 
 function Router() {
@@ -65,7 +67,10 @@ function Router() {
       <Route path="/auth/admin" component={AdminLogin} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/apply-shop" component={ProfessionalShopApplication} />
+      <Route path="/shops" component={ShopsPage} />
+      <Route path="/shop/:id/upload" component={ShopOrder} />
       <Route path="/shop/:slug" component={ShopOrder} />
+      <Route path="/shop/qr" component={ShopQRCode} />
       <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
       <Route path="/shop-notifications" component={ShopNotifications} />
 

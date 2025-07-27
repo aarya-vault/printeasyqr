@@ -136,8 +136,8 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5">
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200">
+                  <div className="px-2 py-1.5 bg-white">
                     <p className="text-sm font-semibold text-black">
                       {user.name || user.phone || user.email}
                     </p>
