@@ -5,6 +5,8 @@ import { ProfessionalLayout } from '@/components/professional-layout';
 import { DashboardStats, DashboardCard, QuickActions } from '@/components/professional-dashboard';
 import { ProfessionalLoading } from '@/components/professional-loading';
 import ShopChatModal from '@/components/shop-chat-modal';
+import MobileOrderQuickActions from '@/components/mobile-order-quick-actions';
+import MobileChatPanel from '@/components/mobile-chat-panel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +52,7 @@ export default function ProfessionalCustomerDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedOrderForChat, setSelectedOrderForChat] = React.useState<number | null>(null);
+  const [showMobileChat, setShowMobileChat] = React.useState(false);
 
   // Fetch customer data
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
@@ -190,44 +193,59 @@ export default function ProfessionalCustomerDashboard() {
           ) : (
             <div className="space-y-4">
               {orders.slice(0, 3).map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-black">#{order.id}</h4>
-                      <Badge className={`status-${order.status}`}>
-                        {order.status}
-                      </Badge>
-                      {order.unreadMessages > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                          {order.unreadMessages} new
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-1">{order.description}</p>
-                    <p className="text-xs text-gray-500">
-                      {order.shop.name} • {new Date(order.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setLocation(`/order-confirmation/${order.id}`)}
-                    >
-                      View
-                    </Button>
-                    {order.unreadMessages > 0 && (
-                      <Button
-                        size="sm"
-                        className="btn-primary"
-                        onClick={() => setSelectedOrderForChat(order.id)}
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                <div key={order.id} className="block lg:hidden">
+                  <MobileOrderQuickActions
+                    order={order}
+                    onChatOpen={() => {
+                      setSelectedOrderForChat(order.id);
+                      setShowMobileChat(true);
+                    }}
+                  />
                 </div>
               ))}
+              
+              {/* Desktop view for larger screens */}
+              <div className="hidden lg:block space-y-4">
+                {orders.slice(0, 3).map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-black">#{order.id}</h4>
+                        <Badge className={`status-${order.status}`}>
+                          {order.status}
+                        </Badge>
+                        {order.unreadMessages > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            {order.unreadMessages} new
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{order.description}</p>
+                      <p className="text-xs text-gray-500">
+                        {order.shop.name} • {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setLocation(`/order-confirmation/${order.id}`)}
+                      >
+                        View
+                      </Button>
+                      {order.unreadMessages > 0 && (
+                        <Button
+                          size="sm"
+                          className="btn-primary"
+                          onClick={() => setSelectedOrderForChat(order.id)}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </DashboardCard>
@@ -323,12 +341,31 @@ export default function ProfessionalCustomerDashboard() {
         </Card>
       )}
 
-      {/* Chat Modal */}
-      {selectedOrderForChat && (
-        <ShopChatModal
-          orderId={selectedOrderForChat}
-          onClose={() => setSelectedOrderForChat(null)}
-        />
+      {/* Mobile Chat Panel */}
+      {showMobileChat && selectedOrderForChat && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileChat(false)} />
+          <div className="absolute bottom-0 left-0 right-0 h-[80vh]">
+            <MobileChatPanel
+              orderId={selectedOrderForChat}
+              onClose={() => {
+                setShowMobileChat(false);
+                setSelectedOrderForChat(null);
+              }}
+              className="h-full"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Chat Modal */}
+      {selectedOrderForChat && !showMobileChat && (
+        <div className="hidden lg:block">
+          <ShopChatModal
+            orderId={selectedOrderForChat}
+            onClose={() => setSelectedOrderForChat(null)}
+          />
+        </div>
       )}
     </ProfessionalLayout>
   );
