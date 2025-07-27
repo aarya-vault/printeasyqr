@@ -87,18 +87,48 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
     try {
       const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
       if (Array.isArray(files)) {
+        let printCount = 0;
         files.forEach((file, index) => {
           setTimeout(() => {
             const filePath = `/uploads/${file.filename || file}`;
-            const printWindow = window.open(filePath, '_blank');
-            if (printWindow) {
-              printWindow.onload = () => {
-                printWindow.print();
-              };
-            }
-          }, index * 500); // Stagger by 500ms
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = filePath;
+            document.body.appendChild(iframe);
+            
+            iframe.onload = () => {
+              try {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+                printCount++;
+                
+                // Remove iframe after printing
+                setTimeout(() => {
+                  document.body.removeChild(iframe);
+                  if (printCount === files.length) {
+                    toast({ title: `All ${files.length} files sent to print` });
+                  }
+                }, 1000);
+              } catch (e) {
+                // If iframe print fails, try opening in new window
+                const printWindow = window.open(filePath, `print_${index}`, 'width=800,height=600');
+                if (printWindow) {
+                  printWindow.onload = () => {
+                    setTimeout(() => {
+                      printWindow.print();
+                      printCount++;
+                      if (printCount === files.length) {
+                        toast({ title: `All ${files.length} files sent to print` });
+                      }
+                    }, 500);
+                  };
+                }
+                document.body.removeChild(iframe);
+              }
+            };
+          }, index * 1000); // Stagger by 1 second to ensure proper loading
         });
-        toast({ title: `Opening ${files.length} files for printing` });
+        toast({ title: `Preparing ${files.length} files for printing...` });
       }
     } catch (error) {
       toast({ title: 'Error printing files', variant: 'destructive' });
@@ -274,12 +304,29 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                                 variant="ghost" 
                                 onClick={() => {
                                   const filePath = `/uploads/${file.filename || file}`;
-                                  const printWindow = window.open(filePath, '_blank');
-                                  if (printWindow) {
-                                    printWindow.onload = () => {
-                                      printWindow.print();
-                                    };
-                                  }
+                                  const iframe = document.createElement('iframe');
+                                  iframe.style.display = 'none';
+                                  iframe.src = filePath;
+                                  document.body.appendChild(iframe);
+                                  
+                                  iframe.onload = () => {
+                                    try {
+                                      iframe.contentWindow?.focus();
+                                      iframe.contentWindow?.print();
+                                      setTimeout(() => {
+                                        document.body.removeChild(iframe);
+                                      }, 1000);
+                                    } catch (e) {
+                                      // Fallback to new window
+                                      const printWindow = window.open(filePath, '_blank', 'width=800,height=600');
+                                      if (printWindow) {
+                                        printWindow.onload = () => {
+                                          setTimeout(() => printWindow.print(), 500);
+                                        };
+                                      }
+                                      document.body.removeChild(iframe);
+                                    }
+                                  };
                                 }}
                               >
                                 <Printer className="w-4 h-4" />

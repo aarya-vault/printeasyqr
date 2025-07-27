@@ -48,36 +48,64 @@ export default function ShopOrderDetails() {
   });
 
   const handlePrintFile = (file: any) => {
-    const printWindow = window.open(`/api/files/${file.filename}`, '_blank');
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print();
-      };
-    }
+    const fileUrl = `/uploads/${file.filename || file}`;
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = fileUrl;
+    document.body.appendChild(iframe);
+    
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      } catch (e) {
+        // Fallback to new window
+        const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
+        if (printWindow) {
+          printWindow.onload = () => {
+            setTimeout(() => printWindow.print(), 500);
+          };
+        }
+        document.body.removeChild(iframe);
+      }
+    };
   };
 
   const handleDownloadFile = (file: any) => {
     const link = document.createElement('a');
-    link.href = `/api/files/${file.filename}`;
-    link.download = file.originalName;
+    link.href = `/uploads/${file.filename || file}`;
+    link.download = file.originalName || file.filename || 'file';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handlePrintAll = () => {
-    if (order?.files && order.files.length > 0) {
-      order.files.forEach(file => {
-        handlePrintFile(file);
-      });
+    if (order?.files) {
+      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      if (files.length > 0) {
+        files.forEach((file: any, index: number) => {
+          setTimeout(() => {
+            handlePrintFile(file);
+          }, index * 1000); // Stagger by 1 second
+        });
+      }
     }
   };
 
   const handleDownloadAll = () => {
-    if (order?.files && order.files.length > 0) {
-      order.files.forEach(file => {
-        handleDownloadFile(file);
-      });
+    if (order?.files) {
+      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      if (files.length > 0) {
+        files.forEach((file: any, index: number) => {
+          setTimeout(() => {
+            handleDownloadFile(file);
+          }, index * 300); // Stagger downloads by 300ms
+        });
+      }
     }
   };
 

@@ -202,13 +202,57 @@ export default function BeautifulShopDashboard() {
     if (order.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        let printCount = 0;
+        
         files.forEach((file: any, index: number) => {
           setTimeout(() => {
             const fileUrl = `/uploads/${file.filename || file}`;
-            window.open(fileUrl, '_blank');
-          }, index * 500);
+            
+            // Create hidden iframe for printing
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.src = fileUrl;
+            document.body.appendChild(iframe);
+            
+            iframe.onload = () => {
+              try {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+                printCount++;
+                
+                // Clean up iframe after print
+                setTimeout(() => {
+                  document.body.removeChild(iframe);
+                  if (printCount === files.length) {
+                    toast({ title: `All ${files.length} files sent to print` });
+                  }
+                }, 1000);
+              } catch (e) {
+                // Fallback: open in new window
+                const printWindow = window.open(fileUrl, `print_${index}`, 'width=800,height=600');
+                if (printWindow) {
+                  printWindow.onload = () => {
+                    setTimeout(() => {
+                      printWindow.print();
+                      printCount++;
+                      if (printCount === files.length) {
+                        toast({ title: `All ${files.length} files sent to print` });
+                      }
+                    }, 500);
+                  };
+                }
+                document.body.removeChild(iframe);
+              }
+            };
+          }, index * 1000); // Stagger by 1 second
         });
-        toast({ title: `Opening ${files.length} print dialogs` });
+        
+        toast({ title: `Preparing ${files.length} files for printing...` });
       } catch (error) {
         toast({ title: 'Error opening print dialogs', variant: 'destructive' });
       }
@@ -254,7 +298,34 @@ export default function BeautifulShopDashboard() {
 
   const handleIndividualPrintFile = (file: any) => {
     const fileUrl = `/uploads/${file.filename || file}`;
-    window.open(fileUrl, '_blank');
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.src = fileUrl;
+    document.body.appendChild(iframe);
+    
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      } catch (e) {
+        // Fallback to new window
+        const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
+        if (printWindow) {
+          printWindow.onload = () => {
+            setTimeout(() => printWindow.print(), 500);
+          };
+        }
+        document.body.removeChild(iframe);
+      }
+    };
   };
 
   const handleIndividualDownloadFile = (file: any, filename: string) => {

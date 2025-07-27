@@ -1342,14 +1342,33 @@ app.patch('/api/debug/patch-test', (req, res) => {
     const filePath = path.join(uploadDir, filename);
     
     if (fs.existsSync(filePath)) {
+      // Set proper headers for displaying files in browser
+      const ext = path.extname(filename).toLowerCase();
+      if (ext === '.pdf') {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline');
+      } else if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+        res.setHeader('Content-Type', `image/${ext.substring(1)}`);
+        res.setHeader('Content-Disposition', 'inline');
+      }
       res.sendFile(path.resolve(filePath));
     } else {
       res.status(404).json({ message: "File not found" });
     }
   });
 
-  // Also serve uploads at /uploads path for direct access
-  app.use("/uploads", express.static(uploadDir));
+  // Also serve uploads at /uploads path for direct access with proper headers
+  app.use("/uploads", (req, res, next) => {
+    const ext = path.extname(req.url).toLowerCase();
+    if (ext === '.pdf') {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline');
+    } else if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+      res.setHeader('Content-Type', `image/${ext.substring(1)}`);
+      res.setHeader('Content-Disposition', 'inline');
+    }
+    next();
+  }, express.static(uploadDir));
 
   return httpServer;
 }
