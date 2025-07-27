@@ -70,6 +70,9 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
+  const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
+  const [editingShop, setEditingShop] = useState<Shop | null>(null);
+  const [selectedShopForSettings, setSelectedShopForSettings] = useState<Shop | null>(null);
 
   // Fetch admin data with real-time updates
   const { data: stats, isLoading: statsLoading } = useQuery<PlatformStats>({
@@ -113,6 +116,36 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
       toast({
         title: "Error",
         description: "Failed to update application. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Update shop mutation  
+  const updateShopMutation = useMutation({
+    mutationFn: async ({ shopId, shopData }: { shopId: number; shopData: any }) => {
+      const response = await fetch(`/api/admin/shops/${shopId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shopData),
+      });
+      if (!response.ok) throw new Error('Failed to update shop');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      toast({
+        title: "Shop Updated",
+        description: "Shop information has been updated successfully.",
+      });
+      setEditingShop(null);
+      setSelectedShopForSettings(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update shop. Please try again.",
         variant: "destructive",
       });
     }
@@ -415,6 +448,7 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setSelectedShop(shop)}
                         className="flex-1 text-xs"
                       >
                         <Eye className="h-3 w-3" />
@@ -422,6 +456,7 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setEditingShop(shop)}
                         className="flex-1 text-xs"
                       >
                         <Edit className="h-3 w-3" />
@@ -429,6 +464,7 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setSelectedShopForSettings(shop)}
                         className="flex-1 text-xs"
                       >
                         <Settings className="h-3 w-3" />
@@ -509,7 +545,7 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
         </Tabs>
       </div>
 
-      {/* Application Detail Modal would go here */}
+      {/* Application Detail Modal */}
       {selectedApplication && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -565,6 +601,211 @@ export default function DesktopAdminPanel({ className = '' }: DesktopAdminPanelP
                   disabled={updateApplicationMutation.isPending}
                 >
                   Reject Application
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Shop Details Modal */}
+      {selectedShop && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>Shop Details - {selectedShop.name}</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedShop(null)}
+                className="absolute top-4 right-4"
+              >
+                ×
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-gray-900">Basic Information</h4>
+                  <p className="text-sm text-gray-600">Shop Name: {selectedShop.name}</p>
+                  <p className="text-sm text-gray-600">Owner: {selectedShop.ownerName}</p>
+                  <p className="text-sm text-gray-600">Email: {selectedShop.email}</p>
+                  <p className="text-sm text-gray-600">Location: {selectedShop.city}, {selectedShop.state}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Statistics</h4>
+                  <p className="text-sm text-gray-600">Total Orders: {selectedShop.totalOrders}</p>
+                  <p className="text-sm text-gray-600">Status: {selectedShop.isActive ? 'Active' : 'Inactive'}</p>
+                  <p className="text-sm text-gray-600">Joined: {format(new Date(selectedShop.createdAt), 'MMM dd, yyyy')}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={() => {
+                    setSelectedShop(null);
+                    setEditingShop(selectedShop);
+                  }}
+                  className="bg-[#FFBF00] hover:bg-[#E6AC00] text-black"
+                >
+                  Edit Shop
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedShop(null);
+                    setSelectedShopForSettings(selectedShop);
+                  }}
+                >
+                  Manage Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Shop Edit Modal */}
+      {editingShop && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>Edit Shop - {editingShop.name}</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingShop(null)}
+                className="absolute top-4 right-4"
+              >
+                ×
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Shop Name</label>
+                  <Input
+                    defaultValue={editingShop.name}
+                    onChange={(e) => setEditingShop({...editingShop, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Owner Name</label>
+                  <Input
+                    defaultValue={editingShop.ownerName}
+                    onChange={(e) => setEditingShop({...editingShop, ownerName: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Email</label>
+                  <Input
+                    defaultValue={editingShop.email}
+                    onChange={(e) => setEditingShop({...editingShop, email: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm font-medium">City</label>
+                    <Input
+                      defaultValue={editingShop.city}
+                      onChange={(e) => setEditingShop({...editingShop, city: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">State</label>
+                    <Input
+                      defaultValue={editingShop.state}
+                      onChange={(e) => setEditingShop({...editingShop, state: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={() => updateShopMutation.mutate({ 
+                    shopId: editingShop.id, 
+                    shopData: {
+                      name: editingShop.name,
+                      ownerName: editingShop.ownerName,
+                      email: editingShop.email,
+                      city: editingShop.city,
+                      state: editingShop.state
+                    }
+                  })}
+                  className="bg-[#FFBF00] hover:bg-[#E6AC00] text-black"
+                  disabled={updateShopMutation.isPending}
+                >
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingShop(null)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Shop Settings Modal */}
+      {selectedShopForSettings && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>Shop Settings - {selectedShopForSettings.name}</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedShopForSettings(null)}
+                className="absolute top-4 right-4"
+              >
+                ×
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Shop Status</h4>
+                    <p className="text-sm text-gray-600">Control whether the shop is active or inactive</p>
+                  </div>
+                  <Button
+                    variant={selectedShopForSettings.isActive ? "default" : "outline"}
+                    onClick={() => updateShopMutation.mutate({ 
+                      shopId: selectedShopForSettings.id, 
+                      shopData: { isActive: !selectedShopForSettings.isActive }
+                    })}
+                    disabled={updateShopMutation.isPending}
+                  >
+                    {selectedShopForSettings.isActive ? 'Deactivate' : 'Activate'}
+                  </Button>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Shop Statistics</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Total Orders:</span>
+                      <span className="font-medium ml-2">{selectedShopForSettings.totalOrders}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Member Since:</span>
+                      <span className="font-medium ml-2">{format(new Date(selectedShopForSettings.createdAt), 'MMM yyyy')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedShopForSettings(null)}
+                  className="flex-1"
+                >
+                  Close
                 </Button>
               </div>
             </CardContent>

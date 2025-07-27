@@ -530,22 +530,6 @@ export class DatabaseStorage implements IStorage {
   async getUsers(): Promise<User[]> {
     return await db.select().from(users);
   }
-  
-  async getUnreadMessagesCountForShop(shopId: number): Promise<number> {
-    const shop = await this.getShop(shopId);
-    if (!shop) return 0;
-    
-    const shopOrders = await this.getOrdersByShop(shopId);
-    let totalUnread = 0;
-    
-    for (const order of shopOrders) {
-      const messages = await this.getMessagesByOrder(order.id);
-      const unreadCount = messages.filter(m => !m.isRead && m.senderId === order.customerId).length;
-      totalUnread += unreadCount;
-    }
-    
-    return totalUnread;
-  }
 }
 
 export const storage = new DatabaseStorage();

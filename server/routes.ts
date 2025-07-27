@@ -1398,6 +1398,24 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Admin shop update endpoint
+  app.patch('/api/admin/shops/:shopId', async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const updateData = req.body;
+      
+      const updatedShop = await storage.updateShop(shopId, updateData);
+      if (!updatedShop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      res.json({ shop: updatedShop });
+    } catch (error) {
+      console.error('Admin shop update error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Admin update shop settings
   app.patch('/api/shops/:id/settings', async (req, res) => {
     try {
