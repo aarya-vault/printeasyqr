@@ -142,93 +142,93 @@ export default function NewHomepage() {
       )}
       
       {/* Hero Section */}
-      <section className="relative bg-white pt-20 pb-32">
+      <section className="relative bg-white pt-16 pb-20 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-rich-black mb-6 leading-tight">
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-rich-black mb-4 sm:mb-6 leading-tight">
                 Your Printing
                 <span className="block text-brand-yellow">Made Simple</span>
               </h1>
-              <p className="text-lg md:text-xl text-medium-gray mb-8 max-w-2xl">
+              <p className="text-base sm:text-lg md:text-xl text-medium-gray mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0">
                 Connect with trusted local print shops. Upload files, book walk-in appointments, 
-                and track your orders in real-time. Professional printing has never been easier.
+                and track your orders in real-time.
               </p>
               
               {/* Customer Login Section */}
-              <div className="bg-gray-50 p-6 rounded-2xl mb-8 max-w-md mx-auto lg:mx-0">
-                <h3 className="text-lg font-semibold text-rich-black mb-4">Get Started Now</h3>
-                <div className="flex gap-3">
+              <div className="bg-gray-50 p-4 sm:p-6 rounded-2xl mb-6 sm:mb-8 max-w-md mx-auto lg:mx-0">
+                <h3 className="text-base sm:text-lg font-semibold text-rich-black mb-3 sm:mb-4">Get Started Now</h3>
+                <div className="flex flex-col sm:flex-row gap-3">
                   <PhoneInput
                     value={customerPhone}
                     onChange={setCustomerPhone}
-                    placeholder="Enter 10-digit phone number"
-                    className="flex-1"
+                    placeholder="10-digit phone number"
+                    className="flex-1 w-full"
                   />
                   <Button 
                     onClick={handleCustomerLogin}
-                    className="bg-brand-yellow text-rich-black hover:bg-yellow-500 px-6"
+                    className="bg-brand-yellow text-rich-black hover:bg-yellow-500 px-4 sm:px-6 w-full sm:w-auto whitespace-nowrap"
                   >
                     Start
                   </Button>
                 </div>
-                <p className="text-sm text-medium-gray mt-2">
+                <p className="text-xs sm:text-sm text-medium-gray mt-2">
                   Try: 9876543211
                 </p>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 text-center">
+              <div className="grid grid-cols-3 gap-4 sm:gap-6 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-rich-black">500+</div>
-                  <div className="text-sm text-medium-gray">Print Shops</div>
+                  <div className="text-xl sm:text-2xl font-bold text-rich-black">50+</div>
+                  <div className="text-xs sm:text-sm text-medium-gray">Print Shops</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-rich-black">10k+</div>
-                  <div className="text-sm text-medium-gray">Happy Customers</div>
+                  <div className="text-xl sm:text-2xl font-bold text-rich-black">1k+</div>
+                  <div className="text-xs sm:text-sm text-medium-gray">Customers</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-rich-black">24/7</div>
-                  <div className="text-sm text-medium-gray">Support</div>
+                  <div className="text-xl sm:text-2xl font-bold text-rich-black">24/7</div>
+                  <div className="text-xs sm:text-sm text-medium-gray">Support</div>
                 </div>
               </div>
             </div>
 
             {/* Right Visual */}
-            <div className="relative">
-              <div className="bg-brand-yellow rounded-3xl p-8 transform rotate-3 shadow-2xl">
-                <div className="bg-white rounded-2xl p-6 transform -rotate-3">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center mr-3">
-                      <Printer className="w-5 h-5 text-rich-black" />
+            <div className="relative order-1 lg:order-2 mb-8 lg:mb-0">
+              <div className="bg-brand-yellow rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 transform rotate-1 lg:rotate-3 shadow-xl lg:shadow-2xl max-w-sm mx-auto lg:max-w-none">
+                <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 transform -rotate-1 lg:-rotate-3">
+                  <div className="flex items-center mb-3 sm:mb-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-yellow rounded-full flex items-center justify-center mr-2 sm:mr-3">
+                      <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-rich-black" />
                     </div>
                     <div>
-                      <div className="font-semibold text-rich-black">Digital Print Hub</div>
-                      <div className="text-sm text-medium-gray">2.5 km away</div>
+                      <div className="text-sm sm:text-base font-semibold text-rich-black">QuickPrint Solutions</div>
+                      <div className="text-xs sm:text-sm text-medium-gray">2.5 km away</div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Document Printing</span>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-xs sm:text-sm font-medium">Document Printing</span>
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Photo Printing</span>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-xs sm:text-sm font-medium">Photo Printing</span>
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Binding & Lamination</span>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-xs sm:text-sm font-medium">Binding Service</span>
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                       </div>
                     </div>
                   </div>
-                  <Button className="w-full mt-4 bg-brand-yellow text-rich-black hover:bg-yellow-500">
+                  <Button className="w-full mt-3 sm:mt-4 bg-brand-yellow text-rich-black hover:bg-yellow-500 text-sm">
                     Order Now
                   </Button>
                 </div>
