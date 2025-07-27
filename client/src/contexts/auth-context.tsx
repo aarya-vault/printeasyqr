@@ -87,6 +87,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    // Redirect to home page after logout
+    window.location.href = '/';
   };
 
   const updateUser = async (updates: Partial<User>): Promise<void> => {

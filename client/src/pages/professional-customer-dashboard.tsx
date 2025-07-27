@@ -1,9 +1,10 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
-import { DashboardLayout } from '@/components/professional-layout';
+import { ProfessionalLayout } from '@/components/professional-layout';
 import { DashboardStats, DashboardCard, QuickActions } from '@/components/professional-dashboard';
 import { ProfessionalLoading } from '@/components/professional-loading';
+import ShopChatModal from '@/components/shop-chat-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,7 @@ interface Shop {
 export default function ProfessionalCustomerDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const [selectedOrderForChat, setSelectedOrderForChat] = React.useState<number | null>(null);
 
   // Fetch customer data
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
@@ -60,7 +62,7 @@ export default function ProfessionalCustomerDashboard() {
     enabled: !!user?.id
   });
 
-  const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
+  const { data: notifications = [], isLoading: notificationsLoading } = useQuery<any[]>({
     queryKey: ['/api/notifications/user', user?.id],
     enabled: !!user?.id
   });
@@ -133,25 +135,14 @@ export default function ProfessionalCustomerDashboard() {
 
   if (ordersLoading || shopsLoading) {
     return (
-      <DashboardLayout title="Customer Dashboard">
+      <ProfessionalLayout title="Customer Dashboard">
         <ProfessionalLoading message="Loading your dashboard..." size="lg" />
-      </DashboardLayout>
+      </ProfessionalLayout>
     );
   }
 
   return (
-    <DashboardLayout 
-      title="Customer Dashboard"
-      actions={
-        <Button 
-          className="btn-primary"
-          onClick={() => setLocation('/shops')}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          New Order
-        </Button>
-      }
-    >
+    <ProfessionalLayout title="Customer Dashboard">
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-black mb-2">
@@ -229,7 +220,7 @@ export default function ProfessionalCustomerDashboard() {
                       <Button
                         size="sm"
                         className="btn-primary"
-                        onClick={() => setLocation(`/chat/${order.id}`)}
+                        onClick={() => setSelectedOrderForChat(order.id)}
                       >
                         <MessageCircle className="h-4 w-4" />
                       </Button>
@@ -296,7 +287,7 @@ export default function ProfessionalCustomerDashboard() {
       </div>
 
       {/* Notifications Preview */}
-      {!notificationsLoading && notifications.length > 0 && (
+      {!notificationsLoading && (notifications as any[]).length > 0 && (
         <Card className="card-professional">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -315,7 +306,7 @@ export default function ProfessionalCustomerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {notifications.slice(0, 3).map((notification: any, index: number) => (
+              {(notifications as any[]).slice(0, 3).map((notification: any, index: number) => (
                 <div key={index} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg">
                   <div className="h-2 w-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0" />
                   <div className="flex-1">
@@ -331,6 +322,14 @@ export default function ProfessionalCustomerDashboard() {
           </CardContent>
         </Card>
       )}
-    </DashboardLayout>
+
+      {/* Chat Modal */}
+      {selectedOrderForChat && (
+        <ShopChatModal
+          orderId={selectedOrderForChat}
+          onClose={() => setSelectedOrderForChat(null)}
+        />
+      )}
+    </ProfessionalLayout>
   );
 }

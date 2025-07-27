@@ -315,6 +315,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Shop routes
   
+  // Get available shops for customers
+  app.get('/api/shops/available', async (req, res) => {
+    try {
+      const shops = await storage.getActiveShops();
+      res.json(shops);
+    } catch (error) {
+      console.error('Error getting available shops:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
   // Update shop settings endpoint - MUST be first to avoid being caught by :id routes
   app.patch('/api/shops/settings', async (req, res) => {
     try {
