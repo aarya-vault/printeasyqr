@@ -2,35 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PrintEasy Professional Design System - Strict Yellow/Black/White Only */
 :root {
-  /* Core Brand Colors - NO GRADIENTS ALLOWED */
-  --brand-yellow: #FFBF00;
-  --pure-white: #FFFFFF;
-  --rich-black: #000000;
-  --light-gray: #F8F9FA;
-  --border-gray: #E5E7EB;
-  --text-gray: #6B7280;
-  --hover-yellow: #E6AC00;
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 84%, 4.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222, 84%, 4.9%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --primary: hsl(48, 100%, 50%);
+  --primary-foreground: hsl(222, 84%, 4.9%);
+  --secondary: hsl(210, 40%, 98%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --accent: hsl(210, 40%, 98%);
+  --accent-foreground: hsl(222.2, 84%, 4.9%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(48, 100%, 50%);
+  --radius: 0.5rem;
   
-  /* System Colors */
-  --background: var(--pure-white);
-  --foreground: var(--rich-black);
-  --primary: var(--brand-yellow);
-  --primary-foreground: var(--rich-black);
-  --secondary: var(--light-gray);
-  --secondary-foreground: var(--rich-black);
-  --border: var(--border-gray);
-  --input: var(--border-gray);
-  --ring: var(--brand-yellow);
-  --radius: 0.75rem;
-  
-  /* Status Colors (Yellow/Black themed) */
-  --status-new: #3B82F6;
-  --status-processing: #F59E0B;
-  --status-ready: #10B981;
-  --status-completed: #6B7280;
-  --status-error: #EF4444;
+  /* PrintEasy Custom Colors - STRICT YELLOW/WHITE/BLACK ONLY */
+  --brand-yellow: hsl(48, 100%, 50%);
+  --rich-black: hsl(0, 0%, 0%);
+  --light-gray: hsl(210, 20%, 98%);
+  --medium-gray: hsl(215, 20%, 65%);
+  --success-green: hsl(142, 76%, 36%);
+  --warning-amber: hsl(43, 89%, 38%);
+  --error-red: hsl(0, 84%, 60%);
 }
 
 .dark {
@@ -58,178 +59,61 @@
 @layer base {
   * {
     @apply border-border;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  html {
-    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-white text-black antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-black tracking-tight;
-    line-height: 1.2;
+    @apply font-semibold text-rich-black;
   }
-  
-  h1 { @apply text-4xl lg:text-5xl; }
-  h2 { @apply text-3xl lg:text-4xl; }
-  h3 { @apply text-2xl lg:text-3xl; }
-  h4 { @apply text-xl lg:text-2xl; }
-  h5 { @apply text-lg lg:text-xl; }
-  h6 { @apply text-base lg:text-lg; }
 }
 
 @layer components {
-  /* PrintEasy Professional Component System */
-  
-  /* Primary Button - Yellow with Black Text */
   .btn-primary {
-    @apply bg-yellow-400 text-black font-semibold px-6 py-3 rounded-xl;
-    @apply hover:bg-yellow-300 focus:ring-4 focus:ring-yellow-200;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200 ease-out;
-    box-shadow: 0 2px 8px rgba(255, 191, 0, 0.25);
+    @apply bg-brand-yellow text-rich-black hover:bg-yellow-400 font-medium px-4 py-2 rounded-lg transition-colors;
   }
   
-  /* Secondary Button - Black with White Text */
   .btn-secondary {
-    @apply bg-black text-white font-semibold px-6 py-3 rounded-xl;
-    @apply hover:bg-gray-800 focus:ring-4 focus:ring-gray-300;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200 ease-out;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    @apply bg-rich-black text-white hover:bg-gray-800 font-medium px-4 py-2 rounded-lg transition-colors;
   }
   
-  /* Outline Button - White with Yellow Border */
-  .btn-outline {
-    @apply bg-white text-black font-semibold px-6 py-3 rounded-xl;
-    @apply border-2 border-yellow-400 hover:bg-yellow-50;
-    @apply focus:ring-4 focus:ring-yellow-200;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200 ease-out;
+  .card-container {
+    @apply bg-white rounded-xl shadow-lg p-6;
   }
   
-  /* Professional Card Container */
-  .card-professional {
-    @apply bg-white rounded-2xl border border-gray-100;
-    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
-    @apply p-6 lg:p-8;
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all;
   }
   
-  /* Input Field - Professional Design */
-  .input-professional {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-xl;
-    @apply bg-white text-black placeholder-gray-400;
-    @apply focus:ring-4 focus:ring-yellow-200 focus:border-yellow-400;
-    @apply disabled:bg-gray-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200 ease-out;
-    font-size: 16px; /* Prevents zoom on mobile */
-  }
-  
-  /* Select Field - Professional Design */
-  .select-professional {
-    @apply w-full px-4 py-3 border border-gray-200 rounded-xl;
-    @apply bg-white text-black appearance-none cursor-pointer;
-    @apply focus:ring-4 focus:ring-yellow-200 focus:border-yellow-400;
-    @apply disabled:bg-gray-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200 ease-out;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-    padding-right: 40px;
-  }
-  
-  /* Status Badges */
   .status-new {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-    @apply bg-blue-50 text-blue-700 border border-blue-200;
+    @apply bg-blue-100 text-blue-800;
   }
   
   .status-processing {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-    @apply bg-yellow-50 text-yellow-700 border border-yellow-200;
+    @apply bg-warning-amber bg-opacity-20 text-warning-amber;
   }
   
   .status-ready {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-    @apply bg-green-50 text-green-700 border border-green-200;
+    @apply bg-success-green bg-opacity-20 text-success-green;
   }
   
   .status-completed {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-    @apply bg-gray-50 text-gray-700 border border-gray-200;
+    @apply bg-gray-100 text-gray-800;
   }
   
-  .status-cancelled {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-    @apply bg-red-50 text-red-700 border border-red-200;
-  }
+  /* REMOVED ALL ANIMATIONS PER UI REDESIGN REQUIREMENTS */
   
-  /* Professional Loading Animation */
-  .loading-spinner {
-    @apply inline-block h-6 w-6 border-3 border-yellow-400 border-t-transparent rounded-full;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  @keyframes loading-bar {
-    0%, 100% { transform: translateX(-100%); }
-    50% { transform: translateX(0%); }
-  }
-  
-  /* PrintEasy Brand Header */
-  .brand-header {
-    @apply flex items-center gap-3;
-  }
-  
-  .brand-logo {
-    @apply h-8 w-8 rounded-lg bg-yellow-400 flex items-center justify-center;
-    @apply text-black font-bold text-lg;
-  }
-  
-  .brand-text {
-    @apply text-2xl font-bold text-black tracking-tight;
-  }
-  
-  /* Performance Optimizations */
-  .optimized-scroll {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-  
-  .optimized-gpu {
+  /* Optimized performance classes */
+  .optimized-performance {
+    will-change: auto;
     transform: translateZ(0);
-    will-change: transform;
   }
   
-  /* Mobile Responsiveness */
-  .mobile-friendly {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  /* Fix dropdown menu transparency */
-  .dropdown-menu-fix {
-    @apply bg-white border border-gray-200 shadow-lg;
-  }
-  
-  /* Professional dropdown styling */
-  [role="menu"] {
-    @apply bg-white border border-gray-200 shadow-lg !important;
-  }
-  
-  [role="menuitem"] {
-    @apply bg-white hover:bg-gray-50 !important;
+  .strict-color-scheme {
+    background: transparent; /* No gradients - solid colors only */
   }
 }
 
