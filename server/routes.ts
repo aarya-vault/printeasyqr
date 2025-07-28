@@ -1086,9 +1086,17 @@ app.patch('/api/debug/patch-test', (req, res) => {
   // Notification routes - PROTECTED
   app.get("/api/notifications/:userId", requireAuth, async (req, res) => {
     try {
-      const notifications = await storage.getNotificationsByUser(parseInt(req.params.userId));
+      const userId = parseInt(req.params.userId);
+      
+      // Verify user can only access their own notifications or is admin
+      if (req.user && req.user.role !== 'admin' && req.user.id !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const notifications = await storage.getNotificationsByUser(userId);
       res.json(notifications);
     } catch (error) {
+      console.error("Get notifications error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

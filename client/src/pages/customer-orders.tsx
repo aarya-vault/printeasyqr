@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { useLocation, Link } from 'wouter';
 import { 
   ArrowLeft, Search, MessageCircle, Eye, Phone,
-  FileText, Upload, Users, Clock, CheckCircle2, Package
+  FileText, Upload, Users, Clock, CheckCircle2, Package,
+  Home, ShoppingCart, User, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import ShopChatModal from '@/components/shop-chat-modal';
 import OrderDetailsModal from '@/components/order-details-modal';
+import FloatingChatButton from '@/components/floating-chat-button';
 
 interface Order {
   id: number;
@@ -246,30 +248,30 @@ export default function CustomerOrders() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+      {/* Bottom Navigation - Consistent customer-focused navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="grid grid-cols-4 gap-1">
           <Link href="/customer-dashboard">
             <a className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <Package className="w-5 h-5 mb-1" />
+              <Home className="w-5 h-5 mb-1" />
               <span className="text-xs">Home</span>
             </a>
           </Link>
           <Link href="/customer-orders">
             <a className="flex flex-col items-center justify-center py-3 text-brand-yellow">
-              <FileText className="w-5 h-5 mb-1" />
+              <Package className="w-5 h-5 mb-1" />
               <span className="text-xs font-medium">Orders</span>
             </a>
           </Link>
-          <Link href="/customer-notifications">
+          <Link href="/browse-shops">
             <a className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <MessageCircle className="w-5 h-5 mb-1" />
-              <span className="text-xs">Messages</span>
+              <ShoppingCart className="w-5 h-5 mb-1" />
+              <span className="text-xs">Shops</span>
             </a>
           </Link>
-          <Link href="/customer-account-settings">
+          <Link href="/customer-account">
             <a className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <Users className="w-5 h-5 mb-1" />
+              <User className="w-5 h-5 mb-1" />
               <span className="text-xs">Account</span>
             </a>
           </Link>
@@ -287,9 +289,15 @@ export default function CustomerOrders() {
       {selectedOrderForDetails && (
         <OrderDetailsModal
           order={selectedOrderForDetails}
+          userRole="customer"
           onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton 
+        onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
+      />
     </div>
   );
 }

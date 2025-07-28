@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import ShopChatModal from '@/components/shop-chat-modal';
 import OrderDetailsModal from '@/components/order-details-modal';
+import FloatingChatButton from '@/components/floating-chat-button';
 
 interface Order {
   id: number;
@@ -317,9 +318,15 @@ export default function RefinedCustomerDashboard() {
       {selectedOrderForDetails && (
         <OrderDetailsModal
           order={selectedOrderForDetails}
+          userRole="customer"
           onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton 
+        onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
+      />
     </div>
   );
 }
