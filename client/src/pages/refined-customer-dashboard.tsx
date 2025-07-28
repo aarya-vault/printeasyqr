@@ -16,7 +16,7 @@ import LoadingScreen from '@/components/loading-screen';
 import EnhancedOrderChat from '@/components/enhanced-order-chat';
 import ComprehensiveChatInterface from '@/components/comprehensive-chat-interface';
 import OrderDetailsModal from '@/components/order-details-modal';
-import FloatingChatButton from '@/components/floating-chat-button';
+import { FloatingChatButton } from '@/components/chat/floating-chat-button';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
 
@@ -314,13 +314,8 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Floating Chat Button - Opens comprehensive chat interface */}
-      <FloatingChatButton 
-        onOpenChat={(orderId) => {
-          setSelectedOrderForChat(orderId);
-          setShowComprehensiveChat(true);
-        }}
-      />
+      {/* Floating Chat Button - New Implementation */}
+      <FloatingChatButton />
 
       {/* Comprehensive Chat Interface */}
       <ComprehensiveChatInterface
