@@ -111,7 +111,14 @@ export default function RefinedCustomerDashboard() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => logout()}
+              onClick={() => {
+                logout();
+                navigate('/');
+                toast({
+                  title: "Logged Out",
+                  description: "You have been successfully logged out"
+                });
+              }}
               className="text-rich-black hover:bg-yellow-200"
             >
               <LogOut className="w-5 h-5" />
@@ -126,11 +133,12 @@ export default function RefinedCustomerDashboard() {
             <div className="text-center py-6">
               <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-sm text-gray-600 mb-4">No shops visited yet</p>
-              <Link href="/">
-                <Button className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
-                  Browse Print Shops
-                </Button>
-              </Link>
+              <Button 
+                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                onClick={() => navigate('/')}
+              >
+                Browse Print Shops
+              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -225,9 +233,12 @@ export default function RefinedCustomerDashboard() {
       <div className="px-6 mt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-rich-black">Recent Orders</h2>
-          <Link href="/customer-orders">
-            <a className="text-sm text-brand-yellow font-medium">View All</a>
-          </Link>
+          <button 
+            onClick={() => navigate('/customer-orders')}
+            className="text-sm text-brand-yellow font-medium hover:underline"
+          >
+            View All
+          </button>
         </div>
 
         <div className="space-y-3">
