@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useWebSocket } from '@/contexts/websocket-context';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Bell } from 'lucide-react';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import NotificationsModal from './notifications-modal';
 
 interface Notification {
   id: number;
@@ -25,10 +26,11 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   const { user } = useAuth();
   const { socket } = useWebSocket();
   const queryClient = useQueryClient();
+  const [showModal, setShowModal] = useState(false);
 
   // Fetch user notifications
   const { data: notifications = [] } = useQuery<Notification[]>({
-    queryKey: [`/api/notifications/${user?.id}`],
+    queryKey: [`/api/notifications/user/${user?.id}`],
     enabled: !!user?.id,
     refetchInterval: 5000, // Refetch every 5 seconds for testing
   });
@@ -60,25 +62,31 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
     if (onClick) {
       onClick();
     } else {
-      // Default notification behavior - could open a notifications modal
-      alert(`You have ${unreadCount} unread notifications`);
+      setShowModal(true);
     }
   };
 
   return (
-    <div 
-      className={`relative cursor-pointer ${className}`}
-      onClick={handleClick}
-    >
-      <Bell className="w-5 h-5 text-gray-600 mb-1" />
+    <>
+      <div 
+        className={`relative cursor-pointer ${className}`}
+        onClick={handleClick}
+      >
+        <Bell className="w-5 h-5 text-gray-600 mb-1" />
+        
+        {unreadCount > 0 && (
+          <Badge 
+            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[16px] h-[16px] flex items-center justify-center rounded-full border-2 border-white p-0"
+          >
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </Badge>
+        )}
+      </div>
       
-      {unreadCount > 0 && (
-        <Badge 
-          className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[16px] h-[16px] flex items-center justify-center rounded-full border-2 border-white p-0"
-        >
-          {unreadCount > 99 ? '99+' : unreadCount}
-        </Badge>
-      )}
-    </div>
+      <NotificationsModal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
+    </>
   );
 }
