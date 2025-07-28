@@ -30,17 +30,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    // Check for existing server-side session instead of localStorage
+    const checkSession = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          // Clear localStorage if session is invalid
+          localStorage.removeItem('user');
+        }
       } catch (error) {
-        console.error('Error parsing stored user:', error);
+        console.error('Session check error:', error);
         localStorage.removeItem('user');
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   const login = async (credentials: { phone?: string; email?: string; password?: string }): Promise<User> => {
@@ -65,6 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -84,9 +97,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('user');
+    }
   };
 
   const updateUser = async (updates: Partial<User>): Promise<void> => {
@@ -99,6 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updates),
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -120,7 +143,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch('/api/auth/admin-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: 'include'
       });
 
       if (!response.ok) {

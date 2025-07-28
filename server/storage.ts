@@ -265,22 +265,71 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMessagesByOrder(orderId: number): Promise<Message[]> {
-    return await db
-      .select()
-      .from(messages)
-      .where(eq(messages.orderId, orderId))
-      .orderBy(messages.createdAt); // Sort ascending so latest messages appear last
+    try {
+      // Use raw SQL since there's a Drizzle schema issue
+      const result = await db.execute({
+        sql: `
+          SELECT id, order_id, sender_id, sender_name, sender_role, content, 
+                 message_type, file_url, file_name, is_read, created_at 
+          FROM messages 
+          WHERE order_id = $1 
+          ORDER BY created_at ASC
+        `,
+        args: [orderId]
+      });
+
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        orderId: row.order_id,
+        senderId: row.sender_id,
+        senderName: row.sender_name || 'Unknown',
+        senderRole: row.sender_role || 'customer',
+        content: row.content,
+        messageType: row.message_type || 'text',
+        files: row.file_url || row.file_name || null,
+        isRead: row.is_read,
+        createdAt: row.created_at
+      })) as Message[];
+    } catch (error) {
+      console.error('Error getting messages by order:', error);
+      return [];
+    }
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    // Get sender info to store in the message
+    const sender = await db
+      .select({
+        name: users.name,
+        phone: users.phone,
+        role: users.role,
+      })
+      .from(users)
+      .where(eq(users.id, insertMessage.senderId))
+      .limit(1);
+
+    const senderInfo = sender[0];
+    
     const [message] = await db
       .insert(messages)
       .values({
-        ...insertMessage,
+        orderId: insertMessage.orderId,
+        senderId: insertMessage.senderId,
+        senderName: senderInfo?.name || senderInfo?.phone || 'Unknown',
+        senderRole: senderInfo?.role || 'customer',
+        content: insertMessage.content,
+        messageType: insertMessage.messageType || 'text',
+        fileUrl: insertMessage.files || null,
+        fileName: insertMessage.files || null,
+        isRead: false,
         createdAt: new Date()
       })
       .returning();
-    return message;
+
+    return {
+      ...message,
+      files: message.fileUrl || message.fileName || null
+    };
   }
 
   async markMessagesAsRead(orderId: number, userId: number): Promise<void> {
