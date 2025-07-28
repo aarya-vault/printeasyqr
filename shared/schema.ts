@@ -88,10 +88,11 @@ export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull().references(() => orders.id),
   senderId: integer("sender_id").notNull().references(() => users.id),
+  senderName: text("sender_name").notNull(),
+  senderRole: text("sender_role").notNull(), // 'customer', 'shop_owner', 'admin'
   content: text("content").notNull(),
+  files: text("files"), // JSON string array of filenames
   messageType: text("message_type").notNull().default("text"), // 'text', 'file', 'system'
-  fileUrl: text("file_url"),
-  fileName: text("file_name"),
   isRead: boolean("is_read").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -240,10 +241,11 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
 export const insertMessageSchema = createInsertSchema(messages).pick({
   orderId: true,
   senderId: true,
+  senderName: true,
+  senderRole: true,
   content: true,
+  files: true,
   messageType: true,
-  fileUrl: true,
-  fileName: true,
 });
 
 export const insertShopApplicationSchema = createInsertSchema(shopApplications).pick({

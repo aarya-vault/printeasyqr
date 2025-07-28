@@ -505,27 +505,51 @@ export class DatabaseStorage implements IStorage {
   async deleteOrderFiles(orderId: number): Promise<void> {
     // Get the order to access file information
     const order = await this.getOrder(orderId);
-    if (!order || !order.files) return;
-
+    
     try {
-      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
       const uploadDir = path.join(process.cwd(), 'uploads');
       
-      for (const file of files) {
-        try {
-          const filename = file.filename || file.path;
-          if (filename) {
-            const filePath = path.join(uploadDir, filename);
-            
-            // Check if file exists before attempting to delete
-            if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
-              console.log(`Deleted file: ${filename} for completed order ${orderId}`);
+      // Delete order files
+      if (order && order.files) {
+        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        
+        for (const file of files) {
+          try {
+            const filename = file.filename || file.path;
+            if (filename) {
+              const filePath = path.join(uploadDir, filename);
+              
+              // Check if file exists before attempting to delete
+              if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                console.log(`Deleted order file: ${filename} for completed order ${orderId}`);
+              }
             }
+          } catch (error) {
+            console.error(`Error deleting order file ${file.filename} for order ${orderId}:`, error);
+            // Continue deleting other files even if one fails
           }
-        } catch (error) {
-          console.error(`Error deleting file ${file.filename} for order ${orderId}:`, error);
-          // Continue deleting other files even if one fails
+        }
+      }
+
+      // Delete chat message files
+      const messages = await this.getMessagesByOrder(orderId);
+      for (const message of messages) {
+        if (message.files) {
+          try {
+            const chatFiles = JSON.parse(message.files);
+            if (Array.isArray(chatFiles)) {
+              for (const filename of chatFiles) {
+                const filePath = path.join(uploadDir, filename);
+                if (fs.existsSync(filePath)) {
+                  fs.unlinkSync(filePath);
+                  console.log(`Deleted chat file: ${filename} for completed order ${orderId}`);
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Failed to process chat files for message ${message.id}:`, error);
+          }
         }
       }
 
@@ -533,7 +557,13 @@ export class DatabaseStorage implements IStorage {
       await db.update(orders)
         .set({ files: null })
         .where(eq(orders.id, orderId));
+
+      // Clear chat files references
+      await db.update(messages)
+        .set({ files: null })
+        .where(eq(messages.orderId, orderId));
         
+      console.log(`All files deleted for completed order ${orderId} - memory optimized`);
     } catch (error) {
       console.error(`Error processing file deletion for order ${orderId}:`, error);
     }

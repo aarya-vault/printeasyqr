@@ -243,28 +243,28 @@ export default function CustomerAccount() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="grid grid-cols-4 gap-1">
           <Link href="/customer-dashboard">
-            <a className="flex flex-col items-center justify-center py-3 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
               <Home className="w-5 h-5 mb-1" />
               <span className="text-xs">Home</span>
-            </a>
+            </div>
           </Link>
           <Link href="/customer-orders">
-            <a className="flex flex-col items-center justify-center py-3 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
               <Package className="w-5 h-5 mb-1" />
               <span className="text-xs">Orders</span>
-            </a>
+            </div>
           </Link>
           <Link href="/browse-shops">
-            <a className="flex flex-col items-center justify-center py-3 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
               <ShoppingCart className="w-5 h-5 mb-1" />
               <span className="text-xs">Shops</span>
-            </a>
+            </div>
           </Link>
           <Link href="/customer-account">
-            <a className="flex flex-col items-center justify-center py-3 text-brand-yellow">
+            <div className="flex flex-col items-center justify-center py-3 text-brand-yellow">
               <User className="w-5 h-5 mb-1" />
               <span className="text-xs font-medium">Account</span>
-            </a>
+            </div>
           </Link>
         </div>
       </div>

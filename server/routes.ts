@@ -145,6 +145,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Enhanced Message Routes with File Upload Support
+  app.get("/api/messages/order/:orderId", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      const order = await storage.getOrder(orderId);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if user is involved in this order (customer or shop owner)
+      const isCustomer = req.user && req.user.role === 'customer' && order.customerId === req.user.id;
+      const isShopOwner = req.user && req.user.role === 'shop_owner';
+      const isAdmin = req.user && req.user.role === 'admin';
+
+      if (!isCustomer && !isShopOwner && !isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const messages = await storage.getMessagesByOrder(orderId);
+      res.json(messages);
+    } catch (error) {
+      console.error("Get messages error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/messages", requireAuth, upload.array('files'), async (req, res) => {
+    try {
+      const { orderId, content } = req.body;
+      const orderIdNum = parseInt(orderId);
+      
+      // Verify order exists and user has access
+      const order = await storage.getOrder(orderIdNum);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if user is involved in this order
+      const isCustomer = req.user && req.user.role === 'customer' && order.customerId === req.user.id;
+      const isShopOwner = req.user && req.user.role === 'shop_owner';
+      
+      if (!isCustomer && !isShopOwner) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if order is completed
+      if (order.status === 'completed') {
+        return res.status(400).json({ message: "Cannot send messages to completed orders" });
+      }
+
+      let files: string[] = [];
+      if (req.files && Array.isArray(req.files)) {
+        files = req.files.map(file => file.filename);
+      }
+
+      const message = await storage.createMessage({
+        orderId: orderIdNum,
+        senderId: req.user!.id,
+        senderName: req.user!.phone || 'Unknown',
+        senderRole: req.user!.role,
+        content: content || '',
+        files: files.length > 0 ? JSON.stringify(files) : null
+      });
+
+      // Broadcast the new message via WebSocket
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: 'newMessage',
+            data: { orderId: orderIdNum, message }
+          }));
+        }
+      });
+
+      res.status(201).json(message);
+    } catch (error) {
+      console.error("Create message error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Setup WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
@@ -170,6 +252,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const newMessage = await storage.createMessage({
             orderId,
             senderId,
+            senderName: 'User',
+            senderRole: 'customer',
             content,
             messageType: 'text'
           });
