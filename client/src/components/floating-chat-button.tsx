@@ -48,10 +48,10 @@ export default function FloatingChatButton({ onOpenChat }: FloatingChatButtonPro
 
   return (
     <>
-      {/* Floating Chat Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Floating Chat Button - Positioned above bottom navigation */}
+      <div className="fixed bottom-20 right-4 z-40">
         {isExpanded ? (
-          <Card className="w-80 max-h-96 bg-white shadow-xl border-2 border-brand-yellow">
+          <Card className="w-80 max-h-96 bg-white shadow-xl border-2 border-brand-yellow mb-2">
             <CardHeader className="pb-3 bg-brand-yellow">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-rich-black text-sm font-semibold">
@@ -115,11 +115,11 @@ export default function FloatingChatButton({ onOpenChat }: FloatingChatButtonPro
         ) : (
           <Button
             onClick={() => setIsExpanded(true)}
-            className="h-14 w-14 rounded-full bg-brand-yellow hover:bg-yellow-400 text-rich-black shadow-lg hover:shadow-xl transition-all duration-200 relative"
+            className="h-12 w-12 rounded-full bg-brand-yellow hover:bg-yellow-400 text-rich-black shadow-lg hover:shadow-xl transition-all duration-200 relative"
           >
-            <MessageCircle className="w-6 h-6" />
+            <MessageCircle className="w-5 h-5" />
             {totalUnreadMessages > 0 && (
-              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+              <div className="absolute -top-1 -right-1 bg-rich-black text-brand-yellow text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-bold border border-brand-yellow">
                 {totalUnreadMessages > 9 ? '9+' : totalUnreadMessages}
               </div>
             )}
