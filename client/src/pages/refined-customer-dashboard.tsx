@@ -18,6 +18,7 @@ import ComprehensiveChatInterface from '@/components/comprehensive-chat-interfac
 import OrderDetailsModal from '@/components/order-details-modal';
 import FloatingChatButton from '@/components/floating-chat-button';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
+import BottomNavigation from '@/components/common/bottom-navigation';
 
 interface Order {
   id: number;
@@ -287,35 +288,8 @@ export default function RefinedCustomerDashboard() {
         </div>
       </div>
 
-      {/* Bottom Navigation - Fixed responsiveness */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-        <div className="grid grid-cols-4">
-          <Link to="/customer-dashboard">
-            <div className="flex flex-col items-center justify-center py-2 px-2 text-brand-yellow min-h-[60px]">
-              <Home className="w-4 h-4 mb-1 flex-shrink-0" />
-              <span className="text-xs font-medium truncate">Home</span>
-            </div>
-          </Link>
-          <Link to="/customer-orders">
-            <div className="flex flex-col items-center justify-center py-2 px-2 text-gray-500 min-h-[60px]">
-              <ShoppingCart className="w-4 h-4 mb-1 flex-shrink-0" />
-              <span className="text-xs truncate">Orders</span>
-            </div>
-          </Link>
-          <Link to="/browse-shops">
-            <div className="flex flex-col items-center justify-center py-2 px-2 text-gray-500 min-h-[60px]">
-              <Store className="w-4 h-4 mb-1 flex-shrink-0" />
-              <span className="text-xs truncate">Shops</span>
-            </div>
-          </Link>
-          <Link to="/customer-account">
-            <div className="flex flex-col items-center justify-center py-2 px-2 text-gray-500 min-h-[60px]">
-              <User className="w-4 h-4 mb-1 flex-shrink-0" />
-              <span className="text-xs truncate">Account</span>
-            </div>
-          </Link>
-        </div>
-      </div>
+      {/* Centralized Bottom Navigation */}
+      <BottomNavigation />
 
       {/* Enhanced Chat Modal */}
       {selectedOrderForChat && (

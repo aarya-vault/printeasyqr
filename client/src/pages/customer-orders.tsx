@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
+import BottomNavigation from '@/components/common/bottom-navigation';
 import EnhancedOrderChat from '@/components/enhanced-order-chat';
 import OrderDetailsModal from '@/components/order-details-modal';
 import FloatingChatButton from '@/components/floating-chat-button';
@@ -249,35 +250,8 @@ export default function CustomerOrders() {
         )}
       </div>
 
-      {/* Bottom Navigation - Consistent customer-focused navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-        <div className="grid grid-cols-4 gap-1">
-          <Link href="/customer-dashboard">
-            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <Home className="w-5 h-5 mb-1" />
-              <span className="text-xs">Home</span>
-            </div>
-          </Link>
-          <Link href="/customer-orders">
-            <div className="flex flex-col items-center justify-center py-3 text-brand-yellow">
-              <Package className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">Orders</span>
-            </div>
-          </Link>
-          <Link href="/browse-shops">
-            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <ShoppingCart className="w-5 h-5 mb-1" />
-              <span className="text-xs">Shops</span>
-            </div>
-          </Link>
-          <Link href="/customer-account">
-            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <User className="w-5 h-5 mb-1" />
-              <span className="text-xs">Account</span>
-            </div>
-          </Link>
-        </div>
-      </div>
+      {/* Centralized Bottom Navigation */}
+      <BottomNavigation />
 
       {/* Enhanced Chat Modal */}
       {selectedOrderForChat && (
