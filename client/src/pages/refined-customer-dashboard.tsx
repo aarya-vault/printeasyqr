@@ -280,25 +280,23 @@ export default function RefinedCustomerDashboard() {
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="grid grid-cols-4 gap-1">
-          <Link href="/customer-dashboard">
+          <Link to="/customer-dashboard">
             <div className="flex flex-col items-center justify-center py-3 text-brand-yellow">
               <Home className="w-5 h-5 mb-1" />
               <span className="text-xs font-medium">Home</span>
             </div>
           </Link>
-          <Link href="/customer-orders">
+          <Link to="/customer-orders">
             <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <Package className="w-5 h-5 mb-1" />
+              <ShoppingCart className="w-5 h-5 mb-1" />
               <span className="text-xs">Orders</span>
             </div>
           </Link>
-          <Link href="/browse-shops">
-            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-              <ShoppingCart className="w-5 h-5 mb-1" />
-              <span className="text-xs">Shops</span>
-            </div>
-          </Link>
-          <Link href="/customer-account">
+          <div className="flex flex-col items-center justify-center py-3 text-gray-500">
+            <RealTimeNotificationBell />
+            <span className="text-xs">Notifications</span>
+          </div>
+          <Link to="/customer-account">
             <div className="flex flex-col items-center justify-center py-3 text-gray-500">
               <User className="w-5 h-5 mb-1" />
               <span className="text-xs">Account</span>
@@ -325,10 +323,12 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Floating Chat Button */}
-      <FloatingChatButton 
-        onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
-      />
+      {/* Floating Chat Button - positioned above bottom navigation */}
+      <div className="fixed bottom-20 right-4 z-20">
+        <FloatingChatButton 
+          onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
+        />
+      </div>
     </div>
   );
 }

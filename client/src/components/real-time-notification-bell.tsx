@@ -30,7 +30,7 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/${user?.id}`],
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds for testing
   });
 
   // Real-time notification updates via WebSocket
@@ -55,18 +55,26 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   // Count unread notifications
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  const handleClick = () => {
+    console.log('Notification bell clicked, unread count:', unreadCount);
+    if (onClick) {
+      onClick();
+    } else {
+      // Default notification behavior - could open a notifications modal
+      alert(`You have ${unreadCount} unread notifications`);
+    }
+  };
+
   return (
     <div 
       className={`relative cursor-pointer ${className}`}
-      onClick={onClick}
+      onClick={handleClick}
     >
-      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-        <Bell className="w-5 h-5 text-gray-600" />
-      </div>
+      <Bell className="w-5 h-5 text-gray-600 mb-1" />
       
       {unreadCount > 0 && (
         <Badge 
-          className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white"
+          className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[16px] h-[16px] flex items-center justify-center rounded-full border-2 border-white p-0"
         >
           {unreadCount > 99 ? '99+' : unreadCount}
         </Badge>

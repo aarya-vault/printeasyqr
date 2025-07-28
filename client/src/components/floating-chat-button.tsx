@@ -39,9 +39,12 @@ export default function FloatingChatButton({ onOpenChat }: FloatingChatButtonPro
     total + (order.unreadMessages || 0), 0
   );
 
-  if (!user || activeOrders.length === 0) {
+  if (!user) {
     return null;
   }
+
+  // Show floating chat button if there are active orders, or always show for testing
+  const shouldShow = activeOrders.length > 0;
 
   return (
     <>
@@ -65,7 +68,12 @@ export default function FloatingChatButton({ onOpenChat }: FloatingChatButtonPro
               </div>
             </CardHeader>
             <CardContent className="p-0 max-h-60 overflow-y-auto">
-              {activeOrders.map((order) => (
+              {activeOrders.length === 0 ? (
+                <div className="p-4 text-center text-gray-500 text-sm">
+                  No active chats available
+                </div>
+              ) : (
+                activeOrders.map((order) => (
                 <div
                   key={order.id}
                   className="p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -100,7 +108,8 @@ export default function FloatingChatButton({ onOpenChat }: FloatingChatButtonPro
                     </span>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
         ) : (
