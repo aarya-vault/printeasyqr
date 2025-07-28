@@ -177,14 +177,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const orderId = parseInt(req.params.orderId);
       
-      // For now, return success with current user info to test frontend integration
-      res.json({
-        messages: [],
-        user: req.user,
-        orderId: orderId,
-        status: "success",
-        debug: "Authentication working, ORM bypassed for now"
-      });
+      // For now, return empty array to fix .map error - will implement full message fetching next
+      res.json([]);
     } catch (error) {
       console.error("Get messages error:", error);
       res.status(500).json({ message: "Internal server error" });

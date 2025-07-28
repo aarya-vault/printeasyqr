@@ -113,6 +113,7 @@ export default function ComprehensiveChatInterface({ isOpen, onClose, initialOrd
       const response = await fetch(`/api/messages/order/${data.orderId}`, {
         method: 'POST',
         body: formData,
+        credentials: 'include'
       });
       
       if (!response.ok) {
