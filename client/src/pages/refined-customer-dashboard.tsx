@@ -9,11 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Link, useLocation } from 'wouter';
 import { 
   Upload, Users, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, Bell, User, ArrowRight, MapPin, Phone, Star
+  Home, ShoppingCart, Bell, User, ArrowRight, MapPin, Phone, Star, Store, LogOut
 } from 'lucide-react';
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import EnhancedOrderChat from '@/components/enhanced-order-chat';
+import ComprehensiveChatInterface from '@/components/comprehensive-chat-interface';
 import OrderDetailsModal from '@/components/order-details-modal';
 import FloatingChatButton from '@/components/floating-chat-button';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
@@ -47,6 +48,7 @@ export default function RefinedCustomerDashboard() {
   const queryClient = useQueryClient();
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
+  const [showComprehensiveChat, setShowComprehensiveChat] = useState(false);
 
   // Fetch customer orders
   const { data: orders = [], isLoading } = useQuery<Order[]>({
@@ -102,10 +104,26 @@ export default function RefinedCustomerDashboard() {
       <div className="bg-brand-yellow px-6 pt-12 pb-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-rich-black">Welcome, {user?.name || 'Customer'}!</h1>
-          <Badge className="bg-red-500 text-white">
-            <Bell className="w-3 h-3 mr-1" />
-            2
-          </Badge>
+          <div className="flex items-center gap-3">
+            <RealTimeNotificationBell />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowComprehensiveChat(true)}
+              className="text-rich-black hover:bg-yellow-200"
+              title="Open Chat"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => logout()}
+              className="text-rich-black hover:bg-yellow-200"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+        </div>
         </div>
         
         <div className="bg-white rounded-2xl shadow-sm p-4">
@@ -292,10 +310,12 @@ export default function RefinedCustomerDashboard() {
               <span className="text-xs">Orders</span>
             </div>
           </Link>
-          <div className="flex flex-col items-center justify-center py-3 text-gray-500">
-            <RealTimeNotificationBell />
-            <span className="text-xs">Notifications</span>
-          </div>
+          <Link to="/browse-shops">
+            <div className="flex flex-col items-center justify-center py-3 text-gray-500">
+              <Store className="w-5 h-5 mb-1" />
+              <span className="text-xs">Shops</span>
+            </div>
+          </Link>
           <Link to="/customer-account">
             <div className="flex flex-col items-center justify-center py-3 text-gray-500">
               <User className="w-5 h-5 mb-1" />
@@ -323,10 +343,17 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Floating Chat Button - positioned above bottom navigation */}
-      <div className="fixed bottom-20 right-4 z-20">
+      {/* Comprehensive Chat Interface */}
+      <ComprehensiveChatInterface
+        isOpen={showComprehensiveChat}
+        onClose={() => setShowComprehensiveChat(false)}
+        initialOrderId={selectedOrderForChat || undefined}
+      />
+
+      {/* Floating Chat Button - responsive positioning */}
+      <div className="fixed bottom-20 right-4 z-20 md:bottom-6 md:right-6">
         <FloatingChatButton 
-          onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
+          onOpenChat={(orderId) => setShowComprehensiveChat(true)}
         />
       </div>
     </div>
