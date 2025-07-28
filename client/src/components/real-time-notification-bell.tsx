@@ -28,11 +28,13 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch user notifications
-  const { data: notifications = [] } = useQuery<Notification[]>({
+  // Fetch user notifications with real-time updates
+  const { data: notifications = [], refetch } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/user/${user?.id}`],
     enabled: !!user?.id,
-    refetchInterval: 5000, // Refetch every 5 seconds for testing
+    refetchInterval: 3000, // Refetch every 3 seconds for real-time feel
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale for real-time updates
   });
 
   // Real-time notification updates via WebSocket
@@ -69,17 +71,15 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   return (
     <>
       <div 
-        className={`relative cursor-pointer ${className}`}
+        className={`relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors ${className}`}
         onClick={handleClick}
       >
-        <Bell className="w-5 h-5 text-gray-600 mb-1" />
+        <Bell className={`w-5 h-5 transition-colors ${unreadCount > 0 ? 'text-brand-yellow' : 'text-gray-600'}`} />
         
         {unreadCount > 0 && (
-          <Badge 
-            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[16px] h-[16px] flex items-center justify-center rounded-full border-2 border-white p-0"
-          >
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white font-semibold animate-pulse">
             {unreadCount > 99 ? '99+' : unreadCount}
-          </Badge>
+          </div>
         )}
       </div>
       
