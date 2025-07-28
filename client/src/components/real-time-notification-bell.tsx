@@ -74,10 +74,10 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
         className={`relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors ${className}`}
         onClick={handleClick}
       >
-        <Bell className={`w-5 h-5 transition-colors ${unreadCount > 0 ? 'text-brand-yellow' : 'text-gray-600'}`} />
+        <Bell className={`w-5 h-5 transition-colors ${unreadCount > 0 ? 'text-red-600' : 'text-gray-600'}`} />
         
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white font-semibold animate-pulse">
+          <div className="absolute -top-1 -right-1 bg-red-600 text-white text-xs min-w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white font-bold shadow-lg">
             {unreadCount > 99 ? '99+' : unreadCount}
           </div>
         )}

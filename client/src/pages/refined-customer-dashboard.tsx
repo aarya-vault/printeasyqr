@@ -106,15 +106,7 @@ export default function RefinedCustomerDashboard() {
           <h1 className="text-2xl font-bold text-rich-black">Welcome, {user?.name || 'Customer'}!</h1>
           <div className="flex items-center gap-3">
             <RealTimeNotificationBell />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowComprehensiveChat(true)}
-              className="text-rich-black hover:bg-yellow-200"
-              title="Open Chat"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Button>
+
             <Button
               variant="ghost"
               size="icon"
