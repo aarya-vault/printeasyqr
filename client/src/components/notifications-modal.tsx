@@ -80,7 +80,7 @@ export default function NotificationsModal({ isOpen, onClose }: NotificationsMod
               <Bell className="w-5 h-5" />
               <CardTitle className="text-lg font-semibold">Notifications</CardTitle>
               {unreadCount > 0 && (
-                <Badge className="bg-red-500 text-white">
+                <Badge className="bg-rich-black text-brand-yellow">
                   {unreadCount}
                 </Badge>
               )}
@@ -128,7 +128,7 @@ export default function NotificationsModal({ isOpen, onClose }: NotificationsMod
                   <div
                     key={notification.id}
                     className={`p-4 hover:bg-gray-50 transition-colors ${
-                      !notification.isRead ? 'bg-blue-50 border-l-4 border-l-brand-yellow' : ''
+                      !notification.isRead ? 'bg-brand-yellow/10 border-l-4 border-l-brand-yellow' : ''
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
