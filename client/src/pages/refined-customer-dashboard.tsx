@@ -322,7 +322,7 @@ export default function RefinedCustomerDashboard() {
       <div className="fixed bottom-16 right-3 z-20 sm:bottom-20 sm:right-4">
         <Button
           onClick={() => setShowComprehensiveChat(true)}
-          className="bg-brand-yellow hover:bg-yellow-400 text-rich-black rounded-full w-12 h-12 shadow-lg"
+          className="bg-brand-yellow hover:bg-yellow-400 text-rich-black rounded-full w-12 h-12 shadow-lg mt-[10px] mb-[10px]"
         >
           <MessageCircle className="w-5 h-5" />
         </Button>
