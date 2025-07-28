@@ -59,7 +59,7 @@ export function FloatingChatButton({ onOpenChat }: FloatingChatButtonProps) {
       <div className="fixed bottom-20 right-4 z-40">
         <Button
           onClick={handleChatOpen}
-          className="h-12 w-12 rounded-full bg-[#FFBF00] hover:bg-black text-black hover:text-[#FFBF00] shadow-lg hover:shadow-xl transition-all duration-200 relative border-2 border-black"
+          className="h-12 w-12 rounded-full bg-[#FFBF00] hover:bg-black text-black hover:text-[#FFBF00] shadow-lg hover:shadow-xl transition-all duration-200 relative"
         >
           <MessageCircle className="w-5 h-5" />
           {totalUnreadMessages > 0 && (
