@@ -17,6 +17,7 @@ import EnhancedOrderChat from '@/components/enhanced-order-chat';
 import ComprehensiveChatInterface from '@/components/comprehensive-chat-interface';
 import OrderDetailsModal from '@/components/order-details-modal';
 import { FloatingChatButton } from '@/components/chat/floating-chat-button';
+import { ChatInterface } from '@/components/chat/chat-interface';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
 
@@ -278,7 +279,7 @@ export default function RefinedCustomerDashboard() {
                       variant="outline"
                       className="flex-1"
                       onClick={() => {
-                        setSelectedOrderForChat(order.id);
+                        // Open the floating chat interface directly
                         setShowComprehensiveChat(true);
                       }}
                     >
@@ -314,18 +315,20 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Floating Chat Button - New Implementation */}
+      {/* Floating Chat Button - Single unified chat interface */}
       <FloatingChatButton />
+      
+      {/* Simple Chat Interface triggered by order chat buttons */}
+      {showComprehensiveChat && (
+        <div className="fixed inset-0 z-50">
+          <ChatInterface 
+            isOpen={showComprehensiveChat}
+            onClose={() => setShowComprehensiveChat(false)}
+          />
+        </div>
+      )}
 
-      {/* Comprehensive Chat Interface */}
-      <ComprehensiveChatInterface
-        isOpen={showComprehensiveChat}
-        onClose={() => {
-          setShowComprehensiveChat(false);
-          setSelectedOrderForChat(null);
-        }}
-        initialOrderId={selectedOrderForChat || undefined}
-      />
+      {/* Remove the old comprehensive chat interface - we only use the floating chat now */}
     </div>
   );
 }
