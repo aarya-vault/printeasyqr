@@ -169,12 +169,15 @@ export default function ComprehensiveChatInterface({ isOpen, onClose, initialOrd
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[80vh] p-0 bg-white">
+      <DialogContent className="max-w-6xl h-[80vh] p-0 bg-white" aria-describedby="chat-description">
         <DialogHeader className="px-6 py-4 border-b border-gray-200">
           <DialogTitle className="text-xl font-bold text-rich-black flex items-center">
             <MessageCircle className="w-6 h-6 mr-2 text-brand-yellow" />
             Chat with Print Shops
           </DialogTitle>
+          <div id="chat-description" className="sr-only">
+            Comprehensive chat interface to communicate with print shops about your orders
+          </div>
         </DialogHeader>
 
         <div className="flex h-full">

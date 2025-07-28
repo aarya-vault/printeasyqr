@@ -277,7 +277,10 @@ export default function RefinedCustomerDashboard() {
                       size="sm"
                       variant="outline"
                       className="flex-1"
-                      onClick={() => setSelectedOrderForChat(order.id)}
+                      onClick={() => {
+                        setSelectedOrderForChat(order.id);
+                        setShowComprehensiveChat(true);
+                      }}
                     >
                       <MessageCircle className="w-3 h-3 mr-1" />
                       Chat
@@ -302,15 +305,6 @@ export default function RefinedCustomerDashboard() {
       {/* Centralized Bottom Navigation */}
       <BottomNavigation />
 
-      {/* Enhanced Chat Modal */}
-      {selectedOrderForChat && (
-        <EnhancedOrderChat
-          orderId={selectedOrderForChat}
-          userRole="customer"
-          onClose={() => setSelectedOrderForChat(null)}
-        />
-      )}
-
       {/* Order Details Modal */}
       {selectedOrderForDetails && (
         <OrderDetailsModal
@@ -320,24 +314,21 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Enhanced Chat Modal */}
-      {selectedOrderForChat && (
-        <EnhancedOrderChat
-          orderId={selectedOrderForChat}
-          userRole="customer"
-          onClose={() => setSelectedOrderForChat(null)}
-        />
-      )}
-
-      {/* Floating Chat Button - Standardized positioning */}
+      {/* Floating Chat Button - Opens comprehensive chat interface */}
       <FloatingChatButton 
-        onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
+        onOpenChat={(orderId) => {
+          setSelectedOrderForChat(orderId);
+          setShowComprehensiveChat(true);
+        }}
       />
 
       {/* Comprehensive Chat Interface */}
       <ComprehensiveChatInterface
         isOpen={showComprehensiveChat}
-        onClose={() => setShowComprehensiveChat(false)}
+        onClose={() => {
+          setShowComprehensiveChat(false);
+          setSelectedOrderForChat(null);
+        }}
         initialOrderId={selectedOrderForChat || undefined}
       />
     </div>
