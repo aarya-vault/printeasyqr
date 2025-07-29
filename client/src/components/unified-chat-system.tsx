@@ -139,7 +139,7 @@ export default function UnifiedChatSystem({
       formData.append('senderName', user?.name || user?.phone || 'User');
       formData.append('senderRole', effectiveUserRole);
       formData.append('content', trimmedContent);
-      formData.append('messageType', 'text');
+      formData.append('messageType', files && files.length > 0 ? 'file' : 'text');
       
       if (files && files.length > 0) {
         Array.from(files).forEach(file => {

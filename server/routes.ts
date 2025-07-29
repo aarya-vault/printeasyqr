@@ -930,6 +930,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
       
       console.log('Message creation request:', req.body);
       console.log('Files received:', req.files);
+      console.log('Content extracted:', content);
+      console.log('Message type:', messageType);
       
       // Verify order exists and user has access
       const order = await storage.getOrder(parseInt(orderId));
@@ -956,6 +958,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
       if (req.files && Array.isArray(req.files)) {
         files = req.files.map(file => file.filename);
       }
+      
+      console.log('Files array length:', files.length);
 
       // Validate content or files presence
       const trimmedContent = (content || '').trim();
@@ -965,6 +969,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
       
       // Use empty string as default for database (required field)
       const finalContent = trimmedContent || '';
+      
+      console.log('Final content being saved:', finalContent);
 
       const messageData = {
         orderId: parseInt(orderId),
@@ -972,7 +978,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
         senderName: senderName || (req.user as any)?.name || req.user!.phone || 'User',
         senderRole: req.user!.role,
         content: finalContent,
-        messageType: messageType || 'text',
+        messageType: files.length > 0 ? 'file' : 'text',
         files: files.length > 0 ? JSON.stringify(files) : null
       };
       
