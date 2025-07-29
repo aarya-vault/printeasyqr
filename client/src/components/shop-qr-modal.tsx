@@ -28,7 +28,7 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
 
   // Generate QR code on component mount
   useState(() => {
-    const orderUrl = `${window.location.origin}/shops/${shop.slug}`;
+    const orderUrl = `${window.location.origin}/shop/${shop.slug}`;
     QRCode.toDataURL(orderUrl, {
       width: 300,
       margin: 1,
@@ -39,7 +39,7 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
     }).then(setQrCodeUrl).catch(console.error);
   });
 
-  const orderUrl = `${window.location.origin}/shops/${shop.slug}`;
+  const orderUrl = `${window.location.origin}/shop/${shop.slug}`;
 
   const handleDownload = async () => {
     if (!qrRef.current) return;
