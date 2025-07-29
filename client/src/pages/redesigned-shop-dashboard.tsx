@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Link, useLocation } from 'wouter';
@@ -69,6 +69,9 @@ export default function RedesignedShopDashboard() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
+  const [pendingUpdates, setPendingUpdates] = useState<Record<number, string>>({});
+  const updateQueue = useRef<Array<{ orderId: number; status: string }>>([]);
+  const isProcessingQueue = useRef(false);
 
   // Fetch shop data first
   const { data: shopData } = useQuery<{ shop: Shop & { isOnline: boolean } }>({
@@ -118,15 +121,14 @@ export default function RedesignedShopDashboard() {
     };
   }, [shopData?.shop?.id, queryClient]);
 
-  // Fetch orders with instant caching for immediate UI updates
+  // Fetch orders with background sync only
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
-    staleTime: 0, // Always consider data stale for immediate updates
-    refetchInterval: 2000, // Very aggressive background refresh
+    staleTime: 30000, // Cache for 30 seconds since we update instantly
+    refetchInterval: 10000, // Background sync every 10 seconds
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
-    refetchOnMount: true,
   });
 
   // Filter orders by search and type
@@ -151,6 +153,82 @@ export default function RedesignedShopDashboard() {
     completed: orders.filter(o => o.status === 'completed').length,
   };
 
+  // Process queue in background
+  const processUpdateQueue = async () => {
+    if (isProcessingQueue.current || updateQueue.current.length === 0) return;
+    
+    isProcessingQueue.current = true;
+    
+    while (updateQueue.current.length > 0) {
+      const update = updateQueue.current.shift();
+      if (!update) continue;
+
+      try {
+        const response = await fetch(`/api/orders/${update.orderId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: update.status }),
+        });
+        
+        if (response.ok) {
+          // Remove from pending updates on success
+          setPendingUpdates(prev => {
+            const newPending = { ...prev };
+            delete newPending[update.orderId];
+            return newPending;
+          });
+        } else {
+          // If failed, revert the UI change
+          queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
+            old?.map(order => {
+              if (order.id === update.orderId) {
+                // Revert to previous status
+                const prevStatus = update.status === 'processing' ? 'new' : 
+                                 update.status === 'ready' ? 'processing' : 'ready';
+                return { ...order, status: prevStatus };
+              }
+              return order;
+            }) || []
+          );
+          toast({ 
+            title: 'Update failed', 
+            description: `Order #${update.orderId} status reverted`,
+            variant: 'destructive' 
+          });
+        }
+      } catch (error) {
+        console.error('Queue processing error:', error);
+      }
+      
+      // Small delay to prevent overwhelming the server
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    isProcessingQueue.current = false;
+  };
+
+  // Instant status update function
+  const updateStatusInstantly = (orderId: number, newStatus: string) => {
+    // 1. Update UI immediately
+    queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
+      old?.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ) || []
+    );
+
+    // 2. Mark as pending
+    setPendingUpdates(prev => ({ ...prev, [orderId]: newStatus }));
+
+    // 3. Add to queue for background processing
+    updateQueue.current.push({ orderId, status: newStatus });
+
+    // 4. Process queue
+    processUpdateQueue();
+
+    // 5. Show instant feedback
+    toast({ title: 'Status updated!', description: 'Syncing in background...' });
+  };
+
   const updateOrderStatus = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
       const response = await fetch(`/api/orders/${orderId}/status`, {
@@ -160,51 +238,6 @@ export default function RedesignedShopDashboard() {
       });
       if (!response.ok) throw new Error('Failed to update status');
       return response.json();
-    },
-    onMutate: async ({ orderId, status }) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
-
-      // Snapshot the previous value
-      const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
-
-      // Optimistically update to the new value IMMEDIATELY
-      queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
-        old?.map(order => 
-          order.id === orderId ? { ...order, status } : order
-        ) || []
-      );
-
-      // Show immediate feedback
-      toast({ title: 'Updating status...', description: 'Please wait' });
-
-      // Return a context object with the snapshotted value
-      return { previousOrders };
-    },
-    onError: (err, variables, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      if (context?.previousOrders) {
-        queryClient.setQueryData([`/api/orders/shop/${shopData?.shop?.id}`], context.previousOrders);
-      }
-      toast({ 
-        title: 'Failed to update status', 
-        description: 'Please try again',
-        variant: 'destructive' 
-      });
-    },
-    onSuccess: () => {
-      toast({ title: 'Status updated successfully!' });
-      // Force immediate refetch with no delay
-      queryClient.invalidateQueries({ 
-        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`]
-      });
-    },
-    onSettled: () => {
-      // Ensure data is always fresh
-      queryClient.invalidateQueries({ 
-        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-        refetchType: 'all'
-      });
     },
   });
 
@@ -340,23 +373,23 @@ export default function RedesignedShopDashboard() {
           <Button
             size="sm"
             className="w-full mt-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-            disabled={updateOrderStatus.isPending}
-            onClick={async () => {
+            disabled={pendingUpdates[order.id]}
+            onClick={() => {
               const nextStatus = {
                 new: 'processing',
                 processing: 'ready',
                 ready: 'completed'
               }[order.status];
               if (nextStatus) {
-                // Immediate UI update before mutation
-                updateOrderStatus.mutate({ orderId: order.id, status: nextStatus });
+                // Instant update - no waiting!
+                updateStatusInstantly(order.id, nextStatus);
               }
             }}
           >
-            {updateOrderStatus.isPending ? (
+            {pendingUpdates[order.id] ? (
               <div className="flex items-center">
                 <div className="w-3 h-3 border border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
-                Updating...
+                Syncing...
               </div>
             ) : (
               <>
