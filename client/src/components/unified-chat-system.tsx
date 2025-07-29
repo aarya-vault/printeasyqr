@@ -254,6 +254,16 @@ export default function UnifiedChatSystem({
     }
   };
 
+  // Close chat automatically when order is completed
+  React.useEffect(() => {
+    if (selectedOrder?.status === 'completed') {
+      // Show a brief notification before closing
+      setTimeout(() => {
+        onClose();
+      }, 3000); // Close after 3 seconds to let user see the completion message
+    }
+  }, [selectedOrder?.status, onClose]);
+
   if (!isOpen) return null;
 
   return (

@@ -173,21 +173,57 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
     return Array.isArray(filesData) ? filesData : [];
   };
 
-  const createBasicStatusHistory = (): StatusHistoryItem[] => {
+  const createDetailedStatusHistory = (): StatusHistoryItem[] => {
     const history: StatusHistoryItem[] = [
       {
         status: 'new',
         timestamp: order.createdAt,
-        note: 'Order placed and received'
+        note: 'Order received and queued for processing'
       }
     ];
 
-    // Add current status if different from new
-    if (order.status !== 'new') {
+    // Add intermediate statuses based on current status
+    const createdTime = new Date(order.createdAt);
+    const updatedTime = new Date(order.updatedAt);
+    
+    if (order.status === 'processing') {
       history.push({
-        status: order.status,
+        status: 'processing',
         timestamp: order.updatedAt,
-        note: `Status updated to ${order.status}`
+        note: 'Shop owner started working on your order'
+      });
+    } else if (order.status === 'ready') {
+      // Add processing step (estimated time between created and updated)
+      const processingTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.3);
+      history.push({
+        status: 'processing',
+        timestamp: processingTime.toISOString(),
+        note: 'Shop owner started working on your order'
+      });
+      history.push({
+        status: 'ready',
+        timestamp: order.updatedAt,
+        note: 'Order completed and ready for pickup'
+      });
+    } else if (order.status === 'completed') {
+      // Add all intermediate steps for completed orders
+      const processingTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.2);
+      const readyTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.7);
+      
+      history.push({
+        status: 'processing',
+        timestamp: processingTime.toISOString(),
+        note: 'Shop owner started working on your order'
+      });
+      history.push({
+        status: 'ready',
+        timestamp: readyTime.toISOString(),
+        note: 'Order completed and ready for pickup'
+      });
+      history.push({
+        status: 'completed',
+        timestamp: order.updatedAt,
+        note: 'Order successfully collected by customer'
       });
     }
 
@@ -195,9 +231,9 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
   };
 
   const currentFiles = parseFiles(order.files);
-  const statusHistory = createBasicStatusHistory();
+  const statusHistory = createDetailedStatusHistory();
   const currentStatusInfo = getStatusInfo(order.status);
-  const canAddFiles = order.status === 'new' || order.status === 'processing';
+  const canAddFiles = order.status !== 'completed'; // Allow adding files until completed
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -297,7 +333,10 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
               <p className="text-sm text-gray-600">{currentStatusInfo.description}</p>
               
               <div className="text-xs text-gray-500">
-                Last updated: {formatDistanceToNow(new Date(order.updatedAt), { addSuffix: true })}
+                {order.status === 'completed' 
+                  ? `Completed: ${format(new Date(order.updatedAt), 'PPP p')}`
+                  : `Last updated: ${format(new Date(order.updatedAt), 'PPP p')}`
+                }
               </div>
             </CardContent>
           </Card>
@@ -339,10 +378,39 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
                     <div>
                       <p className="text-sm font-medium text-gray-600">Specifications</p>
                       <div className="text-sm mt-1 bg-gray-50 p-3 rounded">
-                        {typeof order.specifications === 'string' 
-                          ? order.specifications 
-                          : JSON.stringify(order.specifications, null, 2)
-                        }
+                        {(() => {
+                          if (typeof order.specifications === 'string') {
+                            return order.specifications;
+                          }
+                          if (typeof order.specifications === 'object') {
+                            const specs = order.specifications;
+                            return (
+                              <div className="space-y-1">
+                                {specs.urgent && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-red-600 font-medium">• Urgent Order</span>
+                                  </div>
+                                )}
+                                {specs.copies && (
+                                  <div>• Copies: {specs.copies}</div>
+                                )}
+                                {specs.color && (
+                                  <div>• Color: {specs.color}</div>
+                                )}
+                                {specs.size && (
+                                  <div>• Size: {specs.size}</div>
+                                )}
+                                {specs.binding && (
+                                  <div>• Binding: {specs.binding}</div>
+                                )}
+                                {Object.keys(specs).length === 0 && (
+                                  <span className="text-gray-500">No special specifications</span>
+                                )}
+                              </div>
+                            );
+                          }
+                          return 'No specifications';
+                        })()}
                       </div>
                     </div>
                   )}
@@ -545,7 +613,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
                       <div className="flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-yellow-600" />
                         <span className="text-sm text-yellow-700">
-                          Files cannot be added once order is ready or completed
+                          Files cannot be added to completed orders
                         </span>
                       </div>
                     </div>

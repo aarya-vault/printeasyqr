@@ -875,9 +875,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      // Only allow adding files to new or processing orders
-      if (existingOrder.status !== 'new' && existingOrder.status !== 'processing') {
-        return res.status(400).json({ message: "Cannot add files to orders that are ready or completed" });
+      // Only allow adding files to orders that are not completed
+      if (existingOrder.status === 'completed') {
+        return res.status(400).json({ message: "Cannot add files to completed orders" });
       }
 
       // Check if files were uploaded
