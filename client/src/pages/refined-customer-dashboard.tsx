@@ -51,37 +51,32 @@ export default function RefinedCustomerDashboard() {
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const [showComprehensiveChat, setShowComprehensiveChat] = useState(false);
 
-  // Status helper functions with brand-compliant colors
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'bg-brand-yellow/20 text-rich-black';
-      case 'processing': return 'bg-brand-yellow/40 text-rich-black';
-      case 'ready': return 'bg-brand-yellow/60 text-rich-black';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'new': return <Clock className="w-4 h-4" />;
-      case 'processing': return <Package className="w-4 h-4" />;
-      case 'ready': return <CheckCircle2 className="w-4 h-4" />;
-      case 'completed': return <CheckCircle2 className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
-    }
-  };
 
-  // Shop availability checker
+  // Shop availability checker with 24/7 support
   const isShopOpen = (shop: any) => {
-    if (!shop || !shop.workingHours || !shop.isOnline) return false;
+    if (!shop || !shop.isOnline) return false;
+    
+    // If no working hours defined, assume 24/7 operation
+    if (!shop.workingHours) return true;
     
     const now = new Date();
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
     const currentTime = now.toTimeString().slice(0, 5);
     const todayHours = shop.workingHours[currentDay];
 
+    // If day is marked as closed, shop is closed
     if (!todayHours || todayHours.closed) return false;
+    
+    // Handle 24/7 operation - if open time equals close time
+    if (todayHours.open === todayHours.close) return true;
+    
+    // Handle overnight operations (e.g., 22:00 to 06:00)
+    if (todayHours.open > todayHours.close) {
+      return currentTime >= todayHours.open || currentTime <= todayHours.close;
+    }
+    
+    // Normal day operation
     return currentTime >= todayHours.open && currentTime <= todayHours.close;
   };
 

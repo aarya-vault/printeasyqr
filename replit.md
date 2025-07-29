@@ -571,38 +571,39 @@ The platform now provides consistent navigation and chat functionality across al
 
 **Current Status**: Complete order history system operational with text-only chat conversations for completed orders. Notification system working perfectly with real-time read tracking. Clear separation between active order management and completed order history provides optimal user experience.
 
-## CRITICAL Notification System Fix - Sender/Receiver Logic (January 29, 2025) ✅ RESOLVED
+## CRITICAL Data Persistence & 24/7 Shop Support Implementation (January 29, 2025) ✅ COMPLETE
 
-### Fundamental Issue Identified & Fixed
-- **CRITICAL BUG**: Shop owners were seeing notifications for their own messages - fundamentally flawed sender/receiver logic
-- **ROOT CAUSE**: Unread message counting was not properly filtering out messages sent by the viewing user
-- **IMPACT**: Shop owners saw notifications for messages they sent themselves, defeating the purpose of notifications
+### QR Modal Data Persistence Fix ✅ RESOLVED
+- **Issue Fixed**: QR modal was losing shop data after query invalidation causing blank displays
+- **Solution**: Added `placeholderData: shop` to maintain shop data during refetch operations
+- **Enhanced Reliability**: Added retry logic (3 attempts, 1s delay) for failed queries
+- **Real-time Updates**: Maintained 15-second refresh for working hours while preventing data loss
 
-### Complete Backend Logic Overhaul ✅ IMPLEMENTED
-- **Shop Orders Endpoint**: Fixed to count only unread messages FROM customers (not from shop owner themselves)
-- **Customer Orders Endpoint**: Fixed to count only unread messages FROM shop owners (not from customer themselves)  
-- **Proper Logic**: `!m.isRead && m.senderId !== currentUserId` ensures users only see notifications for OTHER users' messages
-- **Database Query Fix**: Enhanced to fetch shop owner ID correctly and apply proper filtering
+### Comprehensive 24/7 Shop Support ✅ IMPLEMENTED
+- **Universal 24/7 Logic**: Added support for shops operating 24 hours across ALL platform components
+- **Smart Time Detection**: `hours.open === hours.close` now indicates 24/7 operation
+- **Overnight Operations**: Handle shops open past midnight (e.g., 22:00 to 06:00)
+- **No Working Hours Fallback**: Shops without defined working hours default to 24/7 operation
 
-### Unified Chat System Enhancement ✅ DEPLOYED
-- **Enhanced Debugging**: Added comprehensive console logging for mark-as-read operations
-- **Proper Authentication**: Validates user ID and role before marking messages as read
-- **Query Invalidation Fix**: Corrected query keys to use proper shop ID from shopData
-- **Real-time Updates**: Force refetch ensures immediate badge updates after marking messages as read
+### Components Updated for 24/7 Support ✅ COMPLETE
+- **ShopStatusIndicator**: Enhanced availability checker with 24/7 and overnight support
+- **Customer Dashboard**: Updated shop availability logic for proper 24/7 detection
+- **Shop Order Page**: Enhanced order acceptance logic to handle 24/7 shops correctly
+- **QR Modal**: Added "24/7 Open" display for round-the-clock shops with clear visual indicators
 
 ### Technical Implementation Details
-- **Backend Changes**: Both `/api/orders/shop/:shopId` and `/api/orders/customer/:customerId` now apply sender/receiver filtering
-- **Frontend Enhancement**: UnifiedChatSystem properly handles user authentication and query invalidation
-- **Storage Layer**: `markMessagesAsRead` already correctly marks messages from OTHER users as read (not user's own messages)
-- **Logging System**: Debug logs track mark-as-read operations for troubleshooting
+- **Availability Logic**: `if (!shop.workingHours) return true` assumes 24/7 for undefined hours
+- **Time Comparison**: Handle overnight spans where open time > close time
+- **Visual Indicators**: QR codes display "24/7 Open" with golden branding for always-available shops
+- **Query Stability**: Persistent data fallback prevents UI flicker during real-time updates
 
-### Notification Logic Rules ✅ ENFORCED
-- **Shop Owners**: Only see notifications for unread messages from CUSTOMERS
-- **Customers**: Only see notifications for unread messages from SHOP OWNERS  
-- **No Self-Notifications**: Users never see notifications for their own messages
-- **Real-time Sync**: Badges update immediately when viewing conversations
+### Platform-Wide Consistency ✅ ACHIEVED
+- **Unified Logic**: Same 24/7 detection algorithm across customer dashboard, order pages, QR modals, and status indicators
+- **Real-time Sync**: All components update automatically when shop changes working hours to/from 24/7
+- **Visual Consistency**: Golden yellow "24/7 Open" badges maintain brand consistency
+- **Error Prevention**: Fallback logic ensures shops never appear "broken" due to missing working hours
 
-**RESOLUTION STATUS**: Fundamental sender/receiver logic completely fixed. Shop owners no longer see notifications for their own messages. Notification system now works correctly with proper user role separation and real-time badge updates.
+**CURRENT STATUS**: Complete 24/7 shop support implemented across entire platform. QR modals maintain persistent data during updates. All components handle round-the-clock operations, overnight shifts, and shops without defined working hours seamlessly.
 
 ## COMPREHENSIVE DOCUMENTATION CREATED (January 29, 2025) ✅ COMPLETE
 

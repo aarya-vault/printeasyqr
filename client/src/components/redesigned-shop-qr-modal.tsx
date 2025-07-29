@@ -22,6 +22,8 @@ interface Shop {
   city: string;
   publicContactNumber?: string;
   workingHours?: any;
+  isOnline: boolean;
+  acceptsWalkinOrders?: boolean;
 }
 
 interface ShopQRModalProps {
@@ -34,15 +36,18 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
 
-  // Fetch real-time shop data for QR modal with auto-refresh
+  // Fetch real-time shop data for QR modal with auto-refresh and persistent fallback
   const { data: currentShop } = useQuery({
     queryKey: [`/api/shops/slug/${shop.slug}`],
     refetchInterval: 15000, // Refresh every 15 seconds
     staleTime: 5000, // Consider data stale after 5 seconds for immediate updates
     initialData: shop,
+    placeholderData: shop, // Always maintain shop data even during refetch
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Use current shop data (real-time) or fallback to initial shop prop
+  // Use current shop data (real-time) with guaranteed fallback to initial shop prop
   const displayShop = currentShop || shop;
 
   // Generate QR code on mount
@@ -178,12 +183,17 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
                         <div key={day} className="flex justify-between items-center">
                           <span className="capitalize font-medium">{day.slice(0, 3)}:</span>
                           <span>
-                            {hours.closed ? 'Closed' : `${hours.open} - ${hours.close}`}
+                            {hours.closed ? 'Closed' : 
+                             hours.open === hours.close ? '24/7 Open' : 
+                             `${hours.open} - ${hours.close}`}
                           </span>
                         </div>
                       ))
                     ) : (
-                      <p>Mon-Sat: 9:00 AM - 6:00 PM</p>
+                      <div className="text-center py-2">
+                        <span className="font-semibold text-brand-yellow">24/7 Open</span>
+                        <p className="text-xs text-gray-500 mt-1">Always available for orders</p>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -12,16 +12,30 @@ interface ShopStatusIndicatorProps {
 }
 
 export default function ShopStatusIndicator({ shop, showWalkinStatus = false }: ShopStatusIndicatorProps) {
-  // Calculate if shop is open based on current time and working hours
+  // Calculate if shop is open based on current time and working hours (including 24/7 support)
   const isShopOpen = () => {
-    if (!shop || !shop.workingHours || !shop.isOnline) return false;
+    if (!shop || !shop.isOnline) return false;
+    
+    // If no working hours defined, assume 24/7 operation
+    if (!shop.workingHours) return true;
     
     const now = new Date();
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
     const currentTime = now.toTimeString().slice(0, 5);
     const todayHours = shop.workingHours[currentDay];
 
+    // If day is marked as closed, shop is closed
     if (!todayHours || todayHours.closed) return false;
+    
+    // Handle 24/7 operation - if open time equals close time (00:00 = 00:00 or same times)
+    if (todayHours.open === todayHours.close) return true;
+    
+    // Handle overnight operations (e.g., 22:00 to 06:00)
+    if (todayHours.open > todayHours.close) {
+      return currentTime >= todayHours.open || currentTime <= todayHours.close;
+    }
+    
+    // Normal day operation
     return currentTime >= todayHours.open && currentTime <= todayHours.close;
   };
 
