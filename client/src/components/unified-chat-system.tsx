@@ -22,7 +22,7 @@ interface Message {
   senderId: number;
   senderName: string;
   content: string;
-  files?: string[];
+  files?: string | string[];
   createdAt: string;
   isRead: boolean;
 }
@@ -418,11 +418,16 @@ export default function UnifiedChatSystem({
                           let parsedFiles: any[] = [];
                           if (message.files) {
                             try {
+                              // Debug logging
+                              console.log('🔍 Raw message.files:', message.files, 'Type:', typeof message.files);
+                              
                               const fileList = typeof message.files === 'string' 
                                 ? JSON.parse(message.files) 
                                 : message.files;
+                              
+                              console.log('Parsed fileList:', fileList, 'IsArray:', Array.isArray(fileList));
+                              
                               if (Array.isArray(fileList) && fileList.length > 0) {
-                                hasValidFiles = true;
                                 // Handle both old format (string array) and new format (object array)
                                 parsedFiles = fileList.map((file: any) => {
                                   if (typeof file === 'string') {
@@ -432,14 +437,21 @@ export default function UnifiedChatSystem({
                                   // New format - full file object
                                   return file;
                                 });
+                                
+                                hasValidFiles = parsedFiles.length > 0;
+                                console.log('Final parsedFiles:', parsedFiles, 'hasValidFiles:', hasValidFiles);
                               }
                             } catch (e) {
-                              console.error('Error parsing files:', e);
+                              console.error('Error parsing files:', e, 'Raw files data:', message.files);
                             }
                           }
                           
-                          // Skip rendering if message has no content and no valid files
+                          // Force show files even if content is empty
                           const hasContent = message.content && message.content.trim() !== '';
+                          
+                          console.log(`🔍 Message ${message.id}: hasContent=${hasContent}, hasValidFiles=${hasValidFiles}, content="${message.content}", files:`, message.files);
+                          
+                          // Don't skip rendering if we have files
                           if (!hasContent && !hasValidFiles) {
                             return null;
                           }
