@@ -93,27 +93,33 @@ export function ChatInterface({ isOpen, onClose, initialOrderId }: ChatInterface
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Send message mutation
+  // Send message mutation with file upload support
   const sendMessageMutation = useMutation({
     mutationFn: async (data: { orderId: number; content: string; files?: FileList }) => {
       const formData = new FormData();
+      formData.append('orderId', data.orderId.toString());
+      formData.append('senderId', user?.id?.toString() || '');
+      formData.append('senderName', user?.name || user?.phone || 'User');
+      formData.append('senderRole', user?.role || 'customer');
       formData.append('content', data.content);
       formData.append('messageType', 'text');
       
-      if (data.files) {
+      // Add files if present
+      if (data.files && data.files.length > 0) {
         Array.from(data.files).forEach(file => {
           formData.append('files', file);
         });
       }
 
-      const response = await fetch(`/api/messages/order/${data.orderId}`, {
+      const response = await fetch('/api/messages', {
         method: 'POST',
         body: formData,
         credentials: 'include'
       });
       
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send message');
       }
       
       return response.json();
@@ -122,7 +128,13 @@ export function ChatInterface({ isOpen, onClose, initialOrderId }: ChatInterface
       setNewMessage('');
       refetchMessages();
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     },
+    onError: (error) => {
+      console.error('Send message error:', error);
+    }
   });
 
   const handleSendMessage = () => {
@@ -284,15 +296,25 @@ export function ChatInterface({ isOpen, onClose, initialOrderId }: ChatInterface
                               : 'bg-black text-white'
                           }`}>
                             <p className="text-sm">{message.content}</p>
-                            {message.files && message.files.length > 0 && (
+                            {message.files && (
                               <div className="mt-2 space-y-1">
-                                {message.files.map((file, index) => (
-                                  <div key={index} className="text-xs underline">
-                                    <a href={`/uploads/${file}`} target="_blank" rel="noopener noreferrer">
-                                      📎 {file}
-                                    </a>
-                                  </div>
-                                ))}
+                                {(() => {
+                                  try {
+                                    const files = typeof message.files === 'string' ? JSON.parse(message.files) : message.files;
+                                    if (Array.isArray(files)) {
+                                      return files.map((file, index) => (
+                                        <div key={index} className="text-xs underline">
+                                          <a href={`/uploads/${file}`} target="_blank" rel="noopener noreferrer">
+                                            📎 {file}
+                                          </a>
+                                        </div>
+                                      ));
+                                    }
+                                  } catch (e) {
+                                    console.warn('Failed to parse message files:', message.files);
+                                  }
+                                  return null;
+                                })()}
                               </div>
                             )}
                             <p className="text-xs opacity-70 mt-1">
