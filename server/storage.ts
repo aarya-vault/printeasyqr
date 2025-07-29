@@ -301,7 +301,7 @@ export class DatabaseStorage implements IStorage {
         senderRole: row.sender_role || 'customer',
         content: row.content,
         messageType: row.message_type || 'text',
-        files: row.file_url || row.file_name || null,
+        files: row.files || row.file_url || row.file_name || null,
         isRead: row.is_read,
         createdAt: row.created_at
       })) as Message[];

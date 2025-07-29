@@ -941,6 +941,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
       const isShopOwner = req.user && req.user.role === 'shop_owner';
       
       if (!isCustomer && !isShopOwner) {
+        console.log('Access denied - User:', req.user, 'Order:', { customerId: order.customerId, shopId: order.shopId });
         return res.status(403).json({ message: "Access denied" });
       }
 
