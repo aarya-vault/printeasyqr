@@ -11,7 +11,7 @@ import {
   ArrowUp, ArrowDown, XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
-import ChatModal from './chat-modal';
+import UnifiedChatSystem from './unified-chat-system';
 
 interface OrderDetailModalProps {
   orderId: number;
@@ -219,7 +219,7 @@ export default function OrderDetailModal({ orderId, onClose }: OrderDetailModalP
   }
 
   if (showChat) {
-    return <ChatModal orderId={orderId} onClose={() => setShowChat(false)} userRole="shop_owner" />;
+    return <UnifiedChatSystem isOpen={true} onClose={() => setShowChat(false)} initialOrderId={orderId} userRole="shop_owner" />;
   }
 
   return (

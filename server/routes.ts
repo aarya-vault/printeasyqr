@@ -926,13 +926,10 @@ app.patch('/api/debug/patch-test', (req, res) => {
 
   app.post("/api/messages", requireAuth, upload.array('files'), async (req, res) => {
     try {
+      const { orderId, senderId, senderName, senderRole, content, messageType } = req.body;
+      
       console.log('Message creation request:', req.body);
       console.log('Files received:', req.files);
-      console.log('Content value:', JSON.stringify(content));
-      console.log('Trimmed content:', JSON.stringify(trimmedContent));
-      console.log('Final content:', JSON.stringify(finalContent));
-      
-      const { orderId, senderId, senderName, senderRole, content, messageType } = req.body;
       
       // Verify order exists and user has access
       const order = await storage.getOrder(parseInt(orderId));

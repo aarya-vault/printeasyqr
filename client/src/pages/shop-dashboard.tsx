@@ -487,11 +487,11 @@ export default function ShopDashboard() {
         shopName={shop.name}
       />
       
-      <ChatModal
+      <UnifiedChatSystem
         isOpen={showChat}
         onClose={() => setShowChat(false)}
-        order={selectedOrder}
-        shopName={shop.name}
+        initialOrderId={selectedOrder?.id}
+        userRole="shop_owner"
       />
     </div>
   );

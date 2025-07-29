@@ -14,10 +14,9 @@ import {
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import EnhancedOrderChat from '@/components/enhanced-order-chat';
-import ComprehensiveChatInterface from '@/components/comprehensive-chat-interface';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 import OrderDetailsModal from '@/components/order-details-modal';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
-import UnifiedChatSystem from '@/components/unified-chat-system';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
 

@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { UploadOrderModal } from '@/components/order/upload-order-modal';
 import { WalkinOrderModal } from '@/components/order/walkin-order-modal';
-import { ChatModal } from '@/components/chat/chat-modal';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 import { Shop, Order, OrderFormData } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -331,11 +331,11 @@ export default function CustomerDashboard() {
         onSubmit={handleWalkinOrder}
       />
       
-      <ChatModal
+      <UnifiedChatSystem
         isOpen={showChat}
         onClose={() => setShowChat(false)}
-        order={selectedOrder}
-        shopName={selectedOrder ? (shops as Shop[]).find((s: Shop) => s.id === selectedOrder.shopId)?.name : ''}
+        initialOrderId={selectedOrder?.id}
+        userRole="customer"
       />
     </div>
   );

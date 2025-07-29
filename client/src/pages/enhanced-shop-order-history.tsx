@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import OrderDetailsModal from '@/components/order-details-modal';
-import ShopChatModal from '@/components/shop-chat-modal';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 
 interface Order {
   id: number;
@@ -318,9 +318,11 @@ export default function EnhancedShopOrderHistory() {
       )}
 
       {selectedOrderForChat && (
-        <ShopChatModal
-          orderId={selectedOrderForChat}
+        <UnifiedChatSystem
+          isOpen={!!selectedOrderForChat}
           onClose={() => setSelectedOrderForChat(null)}
+          initialOrderId={selectedOrderForChat}
+          userRole="shop_owner"
         />
       )}
     </div>
