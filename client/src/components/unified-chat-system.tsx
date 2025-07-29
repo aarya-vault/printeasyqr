@@ -419,7 +419,7 @@ export default function UnifiedChatSystem({
                           if (message.files) {
                             try {
                               // Debug logging
-                              console.log('🔍 Raw message.files:', message.files, 'Type:', typeof message.files);
+                              console.log('🔍 FIXED - Raw message.files:', message.files, 'Type:', typeof message.files);
                               
                               const fileList = typeof message.files === 'string' 
                                 ? JSON.parse(message.files) 

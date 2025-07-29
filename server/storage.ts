@@ -286,7 +286,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db.execute(
         sql`
           SELECT id, order_id, sender_id, sender_name, sender_role, content, 
-                 message_type, file_url, file_name, is_read, created_at 
+                 message_type, files, is_read, created_at 
           FROM messages 
           WHERE order_id = ${orderId} 
           ORDER BY created_at ASC
@@ -301,7 +301,7 @@ export class DatabaseStorage implements IStorage {
         senderRole: row.sender_role || 'customer',
         content: row.content,
         messageType: row.message_type || 'text',
-        files: row.files || row.file_url || row.file_name || null,
+        files: row.files,
         isRead: row.is_read,
         createdAt: row.created_at
       })) as Message[];
