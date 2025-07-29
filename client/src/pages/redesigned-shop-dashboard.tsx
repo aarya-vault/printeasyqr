@@ -73,9 +73,13 @@ export default function RedesignedShopDashboard() {
   const updateQueue = useRef<Array<{ orderId: number; status: string }>>([]);
   const isProcessingQueue = useRef(false);
 
-  // Fetch shop data first
+  // Fetch shop data with instant loading
   const { data: shopData } = useQuery<{ shop: Shop & { isOnline: boolean } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
+    staleTime: Infinity, // Use cached data immediately
+    gcTime: 1000 * 60 * 60, // Keep in cache for 1 hour (v5 syntax)
+    refetchInterval: 30000, // Background sync every 30 seconds
+    refetchOnMount: false, // Use cached data immediately
   });
 
   // WebSocket integration for real-time updates
@@ -121,15 +125,21 @@ export default function RedesignedShopDashboard() {
     };
   }, [shopData?.shop?.id, queryClient]);
 
-  // Fetch orders with background sync only
-  const { data: orders = [], isLoading } = useQuery<Order[]>({
+  // Fetch orders with instant loading and background sync
+  const { data: ordersData = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
-    staleTime: 30000, // Cache for 30 seconds since we update instantly
-    refetchInterval: 10000, // Background sync every 10 seconds
+    staleTime: Infinity, // Use cached data immediately - never consider stale
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (v5 syntax)
+    refetchInterval: 15000, // Background sync every 15 seconds
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false, // Don't refetch on focus to prevent delays
+    refetchOnMount: false, // Use cached data on mount for instant loading
+    placeholderData: [], // Show empty array immediately while loading
   });
+
+  // Use orders data with fallback
+  const orders = ordersData || [];
 
   // Filter orders by search and type
   const filteredOrders = orders.filter(order => {
@@ -373,7 +383,7 @@ export default function RedesignedShopDashboard() {
           <Button
             size="sm"
             className="w-full mt-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-            disabled={pendingUpdates[order.id]}
+            disabled={!!pendingUpdates[order.id]}
             onClick={() => {
               const nextStatus = {
                 new: 'processing',
@@ -417,7 +427,21 @@ export default function RedesignedShopDashboard() {
     </Card>
   );
 
-  if (!shopData?.shop) {
+  // Show dashboard immediately with cached/placeholder data
+  const shop = shopData?.shop || {
+    id: 0,
+    name: 'Loading...',
+    slug: '',
+    phone: '',
+    address: 'Loading...',
+    city: '',
+    workingHours: null,
+    acceptsWalkinOrders: false,
+    isOnline: true
+  };
+
+  // Only show loading if absolutely no data is available
+  if (!shopData?.shop && ordersLoading && orders.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -435,9 +459,9 @@ export default function RedesignedShopDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-rich-black">{shopData.shop.name}</h1>
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse" />
+              <h1 className="text-2xl font-bold text-rich-black">{shop.name}</h1>
+              <Badge variant="secondary" className="bg-brand-yellow/20 text-rich-black">
+                <div className="w-2 h-2 bg-brand-yellow rounded-full mr-1 animate-pulse" />
                 Online
               </Badge>
             </div>
@@ -595,10 +619,10 @@ export default function RedesignedShopDashboard() {
       </div>
 
       {/* QR Code Modal */}
-      {showQRModal && shopData.shop && (
+      {showQRModal && shop && shop.id > 0 && (
         <CanvasQRModal
           isOpen={showQRModal}
-          shop={shopData.shop}
+          shop={shop}
           onClose={() => setShowQRModal(false)}
         />
       )}
