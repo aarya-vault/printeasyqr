@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { 
   Printer, ArrowRight, CheckCircle, Clock, Shield, 
@@ -83,13 +83,29 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
-
   const [showShopLogin, setShowShopLogin] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
-  const { login, updateUser } = useAuth();
+  const { user, login, updateUser } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+
+  // Redirect authenticated users to their respective dashboards
+  useEffect(() => {
+    if (user) {
+      switch (user.role) {
+        case 'customer':
+          navigate('/customer-dashboard');
+          break;
+        case 'shop_owner':
+          navigate('/shop-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+      }
+    }
+  }, [user, navigate]);
 
   const handleCustomerLogin = async () => {
     if (!customerPhone.trim()) {
