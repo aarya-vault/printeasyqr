@@ -12,10 +12,13 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, Store, Clock, Phone, Mail, MapPin, 
-  Bell, Save, Settings, Calendar, Globe
+  Bell, Save, Settings, Calendar, Globe, Check,
+  Users, Package, MessageSquare, Shield, Power
 } from 'lucide-react';
 
 const SERVICES = [

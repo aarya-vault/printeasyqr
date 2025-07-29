@@ -18,7 +18,7 @@ import RedesignedShopOwnerDashboard from "@/pages/redesigned-shop-owner-dashboar
 import ShopOrderHistory from "@/pages/shop-order-history";
 import ShopOrderDetails from "@/pages/shop-order-details";
 import ShopChatSystem from "@/pages/shop-chat-system";
-import ComprehensiveShopSettings from "@/components/comprehensive-shop-settings";
+import RedesignedShopSettings from "@/pages/redesigned-shop-settings";
 import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
 import SimpleShopApplication from "@/components/simple-shop-application";
@@ -42,7 +42,7 @@ function Router() {
       <Route path="/shop-order-history" component={ShopOrderHistory} />
       <Route path="/shop-dashboard/chat/:orderId" component={ShopChatSystem} />
       <Route path="/shop-dashboard/orders/:orderId" component={ShopOrderDetails} />
-      <Route path="/shop-settings" component={ComprehensiveShopSettings} />
+      <Route path="/shop-settings" component={RedesignedShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/apply-shop" component={SimpleShopApplication} />
