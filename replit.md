@@ -541,7 +541,35 @@ The platform now provides consistent navigation and chat functionality across al
 - **Simplified Maintenance**: One component to maintain instead of multiple fragmented implementations
 - **Consistent UX**: Identical chat experience across all platform sections
 
-**Current Status**: All chat systems completely unified into single comprehensive component. Shop owners can efficiently manage multiple customer conversations while customers enjoy consistent chat experience from any platform section. File upload and order context routing working perfectly across all interfaces.
+## Order History & Chat History System (January 29, 2025) ✅ COMPLETE
+
+### Order History Implementation ✅ DEPLOYED
+- **Dedicated Order History Page**: Complete `shop-order-history.tsx` page accessible via button in shop dashboard header
+- **Completed Orders Only**: Displays only orders with status 'completed' - active orders remain on main dashboard
+- **Text-Only Chat History**: Chat conversations for completed orders show text messages only, no file attachments or uploads
+- **Read-Only Chat Modal**: Completed order chat history is read-only with clear "Order Completed" messaging
+- **Comprehensive Search**: Search completed orders by customer name, phone, order ID, or title
+
+### Notification System Fix ✅ OPERATIONAL  
+- **Message Read Tracking**: Implemented proper `/api/messages/mark-read` endpoint for accurate unread counts
+- **Auto-Mark Read**: Messages automatically marked as read after 1 second of viewing in chat
+- **Real-time Badge Updates**: Notification badges decrease immediately when messages are read
+- **Proper Logic**: Only marks messages from OTHER users as read when current user views them
+
+### Dashboard Organization ✅ COMPLETE
+- **Active Orders Only**: Main dashboard shows new, processing, ready orders - completed orders moved to history
+- **Order History Button**: Prominent "Order History" button in dashboard header for easy access
+- **Status Filter Update**: Removed 'completed' filter from main dashboard since completed orders are in history
+- **Clean Separation**: Clear distinction between active order management and completed order history
+
+### Technical Implementation ✅ COMPLETE
+- **API Endpoint Integration**: Uses existing `/api/orders/shop/:shopId/history` endpoint for completed orders
+- **Chat History Modal**: Dedicated modal showing full conversation history for completed orders
+- **File Download Support**: Completed orders still allow file downloads but no new file uploads
+- **Search & Filter**: Advanced search functionality for finding specific completed orders
+- **Mobile Responsive**: Perfect responsive design for order history page and chat modals
+
+**Current Status**: Complete order history system operational with text-only chat conversations for completed orders. Notification system working perfectly with real-time read tracking. Clear separation between active order management and completed order history provides optimal user experience.
 
 ## Enhanced Customer Order Details & Completed Order Chat System (January 29, 2025) ✅ COMPLETE
 

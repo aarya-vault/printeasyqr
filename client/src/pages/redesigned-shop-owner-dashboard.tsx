@@ -126,8 +126,11 @@ export default function RedesignedShopOwnerDashboard() {
     avgProcessingTime: '2.5 hrs'
   };
 
-  // Filter orders with improved performance
+  // Filter orders with improved performance - exclude completed orders
   const filteredOrders = orders.filter(order => {
+    // Exclude completed orders (they go to Order History)
+    if (order.status === 'completed') return false;
+    
     const matchesSearch = searchQuery === '' || 
       order.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -464,6 +467,14 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => navigate('/shop-order-history')}
+              >
+                <History className="w-4 h-4 mr-2" />
+                Order History
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => navigate('/shop-settings')}
               >
                 <Settings className="w-4 h-4 mr-2" />
@@ -540,7 +551,7 @@ export default function RedesignedShopOwnerDashboard() {
                 </div>
               </div>
               <div className="flex gap-2">
-                {['all', 'new', 'processing', 'ready', 'completed'].map((status) => (
+                {['all', 'new', 'processing', 'ready'].map((status) => (
                   <Button
                     key={status}
                     size="sm"
