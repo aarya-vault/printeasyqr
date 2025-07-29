@@ -166,26 +166,41 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
         // Working Hours
         ctx.fillStyle = '#000000';
         ctx.font = 'bold 12px Arial, sans-serif';
+        ctx.textAlign = 'left';
         ctx.fillText('Working Hours', 40, 515);
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
         
         if (shopData.workingHours) {
           let yPos = 530;
-          Object.entries(shopData.workingHours).slice(0, 3).forEach(([day, hours]: [string, any]) => {
-            const dayText = `${day.slice(0, 3)}:`;
-            const timeText = hours.closed ? 'Closed' : 
-                           hours.open === hours.close ? '24/7' : 
-                           `${hours.open}-${hours.close}`;
+          // Get the first 3 days to display
+          const daysToShow = Object.entries(shopData.workingHours).slice(0, 3);
+
+          daysToShow.forEach(([day, hours]: [string, any]) => {
+            const dayText = `${day.charAt(0).toUpperCase() + day.slice(1, 3)}:`;
+            const timeText = hours.closed ? 'Closed' :
+              hours.open === hours.close ? '24/7' :
+              `${hours.open}-${hours.close}`;
+
+            // Set alignment to left for the day
+            ctx.textAlign = 'left';
             ctx.fillText(dayText, 40, yPos);
-            ctx.fillText(timeText, 300, yPos);
+
+            // Set alignment to right for the time, inside the grey box (width 360, right edge at 380)
+            ctx.textAlign = 'right';
+            ctx.fillText(timeText, 370, yPos); // Align to the right edge with 10px padding
+
             yPos += 15;
           });
+
+          // Reset alignment after the loop
+          ctx.textAlign = 'left';
         } else {
           ctx.fillStyle = '#FFBF00';
           ctx.font = 'bold 12px Arial, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('24/7 Open', 200, 535);
+          ctx.textAlign = 'left'; // Reset alignment
         }
 
         // Footer

@@ -1,0 +1,54 @@
+The primary alignment issue is in the Working Hours section of your generated QR card. You are drawing the day of the week and the corresponding time at fixed X-coordinates that are too far apart, creating a large, unnatural gap.
+
+The Problem
+In your drawQRCard function, you draw the day (e.g., "Sun:") at x=40 and the time (e.g., "Closed") at x=300. Since the text alignment is set to left, both strings start drawing from these coordinates, leaving a large space between them.
+
+JavaScript
+
+// Problematic Code
+Object.entries(shopData.workingHours).slice(0, 3).forEach(([day, hours]: [string, any]) => {
+  // ...
+  // The day is drawn starting at x=40
+  ctx.fillText(dayText, 40, yPos); 
+  // The time is drawn starting at x=300, creating a huge gap
+  ctx.fillText(timeText, 300, yPos); 
+  yPos += 15;
+});
+This is why in your image, "Closed" appears so far away from "Sun:".
+
+The Solution
+To fix this, you should align the day text to the left and the time text to the right within the details box. This will create a clean, table-like layout.
+
+Modify the forEach loop in your drawQRCard function to change the textAlign property before drawing the text.
+
+JavaScript
+
+// Corrected Code Block
+if (shopData.workingHours) {
+  let yPos = 530;
+  // Get the first 3 days to display
+  const daysToShow = Object.entries(shopData.workingHours).slice(0, 3);
+
+  daysToShow.forEach(([day, hours]: [string, any]) => {
+    const dayText = `${day.charAt(0).toUpperCase() + day.slice(1, 3)}:`;
+    const timeText = hours.closed ? 'Closed' :
+      hours.open === hours.close ? '24/7' :
+      `${hours.open}-${hours.close}`;
+
+    // Set alignment to left for the day
+    ctx.textAlign = 'left';
+    ctx.fillText(dayText, 40, yPos);
+
+    // Set alignment to right for the time, inside the grey box (width 360, right edge at 380)
+    ctx.textAlign = 'right';
+    ctx.fillText(timeText, 370, yPos); // Align to the right edge with 10px padding
+
+    yPos += 15;
+  });
+
+  // Good practice to reset alignment after the loop
+  ctx.textAlign = 'left';
+} else {
+  // ... existing else block ...
+}
+This change will properly align the times to the right edge of the details box, fixing the layout issue seen in your image.
