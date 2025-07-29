@@ -78,7 +78,7 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
 
     // Set canvas size
     canvas.width = 400;
-    canvas.height = 600;
+    canvas.height = 640;
 
     // Clear canvas
     ctx.fillStyle = '#FFFFFF';
@@ -86,36 +86,49 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
 
     // Header background
     ctx.fillStyle = '#FFBF00';
-    ctx.fillRect(0, 0, 400, 120);
+    ctx.fillRect(0, 0, 400, 140);
 
     // Shop name
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 20px Arial, sans-serif';
+    ctx.font = 'bold 22px Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(shopData.name, 200, 40);
+    ctx.fillText(shopData.name, 200, 50);
 
     // Professional services text
     ctx.font = '14px Arial, sans-serif';
     ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    ctx.fillText('Professional Printing Services', 200, 65);
+    ctx.fillText('Professional Printing Services', 200, 75);
 
-    // Status badges
-    let badgeY = 85;
+    // Status badges - better alignment and spacing
+    const badgeY = 105;
+    let badgeStartX = 200; // Center point
+    const badges = [];
+    
     if (shopData.isOnline) {
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(120, badgeY - 15, 60, 20);
-      ctx.fillStyle = '#000000';
-      ctx.font = '12px Arial, sans-serif';
-      ctx.fillText('Online', 150, badgeY);
+      badges.push({ text: 'Online', width: 50 });
     }
     
     if (shopData.acceptsWalkinOrders) {
+      badges.push({ text: 'Walk-in Available', width: 120 });
+    }
+
+    // Calculate total width and starting position for centered alignment
+    const totalWidth = badges.reduce((sum, badge) => sum + badge.width + 10, -10); // -10 to remove last gap
+    let currentX = badgeStartX - (totalWidth / 2);
+
+    badges.forEach((badge) => {
+      // Badge background
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(190, badgeY - 15, 100, 20);
+      ctx.fillRect(currentX, badgeY - 12, badge.width, 24);
+      
+      // Badge text
       ctx.fillStyle = '#000000';
       ctx.font = '12px Arial, sans-serif';
-      ctx.fillText('Walk-in Available', 240, badgeY);
-    }
+      ctx.textAlign = 'center';
+      ctx.fillText(badge.text, currentX + badge.width/2, badgeY + 4);
+      
+      currentX += badge.width + 15; // Move to next badge position
+    });
 
     // QR Code
     if (qrDataUrl) {
@@ -123,61 +136,61 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
       qrImg.onload = () => {
         // QR code background
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(100, 140, 200, 200);
+        ctx.fillRect(100, 160, 200, 200);
         ctx.strokeStyle = '#E5E5E5';
         ctx.lineWidth = 1;
-        ctx.strokeRect(100, 140, 200, 200);
+        ctx.strokeRect(100, 160, 200, 200);
         
         // Draw QR code
-        ctx.drawImage(qrImg, 110, 150, 180, 180);
+        ctx.drawImage(qrImg, 110, 170, 180, 180);
 
         // "Scan to Visit Shop" text
         ctx.fillStyle = '#000000';
         ctx.font = 'bold 16px Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Scan to Visit Shop', 200, 370);
+        ctx.fillText('Scan to Visit Shop', 200, 390);
 
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
-        ctx.fillText('Scan this QR code to view our services and place orders', 200, 390);
+        ctx.fillText('Scan this QR code to view our services and place orders', 200, 410);
 
         // Shop details background
         ctx.fillStyle = '#F9F9F9';
-        ctx.fillRect(20, 410, 360, 140);
+        ctx.fillRect(20, 430, 360, 160);
 
         // Location
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 12px Arial, sans-serif';
+        ctx.font = 'bold 13px Arial, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('Location', 40, 435);
+        ctx.fillText('Location', 40, 455);
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
         const locationText = `${shopData.address}, ${shopData.city}`;
-        ctx.fillText(locationText.length > 50 ? locationText.substring(0, 47) + '...' : locationText, 40, 450);
+        ctx.fillText(locationText.length > 45 ? locationText.substring(0, 42) + '...' : locationText, 40, 475);
 
         // Contact
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 12px Arial, sans-serif';
-        ctx.fillText('Contact', 40, 475);
+        ctx.font = 'bold 13px Arial, sans-serif';
+        ctx.fillText('Contact', 40, 505);
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
-        ctx.fillText(shopData.publicContactNumber || shopData.phone || 'Contact Number', 40, 490);
+        ctx.fillText(shopData.publicContactNumber || shopData.phone || 'Contact Number', 40, 525);
 
         // Working Hours
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 12px Arial, sans-serif';
+        ctx.font = 'bold 13px Arial, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('Working Hours', 40, 515);
+        ctx.fillText('Working Hours', 40, 550);
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
         
         if (shopData.workingHours) {
-          let yPos = 530;
-          // Get the first 3 days to display
+          let yPos = 570;
+          // Get the first 3 days to display for better spacing
           const daysToShow = Object.entries(shopData.workingHours).slice(0, 3);
 
           daysToShow.forEach(([day, hours]: [string, any]) => {
-            const dayText = `${day.charAt(0).toUpperCase() + day.slice(1, 3)}:`;
+            const dayText = `${day.charAt(0).toUpperCase() + day.slice(1, 2).toLowerCase()}:`;
             const timeText = hours.closed ? 'Closed' :
               hours.open === hours.close ? '24/7' :
               `${hours.open}-${hours.close}`;
@@ -190,7 +203,7 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
             ctx.textAlign = 'right';
             ctx.fillText(timeText, 370, yPos); // Align to the right edge with 10px padding
 
-            yPos += 15;
+            yPos += 18; // Slightly more spacing between lines
           });
 
           // Reset alignment after the loop
@@ -199,33 +212,33 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
           ctx.fillStyle = '#FFBF00';
           ctx.font = 'bold 12px Arial, sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText('24/7 Open', 200, 535);
+          ctx.fillText('24/7 Open', 200, 570);
           ctx.textAlign = 'left'; // Reset alignment
         }
 
         // Footer
         ctx.fillStyle = '#F3F3F3';
-        ctx.fillRect(0, 560, 400, 40);
+        ctx.fillRect(0, 600, 400, 40);
         
         // PrintEasy logo circle
         ctx.fillStyle = '#FFBF00';
         ctx.beginPath();
-        ctx.arc(40, 580, 12, 0, 2 * Math.PI);
+        ctx.arc(40, 620, 12, 0, 2 * Math.PI);
         ctx.fill();
         
         ctx.fillStyle = '#000000';
         ctx.font = 'bold 12px Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('P', 40, 585);
+        ctx.fillText('P', 40, 625);
 
         ctx.textAlign = 'left';
         ctx.font = 'bold 12px Arial, sans-serif';
-        ctx.fillText('PrintEasy', 60, 585);
+        ctx.fillText('PrintEasy', 60, 625);
 
         ctx.textAlign = 'right';
         ctx.font = '12px Arial, sans-serif';
         ctx.fillStyle = '#666666';
-        ctx.fillText('Connect • Print • Collect', 380, 585);
+        ctx.fillText('Connect • Print • Collect', 380, 625);
       };
       qrImg.src = qrDataUrl;
     }
