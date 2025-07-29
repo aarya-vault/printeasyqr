@@ -584,45 +584,58 @@ export default function UnifiedChatSystem({
                       </div>
                     )}
 
-                    <div className="flex space-x-2">
-                      {/* File attachment button */}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleFileSelect}
-                        disabled={sendMessageMutation.isPending}
-                        className="px-3"
-                      >
-                        <Paperclip className="w-4 h-4" />
-                      </Button>
+                    {selectedOrder?.status === 'completed' ? (
+                      // Show completion message for completed orders
+                      <div className="bg-gray-100 p-4 rounded-lg text-center">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <h4 className="font-semibold text-gray-800">Order Completed</h4>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          This order has been completed. You can view the message history above, but no new messages can be sent.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex space-x-2">
+                        {/* File attachment button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleFileSelect}
+                          disabled={sendMessageMutation.isPending}
+                          className="px-3"
+                        >
+                          <Paperclip className="w-4 h-4" />
+                        </Button>
 
-                      {/* Hidden file input */}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
+                        {/* Hidden file input */}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
 
-                      <Input
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        className="flex-1"
-                        disabled={sendMessageMutation.isPending}
-                      />
-                      <Button 
-                        onClick={handleSendMessage}
-                        disabled={(!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) || sendMessageMutation.isPending}
-                        className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                      >
-                        <Send className="w-4 h-4" />
-                      </Button>
-                    </div>
+                        <Input
+                          value={messageInput}
+                          onChange={(e) => setMessageInput(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          placeholder="Type your message..."
+                          className="flex-1"
+                          disabled={sendMessageMutation.isPending}
+                        />
+                        <Button 
+                          onClick={handleSendMessage}
+                          disabled={(!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) || sendMessageMutation.isPending}
+                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (

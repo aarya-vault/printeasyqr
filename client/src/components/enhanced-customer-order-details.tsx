@@ -84,12 +84,21 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({ title: 'Files uploaded successfully!' });
+      // Invalidate specific queries to force refresh
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${order.customerId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer`] });
+      
       setSelectedFiles([]);
+      setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
+      }
+      
+      // Call onRefresh callback if provided
+      if (onRefresh) {
+        onRefresh();
       }
     },
     onError: (error: any) => {
@@ -244,6 +253,8 @@ export default function EnhancedCustomerOrderDetails({ order, onClose }: Enhance
     if (selectedFiles.length > 0) {
       setIsUploading(true);
       uploadFilesMutation.mutate(selectedFiles);
+    } else {
+      toast({ title: 'Please select files to upload', variant: 'destructive' });
     }
   };
 
