@@ -126,105 +126,146 @@ export default function RefinedCustomerDashboard() {
         </div>
         </div>
         
-        <div className="bg-white rounded-2xl shadow-sm p-4">
-          <h2 className="text-lg font-semibold text-rich-black mb-4">Ready to Print?</h2>
+        {/* Beautiful Hero Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-yellow/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-brand-yellow/5 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
           
-          {visitedShops.length === 0 ? (
-            <div className="text-center py-6">
-              <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-600 mb-4">No shops visited yet</p>
-              <Button 
-                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                onClick={() => navigate('/')}
-              >
-                Browse Print Shops
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">Choose from your previously visited shops</p>
-              
-              {/* Previously Visited Shops */}
-              <div className="space-y-3 max-h-60 overflow-y-auto">
-                {visitedShops.slice(0, 3).map((shop: any) => (
-                  <Card key={shop.id} className="border hover:shadow-md transition-all">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-rich-black">{shop.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <MapPin className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">{shop.city}</span>
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <span className="text-xs text-green-600">Online</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <Badge className="bg-blue-100 text-blue-800 text-xs">
-                            {orders.filter(o => o.shopId === shop.id).length} orders
+          <div className="relative z-10">
+            {/* Main Content Based on Order Status */}
+            {recentOrders.length === 0 ? (
+              // No Orders State - Welcoming and Encouraging
+              <div className="text-center py-8">
+                <div className="bg-gradient-to-br from-brand-yellow to-brand-yellow/80 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Star className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-rich-black mb-3">Welcome to PrintEasy!</h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Your printing journey starts here. Connect with local print shops and get your documents printed with ease.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button 
+                    className="bg-rich-black text-white hover:bg-rich-black/90 shadow-lg"
+                    onClick={() => navigate('/')}
+                  >
+                    <Store className="w-4 h-4 mr-2" />
+                    Explore Print Shops
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload & Print
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Has Orders State - Focus on Current Order
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-rich-black">Your Print Status</h2>
+                    <p className="text-sm text-gray-600 mt-1">Track and manage your orders</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="bg-brand-yellow/20 px-3 py-1 rounded-full">
+                      <span className="text-sm font-medium text-rich-black">
+                        {orderStats.active} Active
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Featured Current Order */}
+                {recentOrders[0] && (
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl p-5 mb-5 border border-gray-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium`}>
+                            {getStatusIcon(recentOrders[0].status)}
+                            <span className="ml-1 capitalize">{recentOrders[0].status}</span>
                           </Badge>
+                          {recentOrders[0].isUrgent && (
+                            <Badge variant="destructive" className="text-xs animate-pulse">Urgent</Badge>
+                          )}
+                        </div>
+                        <h3 className="font-semibold text-rich-black text-lg">{recentOrders[0].title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          at {recentOrders[0].shop?.name || 'Print Shop'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Ordered {format(new Date(recentOrders[0].createdAt), 'MMM dd, HH:mm')}
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center shadow-md">
+                          {recentOrders[0].status === 'ready' ? (
+                            <CheckCircle2 className="w-8 h-8 text-rich-black" />
+                          ) : recentOrders[0].status === 'processing' ? (
+                            <Clock className="w-8 h-8 text-rich-black animate-pulse" />
+                          ) : (
+                            <Package className="w-8 h-8 text-rich-black" />
+                          )}
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                          onClick={() => navigate(`/shop/${shop.slug}?type=upload`)}
-                        >
-                          <Upload className="w-3 h-3 mr-1" />
-                          Upload Files
-                        </Button>
+                    </div>
+                    
+                    <div className="flex gap-3 mt-4">
+                      <Button
+                        size="sm"
+                        className="bg-rich-black text-white hover:bg-rich-black/90 flex-1"
+                        onClick={() => setSelectedOrderForDetails(recentOrders[0])}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black flex-1"
+                        onClick={() => setShowComprehensiveChat(true)}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Chat Shop
+                      </Button>
+                      {recentOrders[0].shop?.phone && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/shop/${shop.slug}?type=walkin`)}
+                          onClick={() => window.open(`tel:${recentOrders[0].shop?.phone}`)}
+                          className="px-3"
                         >
-                          <Users className="w-3 h-3 mr-1" />
-                          Walk-in Order
+                          <Phone className="w-4 h-4" />
                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              {visitedShops.length > 3 && (
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate('/customer-visited-shops')}
-                >
-                  View All Previously Visited Shops
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          )}
+                      )}
+                    </div>
+                  </div>
+                )}
 
-          {/* Order Statistics */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="text-center">
-              <div className="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Package className="w-5 h-5 text-orange-600" />
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant="outline"
+                    className="h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
+                    onClick={() => navigate('/')}
+                  >
+                    <Store className="w-5 h-5 text-gray-600" />
+                    <span className="text-xs text-gray-600">New Order</span>
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
+                    onClick={() => navigate('/customer-orders')}
+                  >
+                    <Package className="w-5 h-5 text-gray-600" />
+                    <span className="text-xs text-gray-600">All Orders</span>
+                  </Button>
+                </div>
               </div>
-              <p className="text-2xl font-bold text-rich-black">{orderStats.total}</p>
-              <p className="text-xs text-gray-500">Total</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <p className="text-2xl font-bold text-rich-black">{orderStats.active}</p>
-              <p className="text-xs text-gray-500">Active</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-              </div>
-              <p className="text-2xl font-bold text-rich-black">{orderStats.done}</p>
-              <p className="text-xs text-gray-500">Done</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
