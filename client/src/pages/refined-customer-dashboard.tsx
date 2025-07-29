@@ -16,8 +16,8 @@ import LoadingScreen from '@/components/loading-screen';
 import EnhancedOrderChat from '@/components/enhanced-order-chat';
 import ComprehensiveChatInterface from '@/components/comprehensive-chat-interface';
 import OrderDetailsModal from '@/components/order-details-modal';
-import { FloatingChatButton } from '@/components/chat/floating-chat-button';
-import { ChatInterface } from '@/components/chat/chat-interface';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
 
@@ -317,20 +317,17 @@ export default function RefinedCustomerDashboard() {
         />
       )}
 
-      {/* Floating Chat Button - Single unified chat interface */}
-      <FloatingChatButton />
+      {/* Unified Floating Chat Button */}
+      <UnifiedFloatingChatButton />
       
-      {/* Simple Chat Interface triggered by order chat buttons */}
+      {/* Unified Chat Interface triggered by order chat buttons */}
       {showComprehensiveChat && (
-        <div className="fixed inset-0 z-50">
-          <ChatInterface 
-            isOpen={showComprehensiveChat}
-            onClose={() => setShowComprehensiveChat(false)}
-          />
-        </div>
+        <UnifiedChatSystem
+          isOpen={showComprehensiveChat}
+          onClose={() => setShowComprehensiveChat(false)}
+          userRole="customer"
+        />
       )}
-
-      {/* Remove the old comprehensive chat interface - we only use the floating chat now */}
     </div>
   );
 }

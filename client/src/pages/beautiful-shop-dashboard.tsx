@@ -45,8 +45,8 @@ import {
 } from 'lucide-react';
 import { Power } from 'lucide-react';
 import RedesignedShopQRModal from '@/components/redesigned-shop-qr-modal';
-import ChatFloatingButton from '@/components/chat-floating-button';
-import ShopChatModal from '@/components/shop-chat-modal';
+import UnifiedChatSystem from '@/components/unified-chat-system';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import OrderDetailsModal from '@/components/order-details-modal';
 import { format } from 'date-fns';
 
@@ -98,6 +98,7 @@ export default function BeautifulShopDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [showUnifiedChat, setShowUnifiedChat] = useState(false);
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
@@ -395,7 +396,10 @@ export default function BeautifulShopDashboard() {
             size="sm" 
             variant="outline" 
             className="w-full relative border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
-            onClick={() => setSelectedOrderForChat(order.id)}
+            onClick={() => {
+              setSelectedOrderForChat(order.id);
+              setShowUnifiedChat(true);
+            }}
           >
             <MessageSquare className="w-3 h-3 mr-2" />
             Chat
@@ -760,11 +764,16 @@ export default function BeautifulShopDashboard() {
         />
       )}
 
-      {/* Chat Modal */}
-      {selectedOrderForChat && (
-        <ShopChatModal
-          orderId={selectedOrderForChat}
-          onClose={() => setSelectedOrderForChat(null)}
+      {/* Unified Chat System - Supports Multitasking */}
+      {showUnifiedChat && (
+        <UnifiedChatSystem
+          isOpen={showUnifiedChat}
+          onClose={() => {
+            setShowUnifiedChat(false);
+            setSelectedOrderForChat(null);
+          }}
+          initialOrderId={selectedOrderForChat || undefined}
+          userRole="shop_owner"
         />
       )}
 
@@ -776,8 +785,8 @@ export default function BeautifulShopDashboard() {
         />
       )}
 
-      {/* Chat Floating Button */}
-      <ChatFloatingButton />
+      {/* Unified Floating Chat Button */}
+      <UnifiedFloatingChatButton />
     </div>
   );
 }
