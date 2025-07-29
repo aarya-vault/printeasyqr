@@ -14,7 +14,7 @@ import CustomerAccount from "@/pages/customer-account";
 import CustomerOrders from "@/pages/customer-orders";
 import CustomerVisitedShops from "@/pages/customer-visited-shops";
 import BrowseShops from "@/pages/browse-shops";
-import BeautifulShopDashboard from "@/pages/beautiful-shop-dashboard";
+import RedesignedShopOwnerDashboard from "@/pages/redesigned-shop-owner-dashboard";
 import ShopOrderHistory from "@/pages/shop-order-history";
 import ShopOrderDetails from "@/pages/shop-order-details";
 import ShopChatSystem from "@/pages/shop-chat-system";
@@ -38,7 +38,7 @@ function Router() {
       <Route path="/customer-orders" component={CustomerOrders} />
       <Route path="/customer-visited-shops" component={CustomerVisitedShops} />
       <Route path="/browse-shops" component={BrowseShops} />
-      <Route path="/shop-dashboard" component={BeautifulShopDashboard} />
+      <Route path="/shop-dashboard" component={RedesignedShopOwnerDashboard} />
       <Route path="/shop-order-history" component={ShopOrderHistory} />
       <Route path="/shop-dashboard/chat/:orderId" component={ShopChatSystem} />
       <Route path="/shop-dashboard/orders/:orderId" component={ShopOrderDetails} />
