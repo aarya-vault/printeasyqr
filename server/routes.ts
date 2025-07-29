@@ -717,9 +717,27 @@ app.patch('/api/debug/patch-test', (req, res) => {
 
   app.get("/api/orders/customer/:customerId", async (req, res) => {
     try {
-      const orders = await storage.getOrdersByCustomer(parseInt(req.params.customerId));
-      res.json(orders);
+      const customerId = parseInt(req.params.customerId);
+      const orders = await storage.getOrdersByCustomer(customerId);
+      
+      // Add unread message counts for customers (count messages FROM SHOP OWNERS only)
+      const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+        const messages = await storage.getMessagesByOrder(order.id);
+        
+        // For customers: count unread messages NOT from this customer (i.e., from shop owners)
+        const unreadMessages = messages.filter(m => 
+          !m.isRead && m.senderId !== customerId // Count messages NOT from the customer themselves
+        ).length;
+        
+        return {
+          ...order,
+          unreadMessages
+        };
+      }));
+      
+      res.json(ordersWithDetails);
     } catch (error) {
+      console.error('Get customer orders error:', error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -732,8 +750,14 @@ app.patch('/api/debug/patch-test', (req, res) => {
       // Add unread message counts - customer names already included from storage method
       const ordersWithDetails = await Promise.all(orders.map(async (order) => {
         const messages = await storage.getMessagesByOrder(order.id);
+        
+        // For shop owners: count unread messages FROM CUSTOMERS only (not from shop owner themselves)
+        // Get the shop owner ID for this order
+        const shop = await storage.getShop(order.shopId);
+        const shopOwnerId = shop?.ownerId;
+        
         const unreadMessages = messages.filter(m => 
-          !m.isRead && m.senderId !== order.customerId // Count messages not from shop owner
+          !m.isRead && m.senderId !== shopOwnerId // Count messages NOT from the shop owner
         ).length;
         
         return {

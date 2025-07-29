@@ -571,6 +571,39 @@ The platform now provides consistent navigation and chat functionality across al
 
 **Current Status**: Complete order history system operational with text-only chat conversations for completed orders. Notification system working perfectly with real-time read tracking. Clear separation between active order management and completed order history provides optimal user experience.
 
+## CRITICAL Notification System Fix - Sender/Receiver Logic (January 29, 2025) ✅ RESOLVED
+
+### Fundamental Issue Identified & Fixed
+- **CRITICAL BUG**: Shop owners were seeing notifications for their own messages - fundamentally flawed sender/receiver logic
+- **ROOT CAUSE**: Unread message counting was not properly filtering out messages sent by the viewing user
+- **IMPACT**: Shop owners saw notifications for messages they sent themselves, defeating the purpose of notifications
+
+### Complete Backend Logic Overhaul ✅ IMPLEMENTED
+- **Shop Orders Endpoint**: Fixed to count only unread messages FROM customers (not from shop owner themselves)
+- **Customer Orders Endpoint**: Fixed to count only unread messages FROM shop owners (not from customer themselves)  
+- **Proper Logic**: `!m.isRead && m.senderId !== currentUserId` ensures users only see notifications for OTHER users' messages
+- **Database Query Fix**: Enhanced to fetch shop owner ID correctly and apply proper filtering
+
+### Unified Chat System Enhancement ✅ DEPLOYED
+- **Enhanced Debugging**: Added comprehensive console logging for mark-as-read operations
+- **Proper Authentication**: Validates user ID and role before marking messages as read
+- **Query Invalidation Fix**: Corrected query keys to use proper shop ID from shopData
+- **Real-time Updates**: Force refetch ensures immediate badge updates after marking messages as read
+
+### Technical Implementation Details
+- **Backend Changes**: Both `/api/orders/shop/:shopId` and `/api/orders/customer/:customerId` now apply sender/receiver filtering
+- **Frontend Enhancement**: UnifiedChatSystem properly handles user authentication and query invalidation
+- **Storage Layer**: `markMessagesAsRead` already correctly marks messages from OTHER users as read (not user's own messages)
+- **Logging System**: Debug logs track mark-as-read operations for troubleshooting
+
+### Notification Logic Rules ✅ ENFORCED
+- **Shop Owners**: Only see notifications for unread messages from CUSTOMERS
+- **Customers**: Only see notifications for unread messages from SHOP OWNERS  
+- **No Self-Notifications**: Users never see notifications for their own messages
+- **Real-time Sync**: Badges update immediately when viewing conversations
+
+**RESOLUTION STATUS**: Fundamental sender/receiver logic completely fixed. Shop owners no longer see notifications for their own messages. Notification system now works correctly with proper user role separation and real-time badge updates.
+
 ## Enhanced Customer Order Details & Completed Order Chat System (January 29, 2025) ✅ COMPLETE
 
 ### Advanced Order Details Modal ✅ DEPLOYED

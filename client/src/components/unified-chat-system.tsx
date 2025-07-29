@@ -245,6 +245,8 @@ export default function UnifiedChatSystem({
   // Mark messages as read when viewing them
   const markMessagesAsRead = useMutation({
     mutationFn: async (orderId: number) => {
+      console.log('📬 Sending mark-as-read request for order:', orderId, 'User ID:', user?.id, 'Role:', effectiveUserRole);
+      
       const response = await fetch(`/api/messages/mark-read`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -253,10 +255,14 @@ export default function UnifiedChatSystem({
       });
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Mark as read failed:', response.status, errorText);
         throw new Error('Failed to mark messages as read');
       }
       
-      return response.json();
+      const result = await response.json();
+      console.log('✅ Mark as read success:', result);
+      return result;
     },
     onSuccess: () => {
       // Invalidate both orders and messages to update unread counts
