@@ -9,7 +9,7 @@ import { ChatInterface } from '@/components/chat/chat-interface';
 import { 
   CheckCircle, Phone, MessageSquare, FileText, 
   MapPin, Clock, Home, ShoppingBag, Calendar,
-  AlertCircle, Star, ArrowRight, Info
+  AlertCircle, Star, ArrowRight, Info, User
 } from 'lucide-react';
 
 interface OrderDetails {
@@ -45,6 +45,9 @@ export default function OrderConfirmation() {
   const { user, login } = useAuth();
   const [showChat, setShowChat] = useState(false);
 
+  console.log('OrderConfirmation - orderId:', params?.orderId);
+  console.log('OrderConfirmation - user:', user);
+
   // Get order details
   const { data: orderData, isLoading } = useQuery<{ order: OrderDetails }>({
     queryKey: [`/api/orders/${params?.orderId}/details`],
@@ -52,6 +55,10 @@ export default function OrderConfirmation() {
   });
 
   const order = orderData?.order;
+  
+  console.log('OrderConfirmation - orderData:', orderData);
+  console.log('OrderConfirmation - order:', order);
+  console.log('OrderConfirmation - isLoading:', isLoading);
 
   const handleCallShop = () => {
     if (order?.shop.phone) {
@@ -136,9 +143,9 @@ export default function OrderConfirmation() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-32"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FFBF00] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
     );
@@ -151,7 +158,7 @@ export default function OrderConfirmation() {
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold mb-2">Order Not Found</h2>
             <p className="text-gray-600 mb-4">The order you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate('/')} className="bg-brand-yellow text-rich-black">
+            <Button onClick={() => navigate('/')} className="bg-[#FFBF00] text-black">
               Go to Homepage
             </Button>
           </CardContent>
