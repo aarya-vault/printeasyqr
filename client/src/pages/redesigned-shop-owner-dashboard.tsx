@@ -290,9 +290,9 @@ export default function RedesignedShopOwnerDashboard() {
               <span className="ml-1 capitalize">{order.status}</span>
             </Badge>
             {order.unreadMessages && order.unreadMessages > 0 && (
-              <Badge className="bg-brand-yellow text-rich-black">
+              <Badge className="bg-brand-yellow text-rich-black font-medium">
                 <MessageSquare className="w-3 h-3 mr-1" />
-                {order.unreadMessages}
+                {order.unreadMessages} unread
               </Badge>
             )}
             {order.isUrgent && (
@@ -313,7 +313,12 @@ export default function RedesignedShopOwnerDashboard() {
           {order.type === 'upload' && order.files && (
             <div className="flex items-center text-sm text-gray-600">
               <Upload className="w-4 h-4 mr-2" />
-              <span>{Array.isArray(order.files) ? order.files.length : JSON.parse(order.files || '[]').length} files</span>
+              <span>
+                {(() => {
+                  const fileCount = Array.isArray(order.files) ? order.files.length : JSON.parse(order.files || '[]').length;
+                  return fileCount > 0 ? `${fileCount} ${fileCount === 1 ? 'file' : 'files'}` : 'No files';
+                })()}
+              </span>
             </div>
           )}
           {order.walkinTime && (
@@ -345,9 +350,10 @@ export default function RedesignedShopOwnerDashboard() {
             }}
           >
             <MessageSquare className="w-3 h-3 mr-1" />
-            Chat
-            {order.unreadMessages && order.unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-yellow rounded-full" />
+            {order.unreadMessages && order.unreadMessages > 0 ? (
+              <>Chat ({order.unreadMessages})</>
+            ) : (
+              'Chat'
             )}
           </Button>
           <Button
@@ -550,23 +556,35 @@ export default function RedesignedShopOwnerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Orders Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upload Orders Column */}
-          <div>
-            <div className="flex items-center mb-4">
-              <Upload className="w-5 h-5 mr-2 text-brand-yellow" />
-              <h2 className="text-lg font-semibold text-rich-black">File Upload Orders</h2>
-              <Badge variant="outline" className="ml-2">{uploadOrders.length}</Badge>
+        {/* 4-Column Orders Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {/* File Upload Orders - 2 Columns */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border">
+              <div className="flex items-center">
+                <Upload className="w-6 h-6 mr-3 text-blue-600" />
+                <div>
+                  <h2 className="text-lg font-bold text-rich-black">File Upload Orders</h2>
+                  <p className="text-sm text-gray-600">Digital file printing orders</p>
+                </div>
+              </div>
+              {uploadOrders.length > 0 && (
+                <Badge className="bg-blue-600 text-white font-semibold px-3 py-1">
+                  {uploadOrders.length} {uploadOrders.length === 1 ? 'Order' : 'Orders'}
+                </Badge>
+              )}
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {uploadOrders.length === 0 ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Upload className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No upload orders found</p>
-                  </CardContent>
-                </Card>
+                <div className="xl:col-span-2">
+                  <Card className="border-dashed border-2 border-blue-200">
+                    <CardContent className="p-8 text-center">
+                      <Upload className="w-12 h-12 text-blue-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">No upload orders yet</p>
+                      <p className="text-sm text-gray-400">File upload orders will appear here</p>
+                    </CardContent>
+                  </Card>
+                </div>
               ) : (
                 uploadOrders.map((order) => (
                   <OrderCard key={order.id} order={order} />
@@ -575,21 +593,33 @@ export default function RedesignedShopOwnerDashboard() {
             </div>
           </div>
 
-          {/* Walk-in Orders Column */}
-          <div>
-            <div className="flex items-center mb-4">
-              <Users className="w-5 h-5 mr-2 text-brand-yellow" />
-              <h2 className="text-lg font-semibold text-rich-black">Walk-in Orders</h2>
-              <Badge variant="outline" className="ml-2">{walkinOrders.length}</Badge>
+          {/* Walk-in Orders - 2 Columns */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border">
+              <div className="flex items-center">
+                <Users className="w-6 h-6 mr-3 text-green-600" />
+                <div>
+                  <h2 className="text-lg font-bold text-rich-black">Walk-in Orders</h2>
+                  <p className="text-sm text-gray-600">Immediate pickup orders</p>
+                </div>
+              </div>
+              {walkinOrders.length > 0 && (
+                <Badge className="bg-green-600 text-white font-semibold px-3 py-1">
+                  {walkinOrders.length} {walkinOrders.length === 1 ? 'Order' : 'Orders'}
+                </Badge>
+              )}
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {walkinOrders.length === 0 ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No walk-in orders found</p>
-                  </CardContent>
-                </Card>
+                <div className="xl:col-span-2">
+                  <Card className="border-dashed border-2 border-green-200">
+                    <CardContent className="p-8 text-center">
+                      <Users className="w-12 h-12 text-green-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">No walk-in orders yet</p>
+                      <p className="text-sm text-gray-400">Walk-in orders will appear here</p>
+                    </CardContent>
+                  </Card>
+                </div>
               ) : (
                 walkinOrders.map((order) => (
                   <OrderCard key={order.id} order={order} />
