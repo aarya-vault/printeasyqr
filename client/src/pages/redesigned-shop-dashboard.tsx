@@ -43,6 +43,7 @@ interface Shop {
   publicContactNumber?: string;
   workingHours: any;
   acceptsWalkinOrders: boolean;
+  isOnline: boolean;
 }
 
 interface Order {
@@ -68,6 +69,11 @@ export default function RedesignedShopDashboard() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
+
+  // Fetch shop data first
+  const { data: shopData } = useQuery<{ shop: Shop & { isOnline: boolean } }>({
+    queryKey: [`/api/shops/owner/${user?.id}`],
+  });
 
   // WebSocket integration for real-time updates
   useEffect(() => {
@@ -112,19 +118,15 @@ export default function RedesignedShopDashboard() {
     };
   }, [shopData?.shop?.id, queryClient]);
 
-  // Fetch shop data
-  const { data: shopData } = useQuery<{ shop: Shop }>({
-    queryKey: [`/api/shops/owner/${user?.id}`],
-  });
-
-  // Fetch orders with aggressive caching for instant UI updates
+  // Fetch orders with instant caching for immediate UI updates
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
-    staleTime: 1000, // Very short stale time for faster updates
-    refetchInterval: 3000, // Aggressive background refresh
+    staleTime: 0, // Always consider data stale for immediate updates
+    refetchInterval: 2000, // Very aggressive background refresh
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Filter orders by search and type
@@ -166,12 +168,15 @@ export default function RedesignedShopDashboard() {
       // Snapshot the previous value
       const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
 
-      // Optimistically update to the new value
+      // Optimistically update to the new value IMMEDIATELY
       queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
         old?.map(order => 
           order.id === orderId ? { ...order, status } : order
         ) || []
       );
+
+      // Show immediate feedback
+      toast({ title: 'Updating status...', description: 'Please wait' });
 
       // Return a context object with the snapshotted value
       return { previousOrders };
@@ -188,11 +193,10 @@ export default function RedesignedShopDashboard() {
       });
     },
     onSuccess: () => {
-      toast({ title: 'Order status updated successfully' });
-      // Force immediate refetch for instant UI update
-      queryClient.refetchQueries({ 
-        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-        type: 'active'
+      toast({ title: 'Status updated successfully!' });
+      // Force immediate refetch with no delay
+      queryClient.invalidateQueries({ 
+        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`]
       });
     },
     onSettled: () => {
@@ -337,13 +341,14 @@ export default function RedesignedShopDashboard() {
             size="sm"
             className="w-full mt-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
             disabled={updateOrderStatus.isPending}
-            onClick={() => {
+            onClick={async () => {
               const nextStatus = {
                 new: 'processing',
                 processing: 'ready',
                 ready: 'completed'
               }[order.status];
               if (nextStatus) {
+                // Immediate UI update before mutation
                 updateOrderStatus.mutate({ orderId: order.id, status: nextStatus });
               }
             }}
