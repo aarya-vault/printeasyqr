@@ -101,15 +101,14 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
     try {
       const canvas = await html2canvas(qrRef.current, {
         backgroundColor: '#FFFFFF',
-        scale: 3, // Higher scale for better quality
+        scale: 2, // Balanced scale for quality and performance
         useCORS: true,
         allowTaint: true,
-        width: qrRef.current.offsetWidth,
-        height: qrRef.current.offsetHeight,
+        width: 480, // Fixed width matching container
+        height: qrRef.current.scrollHeight, // Use scroll height for full content
         scrollX: 0,
         scrollY: 0,
-        windowWidth: qrRef.current.offsetWidth,
-        windowHeight: qrRef.current.offsetHeight,
+        logging: false, // Disable logging for cleaner output
       });
 
       const link = document.createElement('a');
@@ -160,33 +159,44 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
         </Button>
 
         {/* QR Code Design */}
-        <div ref={qrRef} className="bg-white" style={{ width: '500px', minHeight: '700px' }}>
+        <div ref={qrRef} className="bg-white" style={{ width: '480px', height: 'auto' }}>
           {/* Header */}
-          <div className="bg-brand-yellow p-6 text-center">
+          <div className="bg-brand-yellow p-8 text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                <Store className="w-10 h-10 text-rich-black" />
+              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <Store className="w-8 h-8 text-rich-black" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-rich-black mb-2">
+            <h2 className="text-xl font-bold text-rich-black mb-3 leading-tight">
               {displayShop?.name || 'Shop Name'}
             </h2>
             <p className="text-rich-black/80 text-sm font-medium mb-4">Professional Printing Services</p>
+            
+            {/* Status Badges - Redesigned for better layout */}
             {displayShop && (
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <ShopStatusIndicator shop={displayShop} showWalkinStatus />
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="px-3 py-1 bg-white/20 rounded-full">
+                  <span className="text-xs font-medium text-rich-black">
+                    {displayShop.isOnline ? '🟢 Online' : '🔴 Offline'}
+                  </span>
+                </div>
+                {displayShop.acceptsWalkinOrders && (
+                  <div className="px-3 py-1 bg-white/20 rounded-full">
+                    <span className="text-xs font-medium text-rich-black">Walk-in Available</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* QR Code */}
-          <div className="p-6 bg-white flex flex-col items-center">
-            <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-100 mx-auto">
+          <div className="px-8 py-6 bg-white flex flex-col items-center">
+            <div className="bg-white p-3 rounded-lg shadow-md border border-gray-200 mx-auto">
               {qrDataUrl && (
                 <img 
                   src={qrDataUrl} 
                   alt="Shop QR Code" 
-                  className="w-56 h-56 block"
+                  className="w-48 h-48 block"
                   style={{ imageRendering: 'pixelated' }}
                 />
               )}
@@ -195,56 +205,55 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
             {/* Scan Instructions */}
             <div className="text-center mt-4 mb-4">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <QrCodeIcon className="w-5 h-5 text-brand-yellow" />
-                <p className="text-lg font-semibold text-rich-black">Scan to Visit Shop</p>
+                <QrCodeIcon className="w-4 h-4 text-brand-yellow" />
+                <p className="text-base font-semibold text-rich-black">Scan to Visit Shop</p>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs text-gray-600 max-w-xs leading-relaxed">
                 Scan this QR code to view our services and place orders
               </p>
             </div>
 
             {/* Shop Details */}
-            <div className="space-y-4 bg-gray-50 rounded-lg p-4 mx-4">
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+            <div className="space-y-3 bg-gray-50 rounded-lg p-4 mx-6 mb-4">
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-3 h-3 text-brand-yellow mt-1 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-rich-black">Location</p>
-                  <p className="text-xs text-gray-600 break-words">
+                  <p className="text-xs font-semibold text-rich-black mb-1">Location</p>
+                  <p className="text-xs text-gray-600 leading-tight">
                     {displayShop?.address || 'Address'}, {displayShop?.city || 'City'}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3">
-                <Phone className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+              <div className="flex items-start space-x-2">
+                <Phone className="w-3 h-3 text-brand-yellow mt-1 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-rich-black">Contact</p>
+                  <p className="text-xs font-semibold text-rich-black mb-1">Contact</p>
                   <p className="text-xs text-gray-600">
                     {displayShop?.publicContactNumber || displayShop?.phone || 'Contact Number'}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3">
-                <Clock className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+              <div className="flex items-start space-x-2">
+                <Clock className="w-3 h-3 text-brand-yellow mt-1 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-rich-black">Working Hours</p>
-                  <div className="text-xs text-gray-600 space-y-1">
+                  <p className="text-xs font-semibold text-rich-black mb-1">Working Hours</p>
+                  <div className="text-xs text-gray-600 space-y-0.5">
                     {displayShop?.workingHours ? (
-                      Object.entries(displayShop.workingHours).map(([day, hours]: [string, any]) => (
+                      Object.entries(displayShop.workingHours).slice(0, 7).map(([day, hours]: [string, any]) => (
                         <div key={day} className="flex justify-between items-center">
-                          <span className="capitalize font-medium">{day.slice(0, 3)}:</span>
-                          <span className="text-right">
+                          <span className="capitalize font-medium w-8">{day.slice(0, 3)}:</span>
+                          <span className="text-right text-xs">
                             {hours.closed ? 'Closed' : 
-                             hours.open === hours.close ? '24/7 Open' : 
-                             `${hours.open} - ${hours.close}`}
+                             hours.open === hours.close ? '24/7' : 
+                             `${hours.open}-${hours.close}`}
                           </span>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-2">
-                        <span className="font-semibold text-brand-yellow">24/7 Open</span>
-                        <p className="text-xs text-gray-500 mt-1">Always available for orders</p>
+                      <div className="text-center py-1">
+                        <span className="font-semibold text-brand-yellow text-xs">24/7 Open</span>
                       </div>
                     )}
                   </div>
@@ -254,13 +263,13 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-100 px-6 py-4 mt-4">
+          <div className="bg-gray-100 px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
                   <span className="text-xs font-bold text-rich-black">P</span>
                 </div>
-                <span className="text-sm font-medium text-rich-black">PrintEasy</span>
+                <span className="text-xs font-semibold text-rich-black">PrintEasy</span>
               </div>
               <p className="text-xs text-gray-500">Connect • Print • Collect</p>
             </div>
