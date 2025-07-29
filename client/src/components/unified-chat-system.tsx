@@ -298,11 +298,7 @@ export default function UnifiedChatSystem({
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Chats
               </Button>
-              {selectedOrder && (
-                <Badge className={getStatusColor(selectedOrder.status)}>
-                  {selectedOrder.status}
-                </Badge>
-              )}
+              
             </div>
           )}
         </DialogHeader>
