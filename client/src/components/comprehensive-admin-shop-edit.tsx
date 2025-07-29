@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Store,
   User,
@@ -76,6 +77,7 @@ export default function ComprehensiveAdminShopEdit({
   const [editingShop, setEditingShop] = useState<Shop>(shop);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -88,9 +90,20 @@ export default function ComprehensiveAdminShopEdit({
 
       if (!response.ok) throw new Error('Failed to update shop');
 
+      // Comprehensive query invalidation for real-time synchronization across all platform components
+      await queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/shop-applications'] });
+      await queryClient.invalidateQueries({ queryKey: [`/api/shops/${shop.id}`] });
+      if (editingShop.slug) {
+        await queryClient.invalidateQueries({ queryKey: [`/api/shops/slug/${editingShop.slug}`] });
+      }
+      // Invalidate customer-facing queries to ensure shop data updates everywhere
+      await queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      
       toast({
         title: 'Shop Updated',
-        description: 'Shop details have been saved successfully',
+        description: 'Shop details have been updated across all platform components in real-time',
       });
 
       onUpdate();

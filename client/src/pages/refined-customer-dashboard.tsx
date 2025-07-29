@@ -51,6 +51,40 @@ export default function RefinedCustomerDashboard() {
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const [showComprehensiveChat, setShowComprehensiveChat] = useState(false);
 
+  // Status helper functions with brand-compliant colors
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new': return 'bg-brand-yellow/20 text-rich-black';
+      case 'processing': return 'bg-brand-yellow/40 text-rich-black';
+      case 'ready': return 'bg-brand-yellow/60 text-rich-black';
+      case 'completed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'new': return <Clock className="w-4 h-4" />;
+      case 'processing': return <Package className="w-4 h-4" />;
+      case 'ready': return <CheckCircle2 className="w-4 h-4" />;
+      case 'completed': return <CheckCircle2 className="w-4 h-4" />;
+      default: return <Clock className="w-4 h-4" />;
+    }
+  };
+
+  // Shop availability checker
+  const isShopOpen = (shop: any) => {
+    if (!shop || !shop.workingHours || !shop.isOnline) return false;
+    
+    const now = new Date();
+    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const currentTime = now.toTimeString().slice(0, 5);
+    const todayHours = shop.workingHours[currentDay];
+
+    if (!todayHours || todayHours.closed) return false;
+    return currentTime >= todayHours.open && currentTime <= todayHours.close;
+  };
+
   // Fetch customer orders
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/customer/${user?.id}`],
@@ -69,10 +103,12 @@ export default function RefinedCustomerDashboard() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
-  // Get unique shops the customer has ordered from with details
+  // Get unique shops the customer has ordered from with details - auto-refresh for real-time data
   const { data: visitedShops = [] } = useQuery<any[]>({
     queryKey: [`/api/shops/customer/${user?.id}/visited`],
     enabled: !!user?.id,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time shop data
+    staleTime: 5000, // Consider data stale after 5 seconds
   });
 
   const getStatusColor = (status: string) => {

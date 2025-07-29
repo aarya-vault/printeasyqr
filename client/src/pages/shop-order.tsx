@@ -51,10 +51,12 @@ export default function ShopOrder() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [orderType, setOrderType] = useState<'upload' | 'walkin'>('upload');
 
-  // Get shop data
+  // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/slug/${params?.slug}`],
     enabled: !!params?.slug,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time shop status
+    staleTime: 5000, // Consider data stale after 5 seconds
   });
 
   const shop = shopData?.shop;
@@ -70,7 +72,7 @@ export default function ShopOrder() {
     },
   });
 
-  // Calculate if shop is open
+  // Calculate if shop is open and accepting orders
   const isShopOpen = () => {
     if (!shop || !shop.workingHours || !shop.isOnline) return false;
     
@@ -81,6 +83,11 @@ export default function ShopOrder() {
 
     if (!todayHours || todayHours.closed) return false;
     return currentTime >= todayHours.open && currentTime <= todayHours.close;
+  };
+
+  // Check if walk-in orders are available
+  const canPlaceWalkinOrder = () => {
+    return shop && shop.acceptsWalkinOrders && isShopOpen();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,6 +144,26 @@ export default function ShopOrder() {
   });
 
   const onSubmit = (data: OrderForm) => {
+    // Check if shop is accepting orders
+    if (!shop || !shop.isOnline) {
+      toast({
+        variant: 'destructive',
+        title: 'Shop Closed',
+        description: 'This shop is currently not accepting orders.',
+      });
+      return;
+    }
+
+    // Check walk-in order availability
+    if (orderType === 'walkin' && !canPlaceWalkinOrder()) {
+      toast({
+        variant: 'destructive',
+        title: 'Walk-in Orders Unavailable',
+        description: 'Walk-in orders are not available when the shop is closed.',
+      });
+      return;
+    }
+
     if (orderType === 'upload' && selectedFiles.length === 0) {
       toast({
         variant: 'destructive',
@@ -261,10 +288,17 @@ export default function ShopOrder() {
                         <Upload className="w-4 h-4 mr-2" />
                         Upload Files
                       </TabsTrigger>
-                      <TabsTrigger value="walkin" disabled={!shop.acceptsWalkinOrders}>
-                        <Users className="w-4 h-4 mr-2" />
-                        Walk-in Order
-                      </TabsTrigger>
+                      {shop.acceptsWalkinOrders ? (
+                        <TabsTrigger value="walkin" disabled={!canPlaceWalkinOrder()}>
+                          <Users className="w-4 h-4 mr-2" />
+                          Walk-in Order {!shopOpen && '(Closed)'}
+                        </TabsTrigger>
+                      ) : (
+                        <TabsTrigger value="walkin" disabled className="opacity-50">
+                          <Users className="w-4 h-4 mr-2" />
+                          Walk-in Order (Not Available)
+                        </TabsTrigger>
+                      )}
                     </TabsList>
 
                     <TabsContent value="upload" className="mt-4">

@@ -107,11 +107,18 @@ export default function ShopSettings() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/shops', user?.shopId] });
+      // Invalidate all shop-related queries for real-time synchronization
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      if (shop?.slug) {
+        queryClient.invalidateQueries({ queryKey: [`/api/shops/slug/${shop.slug}`] });
+      }
+      // Also invalidate order queries to refresh shop data in customer views
+      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      
       toast({
         title: "Success",
-        description: "Shop settings saved successfully"
+        description: "Shop settings saved successfully. All pages will update automatically."
       });
     },
     onError: () => {

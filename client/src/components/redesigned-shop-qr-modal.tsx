@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
+import { useQuery } from '@tanstack/react-query';
 import { 
   X, Download, Share2, MapPin, Phone, Clock, 
   Store, ExternalLink, Check, Copy, MessageSquare,
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getShopUrl } from '@/utils/domain';
+import ShopStatusIndicator from '@/components/shop-status-indicator';
 
 interface Shop {
   id: number;
@@ -32,9 +34,20 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
 
+  // Fetch real-time shop data for QR modal with auto-refresh
+  const { data: currentShop } = useQuery({
+    queryKey: [`/api/shops/slug/${shop.slug}`],
+    refetchInterval: 15000, // Refresh every 15 seconds
+    staleTime: 5000, // Consider data stale after 5 seconds for immediate updates
+    initialData: shop,
+  });
+
+  // Use current shop data (real-time) or fallback to initial shop prop
+  const displayShop = currentShop || shop;
+
   // Generate QR code on mount
   useState(() => {
-    const shopUrl = getShopUrl(shop.slug);
+    const shopUrl = getShopUrl(displayShop.slug);
     QRCode.toDataURL(shopUrl, {
       width: 280,
       margin: 1,
@@ -55,7 +68,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
       });
 
       const link = document.createElement('a');
-      link.download = `${shop.name.replace(/\s+/g, '_')}_QR_Code.png`;
+      link.download = `${displayShop.name.replace(/\s+/g, '_')}_QR_Code.png`;
       link.href = canvas.toDataURL();
       link.click();
     } catch (error) {
@@ -64,12 +77,12 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   };
 
   const handleShare = () => {
-    const shopUrl = getShopUrl(shop.slug);
-    const shareText = `Visit ${shop.name} at ${shopUrl}`;
+    const shopUrl = getShopUrl(displayShop.slug);
+    const shareText = `Visit ${displayShop.name} at ${shopUrl}`;
     
     if (navigator.share) {
       navigator.share({
-        title: shop.name,
+        title: displayShop.name,
         text: shareText,
         url: shopUrl,
       });
@@ -79,7 +92,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   };
 
   const handleCopy = () => {
-    const shopUrl = getShopUrl(shop.slug);
+    const shopUrl = getShopUrl(displayShop.slug);
     navigator.clipboard.writeText(shopUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -107,8 +120,11 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
                 <Store className="w-10 h-10 text-rich-black" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-rich-black mb-1">{shop.name}</h2>
-            <p className="text-rich-black/80 text-sm font-medium">Professional Printing Services</p>
+            <h2 className="text-2xl font-bold text-rich-black mb-1">{displayShop.name}</h2>
+            <div className="flex items-center justify-center space-x-2 mt-2">
+              <p className="text-rich-black/80 text-sm font-medium">Professional Printing Services</p>
+              <ShopStatusIndicator shop={displayShop} showWalkinStatus />
+            </div>
           </div>
 
           {/* QR Code */}
@@ -140,7 +156,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
                 <MapPin className="w-5 h-5 text-brand-yellow mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-rich-black">Location</p>
-                  <p className="text-sm text-gray-600">{shop.address}, {shop.city}</p>
+                  <p className="text-sm text-gray-600">{displayShop.address}, {displayShop.city}</p>
                 </div>
               </div>
               
@@ -148,7 +164,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
                 <Phone className="w-5 h-5 text-brand-yellow mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-rich-black">Contact</p>
-                  <p className="text-sm text-gray-600">{shop.publicContactNumber || shop.phone}</p>
+                  <p className="text-sm text-gray-600">{displayShop.publicContactNumber || displayShop.phone}</p>
                 </div>
               </div>
 
@@ -156,7 +172,20 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
                 <Clock className="w-5 h-5 text-brand-yellow mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-rich-black">Working Hours</p>
-                  <p className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM</p>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    {displayShop.workingHours ? (
+                      Object.entries(displayShop.workingHours).map(([day, hours]: [string, any]) => (
+                        <div key={day} className="flex justify-between items-center">
+                          <span className="capitalize font-medium">{day.slice(0, 3)}:</span>
+                          <span>
+                            {hours.closed ? 'Closed' : `${hours.open} - ${hours.close}`}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Mon-Sat: 9:00 AM - 6:00 PM</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
