@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { validatePhoneNumber } from '@/lib/validation';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
 
 interface PhoneLoginProps {
   onShopLogin?: () => void;
@@ -16,6 +17,7 @@ export function PhoneLogin({ onShopLogin, onShopApplication }: PhoneLoginProps) 
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +33,16 @@ export function PhoneLogin({ onShopLogin, onShopApplication }: PhoneLoginProps) 
 
     setIsLoading(true);
     try {
-      await login(phone);
+      const user = await login({ phone });
       toast({
         title: "Welcome to PrintEasy!",
         description: "You have been successfully logged in.",
       });
+      
+      // Automatically navigate to customer dashboard after successful login
+      if (user.role === 'customer') {
+        navigate('/customer-dashboard');
+      }
     } catch (error: any) {
       toast({
         title: "Login Failed",
