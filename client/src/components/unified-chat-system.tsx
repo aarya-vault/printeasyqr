@@ -412,6 +412,30 @@ export default function UnifiedChatSystem({
                       <div className="space-y-4">
                         {messages.map((message) => {
                           const isOwnMessage = message.senderId === user?.id;
+                          
+                          // Parse files to check if we have valid files
+                          let hasValidFiles = false;
+                          let parsedFiles: string[] = [];
+                          if (message.files) {
+                            try {
+                              const fileList = typeof message.files === 'string' 
+                                ? JSON.parse(message.files) 
+                                : message.files;
+                              if (Array.isArray(fileList) && fileList.length > 0) {
+                                hasValidFiles = true;
+                                parsedFiles = fileList;
+                              }
+                            } catch (e) {
+                              console.error('Error parsing files:', e);
+                            }
+                          }
+                          
+                          // Skip rendering if message has no content and no valid files
+                          const hasContent = message.content && message.content.trim() !== '';
+                          if (!hasContent && !hasValidFiles) {
+                            return null;
+                          }
+                          
                           return (
                             <div
                               key={message.id}
@@ -438,19 +462,14 @@ export default function UnifiedChatSystem({
                                   </div>
                                 </div>
                                 
-                                {message.content && message.content.trim() && (
+                                {message.content && message.content.trim() !== '' && (
                                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                 )}
                                 
                                 {/* File attachments */}
-                                {message.files && (
+                                {hasValidFiles && (
                                   <div className="mt-2 space-y-1">
-                                    {(() => {
-                                      try {
-                                        const fileList = typeof message.files === 'string' 
-                                          ? JSON.parse(message.files) 
-                                          : message.files;
-                                        return Array.isArray(fileList) ? fileList.map((filename, fileIndex) => {
+                                    {parsedFiles.map((filename, fileIndex) => {
                                       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
                                       return (
                                         <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
@@ -481,12 +500,7 @@ export default function UnifiedChatSystem({
                                           )}
                                         </div>
                                       );
-                                        }) : null;
-                                      } catch (e) {
-                                        console.error('Error parsing files:', e, message.files);
-                                        return null;
-                                      }
-                                    })()}
+                                    })}
                                   </div>
                                 )}
                               </div>
