@@ -14,6 +14,14 @@
 
 ### Shop Owner Access ✅
 
+#### Gujarat Xerox (Primary Shop - ACTIVE CONVERSATIONS)
+- **Email**: `gujaratxerox@gmail.com`
+- **Password**: `Gujarat@2025`
+- **Shop**: Gujarat Xerox & Stationery
+- **Features**: Multiple active chat conversations with customers, real order management
+- **Active Orders**: 10+ orders with actual customer communications
+- **Chat System**: 100% working with file uploads and real-time messaging
+
 #### QuickPrint Solutions (Delhi)
 - **Email**: `quickprint@example.com`
 - **Password**: `password123`

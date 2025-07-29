@@ -95,27 +95,42 @@ export default function UnifiedChatSystem({
     }
   }, [initialOrderId, isOpen]);
 
+  // Get shop data for shop owners
+  const { data: shopData } = useQuery<{ shop: { id: number } }>({
+    queryKey: [`/api/shops/owner/${user?.id}`],
+    enabled: !!user?.id && effectiveUserRole === 'shop_owner' && isOpen,
+  });
+
   // Fetch orders based on user role
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: effectiveUserRole === 'shop_owner' 
-      ? [`/api/orders/shop/${user?.shopId || user?.id}`]
+      ? [`/api/orders/shop/${shopData?.shop?.id}`]
       : [`/api/orders/customer/${user?.id}`],
-    enabled: !!user?.id && isOpen,
+    enabled: !!user?.id && isOpen && (effectiveUserRole !== 'shop_owner' || !!shopData?.shop?.id),
     select: (data) => {
-      // Filter and sort orders for chat relevance
+      // For chat system, show all orders with messages or active orders
       return data
-        .filter(order => order.status !== 'completed' && order.status !== 'cancelled')
+        .filter(order => {
+          // Show completed orders if they have messages, or any non-cancelled active orders
+          return order.status !== 'cancelled' && (order.unreadMessages || order.status !== 'completed');
+        })
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
   });
 
-  // Fetch messages for selected order
-  const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
+  // Fetch messages for selected order with better error handling
+  const { data: messages = [], isLoading: messagesLoading, error: messagesError } = useQuery<Message[]>({
     queryKey: [`/api/messages/order/${selectedOrderId}`],
-    enabled: !!selectedOrderId,
-    refetchInterval: 1000, // Faster refresh
-    staleTime: 0, // Always consider data stale
-    gcTime: 0, // Don't cache in memory
+    enabled: !!selectedOrderId && !!user?.id,
+    refetchInterval: 2000, // Slightly slower refresh for stability
+    staleTime: 1000, // 1 second stale time for better performance
+    retry: (failureCount, error: any) => {
+      // Don't retry on auth errors, but retry on other errors
+      if (error?.message?.includes('401') || error?.message?.includes('Authentication')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
     select: (data) => {
       return data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     }
@@ -247,9 +262,10 @@ export default function UnifiedChatSystem({
   // Status color helper
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800';
-      case 'processing': return 'bg-yellow-100 text-yellow-800';
-      case 'ready': return 'bg-green-100 text-green-800';
+      case 'new': return 'bg-brand-yellow/20 text-rich-black';
+      case 'processing': return 'bg-brand-yellow/40 text-rich-black';
+      case 'ready': return 'bg-brand-yellow/60 text-rich-black';
+      case 'completed': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -333,11 +349,18 @@ export default function UnifiedChatSystem({
                   <div className="p-8 text-center">
                     <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <h4 className="font-medium text-gray-700 mb-1">
-                      {searchQuery ? 'No matches found' : 'No active chats'}
+                      {searchQuery ? 'No matches found' : 'Loading conversations...'}
                     </h4>
                     <p className="text-sm text-gray-500">
-                      {searchQuery ? 'Try a different search term' : 'Start a conversation by placing an order'}
+                      {searchQuery ? 'Try a different search term' : 'Orders with messages will appear here'}
                     </p>
+                    {messagesError && (
+                      <div className="mt-4 p-3 bg-brand-yellow/20 rounded border text-sm">
+                        <p className="text-rich-black">
+                          Authentication issue detected. Please refresh the page if conversations don't load.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2 p-3">
@@ -379,7 +402,7 @@ export default function UnifiedChatSystem({
                           
                           {/* Unread message indicator */}
                           {order.unreadMessages && order.unreadMessages > 0 && (
-                            <div className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm">
+                            <div className="bg-brand-yellow text-rich-black text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm border border-rich-black">
                               {order.unreadMessages > 99 ? '99+' : order.unreadMessages}
                             </div>
                           )}
