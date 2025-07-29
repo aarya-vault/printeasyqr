@@ -415,7 +415,7 @@ export default function UnifiedChatSystem({
                           
                           // Parse files to check if we have valid files
                           let hasValidFiles = false;
-                          let parsedFiles: string[] = [];
+                          let parsedFiles: any[] = [];
                           if (message.files) {
                             try {
                               const fileList = typeof message.files === 'string' 
@@ -423,7 +423,15 @@ export default function UnifiedChatSystem({
                                 : message.files;
                               if (Array.isArray(fileList) && fileList.length > 0) {
                                 hasValidFiles = true;
-                                parsedFiles = fileList;
+                                // Handle both old format (string array) and new format (object array)
+                                parsedFiles = fileList.map((file: any) => {
+                                  if (typeof file === 'string') {
+                                    // Old format - just filename
+                                    return { filename: file, originalName: file };
+                                  }
+                                  // New format - full file object
+                                  return file;
+                                });
                               }
                             } catch (e) {
                               console.error('Error parsing files:', e);
@@ -469,28 +477,38 @@ export default function UnifiedChatSystem({
                                 {/* File attachments */}
                                 {hasValidFiles && (
                                   <div className="mt-2 space-y-1">
-                                    {parsedFiles.map((filename, fileIndex) => {
-                                      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+                                    {parsedFiles.map((file, fileIndex) => {
+                                      const displayName = file.originalName || file.filename;
+                                      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(displayName);
                                       return (
                                         <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
                                           {isImage ? (
                                             <img 
-                                              src={`/uploads/${filename}`} 
-                                              alt="Attachment" 
+                                              src={`/uploads/${file.filename}`} 
+                                              alt={displayName} 
                                               className="w-32 h-20 object-cover rounded cursor-pointer"
-                                              onClick={() => window.open(`/uploads/${filename}`, '_blank')}
+                                              onClick={() => window.open(`/uploads/${file.filename}`, '_blank')}
                                             />
                                           ) : (
                                             <>
                                               <File className="w-4 h-4" />
-                                              <span className="text-xs flex-1 truncate">{filename}</span>
+                                              <div className="flex-1 truncate">
+                                                <span className="text-xs truncate" title={displayName}>
+                                                  {displayName}
+                                                </span>
+                                                {file.size && (
+                                                  <span className="text-xs text-gray-500 ml-1">
+                                                    ({(file.size / 1024).toFixed(1)}KB)
+                                                  </span>
+                                                )}
+                                              </div>
                                               <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => {
                                                   const link = document.createElement('a');
-                                                  link.href = `/uploads/${filename}`;
-                                                  link.download = filename;
+                                                  link.href = `/uploads/${file.filename}`;
+                                                  link.download = displayName;
                                                   link.click();
                                                 }}
                                               >

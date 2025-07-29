@@ -957,17 +957,22 @@ app.patch('/api/debug/patch-test', (req, res) => {
         return res.status(400).json({ message: "Cannot send messages to completed orders" });
       }
 
-      // Handle file uploads
-      let files: string[] = [];
+      // Handle file uploads with original names
+      let fileData: any[] = [];
       if (req.files && Array.isArray(req.files)) {
-        files = req.files.map(file => file.filename);
+        fileData = req.files.map(file => ({
+          filename: file.filename,
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        }));
       }
       
-      console.log('Files array length:', files.length);
+      console.log('Files array length:', fileData.length);
 
       // Validate content or files presence
       const trimmedContent = (content || '').trim();
-      if (!trimmedContent && files.length === 0) {
+      if (!trimmedContent && fileData.length === 0) {
         return res.status(400).json({ message: "Message content or files required" });
       }
       
@@ -982,8 +987,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
         senderName: senderName || (req.user as any)?.name || req.user!.phone || 'User',
         senderRole: req.user!.role,
         content: finalContent,
-        messageType: files.length > 0 ? 'file' : 'text',
-        files: files.length > 0 ? JSON.stringify(files) : null
+        messageType: fileData.length > 0 ? 'file' : 'text',
+        files: fileData.length > 0 ? JSON.stringify(fileData) : null
       };
       
       const message = await storage.createMessage(messageData);
