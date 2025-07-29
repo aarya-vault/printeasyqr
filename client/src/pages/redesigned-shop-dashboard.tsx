@@ -69,15 +69,61 @@ export default function RedesignedShopDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
 
+  // WebSocket integration for real-time updates
+  useEffect(() => {
+    if (!shopData?.shop?.id) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => {
+      console.log('WebSocket connected for shop dashboard');
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'ORDER_STATUS_UPDATED' && data.shopId === shopData.shop.id) {
+          // Immediately update the orders query cache
+          queryClient.invalidateQueries({ 
+            queryKey: [`/api/orders/shop/${shopData.shop.id}`],
+            refetchType: 'all'
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    return () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    };
+  }, [shopData?.shop?.id, queryClient]);
+
   // Fetch shop data
   const { data: shopData } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
   });
 
-  // Fetch orders
+  // Fetch orders with optimized caching
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
+    staleTime: 2000, // Consider data fresh for 2 seconds (reduced for faster updates)
+    refetchInterval: 8000, // Refresh every 8 seconds in background
+    refetchIntervalInBackground: true, // Keep refetching even when tab is not active
   });
 
   // Filter orders by search and type
@@ -112,9 +158,40 @@ export default function RedesignedShopDashboard() {
       if (!response.ok) throw new Error('Failed to update status');
       return response.json();
     },
+    onMutate: async ({ orderId, status }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
+
+      // Snapshot the previous value
+      const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
+        old?.map(order => 
+          order.id === orderId ? { ...order, status } : order
+        ) || []
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousOrders };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousOrders) {
+        queryClient.setQueryData([`/api/orders/shop/${shopData?.shop?.id}`], context.previousOrders);
+      }
+      toast({ 
+        title: 'Failed to update status', 
+        description: 'Please try again',
+        variant: 'destructive' 
+      });
+    },
     onSuccess: () => {
+      toast({ title: 'Order status updated successfully' });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
-      toast({ title: 'Order status updated' });
     },
   });
 
@@ -250,6 +327,7 @@ export default function RedesignedShopDashboard() {
           <Button
             size="sm"
             className="w-full mt-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+            disabled={updateOrderStatus.isPending}
             onClick={() => {
               const nextStatus = {
                 new: 'processing',
@@ -261,9 +339,18 @@ export default function RedesignedShopDashboard() {
               }
             }}
           >
-            {order.status === 'new' && 'Start Processing'}
-            {order.status === 'processing' && 'Mark as Ready'}
-            {order.status === 'ready' && 'Mark as Completed'}
+            {updateOrderStatus.isPending ? (
+              <div className="flex items-center">
+                <div className="w-3 h-3 border border-gray-600 border-t-transparent rounded-full animate-spin mr-2" />
+                Updating...
+              </div>
+            ) : (
+              <>
+                {order.status === 'new' && 'Start Processing'}
+                {order.status === 'processing' && 'Mark as Ready'}
+                {order.status === 'ready' && 'Mark as Completed'}
+              </>
+            )}
           </Button>
         )}
 
