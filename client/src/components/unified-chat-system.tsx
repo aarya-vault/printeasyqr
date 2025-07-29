@@ -272,7 +272,12 @@ export default function UnifiedChatSystem({
           <div className="flex items-center justify-between">
             <DialogTitle className="text-rich-black font-bold flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
-              {selectedOrder ? selectedOrder.title : 'Chat Center'}
+              <span>Chat Center</span>
+              {filteredOrders.length > 0 && (
+                <span className="text-sm font-normal">
+                  ({filteredOrders.length} active)
+                </span>
+              )}
             </DialogTitle>
             <DialogDescription className="sr-only">
               Chat interface for communicating about orders
@@ -307,28 +312,39 @@ export default function UnifiedChatSystem({
           {(!isMobileView || showOrderList) && (
             <div className="w-full sm:w-80 border-r flex flex-col">
               {/* Search */}
-              <div className="p-4 border-b">
+              <div className="p-4 border-b bg-gray-50">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Search chats..."
+                    placeholder="Search orders and chats..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 bg-white border-gray-200 focus:border-brand-yellow focus:ring-brand-yellow/20"
                   />
                 </div>
               </div>
 
               {/* Orders List */}
-              <ScrollArea className="flex-1">
+              <ScrollArea className="flex-1 bg-gray-50">
                 {ordersLoading ? (
-                  <div className="p-4 text-center text-gray-500">Loading chats...</div>
+                  <div className="p-8 text-center">
+                    <div className="animate-pulse space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                    </div>
+                  </div>
                 ) : filteredOrders.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
-                    {searchQuery ? 'No chats found' : 'No active orders to chat about'}
+                  <div className="p-8 text-center">
+                    <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <h4 className="font-medium text-gray-700 mb-1">
+                      {searchQuery ? 'No matches found' : 'No active chats'}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      {searchQuery ? 'Try a different search term' : 'Start a conversation by placing an order'}
+                    </p>
                   </div>
                 ) : (
-                  <div className="space-y-1 p-2">
+                  <div className="space-y-2 p-3">
                     {filteredOrders.map((order) => (
                       <div
                         key={order.id}
@@ -336,34 +352,38 @@ export default function UnifiedChatSystem({
                           setSelectedOrderId(order.id);
                           if (isMobileView) setShowOrderList(false);
                         }}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors relative ${
+                        className={`p-4 rounded-xl cursor-pointer transition-all duration-200 relative border ${
                           selectedOrderId === order.id
-                            ? 'bg-brand-yellow text-rich-black'
-                            : 'hover:bg-gray-50'
+                            ? 'bg-brand-yellow border-brand-yellow text-rich-black shadow-md'
+                            : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 hover:shadow-sm'
                         }`}
                       >
                         <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{order.title}</h4>
-                            <p className="text-sm text-gray-500 truncate">
-                              {effectiveUserRole === 'shop_owner' 
-                                ? order.customerName 
-                                : order.shopName || 'Shop'}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-gray-400">#{order.id}</span>
-                              <Badge className={`text-xs ${getStatusColor(order.status)}`}>
+                          <div className="flex-1 min-w-0 pr-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-sm truncate">{order.title}</h4>
+                              <Badge className={`text-xs px-2 py-1 ${getStatusColor(order.status)}`}>
                                 {order.status}
                               </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600 truncate mb-2">
+                              {effectiveUserRole === 'shop_owner' 
+                                ? `Customer: ${order.customerName}` 
+                                : `Shop: ${order.shopName || 'Shop'}`}
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                Order #{order.id}
+                              </span>
                               <span className="text-xs text-gray-400">
-                                #{order.id}
+                                {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
                               </span>
                             </div>
                           </div>
                           
                           {/* Unread message indicator */}
                           {order.unreadMessages && order.unreadMessages > 0 && (
-                            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                            <div className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm">
                               {order.unreadMessages > 99 ? '99+' : order.unreadMessages}
                             </div>
                           )}
@@ -651,10 +671,15 @@ export default function UnifiedChatSystem({
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-gray-500">
-                  <div className="text-center">
-                    <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p>Select a chat to start messaging</p>
+                <div className="flex-1 flex items-center justify-center text-gray-500 bg-gray-50/50">
+                  <div className="text-center max-w-md px-6">
+                    <MessageCircle className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">
+                      Select a conversation
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Choose an order from the list to start chatting with {effectiveUserRole === 'shop_owner' ? 'customers' : 'shop owners'} about your printing needs.
+                    </p>
                   </div>
                 </div>
               )}
