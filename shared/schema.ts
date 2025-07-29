@@ -90,7 +90,7 @@ export const messages = pgTable("messages", {
   senderId: integer("sender_id").notNull().references(() => users.id),
   senderName: text("sender_name").notNull(),
   senderRole: text("sender_role").notNull(), // 'customer', 'shop_owner', 'admin'
-  content: text("content").notNull(),
+  content: text("content").notNull().default(''),
   files: text("files"), // JSON string array of filenames
   messageType: text("message_type").notNull().default("text"), // 'text', 'file', 'system'
   isRead: boolean("is_read").notNull().default(false),

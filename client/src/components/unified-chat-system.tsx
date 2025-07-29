@@ -432,7 +432,7 @@ export default function UnifiedChatSystem({
                                   </div>
                                 </div>
                                 
-                                {message.content && (
+                                {message.content && message.content.trim() && (
                                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                 )}
                                 

@@ -927,6 +927,10 @@ app.patch('/api/debug/patch-test', (req, res) => {
   app.post("/api/messages", requireAuth, upload.array('files'), async (req, res) => {
     try {
       console.log('Message creation request:', req.body);
+      console.log('Files received:', req.files);
+      console.log('Content value:', JSON.stringify(content));
+      console.log('Trimmed content:', JSON.stringify(trimmedContent));
+      console.log('Final content:', JSON.stringify(finalContent));
       
       const { orderId, senderId, senderName, senderRole, content, messageType } = req.body;
       
@@ -961,13 +965,16 @@ app.patch('/api/debug/patch-test', (req, res) => {
       if (!trimmedContent && files.length === 0) {
         return res.status(400).json({ message: "Message content or files required" });
       }
+      
+      // Use empty string as default for database (required field)
+      const finalContent = trimmedContent || '';
 
       const messageData = {
         orderId: parseInt(orderId),
         senderId: req.user!.id,
         senderName: senderName || (req.user as any)?.name || req.user!.phone || 'User',
         senderRole: req.user!.role,
-        content: trimmedContent,
+        content: finalContent,
         messageType: messageType || 'text',
         files: files.length > 0 ? JSON.stringify(files) : null
       };

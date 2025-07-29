@@ -12,7 +12,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import FloatingChatButton from '@/components/floating-chat-button';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import BottomNavigation from '@/components/common/bottom-navigation';
 
 export default function CustomerAccount() {
@@ -244,7 +244,7 @@ export default function CustomerAccount() {
       <BottomNavigation />
 
       {/* Floating Chat Button */}
-      <FloatingChatButton />
+      <UnifiedFloatingChatButton />
     </div>
   );
 }

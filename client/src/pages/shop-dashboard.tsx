@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeModal } from '@/components/shop/qr-code-modal';
-import { ChatModal } from '@/components/chat/chat-modal';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 import { Order, Shop } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
