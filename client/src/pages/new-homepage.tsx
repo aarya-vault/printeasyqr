@@ -204,7 +204,7 @@ export default function NewHomepage() {
                       <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-rich-black" />
                     </div>
                     <div>
-                      <div className="text-sm sm:text-base font-semibold text-rich-black">QuickPrint Solutions</div>
+                      <div className="text-sm sm:text-base font-semibold text-rich-black">Your Local Print Shop</div>
                       <div className="text-xs sm:text-sm text-medium-gray">2.5 km away</div>
                     </div>
                   </div>
