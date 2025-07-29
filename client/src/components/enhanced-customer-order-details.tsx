@@ -10,7 +10,7 @@ import {
   Plus, AlertCircle, Zap, Building2, Eye, Paperclip,
   CheckCircle, PlayCircle, Truck, Star
 } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -54,9 +54,10 @@ interface StatusHistoryItem {
 interface EnhancedCustomerOrderDetailsProps {
   order: Order;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
-export default function EnhancedCustomerOrderDetails({ order, onClose }: EnhancedCustomerOrderDetailsProps) {
+export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh }: EnhancedCustomerOrderDetailsProps) {
   const [showChat, setShowChat] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);

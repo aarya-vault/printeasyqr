@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { 
   X, Send, Phone, User, Package, MessageSquare, 
   Clock, CheckCheck, Circle, Paperclip, File, Download,
-  Search, ArrowLeft, Store, MessageCircle
+  Search, ArrowLeft, Store, MessageCircle, CheckCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
