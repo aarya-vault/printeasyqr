@@ -341,8 +341,8 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                 Order Status
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-4 overflow-hidden">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <Badge className={`${currentStatusInfo.bgColor} ${currentStatusInfo.textColor} px-3 py-1`}>
                   {currentStatusInfo.label}
                 </Badge>
@@ -354,7 +354,9 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                 )}
               </div>
               
-              <Progress value={getProgressPercentage(currentOrder.status)} className="h-2" />
+              <div className="w-full overflow-hidden">
+                <Progress value={getProgressPercentage(currentOrder.status)} className="h-2 w-full" />
+              </div>
               
               <p className="text-sm text-gray-600">{currentStatusInfo.description}</p>
               
