@@ -191,7 +191,7 @@ export default function UnifiedChatSystem({
       // Also invalidate orders to update unread counts
       queryClient.invalidateQueries({ 
         queryKey: effectiveUserRole === 'shop_owner' 
-          ? [`/api/orders/shop/${user?.shopId || user?.id}`]
+          ? [`/api/orders/shop/${shopData?.shop?.id}`]
           : [`/api/orders/customer/${user?.id}`]
       });
       toast({ title: 'Message sent successfully' });
@@ -260,12 +260,19 @@ export default function UnifiedChatSystem({
     },
     onSuccess: () => {
       // Invalidate both orders and messages to update unread counts
-      queryClient.invalidateQueries({ 
-        queryKey: effectiveUserRole === 'shop_owner' 
-          ? [`/api/orders/shop/${shopData?.shop?.id}`]
-          : [`/api/orders/customer/${user?.id}`]
-      });
+      const ordersQueryKey = effectiveUserRole === 'shop_owner' 
+        ? [`/api/orders/shop/${shopData?.shop?.id}`]
+        : [`/api/orders/customer/${user?.id}`];
+      
+      console.log('🔄 Mark as read success - invalidating queries:', ordersQueryKey);
+      
+      queryClient.invalidateQueries({ queryKey: ordersQueryKey });
       queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${selectedOrderId}`] });
+      
+      // Force refetch after a short delay
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ordersQueryKey });
+      }, 100);
     }
   });
 
@@ -274,14 +281,16 @@ export default function UnifiedChatSystem({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     
     // Mark messages as read when viewing them (with debounce)
-    if (selectedOrderId && messages.length > 0) {
+    if (selectedOrderId && messages.length > 0 && user?.id && !markMessagesAsRead.isPending) {
+      console.log('📬 Setting timer to mark messages as read for order:', selectedOrderId);
       const timer = setTimeout(() => {
+        console.log('📬 Marking messages as read for order:', selectedOrderId, 'User ID:', user?.id);
         markMessagesAsRead.mutate(selectedOrderId);
       }, 1000); // Wait 1 second before marking as read
       
       return () => clearTimeout(timer);
     }
-  }, [messages, selectedOrderId]);
+  }, [messages, selectedOrderId, user?.id]);
 
   // Filter orders for search
   const filteredOrders = orders.filter(order => {
