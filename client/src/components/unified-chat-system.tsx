@@ -254,15 +254,14 @@ export default function UnifiedChatSystem({
     }
   };
 
-  // Close chat automatically when order is completed
-  React.useEffect(() => {
-    if (selectedOrder?.status === 'completed') {
-      // Show a brief notification before closing
-      setTimeout(() => {
-        onClose();
-      }, 3000); // Close after 3 seconds to let user see the completion message
-    }
-  }, [selectedOrder?.status, onClose]);
+  // Don't auto-close completed order chats - let users view history
+  // React.useEffect(() => {
+  //   if (selectedOrder?.status === 'completed') {
+  //     setTimeout(() => {
+  //       onClose();
+  //     }, 3000);
+  //   }
+  // }, [selectedOrder?.status, onClose]);
 
   if (!isOpen) return null;
 
@@ -592,7 +591,7 @@ export default function UnifiedChatSystem({
                           <h4 className="font-semibold text-gray-800">Order Completed</h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This order has been completed. You can view the message history above, but no new messages can be sent.
+                          Your order has been completed. You can view the message history above, but no new messages can be sent.
                         </p>
                       </div>
                     ) : (
