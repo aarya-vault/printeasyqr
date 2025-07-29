@@ -70,16 +70,25 @@ export default function RedesignedShopDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState<Record<number, string>>({});
+  const [frontendOrders, setFrontendOrders] = useState<Order[]>([]);
+  const [frontendShop, setFrontendShop] = useState<Shop & { isOnline: boolean } | null>(null);
   const updateQueue = useRef<Array<{ orderId: number; status: string }>>([]);
   const isProcessingQueue = useRef(false);
+  const hasInitialLoad = useRef(false);
 
-  // Fetch shop data with instant loading
+  // Background fetch for shop data - never blocks UI
   const { data: shopData } = useQuery<{ shop: Shop & { isOnline: boolean } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    staleTime: Infinity, // Use cached data immediately
-    gcTime: 1000 * 60 * 60, // Keep in cache for 1 hour (v5 syntax)
-    refetchInterval: 30000, // Background sync every 30 seconds
-    refetchOnMount: false, // Use cached data immediately
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
+    refetchInterval: 30000,
+    refetchOnMount: false,
+    enabled: true,
+    onSuccess: (data) => {
+      if (data?.shop && !frontendShop) {
+        setFrontendShop(data.shop);
+      }
+    }
   });
 
   // WebSocket integration for real-time updates
@@ -125,21 +134,26 @@ export default function RedesignedShopDashboard() {
     };
   }, [shopData?.shop?.id, queryClient]);
 
-  // Fetch orders with instant loading and background sync
-  const { data: ordersData = [], isLoading: ordersLoading } = useQuery<Order[]>({
-    queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-    enabled: !!shopData?.shop?.id,
-    staleTime: Infinity, // Use cached data immediately - never consider stale
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (v5 syntax)
-    refetchInterval: 15000, // Background sync every 15 seconds
+  // Background fetch for orders - never blocks UI
+  const { data: ordersData } = useQuery<Order[]>({
+    queryKey: [`/api/orders/shop/${shopData?.shop?.id || frontendShop?.id}`],
+    enabled: !!(shopData?.shop?.id || frontendShop?.id),
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 30,
+    refetchInterval: 15000,
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: false, // Don't refetch on focus to prevent delays
-    refetchOnMount: false, // Use cached data on mount for instant loading
-    placeholderData: [], // Show empty array immediately while loading
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    onSuccess: (data) => {
+      if (data && !hasInitialLoad.current) {
+        setFrontendOrders(data);
+        hasInitialLoad.current = true;
+      }
+    }
   });
 
-  // Use orders data with fallback
-  const orders = ordersData || [];
+  // Use frontend orders immediately - never wait for API
+  const orders = frontendOrders;
 
   // Filter orders by search and type
   const filteredOrders = orders.filter(order => {
@@ -188,18 +202,25 @@ export default function RedesignedShopDashboard() {
             return newPending;
           });
         } else {
-          // If failed, revert the UI change
-          queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
+          // If failed, revert both frontend state and cache
+          const prevStatus = update.status === 'processing' ? 'new' : 
+                           update.status === 'ready' ? 'processing' : 'ready';
+          
+          setFrontendOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === update.orderId ? { ...order, status: prevStatus } : order
+            )
+          );
+          
+          queryClient.setQueryData<Order[]>([`/api/orders/shop/${shop?.id}`], old => 
             old?.map(order => {
               if (order.id === update.orderId) {
-                // Revert to previous status
-                const prevStatus = update.status === 'processing' ? 'new' : 
-                                 update.status === 'ready' ? 'processing' : 'ready';
                 return { ...order, status: prevStatus };
               }
               return order;
             }) || []
           );
+          
           toast({ 
             title: 'Update failed', 
             description: `Order #${update.orderId} status reverted`,
@@ -219,23 +240,30 @@ export default function RedesignedShopDashboard() {
 
   // Instant status update function
   const updateStatusInstantly = (orderId: number, newStatus: string) => {
-    // 1. Update UI immediately
-    queryClient.setQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`], old => 
+    // 1. Update frontend state immediately
+    setFrontendOrders(prevOrders => 
+      prevOrders.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+
+    // 2. Update query cache
+    queryClient.setQueryData<Order[]>([`/api/orders/shop/${shop?.id}`], old => 
       old?.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       ) || []
     );
 
-    // 2. Mark as pending
+    // 3. Mark as pending
     setPendingUpdates(prev => ({ ...prev, [orderId]: newStatus }));
 
-    // 3. Add to queue for background processing
+    // 4. Add to queue for background processing
     updateQueue.current.push({ orderId, status: newStatus });
 
-    // 4. Process queue
+    // 5. Process queue
     processUpdateQueue();
 
-    // 5. Show instant feedback
+    // 6. Show instant feedback
     toast({ title: 'Status updated!', description: 'Syncing in background...' });
   };
 
@@ -427,30 +455,53 @@ export default function RedesignedShopDashboard() {
     </Card>
   );
 
-  // Show dashboard immediately with cached/placeholder data
-  const shop = shopData?.shop || {
+  // Use frontend shop data immediately
+  const shop = frontendShop || shopData?.shop || {
     id: 0,
-    name: 'Loading...',
-    slug: '',
+    name: 'PrintEasy Shop',
+    slug: 'shop',
     phone: '',
     address: 'Loading...',
     city: '',
     workingHours: null,
-    acceptsWalkinOrders: false,
+    acceptsWalkinOrders: true,
     isOnline: true
   };
 
-  // Only show loading if absolutely no data is available
-  if (!shopData?.shop && ordersLoading && orders.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-yellow mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading shop data...</p>
-        </div>
-      </div>
-    );
-  }
+  // Initialize frontend data from localStorage cache on first load
+  useEffect(() => {
+    if (!hasInitialLoad.current) {
+      try {
+        const cachedOrders = localStorage.getItem('shop-orders-cache');
+        const cachedShop = localStorage.getItem('shop-data-cache');
+        
+        if (cachedOrders) {
+          const parsedOrders = JSON.parse(cachedOrders);
+          setFrontendOrders(parsedOrders);
+        }
+        
+        if (cachedShop) {
+          const parsedShop = JSON.parse(cachedShop);
+          setFrontendShop(parsedShop);
+        }
+      } catch (error) {
+        console.log('Cache load failed, using defaults');
+      }
+    }
+  }, []);
+
+  // Cache data to localStorage for instant future loads
+  useEffect(() => {
+    if (orders.length > 0) {
+      localStorage.setItem('shop-orders-cache', JSON.stringify(orders));
+    }
+  }, [orders]);
+
+  useEffect(() => {
+    if (shop && shop.id > 0) {
+      localStorage.setItem('shop-data-cache', JSON.stringify(shop));
+    }
+  }, [shop]);
 
   return (
     <div className="min-h-screen bg-gray-50">
