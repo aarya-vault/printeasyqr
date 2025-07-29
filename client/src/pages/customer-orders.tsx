@@ -17,6 +17,7 @@ import BottomNavigation from '@/components/common/bottom-navigation';
 import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import UnifiedChatSystem from '@/components/unified-chat-system';
+import UnifiedOrderCard from '@/components/unified-order-card';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 
 interface Order {
@@ -155,101 +156,14 @@ export default function CustomerOrders() {
             {filteredOrders
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
               .map((order) => (
-                <Card key={order.id} className="bg-white hover:shadow-md transition-all">
-                  <CardContent className="p-4">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-sm">ORD{order.id.toString().padStart(3, '0')}</span>
-                          {order.isUrgent && (
-                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
-                          )}
-                          <Badge className={`${getStatusColor(order.status)} text-xs`}>
-                            {getStatusIcon(order.status)}
-                            <span className="ml-1 capitalize">{order.status}</span>
-                          </Badge>
-                        </div>
-                        <h3 className="font-medium text-rich-black">{order.title}</h3>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">{format(new Date(order.createdAt), 'dd MMM')}</p>
-                        <p className="text-xs text-gray-400">{format(new Date(order.createdAt), 'HH:mm')}</p>
-                      </div>
-                    </div>
-
-                    {/* Shop Info */}
-                    <div className="mb-3">
-                      {order.shop?.name && (
-                        <p className="text-sm font-medium text-gray-700">{order.shop.name}</p>
-                      )}
-                      <p className="text-xs text-gray-500">{order.description}</p>
-                    </div>
-
-                    {/* Order Type & Files */}
-                    <div className="flex items-center gap-4 mb-3 text-xs text-gray-600">
-                      <div className="flex items-center gap-1">
-                        {order.type === 'upload' ? (
-                          <>
-                            <Upload className="w-3 h-3" />
-                            <span>File Upload</span>
-                          </>
-                        ) : (
-                          <>
-                            <Users className="w-3 h-3" />
-                            <span>Walk-in Order</span>
-                          </>
-                        )}
-                      </div>
-                      {order.type === 'upload' && order.files && (
-                        <div className="flex items-center gap-1">
-                          <FileText className="w-3 h-3" />
-                          <span>
-                            {(() => {
-                              try {
-                                const files = typeof order.files === 'string' 
-                                  ? JSON.parse(order.files) 
-                                  : order.files;
-                                return Array.isArray(files) ? files.length : 0;
-                              } catch {
-                                return 0;
-                              }
-                            })()} files
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setSelectedOrderForDetails(order)}
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        View Details
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setSelectedOrderForChat(order.id)}
-                      >
-                        <MessageCircle className="w-3 h-3 mr-1" />
-                        Chat
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => window.location.href = `tel:${order.shop?.phone}`}
-                      >
-                        <Phone className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <UnifiedOrderCard
+                  key={order.id}
+                  order={order}
+                  userRole="customer"
+                  onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
+                  onCallClick={(phone) => window.open(`tel:${phone}`)}
+                  onViewDetails={(order) => setSelectedOrderForDetails(order)}
+                />
               ))}
           </div>
         )}

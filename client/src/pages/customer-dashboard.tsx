@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { UploadOrderModal } from '@/components/order/upload-order-modal';
 import { WalkinOrderModal } from '@/components/order/walkin-order-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
+import UnifiedOrderCard from '@/components/unified-order-card';
+import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
 // Types will be defined inline to avoid import issues
 import { formatDistanceToNow } from 'date-fns';
 
@@ -17,7 +19,8 @@ export default function CustomerDashboard() {
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -65,11 +68,14 @@ export default function CustomerDashboard() {
     enabled: !!user,
   });
 
-  // Fetch customer orders
-  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+  // Fetch customer orders - only active orders for dashboard
+  const { data: allOrders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ['/api/orders/customer', user?.id],
     enabled: !!user,
   });
+
+  // Filter to show only active orders (not completed) in dashboard
+  const activeOrders = allOrders.filter((order: any) => order.status !== 'completed');
 
   // Create order mutation
   const createOrderMutation = useMutation({
@@ -248,31 +254,22 @@ export default function CustomerDashboard() {
                   <div key={i} className="skeleton h-16 rounded-lg"></div>
                 ))}
               </div>
-            ) : recentOrders.length === 0 ? (
+            ) : activeOrders.length === 0 ? (
               <div className="text-center py-8">
                 <FileText className="w-12 h-12 text-medium-gray mx-auto mb-4" />
-                <p className="text-medium-gray">No orders yet. Place your first order!</p>
+                <p className="text-medium-gray">No active orders. Place your first order!</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {recentOrders.map((order: Order) => {
-                  const OrderIcon = getOrderIcon(order.type);
-                  const shop = (shops as Shop[]).find((s: Shop) => s.id === order.shopId);
-                  
-                  return (
-                    <div key={order.id} className="flex items-center justify-between py-4 border-b border-gray-200 last:border-b-0">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-light-gray rounded-lg flex items-center justify-center">
-                          <OrderIcon className="w-5 h-5 text-medium-gray" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-rich-black">{order.title}</p>
-                          <p className="text-sm text-medium-gray">{shop?.name || 'Unknown Shop'}</p>
-                        </div>
-                      </div>
-                      <div className="text-right flex items-center space-x-3">
-                        <div>
-                          <Badge className={getStatusColor(order.status)}>
+                {activeOrders.slice(0, 3).map((order: any) => (
+                  <UnifiedOrderCard
+                    key={order.id}
+                    order={order}
+                    userRole="customer"
+                    onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
+                    onCallClick={(phone) => window.open(`tel:${phone}`)}
+                    onViewDetails={(order) => setSelectedOrderForDetails(order)}
+                  />
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </Badge>
                           <p className="text-xs text-medium-gray mt-1">
