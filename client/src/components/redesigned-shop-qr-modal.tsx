@@ -101,7 +101,15 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
     try {
       const canvas = await html2canvas(qrRef.current, {
         backgroundColor: '#FFFFFF',
-        scale: 2,
+        scale: 3, // Higher scale for better quality
+        useCORS: true,
+        allowTaint: true,
+        width: qrRef.current.offsetWidth,
+        height: qrRef.current.offsetHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: qrRef.current.offsetWidth,
+        windowHeight: qrRef.current.offsetHeight,
       });
 
       const link = document.createElement('a');
@@ -152,37 +160,40 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
         </Button>
 
         {/* QR Code Design */}
-        <div ref={qrRef} className="bg-white">
+        <div ref={qrRef} className="bg-white" style={{ width: '500px', minHeight: '700px' }}>
           {/* Header */}
           <div className="bg-brand-yellow p-6 text-center">
-            <div className="flex items-center justify-center mb-3">
+            <div className="flex items-center justify-center mb-4">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
                 <Store className="w-10 h-10 text-rich-black" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-rich-black mb-1">
+            <h2 className="text-2xl font-bold text-rich-black mb-2">
               {displayShop?.name || 'Shop Name'}
             </h2>
-            <div className="flex items-center justify-center space-x-2 mt-2">
-              <p className="text-rich-black/80 text-sm font-medium">Professional Printing Services</p>
-              {displayShop && <ShopStatusIndicator shop={displayShop} showWalkinStatus />}
-            </div>
+            <p className="text-rich-black/80 text-sm font-medium mb-4">Professional Printing Services</p>
+            {displayShop && (
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                <ShopStatusIndicator shop={displayShop} showWalkinStatus />
+              </div>
+            )}
           </div>
 
           {/* QR Code */}
-          <div className="p-8 bg-white">
-            <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-100 mx-auto w-fit">
+          <div className="p-6 bg-white flex flex-col items-center">
+            <div className="bg-white p-4 rounded-xl shadow-lg border-2 border-gray-100 mx-auto">
               {qrDataUrl && (
                 <img 
                   src={qrDataUrl} 
                   alt="Shop QR Code" 
-                  className="w-64 h-64"
+                  className="w-56 h-56 block"
+                  style={{ imageRendering: 'pixelated' }}
                 />
               )}
             </div>
             
             {/* Scan Instructions */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-4 mb-4">
               <div className="flex items-center justify-center space-x-2 mb-2">
                 <QrCodeIcon className="w-5 h-5 text-brand-yellow" />
                 <p className="text-lg font-semibold text-rich-black">Scan to Visit Shop</p>
@@ -193,37 +204,37 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
             </div>
 
             {/* Shop Details */}
-            <div className="mt-6 space-y-3 bg-gray-50 rounded-lg p-4">
+            <div className="space-y-4 bg-gray-50 rounded-lg p-4 mx-4">
               <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-brand-yellow mt-0.5" />
-                <div className="flex-1">
+                <MapPin className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-rich-black">Location</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-600 break-words">
                     {displayShop?.address || 'Address'}, {displayShop?.city || 'City'}
                   </p>
                 </div>
               </div>
               
               <div className="flex items-start space-x-3">
-                <Phone className="w-5 h-5 text-brand-yellow mt-0.5" />
-                <div className="flex-1">
+                <Phone className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-rich-black">Contact</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-gray-600">
                     {displayShop?.publicContactNumber || displayShop?.phone || 'Contact Number'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <Clock className="w-5 h-5 text-brand-yellow mt-0.5" />
-                <div className="flex-1">
+                <Clock className="w-4 h-4 text-brand-yellow mt-1 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-rich-black">Working Hours</p>
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-xs text-gray-600 space-y-1">
                     {displayShop?.workingHours ? (
                       Object.entries(displayShop.workingHours).map(([day, hours]: [string, any]) => (
                         <div key={day} className="flex justify-between items-center">
                           <span className="capitalize font-medium">{day.slice(0, 3)}:</span>
-                          <span>
+                          <span className="text-right">
                             {hours.closed ? 'Closed' : 
                              hours.open === hours.close ? '24/7 Open' : 
                              `${hours.open} - ${hours.close}`}
@@ -243,7 +254,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-100 px-6 py-4">
+          <div className="bg-gray-100 px-6 py-4 mt-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
