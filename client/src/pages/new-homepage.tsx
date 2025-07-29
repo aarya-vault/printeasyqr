@@ -165,18 +165,15 @@ export default function NewHomepage() {
       <Navbar 
         onShopLogin={() => setShowShopLogin(true)}
       />
-      
       {showShopLogin && (
         <ShopOwnerLogin onBack={() => setShowShopLogin(false)} />
       )}
-
       {showNameModal && (
         <NameCollectionModal
           isOpen={showNameModal}
           onSubmit={handleNameUpdate}
         />
       )}
-      
       {/* Hero Section - Customer Login Priority */}
       <section className="relative bg-white pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,7 +235,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
       {/* Key Features USPs */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -266,7 +262,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
       {/* How It Works */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -304,7 +299,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
       {/* Real-time Features Highlight */}
       <section className="py-16 bg-brand-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -387,11 +381,10 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
       {/* Call to Action */}
       <section className="py-16 bg-rich-black text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-[#ffffff]">
             Ready to Experience Hassle-Free Printing?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
@@ -419,7 +412,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
