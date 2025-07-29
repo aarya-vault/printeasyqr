@@ -85,7 +85,7 @@ export default function RedesignedShopDashboard() {
       try {
         const data = JSON.parse(event.data);
         
-        if (data.type === 'ORDER_STATUS_UPDATED' && data.shopId === shopData.shop.id) {
+        if (data.type === 'ORDER_STATUS_UPDATED' && data.shopId === shopData?.shop?.id) {
           // Immediately update the orders query cache
           queryClient.invalidateQueries({ 
             queryKey: [`/api/orders/shop/${shopData.shop.id}`],
@@ -117,13 +117,14 @@ export default function RedesignedShopDashboard() {
     queryKey: [`/api/shops/owner/${user?.id}`],
   });
 
-  // Fetch orders with optimized caching
+  // Fetch orders with aggressive caching for instant UI updates
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
-    staleTime: 2000, // Consider data fresh for 2 seconds (reduced for faster updates)
-    refetchInterval: 8000, // Refresh every 8 seconds in background
-    refetchIntervalInBackground: true, // Keep refetching even when tab is not active
+    staleTime: 1000, // Very short stale time for faster updates
+    refetchInterval: 3000, // Aggressive background refresh
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   // Filter orders by search and type
@@ -188,10 +189,18 @@ export default function RedesignedShopDashboard() {
     },
     onSuccess: () => {
       toast({ title: 'Order status updated successfully' });
+      // Force immediate refetch for instant UI update
+      queryClient.refetchQueries({ 
+        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
+        type: 'active'
+      });
     },
     onSettled: () => {
-      // Always refetch after error or success to ensure we have the latest data
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
+      // Ensure data is always fresh
+      queryClient.invalidateQueries({ 
+        queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
+        refetchType: 'all'
+      });
     },
   });
 
