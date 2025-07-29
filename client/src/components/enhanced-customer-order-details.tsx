@@ -65,6 +65,16 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch fresh order data for real-time updates
+  const { data: freshOrder, refetch: refetchOrder } = useQuery({
+    queryKey: [`/api/orders/${order.id}`],
+    initialData: order,
+    refetchInterval: 2000, // Refetch every 2 seconds for real-time updates
+  });
+
+  // Use fresh order data if available, fallback to initial order
+  const currentOrder = freshOrder || order;
+
   // Upload additional files mutation
   const uploadFilesMutation = useMutation({
     mutationFn: async (files: File[]) => {
@@ -87,7 +97,11 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     },
     onSuccess: (data) => {
       toast({ title: 'Files uploaded successfully!' });
-      // Invalidate specific queries to force refresh
+      
+      // Immediately refetch the current order to show updated files
+      refetchOrder();
+      
+      // Invalidate related queries to refresh order data across the app
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${order.customerId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer`] });
       
@@ -187,22 +201,22 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     const history: StatusHistoryItem[] = [
       {
         status: 'new',
-        timestamp: order.createdAt,
+        timestamp: currentOrder.createdAt,
         note: 'Order received and queued for processing'
       }
     ];
 
     // Add intermediate statuses based on current status
-    const createdTime = new Date(order.createdAt);
-    const updatedTime = new Date(order.updatedAt);
+    const createdTime = new Date(currentOrder.createdAt);
+    const updatedTime = new Date(currentOrder.updatedAt);
     
-    if (order.status === 'processing') {
+    if (currentOrder.status === 'processing') {
       history.push({
         status: 'processing',
-        timestamp: order.updatedAt,
+        timestamp: currentOrder.updatedAt,
         note: 'Shop owner started working on your order'
       });
-    } else if (order.status === 'ready') {
+    } else if (currentOrder.status === 'ready') {
       // Add processing step (estimated time between created and updated)
       const processingTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.3);
       history.push({
@@ -212,10 +226,10 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
       });
       history.push({
         status: 'ready',
-        timestamp: order.updatedAt,
+        timestamp: currentOrder.updatedAt,
         note: 'Order completed and ready for pickup'
       });
-    } else if (order.status === 'completed') {
+    } else if (currentOrder.status === 'completed') {
       // Add all intermediate steps for completed orders
       const processingTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.2);
       const readyTime = new Date(createdTime.getTime() + (updatedTime.getTime() - createdTime.getTime()) * 0.7);
@@ -232,7 +246,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
       });
       history.push({
         status: 'completed',
-        timestamp: order.updatedAt,
+        timestamp: currentOrder.updatedAt,
         note: 'Order successfully collected by customer'
       });
     }
@@ -240,10 +254,10 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     return history;
   };
 
-  const currentFiles = parseFiles(order.files);
+  const currentFiles = parseFiles(currentOrder.files);
   const statusHistory = createDetailedStatusHistory();
-  const currentStatusInfo = getStatusInfo(order.status);
-  const canAddFiles = order.status !== 'completed'; // Allow adding files until completed
+  const currentStatusInfo = getStatusInfo(currentOrder.status);
+  const canAddFiles = currentOrder.status !== 'completed'; // Allow adding files until completed
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -310,8 +324,8 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-rich-black">Order #{order.id}</h2>
-            <p className="text-gray-600">{order.title}</p>
+            <h2 className="text-2xl font-bold text-rich-black">Order #{currentOrder.id}</h2>
+            <p className="text-gray-600">{currentOrder.title}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
@@ -332,7 +346,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                 <Badge className={`${currentStatusInfo.bgColor} ${currentStatusInfo.textColor} px-3 py-1`}>
                   {currentStatusInfo.label}
                 </Badge>
-                {order.isUrgent && (
+                {currentOrder.isUrgent && (
                   <Badge variant="destructive" className="flex items-center gap-1">
                     <Zap className="w-3 h-3" />
                     Urgent
@@ -340,14 +354,14 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                 )}
               </div>
               
-              <Progress value={getProgressPercentage(order.status)} className="h-2" />
+              <Progress value={getProgressPercentage(currentOrder.status)} className="h-2" />
               
               <p className="text-sm text-gray-600">{currentStatusInfo.description}</p>
               
               <div className="text-xs text-gray-500">
-                {order.status === 'completed' 
-                  ? `Completed: ${format(new Date(order.updatedAt), 'PPP p')}`
-                  : `Last updated: ${format(new Date(order.updatedAt), 'PPP p')}`
+                {currentOrder.status === 'completed' 
+                  ? `Completed: ${format(new Date(currentOrder.updatedAt), 'PPP p')}`
+                  : `Last updated: ${format(new Date(currentOrder.updatedAt), 'PPP p')}`
                 }
               </div>
             </CardContent>
@@ -368,34 +382,34 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   <div>
                     <p className="text-sm font-medium text-gray-600">Type</p>
                     <Badge variant="outline" className="mt-1">
-                      {order.type === 'upload' ? 'File Upload' : 'Walk-in Order'}
+                      {currentOrder.type === 'upload' ? 'File Upload' : 'Walk-in Order'}
                     </Badge>
                   </div>
                   
-                  {order.description && (
+                  {currentOrder.description && (
                     <div>
                       <p className="text-sm font-medium text-gray-600">Description</p>
-                      <p className="text-sm mt-1">{order.description}</p>
+                      <p className="text-sm mt-1">{currentOrder.description}</p>
                     </div>
                   )}
 
-                  {order.walkinTime && (
+                  {currentOrder.walkinTime && (
                     <div>
                       <p className="text-sm font-medium text-gray-600">Appointment Time</p>
-                      <p className="text-sm mt-1">{order.walkinTime}</p>
+                      <p className="text-sm mt-1">{currentOrder.walkinTime}</p>
                     </div>
                   )}
 
-                  {order.specifications && (
+                  {currentOrder.specifications && (
                     <div>
                       <p className="text-sm font-medium text-gray-600">Specifications</p>
                       <div className="text-sm mt-1 bg-gray-50 p-3 rounded">
                         {(() => {
-                          if (typeof order.specifications === 'string') {
-                            return order.specifications;
+                          if (typeof currentOrder.specifications === 'string') {
+                            return currentOrder.specifications;
                           }
-                          if (typeof order.specifications === 'object') {
-                            const specs = order.specifications;
+                          if (typeof currentOrder.specifications === 'object') {
+                            const specs = currentOrder.specifications;
                             return (
                               <div className="space-y-1">
                                 {specs.urgent && (
@@ -430,14 +444,14 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   <div>
                     <p className="text-sm font-medium text-gray-600">Created</p>
                     <p className="text-sm mt-1">
-                      {format(new Date(order.createdAt), 'PPP p')}
+                      {format(new Date(currentOrder.createdAt), 'PPP p')}
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Shop Information */}
-              {order.shop && (
+              {currentOrder.shop && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -447,19 +461,19 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="font-medium">{order.shop.name}</p>
-                      {order.shop.publicAddress && (
-                        <p className="text-sm text-gray-600 mt-1">{order.shop.publicAddress}</p>
+                      <p className="font-medium">{currentOrder.shop.name}</p>
+                      {currentOrder.shop.publicAddress && (
+                        <p className="text-sm text-gray-600 mt-1">{currentOrder.shop.publicAddress}</p>
                       )}
                     </div>
                     
-                    {order.shop.publicContactNumber && (
+                    {currentOrder.shop.publicContactNumber && (
                       <div className="flex items-center justify-between">
-                        <p className="text-sm">{order.shop.publicContactNumber}</p>
+                        <p className="text-sm">{currentOrder.shop.publicContactNumber}</p>
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => window.open(`tel:${order.shop?.publicContactNumber}`)}
+                          onClick={() => window.open(`tel:${currentOrder.shop?.publicContactNumber}`)}
                         >
                           <Phone className="w-4 h-4" />
                         </Button>
