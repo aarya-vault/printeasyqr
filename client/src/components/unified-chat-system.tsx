@@ -125,12 +125,20 @@ export default function UnifiedChatSystem({
   // Send message mutation with file support
   const sendMessageMutation = useMutation({
     mutationFn: async ({ content, files }: { content: string; files?: FileList }) => {
+      if (!selectedOrderId) throw new Error('No order selected');
+      
+      // Validate content or files presence
+      const trimmedContent = content.trim();
+      if (!trimmedContent && (!files || files.length === 0)) {
+        throw new Error('Please enter a message or select files');
+      }
+      
       const formData = new FormData();
-      formData.append('orderId', selectedOrderId?.toString() || '');
+      formData.append('orderId', selectedOrderId.toString());
       formData.append('senderId', user?.id?.toString() || '');
       formData.append('senderName', user?.name || user?.phone || 'User');
       formData.append('senderRole', effectiveUserRole);
-      formData.append('content', content);
+      formData.append('content', trimmedContent);
       formData.append('messageType', 'text');
       
       if (files && files.length > 0) {
@@ -191,10 +199,16 @@ export default function UnifiedChatSystem({
 
   // Send message handler
   const handleSendMessage = () => {
-    if (!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) return;
+    const trimmedContent = messageInput.trim();
+    
+    // Don't send if both content and files are empty
+    if (!trimmedContent && (!selectedFiles || selectedFiles.length === 0)) {
+      toast({ title: 'Please enter a message or select files', variant: 'destructive' });
+      return;
+    }
     
     sendMessageMutation.mutate({ 
-      content: messageInput.trim(), 
+      content: trimmedContent, 
       files: selectedFiles || undefined 
     });
   };
@@ -245,9 +259,7 @@ export default function UnifiedChatSystem({
               <MessageSquare className="w-5 h-5" />
               {selectedOrder ? selectedOrder.title : 'Chat Center'}
             </DialogTitle>
-            <Button variant="ghost" onClick={onClose} className="text-rich-black hover:bg-black/10">
-              <X className="w-4 h-4" />
-            </Button>
+
           </div>
           
           {/* Mobile back button and order info */}
@@ -322,6 +334,7 @@ export default function UnifiedChatSystem({
                                 : order.shopName || 'Shop'}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-gray-400">#{order.id}</span>
                               <Badge className={`text-xs ${getStatusColor(order.status)}`}>
                                 {order.status}
                               </Badge>

@@ -956,12 +956,18 @@ app.patch('/api/debug/patch-test', (req, res) => {
         files = req.files.map(file => file.filename);
       }
 
+      // Validate content or files presence
+      const trimmedContent = (content || '').trim();
+      if (!trimmedContent && files.length === 0) {
+        return res.status(400).json({ message: "Message content or files required" });
+      }
+
       const messageData = {
         orderId: parseInt(orderId),
         senderId: req.user!.id,
         senderName: senderName || (req.user as any)?.name || req.user!.phone || 'User',
         senderRole: req.user!.role,
-        content: content || '',
+        content: trimmedContent,
         messageType: messageType || 'text',
         files: files.length > 0 ? JSON.stringify(files) : null
       };
