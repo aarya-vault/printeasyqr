@@ -560,16 +560,16 @@ export default function RedesignedShopOwnerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* File Upload Orders - 2 Columns */}
           <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border">
+            <div className="flex items-center justify-between mb-4 p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
               <div className="flex items-center">
-                <Upload className="w-6 h-6 mr-3 text-blue-600" />
+                <Upload className="w-6 h-6 mr-3 text-brand-yellow" />
                 <div>
                   <h2 className="text-lg font-bold text-rich-black">File Upload Orders</h2>
                   <p className="text-sm text-gray-600">Digital file printing orders</p>
                 </div>
               </div>
               {uploadOrders.length > 0 && (
-                <Badge className="bg-blue-600 text-white font-semibold px-3 py-1">
+                <Badge className="bg-brand-yellow text-rich-black font-semibold px-3 py-1">
                   {uploadOrders.length} {uploadOrders.length === 1 ? 'Order' : 'Orders'}
                 </Badge>
               )}
@@ -577,9 +577,9 @@ export default function RedesignedShopOwnerDashboard() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {uploadOrders.length === 0 ? (
                 <div className="xl:col-span-2">
-                  <Card className="border-dashed border-2 border-blue-200">
+                  <Card className="border-dashed border-2 border-brand-yellow/30">
                     <CardContent className="p-8 text-center">
-                      <Upload className="w-12 h-12 text-blue-300 mx-auto mb-3" />
+                      <Upload className="w-12 h-12 text-brand-yellow/50 mx-auto mb-3" />
                       <p className="text-gray-500 font-medium">No upload orders yet</p>
                       <p className="text-sm text-gray-400">File upload orders will appear here</p>
                     </CardContent>
@@ -595,16 +595,16 @@ export default function RedesignedShopOwnerDashboard() {
 
           {/* Walk-in Orders - 2 Columns */}
           <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border">
+            <div className="flex items-center justify-between mb-4 p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
               <div className="flex items-center">
-                <Users className="w-6 h-6 mr-3 text-green-600" />
+                <Users className="w-6 h-6 mr-3 text-brand-yellow" />
                 <div>
                   <h2 className="text-lg font-bold text-rich-black">Walk-in Orders</h2>
                   <p className="text-sm text-gray-600">Immediate pickup orders</p>
                 </div>
               </div>
               {walkinOrders.length > 0 && (
-                <Badge className="bg-green-600 text-white font-semibold px-3 py-1">
+                <Badge className="bg-brand-yellow text-rich-black font-semibold px-3 py-1">
                   {walkinOrders.length} {walkinOrders.length === 1 ? 'Order' : 'Orders'}
                 </Badge>
               )}
@@ -612,9 +612,9 @@ export default function RedesignedShopOwnerDashboard() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {walkinOrders.length === 0 ? (
                 <div className="xl:col-span-2">
-                  <Card className="border-dashed border-2 border-green-200">
+                  <Card className="border-dashed border-2 border-brand-yellow/30">
                     <CardContent className="p-8 text-center">
-                      <Users className="w-12 h-12 text-green-300 mx-auto mb-3" />
+                      <Users className="w-12 h-12 text-brand-yellow/50 mx-auto mb-3" />
                       <p className="text-gray-500 font-medium">No walk-in orders yet</p>
                       <p className="text-sm text-gray-400">Walk-in orders will appear here</p>
                     </CardContent>
