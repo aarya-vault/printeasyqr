@@ -14,9 +14,9 @@ import {
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import BottomNavigation from '@/components/common/bottom-navigation';
-import EnhancedOrderChat from '@/components/enhanced-order-chat';
 import OrderDetailsModal from '@/components/order-details-modal';
-import FloatingChatButton from '@/components/floating-chat-button';
+import { FloatingChatButton } from '@/components/chat/floating-chat-button';
+import { ChatInterface } from '@/components/chat/chat-interface';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 
 interface Order {
@@ -45,7 +45,7 @@ export default function CustomerOrders() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
+  const [selectedOrderForChat, setSelectedOrderForChat] = useState<boolean>(false);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
   // Fetch customer orders
@@ -230,7 +230,7 @@ export default function CustomerOrders() {
                         size="sm" 
                         variant="outline"
                         className="flex-1"
-                        onClick={() => setSelectedOrderForChat(order.id)}
+                        onClick={() => setSelectedOrderForChat(true)}
                       >
                         <MessageCircle className="w-3 h-3 mr-1" />
                         Chat
@@ -253,13 +253,14 @@ export default function CustomerOrders() {
       {/* Centralized Bottom Navigation */}
       <BottomNavigation />
 
-      {/* Enhanced Chat Modal */}
+      {/* Unified Chat Interface */}
       {selectedOrderForChat && (
-        <EnhancedOrderChat
-          orderId={selectedOrderForChat}
-          userRole="customer"
-          onClose={() => setSelectedOrderForChat(null)}
-        />
+        <div className="fixed inset-0 z-50">
+          <ChatInterface 
+            isOpen={selectedOrderForChat}
+            onClose={() => setSelectedOrderForChat(false)}
+          />
+        </div>
       )}
 
       {selectedOrderForDetails && (
@@ -271,9 +272,7 @@ export default function CustomerOrders() {
       )}
 
       {/* Floating Chat Button */}
-      <FloatingChatButton 
-        onOpenChat={(orderId) => setSelectedOrderForChat(orderId)}
-      />
+      <FloatingChatButton />
     </div>
   );
 }
