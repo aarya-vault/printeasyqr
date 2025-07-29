@@ -859,6 +859,94 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Add files to existing order (customer only)
+  app.post("/api/orders/:id/add-files", requireAuth, upload.array('files'), async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      // Get existing order
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Only allow customers to add files to their own orders
+      if (req.user!.role !== 'customer' || existingOrder.customerId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Only allow adding files to new or processing orders
+      if (existingOrder.status !== 'new' && existingOrder.status !== 'processing') {
+        return res.status(400).json({ message: "Cannot add files to orders that are ready or completed" });
+      }
+
+      // Check if files were uploaded
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ message: "No files uploaded" });
+      }
+
+      // Process uploaded files
+      const newFiles = req.files.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      }));
+
+      // Get existing files
+      let existingFiles = [];
+      if (existingOrder.files) {
+        try {
+          existingFiles = typeof existingOrder.files === 'string' 
+            ? JSON.parse(existingOrder.files) 
+            : existingOrder.files;
+        } catch (error) {
+          console.error('Error parsing existing files:', error);
+          existingFiles = [];
+        }
+      }
+
+      // Combine existing and new files
+      const allFiles = [...existingFiles, ...newFiles];
+
+      // Update order with new files
+      const updatedOrder = await storage.updateOrder(orderId, {
+        files: JSON.stringify(allFiles)
+      });
+
+      // Send notification to shop owner
+      const shop = await storage.getShop(existingOrder.shopId);
+      if (shop) {
+        await storage.createNotification({
+          userId: shop.ownerId,
+          title: "New Files Added",
+          message: `Customer added ${newFiles.length} new file(s) to order "${existingOrder.title}"`,
+          type: "order_update",
+          relatedId: orderId
+        });
+
+        // Send WebSocket notification
+        const shopOwnerWs = wsConnections.get(shop.ownerId);
+        if (shopOwnerWs && shopOwnerWs.readyState === WebSocket.OPEN) {
+          shopOwnerWs.send(JSON.stringify({
+            type: 'files_added',
+            orderId,
+            newFiles: newFiles.length
+          }));
+        }
+      }
+
+      res.json({ 
+        message: "Files added successfully", 
+        filesAdded: newFiles.length,
+        totalFiles: allFiles.length 
+      });
+    } catch (error) {
+      console.error('Add files error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   app.patch("/api/orders/:id", requireAuth, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);

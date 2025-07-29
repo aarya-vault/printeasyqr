@@ -220,6 +220,8 @@ export class DatabaseStorage implements IStorage {
           id: shops.id,
           name: shops.name,
           phone: shops.phone,
+          publicContactNumber: shops.phone, // Using phone for now
+          publicAddress: shops.address,
           city: shops.city,
         }
       })

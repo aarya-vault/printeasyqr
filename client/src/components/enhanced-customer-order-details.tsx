@@ -1,0 +1,588 @@
+import React, { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import { 
+  X, FileText, Download, Printer, Phone, MessageCircle, 
+  Calendar, Clock, CheckCircle2, Package, User, Upload,
+  Plus, AlertCircle, Zap, Building2, Eye, Paperclip,
+  CheckCircle, PlayCircle, Truck, Star
+} from 'lucide-react';
+import { format, formatDistanceToNow } from 'date-fns';
+import UnifiedChatSystem from '@/components/unified-chat-system';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { printFile, printAllFiles } from '@/utils/print-helpers';
+
+interface Order {
+  id: number;
+  customerId: number;
+  customerName: string;
+  customerPhone: string;
+  shopId: number;
+  shopName?: string;
+  shopPhone?: string;
+  type: 'upload' | 'walkin';
+  title: string;
+  description?: string;
+  status: string;
+  files?: any;
+  walkinTime?: string;
+  specifications?: any;
+  createdAt: string;
+  updatedAt: string;
+  isUrgent: boolean;
+  notes?: string;
+
+  shop?: {
+    id: number;
+    name: string;
+    phone?: string;
+    publicContactNumber?: string;
+    publicAddress?: string;
+  };
+}
+
+interface StatusHistoryItem {
+  status: string;
+  timestamp: string;
+  note?: string;
+}
+
+interface EnhancedCustomerOrderDetailsProps {
+  order: Order;
+  onClose: () => void;
+}
+
+export default function EnhancedCustomerOrderDetails({ order, onClose }: EnhancedCustomerOrderDetailsProps) {
+  const [showChat, setShowChat] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Upload additional files mutation
+  const uploadFilesMutation = useMutation({
+    mutationFn: async (files: File[]) => {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch(`/api/orders/${order.id}/add-files`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload files');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: 'Files uploaded successfully!' });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer`] });
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: 'Upload failed', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    }
+  });
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'new':
+        return {
+          color: 'bg-blue-500',
+          textColor: 'text-blue-700',
+          bgColor: 'bg-blue-50',
+          icon: PlayCircle,
+          label: 'Order Placed',
+          description: 'Your order has been received and is waiting to be processed'
+        };
+      case 'processing':
+        return {
+          color: 'bg-brand-yellow',
+          textColor: 'text-yellow-800',
+          bgColor: 'bg-yellow-50',
+          icon: Package,
+          label: 'In Progress',
+          description: 'Your order is being prepared by the print shop'
+        };
+      case 'ready':
+        return {
+          color: 'bg-green-500',
+          textColor: 'text-green-700',
+          bgColor: 'bg-green-50',
+          icon: CheckCircle,
+          label: 'Ready for Pickup',
+          description: 'Your order is ready! You can collect it from the shop'
+        };
+      case 'completed':
+        return {
+          color: 'bg-gray-500',
+          textColor: 'text-gray-700',
+          bgColor: 'bg-gray-50',
+          icon: Star,
+          label: 'Completed',
+          description: 'Order completed successfully'
+        };
+      default:
+        return {
+          color: 'bg-gray-400',
+          textColor: 'text-gray-700',
+          bgColor: 'bg-gray-50',
+          icon: Clock,
+          label: 'Unknown',
+          description: 'Status unknown'
+        };
+    }
+  };
+
+  const getProgressPercentage = (status: string) => {
+    switch (status) {
+      case 'new': return 25;
+      case 'processing': return 50;
+      case 'ready': return 75;
+      case 'completed': return 100;
+      default: return 0;
+    }
+  };
+
+  const parseFiles = (filesData: any) => {
+    if (!filesData) return [];
+    if (typeof filesData === 'string') {
+      try {
+        return JSON.parse(filesData);
+      } catch {
+        return [];
+      }
+    }
+    return Array.isArray(filesData) ? filesData : [];
+  };
+
+  const createBasicStatusHistory = (): StatusHistoryItem[] => {
+    const history: StatusHistoryItem[] = [
+      {
+        status: 'new',
+        timestamp: order.createdAt,
+        note: 'Order placed and received'
+      }
+    ];
+
+    // Add current status if different from new
+    if (order.status !== 'new') {
+      history.push({
+        status: order.status,
+        timestamp: order.updatedAt,
+        note: `Status updated to ${order.status}`
+      });
+    }
+
+    return history;
+  };
+
+  const currentFiles = parseFiles(order.files);
+  const statusHistory = createBasicStatusHistory();
+  const currentStatusInfo = getStatusInfo(order.status);
+  const canAddFiles = order.status === 'new' || order.status === 'processing';
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles(files);
+  };
+
+  const handleUploadFiles = () => {
+    if (selectedFiles.length > 0) {
+      setIsUploading(true);
+      uploadFilesMutation.mutate(selectedFiles);
+    }
+  };
+
+  const handlePrintFile = async (file: any) => {
+    try {
+      await printFile(file);
+      toast({ title: `${file.originalName || file.filename} sent to print` });
+    } catch (error) {
+      toast({ title: 'Error printing file', variant: 'destructive' });
+    }
+  };
+
+  const handleDownloadFile = (file: any) => {
+    const filePath = `/uploads/${file.filename || file}`;
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.download = file.originalName || file.filename || 'file';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintAll = async () => {
+    try {
+      if (currentFiles.length > 0) {
+        toast({ title: `Preparing ${currentFiles.length} files for printing...` });
+        await printAllFiles(currentFiles, (current, total) => {
+          if (current === total) {
+            toast({ title: `All ${total} files sent to print` });
+          }
+        });
+      }
+    } catch (error) {
+      toast({ title: 'Error printing files', variant: 'destructive' });
+    }
+  };
+
+  if (showChat) {
+    return (
+      <UnifiedChatSystem
+        isOpen={true}
+        onClose={() => setShowChat(false)}
+        initialOrderId={order.id}
+        userRole="customer"
+      />
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-rich-black">Order #{order.id}</h2>
+            <p className="text-gray-600">{order.title}</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Status Progress */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <currentStatusInfo.icon className="w-5 h-5 text-brand-yellow" />
+                Order Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Badge className={`${currentStatusInfo.bgColor} ${currentStatusInfo.textColor} px-3 py-1`}>
+                  {currentStatusInfo.label}
+                </Badge>
+                {order.isUrgent && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    Urgent
+                  </Badge>
+                )}
+              </div>
+              
+              <Progress value={getProgressPercentage(order.status)} className="h-2" />
+              
+              <p className="text-sm text-gray-600">{currentStatusInfo.description}</p>
+              
+              <div className="text-xs text-gray-500">
+                Last updated: {formatDistanceToNow(new Date(order.updatedAt), { addSuffix: true })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Order Details */}
+            <div className="space-y-6">
+              {/* Order Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="w-5 h-5 text-brand-yellow" />
+                    Order Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Type</p>
+                    <Badge variant="outline" className="mt-1">
+                      {order.type === 'upload' ? 'File Upload' : 'Walk-in Order'}
+                    </Badge>
+                  </div>
+                  
+                  {order.description && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Description</p>
+                      <p className="text-sm mt-1">{order.description}</p>
+                    </div>
+                  )}
+
+                  {order.walkinTime && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Appointment Time</p>
+                      <p className="text-sm mt-1">{order.walkinTime}</p>
+                    </div>
+                  )}
+
+                  {order.specifications && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Specifications</p>
+                      <div className="text-sm mt-1 bg-gray-50 p-3 rounded">
+                        {typeof order.specifications === 'string' 
+                          ? order.specifications 
+                          : JSON.stringify(order.specifications, null, 2)
+                        }
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Created</p>
+                    <p className="text-sm mt-1">
+                      {format(new Date(order.createdAt), 'PPP p')}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Shop Information */}
+              {order.shop && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-brand-yellow" />
+                      Print Shop
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="font-medium">{order.shop.name}</p>
+                      {order.shop.publicAddress && (
+                        <p className="text-sm text-gray-600 mt-1">{order.shop.publicAddress}</p>
+                      )}
+                    </div>
+                    
+                    {order.shop.publicContactNumber && (
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm">{order.shop.publicContactNumber}</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => window.open(`tel:${order.shop?.publicContactNumber}`)}
+                        >
+                          <Phone className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Status Timeline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-brand-yellow" />
+                    Order Timeline
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {statusHistory.map((item, index) => {
+                      const statusInfo = getStatusInfo(item.status);
+                      const StatusIcon = statusInfo.icon;
+                      
+                      return (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className={`${statusInfo.color} p-2 rounded-full`}>
+                            <StatusIcon className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium text-sm">{statusInfo.label}</p>
+                              <span className="text-xs text-gray-500">
+                                {format(new Date(item.timestamp), 'MMM d, p')}
+                              </span>
+                            </div>
+                            {item.note && (
+                              <p className="text-xs text-gray-600 mt-1">{item.note}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Files & Actions */}
+            <div className="space-y-6">
+              {/* Files Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-brand-yellow" />
+                      Files ({currentFiles.length})
+                    </span>
+                    {currentFiles.length > 1 && (
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={handlePrintAll}>
+                          <Printer className="w-4 h-4 mr-1" />
+                          Print All
+                        </Button>
+                      </div>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {currentFiles.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>No files uploaded yet</p>
+                    </div>
+                  ) : (
+                    currentFiles.map((file: any, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <FileText className="w-8 h-8 text-brand-yellow" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {file.originalName || file.filename || `File ${index + 1}`}
+                          </p>
+                          {file.size && (
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDownloadFile(file)}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handlePrintFile(file)}
+                          >
+                            <Printer className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  {/* Add Files Section */}
+                  {canAddFiles && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Plus className="w-4 h-4 text-brand-yellow" />
+                          <span className="font-medium text-sm">Add More Files</span>
+                        </div>
+                        
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                        
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Select Files
+                        </Button>
+
+                        {selectedFiles.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium">Selected Files:</p>
+                            {selectedFiles.map((file, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm bg-blue-50 p-2 rounded">
+                                <Paperclip className="w-4 h-4 text-blue-600" />
+                                <span className="flex-1 truncate">{file.name}</span>
+                                <span className="text-xs text-gray-500">
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </span>
+                              </div>
+                            ))}
+                            <Button
+                              onClick={handleUploadFiles}
+                              disabled={isUploading || uploadFilesMutation.isPending}
+                              className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black"
+                            >
+                              {(isUploading || uploadFilesMutation.isPending) ? 'Uploading...' : 'Upload Files'}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {!canAddFiles && (
+                    <div className="bg-yellow-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm text-yellow-700">
+                          Files cannot be added once order is ready or completed
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={() => setShowChat(true)}
+                    className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Chat with Shop
+                  </Button>
+
+                  {order.shop?.publicContactNumber && (
+                    <Button
+                      variant="outline"
+                      onClick={() => window.open(`tel:${order.shop?.publicContactNumber}`)}
+                      className="w-full"
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call Shop
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

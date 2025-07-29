@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UploadOrderModal } from '@/components/order/upload-order-modal';
 import { WalkinOrderModal } from '@/components/order/walkin-order-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
-import { Shop, Order, OrderFormData } from '@/types';
+// Types will be defined inline to avoid import issues
 import { formatDistanceToNow } from 'date-fns';
 
 export default function CustomerDashboard() {
@@ -31,6 +31,33 @@ export default function CustomerDashboard() {
       setLocation('/');
     }
   }, [user, setLocation]);
+
+  // Types
+  interface Shop {
+    id: number;
+    name: string;
+    address?: string;
+    phone?: string;
+  }
+
+  interface Order {
+    id: number;
+    title: string;
+    status: string;
+    customerId: number;
+    shopId: number;
+    createdAt: string;
+  }
+
+  interface OrderFormData {
+    shopId: number;
+    title: string;
+    description?: string;
+    type: 'upload' | 'walkin';
+    specifications?: any;
+    walkinTime?: string;
+    isUrgent?: boolean;
+  }
 
   // Fetch shops
   const { data: shops = [], isLoading: shopsLoading } = useQuery({

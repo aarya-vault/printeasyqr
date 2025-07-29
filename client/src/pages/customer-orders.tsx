@@ -14,7 +14,7 @@ import {
 import { format } from 'date-fns';
 import LoadingScreen from '@/components/loading-screen';
 import BottomNavigation from '@/components/common/bottom-navigation';
-import OrderDetailsModal from '@/components/order-details-modal';
+import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
@@ -36,8 +36,11 @@ interface Order {
   updatedAt: string;
   isUrgent: boolean;
   shop?: {
+    id: number;
     name: string;
-    phone: string;
+    phone?: string;
+    publicContactNumber?: string;
+    publicAddress?: string;
   };
 }
 
@@ -266,9 +269,8 @@ export default function CustomerOrders() {
       )}
 
       {selectedOrderForDetails && (
-        <OrderDetailsModal
+        <EnhancedCustomerOrderDetails
           order={selectedOrderForDetails}
-          userRole="customer"
           onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
