@@ -1111,6 +1111,39 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Mark messages as read
+  app.patch("/api/messages/mark-read", requireAuth, async (req, res) => {
+    try {
+      const { orderId } = req.body;
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "Order ID required" });
+      }
+      
+      // Verify order exists and user has access
+      const order = await storage.getOrder(parseInt(orderId));
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Check if user is involved in this order
+      const isCustomer = req.user && req.user.role === 'customer' && order.customerId === req.user.id;
+      const isShopOwner = req.user && req.user.role === 'shop_owner';
+      
+      if (!isCustomer && !isShopOwner) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Mark messages as read for this user
+      await storage.markMessagesAsRead(parseInt(orderId), req.user!.id);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark messages as read error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Shop application routes
   // Shop slug availability check
   app.get('/api/shops/check-slug/:slug', async (req, res) => {

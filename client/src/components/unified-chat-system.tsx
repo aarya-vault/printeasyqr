@@ -242,10 +242,46 @@ export default function UnifiedChatSystem({
     }
   };
 
-  // Auto scroll to bottom
+  // Mark messages as read when viewing them
+  const markMessagesAsRead = useMutation({
+    mutationFn: async (orderId: number) => {
+      const response = await fetch(`/api/messages/mark-read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ orderId })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to mark messages as read');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate both orders and messages to update unread counts
+      queryClient.invalidateQueries({ 
+        queryKey: effectiveUserRole === 'shop_owner' 
+          ? [`/api/orders/shop/${shopData?.shop?.id}`]
+          : [`/api/orders/customer/${user?.id}`]
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${selectedOrderId}`] });
+    }
+  });
+
+  // Auto scroll to bottom and mark messages as read
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    
+    // Mark messages as read when viewing them (with debounce)
+    if (selectedOrderId && messages.length > 0) {
+      const timer = setTimeout(() => {
+        markMessagesAsRead.mutate(selectedOrderId);
+      }, 1000); // Wait 1 second before marking as read
+      
+      return () => clearTimeout(timer);
+    }
+  }, [messages, selectedOrderId]);
 
   // Filter orders for search
   const filteredOrders = orders.filter(order => {

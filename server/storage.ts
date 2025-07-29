@@ -6,7 +6,7 @@ import {
   type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql } from "drizzle-orm";
+import { eq, desc, and, or, sql, ne } from "drizzle-orm";
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -346,13 +346,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markMessagesAsRead(orderId: number, userId: number): Promise<void> {
+    // Mark messages as read for the viewing user (not the sender)
+    // This means marking messages from OTHER users as read when this user views them
     await db
       .update(messages)
       .set({ isRead: true })
       .where(
         and(
           eq(messages.orderId, orderId),
-          eq(messages.senderId, userId)
+          ne(messages.senderId, userId) // Mark messages NOT sent by this user as read
         )
       );
   }
