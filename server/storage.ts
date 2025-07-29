@@ -684,11 +684,15 @@ export class DatabaseStorage implements IStorage {
           try {
             const chatFiles = JSON.parse(message.files);
             if (Array.isArray(chatFiles)) {
-              for (const filename of chatFiles) {
-                const filePath = path.join(uploadDir, filename);
-                if (fs.existsSync(filePath)) {
-                  fs.unlinkSync(filePath);
-                  console.log(`Deleted chat file: ${filename} for completed order ${orderId}`);
+              for (const fileData of chatFiles) {
+                // Handle both old format (filename string) and new format (file object)
+                const filename = typeof fileData === 'string' ? fileData : fileData.filename;
+                if (filename) {
+                  const filePath = path.join(uploadDir, filename);
+                  if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                    console.log(`Deleted chat file: ${filename} for completed order ${orderId}`);
+                  }
                 }
               }
             }

@@ -825,12 +825,13 @@ app.patch('/api/debug/patch-test', (req, res) => {
       }
 
       // AUTO FILE DELETION: If order is marked as completed, delete all associated files
-      if (status === 'completed' && order.files) {
+      if (status === 'completed') {
         try {
+          // Always trigger deletion for completed orders - handles both order files and chat message files
           await storage.deleteOrderFiles(orderId);
-          console.log(`Files automatically deleted for completed order ${orderId} - memory space saved`);
+          console.log(`[AUTO-CLEANUP] Files automatically deleted for completed order ${orderId} - memory space optimized`);
         } catch (error) {
-          console.error(`Error deleting files for order ${orderId}:`, error);
+          console.error(`[AUTO-CLEANUP] Error deleting files for order ${orderId}:`, error);
           // Don't fail the order update if file deletion fails
         }
       }
@@ -881,12 +882,13 @@ app.patch('/api/debug/patch-test', (req, res) => {
       }
 
       // AUTO FILE DELETION: If order is marked as completed, delete all associated files
-      if (updates.status === 'completed' && order.files) {
+      if (updates.status === 'completed') {
         try {
+          // Always trigger deletion for completed orders - handles both order files and chat message files
           await storage.deleteOrderFiles(orderId);
-          console.log(`Files automatically deleted for completed order ${orderId} - memory space saved`);
+          console.log(`[AUTO-CLEANUP] Files automatically deleted for completed order ${orderId} - memory space optimized`);
         } catch (error) {
-          console.error(`Error deleting files for order ${orderId}:`, error);
+          console.error(`[AUTO-CLEANUP] Error deleting files for order ${orderId}:`, error);
           // Don't fail the order update if file deletion fails
         }
       }
@@ -1196,6 +1198,22 @@ app.patch('/api/debug/patch-test', (req, res) => {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Test endpoint to manually trigger file deletion
+  app.post("/api/manual-delete-order-files", requireAuth, async (req, res) => {
+    try {
+      const { orderId } = req.body;
+      console.log(`Manual file deletion requested for order ${orderId}`);
+      
+      await storage.deleteOrderFiles(orderId);
+      console.log(`Manual file deletion completed for order ${orderId}`);
+      
+      res.json({ message: "Files deleted successfully" });
+    } catch (error) {
+      console.error("Manual file deletion error:", error);
+      res.status(500).json({ message: "Error deleting files" });
     }
   });
 
