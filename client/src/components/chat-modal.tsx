@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
   X, Send, Phone, User, Package, MessageSquare, 
-  Clock, CheckCheck, Circle
+  Clock, CheckCheck, Circle, Paperclip, File, Download
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -19,6 +19,7 @@ interface Message {
   senderId: number;
   senderName: string;
   content: string;
+  files?: string[];
   createdAt: string;
   isRead: boolean;
 }
@@ -46,6 +47,8 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [messageInput, setMessageInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get order details
@@ -65,29 +68,52 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
     }
   });
 
-  // Send message mutation
+  // Send message mutation with file support
   const sendMessageMutation = useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async ({ content, files }: { content: string; files?: FileList }) => {
+      const formData = new FormData();
+      formData.append('orderId', orderId.toString());
+      formData.append('senderId', user?.id?.toString() || '');
+      formData.append('senderName', user?.name || user?.phone || 'User');
+      formData.append('senderRole', user?.role || userRole);
+      formData.append('content', content);
+      formData.append('messageType', 'text');
+      
+      // Add files if present
+      if (files && files.length > 0) {
+        Array.from(files).forEach(file => {
+          formData.append('files', file);
+        });
+      }
+
       const response = await fetch('/api/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          orderId: parseInt(orderId.toString()),
-          senderId: user?.id,
-          content,
-          messageType: 'text'
-        })
+        body: formData,
+        credentials: 'include'
       });
-      if (!response.ok) throw new Error('Failed to send message');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send message');
+      }
+      
       return response.json();
     },
     onSuccess: () => {
       setMessageInput('');
+      setSelectedFiles(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${orderId}`] });
       toast({ title: 'Message sent successfully' });
     },
-    onError: () => {
-      toast({ title: 'Failed to send message', variant: 'destructive' });
+    onError: (error) => {
+      toast({ 
+        title: 'Failed to send message', 
+        description: error.message,
+        variant: 'destructive' 
+      });
     }
   });
 
@@ -119,9 +145,27 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // File input handlers
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setSelectedFiles(files);
+      toast({ title: `${files.length} file(s) selected` });
+    }
+  };
+
   const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
-    sendMessageMutation.mutate(messageInput.trim());
+    // Allow sending if there's either a message or files
+    if (!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) return;
+    
+    sendMessageMutation.mutate({ 
+      content: messageInput.trim(), 
+      files: selectedFiles || undefined 
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -216,7 +260,47 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
                               }`} />
                             )}
                           </div>
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          {message.content && (
+                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          )}
+                          
+                          {/* File attachments */}
+                          {message.files && message.files.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {message.files.map((filename, fileIndex) => {
+                                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+                                return (
+                                  <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
+                                    {isImage ? (
+                                      <img 
+                                        src={`/uploads/${filename}`} 
+                                        alt="Attachment" 
+                                        className="w-32 h-20 object-cover rounded cursor-pointer"
+                                        onClick={() => window.open(`/uploads/${filename}`, '_blank')}
+                                      />
+                                    ) : (
+                                      <>
+                                        <File className="w-4 h-4" />
+                                        <span className="text-xs flex-1 truncate">{filename}</span>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            const link = document.createElement('a');
+                                            link.href = `/uploads/${filename}`;
+                                            link.download = filename;
+                                            link.click();
+                                          }}
+                                        >
+                                          <Download className="w-3 h-3" />
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -229,7 +313,59 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
 
           {/* Message Input */}
           <div className="border-t p-4">
+            {/* Selected Files Preview */}
+            {selectedFiles && selectedFiles.length > 0 && (
+              <div className="mb-3 p-2 bg-gray-50 rounded border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    {selectedFiles.length} file(s) selected
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedFiles(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-1">
+                  {Array.from(selectedFiles).map((file, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
+                      <File className="w-4 h-4" />
+                      <span className="truncate">{file.name}</span>
+                      <span className="text-xs">({(file.size / 1024).toFixed(1)}KB)</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex space-x-2">
+              {/* File attachment button */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleFileSelect}
+                disabled={sendMessageMutation.isPending}
+                className="px-3"
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
               <Input
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
@@ -240,7 +376,7 @@ export default function ChatModal({ orderId, onClose, userRole }: ChatModalProps
               />
               <Button 
                 onClick={handleSendMessage}
-                disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                disabled={(!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) || sendMessageMutation.isPending}
                 className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
               >
                 <Send className="w-4 h-4" />
