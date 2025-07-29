@@ -30,7 +30,7 @@ import {
   Upload,
   UserCheck
 } from 'lucide-react';
-import ShopQRModal from '@/components/shop-qr-modal';
+import { SimpleShopQRModal } from '@/components/simple-shop-qr-modal';
 import { format } from 'date-fns';
 
 interface Shop {
@@ -462,7 +462,8 @@ export default function RedesignedShopDashboard() {
 
       {/* QR Code Modal */}
       {showQRModal && shopData.shop && (
-        <ShopQRModal
+        <SimpleShopQRModal
+          isOpen={showQRModal}
           shop={shopData.shop}
           onClose={() => setShowQRModal(false)}
         />
