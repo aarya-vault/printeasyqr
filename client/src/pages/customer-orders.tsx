@@ -177,7 +177,9 @@ export default function CustomerOrders() {
 
                     {/* Shop Info */}
                     <div className="mb-3">
-                      <p className="text-sm font-medium text-gray-700">{order.shop?.name || 'Print Shop'}</p>
+                      {order.shop?.name && (
+                        <p className="text-sm font-medium text-gray-700">{order.shop.name}</p>
+                      )}
                       <p className="text-xs text-gray-500">{order.description}</p>
                     </div>
 

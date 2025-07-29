@@ -267,7 +267,9 @@ export default function RefinedCustomerDashboard() {
                           <span className="ml-1 capitalize">{order.status}</span>
                         </Badge>
                       </div>
-                      <h3 className="font-medium text-rich-black">{order.shop?.name || 'Print Shop'}</h3>
+                      {order.shop?.name && (
+                        <h3 className="font-medium text-rich-black">{order.shop.name}</h3>
+                      )}
                       <p className="text-sm text-gray-500 mt-1">{order.title}</p>
                       <p className="text-xs text-gray-400 mt-1">{format(new Date(order.createdAt), 'dd MMM, HH:mm')}</p>
                     </div>

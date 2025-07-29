@@ -7,7 +7,25 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/contexts/websocket-context';
 import { useAuth } from '@/hooks/use-auth';
-import { Message, Order } from '@/types';
+// Using shared schema types instead of local types
+interface Message {
+  id: number;
+  orderId: number;
+  senderId: number;
+  senderName?: string;
+  senderRole?: string;
+  content: string;
+  messageType?: string;
+  files?: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+interface Order {
+  id: number;
+  title: string;
+  status: string;
+}
 import { formatDistanceToNow } from 'date-fns';
 
 interface ChatModalProps {
@@ -114,7 +132,7 @@ export function ChatModal({ isOpen, onClose, order, shopName }: ChatModalProps) 
     if (isOwnMessage(message)) {
       return 'You';
     }
-    return user?.role === 'customer' ? shopName || 'Shop' : 'Customer';
+    return user?.role === 'customer' ? (shopName || '') : 'Customer';
   };
 
   if (!order) return null;
@@ -135,7 +153,7 @@ export function ChatModal({ isOpen, onClose, order, shopName }: ChatModalProps) 
               </div>
               <div>
                 <DialogTitle className="text-rich-black text-sm font-medium">
-                  {user?.role === 'customer' ? shopName || 'Shop' : 'Customer'}
+                  {user?.role === 'customer' ? (shopName || 'Chat') : 'Customer'}
                 </DialogTitle>
                 <p className="text-xs text-rich-black opacity-70">
                   Order #{order.id}

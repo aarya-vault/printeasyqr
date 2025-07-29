@@ -235,7 +235,7 @@ export class DatabaseStorage implements IStorage {
 
     return orderList.map(row => ({
       ...row.order,
-      customerName: row.customer?.name || 'Unknown',
+      customerName: row.customer?.name || '',
       customerPhone: row.customer?.phone || '',
     })) as Order[];
   }
@@ -267,22 +267,21 @@ export class DatabaseStorage implements IStorage {
   async getMessagesByOrder(orderId: number): Promise<Message[]> {
     try {
       // Use raw SQL since there's a Drizzle schema issue
-      const result = await db.execute({
-        sql: `
+      const result = await db.execute(
+        sql`
           SELECT id, order_id, sender_id, sender_name, sender_role, content, 
                  message_type, file_url, file_name, is_read, created_at 
           FROM messages 
-          WHERE order_id = $1 
+          WHERE order_id = ${orderId} 
           ORDER BY created_at ASC
-        `,
-        args: [orderId]
-      });
+        `
+      );
 
       return result.rows.map((row: any) => ({
         id: row.id,
         orderId: row.order_id,
         senderId: row.sender_id,
-        senderName: row.sender_name || 'Unknown',
+        senderName: row.sender_name || '',
         senderRole: row.sender_role || 'customer',
         content: row.content,
         messageType: row.message_type || 'text',
@@ -315,21 +314,17 @@ export class DatabaseStorage implements IStorage {
       .values({
         orderId: insertMessage.orderId,
         senderId: insertMessage.senderId,
-        senderName: senderInfo?.name || senderInfo?.phone || 'Unknown',
+        senderName: senderInfo?.name || senderInfo?.phone || '',
         senderRole: senderInfo?.role || 'customer',
         content: insertMessage.content,
         messageType: insertMessage.messageType || 'text',
-        fileUrl: insertMessage.files || null,
-        fileName: insertMessage.files || null,
+        files: insertMessage.files || null,
         isRead: false,
         createdAt: new Date()
       })
       .returning();
 
-    return {
-      ...message,
-      files: message.fileUrl || message.fileName || null
-    };
+    return message;
   }
 
   async markMessagesAsRead(orderId: number, userId: number): Promise<void> {

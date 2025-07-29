@@ -217,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const message = await storage.createMessage({
         orderId: orderIdNum,
         senderId: req.user!.id,
-        senderName: req.user!.phone || 'Unknown',
+        senderName: req.user!.phone || '',
         senderRole: req.user!.role,
         content: content || '',
         files: files.length > 0 ? JSON.stringify(files) : null
@@ -827,7 +827,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
         const customer = await storage.getUser(order.customerId);
         return {
           ...order,
-          customerName: customer?.name || 'Unknown',
+          customerName: customer?.name || '',
           customerPhone: customer?.phone || '',
           completedAt: order.updatedAt // Assuming updatedAt is when order was completed
         };
@@ -853,9 +853,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
       
       res.json({
         ...order,
-        customerName: customer?.name || 'Unknown',
+        customerName: customer?.name || '',
         customerPhone: customer?.phone || '',
-        shopName: shop?.name || 'Unknown'
+        shopName: shop?.name || ''
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -1468,7 +1468,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
         return {
           id: order.id,
           customerId: order.customerId,
-          customerName: customer?.name || 'Unknown',
+          customerName: customer?.name || '',
           title: order.title,
           status: order.status,
           lastMessage: lastMessage?.content,
