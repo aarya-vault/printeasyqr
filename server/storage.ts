@@ -183,7 +183,23 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(shops.id, id))
       .returning();
+    
+    // Sync business information back to application if shop owner updates
+    if (shop && this.isBusinessInformationUpdate(updates)) {
+      await this.syncApplicationFromShop(id);
+    }
+    
     return shop || undefined;
+  }
+
+  // Check if updates contain business information that should sync to application
+  private isBusinessInformationUpdate(updates: Partial<Shop>): boolean {
+    const businessFields = [
+      'name', 'address', 'phone', 'publicOwnerName', 'email', 
+      'city', 'state', 'pinCode', 'services', 'equipment', 
+      'yearsOfExperience', 'workingHours', 'ownerFullName', 'ownerPhone'
+    ];
+    return businessFields.some(field => field in updates);
   }
 
   async getShopBySlug(slug: string): Promise<Shop | undefined> {
@@ -422,7 +438,92 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(shopApplications.id, id))
       .returning();
+    
+    // If shop already exists, sync critical business information
+    if (application && application.status === 'approved') {
+      await this.syncShopFromApplication(application);
+    }
+    
     return application || undefined;
+  }
+
+  // Sync shop data from application data (bidirectional sync)
+  async syncShopFromApplication(application: ShopApplication): Promise<void> {
+    try {
+      const existingShop = await db
+        .select()
+        .from(shops)
+        .where(eq(shops.ownerId, application.applicantId))
+        .limit(1);
+
+      if (existingShop.length > 0) {
+        // Update existing shop with application data
+        await db
+          .update(shops)
+          .set({
+            // Business Information - Shop owner can change these
+            name: application.publicShopName,
+            address: application.publicAddress,
+            phone: application.publicContactNumber || application.phoneNumber,
+            publicOwnerName: application.publicOwnerName,
+            email: application.email,
+            city: application.city,
+            state: application.state,
+            pinCode: application.pinCode,
+            services: application.services,
+            equipment: application.equipment,
+            yearsOfExperience: application.yearsOfExperience,
+            workingHours: application.workingHours,
+            ownerFullName: application.ownerFullName,
+            ownerPhone: application.phoneNumber,
+            // Keep admin-controlled settings unchanged
+            updatedAt: new Date()
+          })
+          .where(eq(shops.id, existingShop[0].id));
+      }
+    } catch (error) {
+      console.error('Error syncing shop from application:', error);
+    }
+  }
+
+  // Sync application data from shop data (when shop owner updates settings)
+  async syncApplicationFromShop(shopId: number): Promise<void> {
+    try {
+      const shop = await this.getShop(shopId);
+      if (!shop) return;
+
+      const application = await db
+        .select()
+        .from(shopApplications)
+        .where(eq(shopApplications.applicantId, shop.ownerId))
+        .limit(1);
+
+      if (application.length > 0) {
+        await db
+          .update(shopApplications)
+          .set({
+            // Sync business information only
+            publicShopName: shop.name,
+            publicAddress: shop.address,
+            publicContactNumber: shop.phone,
+            publicOwnerName: shop.publicOwnerName,
+            email: shop.email,
+            city: shop.city,
+            state: shop.state,
+            pinCode: shop.pinCode,
+            services: shop.services,
+            equipment: shop.equipment,
+            yearsOfExperience: shop.yearsOfExperience,
+            workingHours: shop.workingHours,
+            ownerFullName: shop.ownerFullName,
+            phoneNumber: shop.ownerPhone,
+            updatedAt: new Date()
+          })
+          .where(eq(shopApplications.id, application[0].id));
+      }
+    } catch (error) {
+      console.error('Error syncing application from shop:', error);
+    }
   }
 
   async checkShopSlugAvailability(slug: string): Promise<boolean> {

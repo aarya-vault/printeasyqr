@@ -464,6 +464,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedShop = await storage.updateShopSettings(shop.id, req.body);
+      
+      // Sync business information changes back to application
+      await storage.syncApplicationFromShop(shop.id);
       res.json(updatedShop);
     } catch (error) {
       console.error('Shop settings update error:', error);
@@ -1264,7 +1267,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Admin comprehensive shop application editing
+  // Admin comprehensive shop application editing with auto-sync
   app.put("/api/admin/shop-applications/:id", async (req, res) => {
     try {
       const applicationId = parseInt(req.params.id);
@@ -1275,6 +1278,11 @@ app.patch('/api/debug/patch-test', (req, res) => {
         return res.status(404).json({ message: "Application not found" });
       }
       
+      // Auto-sync to shop if approved and shop exists
+      if (application.status === 'approved') {
+        await storage.syncShopFromApplication(application);
+      }
+      
       res.json(application);
     } catch (error) {
       console.error("Update shop application error:", error);
@@ -1282,7 +1290,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Admin comprehensive shop application editing - PATCH method
+  // Admin comprehensive shop application editing - PATCH method with auto-sync
   app.patch("/api/admin/shop-applications/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const applicationId = parseInt(req.params.id);
@@ -1291,6 +1299,11 @@ app.patch('/api/debug/patch-test', (req, res) => {
       const application = await storage.updateShopApplication(applicationId, updateData);
       if (!application) {
         return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Auto-sync to shop if approved and shop exists
+      if (application.status === 'approved') {
+        await storage.syncShopFromApplication(application);
       }
       
       res.json(application);
@@ -1440,11 +1453,15 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
-  // Admin update shop settings
+  // Admin update shop settings with auto-sync
   app.patch('/api/shops/:id/settings', async (req, res) => {
     try {
       const shopId = parseInt(req.params.id);
       const updatedShop = await storage.updateShopSettings(shopId, req.body);
+      
+      // Sync business information changes back to application
+      await storage.syncApplicationFromShop(shopId);
+      
       res.json(updatedShop);
     } catch (error) {
       console.error('Admin shop settings update error:', error);
