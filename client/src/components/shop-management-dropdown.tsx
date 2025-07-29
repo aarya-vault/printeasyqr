@@ -67,9 +67,9 @@ export default function ShopManagementDropdown({ shop, onUpdate }: ShopManagemen
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'active': return 'text-green-600';
-      case 'deactivated': return 'text-yellow-600';
-      case 'banned': return 'text-red-600';
+      case 'active': return 'text-brand-yellow';
+      case 'deactivated': return 'text-gray-600';
+      case 'banned': return 'text-rich-black';
       default: return 'text-gray-600';
     }
   };
@@ -106,14 +106,14 @@ export default function ShopManagementDropdown({ shop, onUpdate }: ShopManagemen
           <>
             <DropdownMenuItem
               onClick={() => handleShopAction('deactivate')}
-              className="text-yellow-600 focus:text-yellow-600"
+              className="text-gray-600 focus:text-gray-600"
             >
               <ShieldX className="w-4 h-4 mr-2" />
               Deactivate Shop
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleShopAction('ban')}
-              className="text-red-600 focus:text-red-600"
+              className="text-rich-black focus:text-rich-black"
             >
               <Ban className="w-4 h-4 mr-2" />
               Ban Shop

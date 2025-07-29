@@ -99,31 +99,31 @@ export default function NewHomepage() {
       icon: <Upload className="w-6 h-6" />,
       title: "Upload & Print",
       description: "Upload documents directly and get them printed at nearby shops",
-      color: "bg-blue-50 text-blue-600"
+      color: "bg-brand-yellow/10 text-rich-black"
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       title: "Walk-in Booking",
       description: "Pre-book your visit to skip queues and save time",
-      color: "bg-green-50 text-green-600"
+      color: "bg-brand-yellow/20 text-rich-black"
     },
     {
       icon: <MessageCircle className="w-6 h-6" />,
       title: "Real-time Chat",
       description: "Chat directly with shop owners, share files and requirements",
-      color: "bg-purple-50 text-purple-600"
+      color: "bg-brand-yellow/30 text-rich-black"
     },
     {
       icon: <Eye className="w-6 h-6" />,
       title: "Order Tracking",
       description: "Track your order status in real-time from placement to pickup",
-      color: "bg-orange-50 text-orange-600"
+      color: "bg-brand-yellow/40 text-rich-black"
     },
     {
       icon: <Timer className="w-6 h-6" />,
       title: "Quick Turnaround",
       description: "Get urgent orders processed with priority marking",
-      color: "bg-red-50 text-red-600"
+      color: "bg-brand-yellow/50 text-rich-black"
     },
     {
       icon: <Shield className="w-6 h-6" />,
@@ -348,7 +348,7 @@ export default function NewHomepage() {
               <div className="bg-white rounded-2xl p-8 shadow-2xl transform rotate-2">
                 <div className="transform -rotate-2">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-brand-yellow rounded-full"></div>
                     <span className="text-sm font-medium text-rich-black">Order Processing</span>
                   </div>
                   <div className="space-y-3 mb-6">
@@ -364,9 +364,9 @@ export default function NewHomepage() {
                         <span className="text-rich-black">Printing started - 10:45 AM</span>
                       </div>
                     </div>
-                    <div className="bg-green-100 rounded-lg p-3">
+                    <div className="bg-brand-yellow/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="w-4 h-4 text-brand-yellow" />
                         <span className="text-rich-black">Ready for pickup - 11:00 AM</span>
                       </div>
                     </div>

@@ -284,9 +284,9 @@ export default function BeautifulShopDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'processing': return 'bg-brand-yellow/20 text-rich-black border-brand-yellow/40';
-      case 'ready': return 'bg-green-100 text-green-800 border-green-200';
+      case 'new': return 'bg-brand-yellow/20 text-rich-black border-brand-yellow/40';
+      case 'processing': return 'bg-brand-yellow/40 text-rich-black border-brand-yellow/60';
+      case 'ready': return 'bg-brand-yellow/60 text-rich-black border-brand-yellow/80';
       case 'completed': return 'bg-gray-100 text-gray-800 border-gray-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -322,7 +322,7 @@ export default function BeautifulShopDashboard() {
   const OrderCard = ({ order }: { order: Order & { sequenceNumber?: number } }) => (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md relative overflow-hidden">
       {order.isUrgent && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-brand-yellow"></div>
       )}
       <CardContent className="p-5">
         {/* Order Header */}
@@ -331,7 +331,7 @@ export default function BeautifulShopDashboard() {
             <div className="w-12 h-12 bg-brand-yellow/10 rounded-full flex items-center justify-center relative">
               <span className="text-lg font-bold text-rich-black">#{order.id}</span>
               {order.sequenceNumber && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand-yellow text-rich-black rounded-full flex items-center justify-center text-xs font-bold">
                   {order.sequenceNumber}
                 </div>
               )}
@@ -347,13 +347,13 @@ export default function BeautifulShopDashboard() {
               <span className="ml-1 capitalize">{order.status}</span>
             </Badge>
             {order.unreadMessages && order.unreadMessages > 0 && (
-              <Badge variant="destructive" className="bg-red-500 text-white animate-pulse">
+              <Badge variant="destructive" className="bg-brand-yellow text-rich-black animate-pulse">
                 <MessageSquare className="w-3 h-3 mr-1" />
                 {order.unreadMessages} new
               </Badge>
             )}
             {order.isUrgent && (
-              <Badge variant="destructive" className="bg-red-500 text-white">
+              <Badge variant="destructive" className="bg-brand-yellow text-rich-black">
                 <Zap className="w-3 h-3 mr-1" />
                 Urgent
               </Badge>
@@ -404,7 +404,7 @@ export default function BeautifulShopDashboard() {
             <MessageSquare className="w-3 h-3 mr-2" />
             Chat
             {order.unreadMessages && order.unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-yellow rounded-full animate-ping" />
             )}
           </Button>
         </div>
@@ -417,7 +417,7 @@ export default function BeautifulShopDashboard() {
                 size="sm"
                 variant="outline"
                 onClick={() => handlePrintAll(order)}
-                className="border-gray-200 hover:border-green-400 hover:bg-green-50"
+                className="border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/10"
               >
                 <Printer className="w-3 h-3 mr-2" />
                 Print All

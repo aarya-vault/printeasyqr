@@ -147,10 +147,10 @@ export default function ShopAnalyticsView({ shops }: ShopAnalyticsViewProps) {
                           </div>
                           <Badge 
                             className={
-                              order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              order.status === 'processing' ? 'bg-brand-yellow/20 text-rich-black' :
-                              order.status === 'ready' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-800'
+                              order.status === 'completed' ? 'bg-gray-100 text-gray-800' :
+                              order.status === 'processing' ? 'bg-brand-yellow/40 text-rich-black' :
+                              order.status === 'ready' ? 'bg-brand-yellow/60 text-rich-black' :
+                              'bg-brand-yellow/20 text-rich-black'
                             }
                           >
                             {order.status}

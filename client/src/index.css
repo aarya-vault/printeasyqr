@@ -19,8 +19,8 @@
   --secondary-foreground: hsl(222.2, 84%, 4.9%);
   --accent: hsl(210, 40%, 98%);
   --accent-foreground: hsl(222.2, 84%, 4.9%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(48, 100%, 50%);
+  --destructive-foreground: hsl(0, 0%, 0%);
   --ring: hsl(48, 100%, 50%);
   --radius: 0.5rem;
   
@@ -29,9 +29,6 @@
   --rich-black: hsl(0, 0%, 0%);
   --light-gray: hsl(210, 20%, 98%);
   --medium-gray: hsl(215, 20%, 65%);
-  --success-green: hsl(142, 76%, 36%);
-  --warning-amber: hsl(43, 89%, 38%);
-  --error-red: hsl(0, 84%, 60%);
 }
 
 .dark {
@@ -89,15 +86,15 @@
   }
   
   .status-new {
-    @apply bg-blue-100 text-blue-800;
+    @apply bg-brand-yellow/20 text-rich-black;
   }
   
   .status-processing {
-    @apply bg-warning-amber bg-opacity-20 text-warning-amber;
+    @apply bg-brand-yellow/40 text-rich-black;
   }
   
   .status-ready {
-    @apply bg-success-green bg-opacity-20 text-success-green;
+    @apply bg-brand-yellow/60 text-rich-black;
   }
   
   .status-completed {
@@ -142,29 +139,7 @@
     background-color: var(--light-gray);
   }
   
-  .text-success-green {
-    color: var(--success-green);
-  }
-  
-  .bg-success-green {
-    background-color: var(--success-green);
-  }
-  
-  .text-warning-amber {
-    color: var(--warning-amber);
-  }
-  
-  .bg-warning-amber {
-    background-color: var(--warning-amber);
-  }
-  
-  .text-error-red {
-    color: var(--error-red);
-  }
-  
-  .bg-error-red {
-    background-color: var(--error-red);
-  }
+
   
   .text-light-gray {
     color: var(--light-gray);

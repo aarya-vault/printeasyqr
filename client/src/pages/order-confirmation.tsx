@@ -107,21 +107,21 @@ export default function OrderConfirmation() {
         return {
           text: 'Order Received',
           description: 'Your order has been received and the shop will start processing it soon.',
-          color: 'bg-blue-100 text-blue-800',
+          color: 'bg-brand-yellow/20 text-rich-black',
           icon: <Clock className="w-4 h-4" />
         };
       case 'processing':
         return {
           text: 'Being Prepared',
           description: 'The shop is currently working on your order.',
-          color: 'bg-yellow-100 text-yellow-800',
+          color: 'bg-brand-yellow/40 text-rich-black',
           icon: <FileText className="w-4 h-4" />
         };
       case 'ready':
         return {
           text: 'Ready for Pickup',
           description: 'Your order is ready! Please visit the shop to collect it.',
-          color: 'bg-green-100 text-green-800',
+          color: 'bg-brand-yellow/60 text-rich-black',
           icon: <CheckCircle className="w-4 h-4" />
         };
       case 'completed':
@@ -145,7 +145,7 @@ export default function OrderConfirmation() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function OrderConfirmation() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
@@ -168,12 +168,12 @@ export default function OrderConfirmation() {
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <AlertCircle className="w-12 h-12 text-brand-yellow mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Order Not Found</h2>
             <p className="text-gray-600 mb-4">
               {error ? 'Failed to load order details.' : 'The order you\'re looking for doesn\'t exist.'}
             </p>
-            <Button onClick={() => navigate('/')} className="bg-yellow-400 text-black hover:bg-yellow-500">
+            <Button onClick={() => navigate('/')} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
               Go to Homepage
             </Button>
           </CardContent>
@@ -187,17 +187,17 @@ export default function OrderConfirmation() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-yellow-400 px-4 py-6">
+      <div className="bg-brand-yellow px-4 py-6">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="text-black hover:bg-black hover:text-yellow-400 p-2"
+              className="text-rich-black hover:bg-rich-black hover:text-brand-yellow p-2"
             >
               <Home className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold text-black">Order Confirmation</h1>
+            <h1 className="text-xl font-bold text-rich-black">Order Confirmation</h1>
             <div className="w-9" />
           </div>
         </div>

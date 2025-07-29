@@ -117,7 +117,7 @@ export default function BrowseShops() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Badge 
-                        className={shop.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+                        className={shop.isOpen ? 'bg-brand-yellow/50 text-rich-black' : 'bg-gray-200 text-gray-800'}
                       >
                         <Clock className="w-3 h-3 mr-1" />
                         {shop.isOpen ? 'Open Now' : 'Closed'}
