@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { 
   X, Send, Phone, User, Package, MessageSquare, 
   Clock, CheckCheck, Circle, Paperclip, File, Download,
@@ -267,14 +267,16 @@ export default function UnifiedChatSystem({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+      <DialogContent className="w-full max-w-4xl h-[90vh] sm:h-[80vh] flex flex-col p-0 mx-2 sm:mx-auto max-h-screen">
         <DialogHeader className="p-4 border-b bg-brand-yellow">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-rich-black font-bold flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
               {selectedOrder ? selectedOrder.title : 'Chat Center'}
             </DialogTitle>
-
+            <DialogDescription className="sr-only">
+              Chat interface for communicating about orders
+            </DialogDescription>
           </div>
           
           {/* Mobile back button and order info */}
@@ -303,7 +305,7 @@ export default function UnifiedChatSystem({
         <div className="flex-1 flex overflow-hidden">
           {/* Left Panel: Order List (Hidden on mobile when order selected) */}
           {(!isMobileView || showOrderList) && (
-            <div className="w-80 border-r flex flex-col">
+            <div className="w-full sm:w-80 border-r flex flex-col">
               {/* Search */}
               <div className="p-4 border-b">
                 <div className="relative">
@@ -380,18 +382,18 @@ export default function UnifiedChatSystem({
               {selectedOrderId ? (
                 <>
                   {/* Chat Header */}
-                  {!isMobileView && selectedOrder && (
-                    <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-black">{selectedOrder.title}</h3>
-                        <p className="text-sm text-gray-600">
+                  {selectedOrder && (
+                    <div className="p-3 sm:p-4 border-b bg-gray-50 flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-black text-sm sm:text-base truncate">{selectedOrder.title}</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 truncate">
                           {effectiveUserRole === 'shop_owner' 
                             ? `Customer: ${selectedOrder.customerName}` 
                             : `Shop: ${selectedOrder.shopName || 'Shop'}`}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getStatusColor(selectedOrder.status)}>
+                      <div className="flex items-center gap-1 sm:gap-2 ml-2">
+                        <Badge className={`text-xs ${getStatusColor(selectedOrder.status)}`}>
                           {selectedOrder.status}
                         </Badge>
                         {effectiveUserRole === 'shop_owner' && selectedOrder.customerPhone && (
@@ -399,9 +401,20 @@ export default function UnifiedChatSystem({
                             variant="outline"
                             size="sm"
                             onClick={() => window.open(`tel:${selectedOrder.customerPhone}`)}
+                            className="hidden sm:flex"
                           >
                             <Phone className="w-4 h-4 mr-2" />
                             Call
+                          </Button>
+                        )}
+                        {effectiveUserRole === 'shop_owner' && selectedOrder.customerPhone && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`tel:${selectedOrder.customerPhone}`)}
+                            className="sm:hidden px-2"
+                          >
+                            <Phone className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
@@ -470,7 +483,7 @@ export default function UnifiedChatSystem({
                               key={message.id}
                               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                             >
-                              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                              <div className={`max-w-[280px] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 rounded-lg ${
                                 isOwnMessage
                                   ? 'bg-brand-yellow text-rich-black'
                                   : 'bg-gray-100 text-gray-900'
@@ -552,7 +565,7 @@ export default function UnifiedChatSystem({
                   </ScrollArea>
 
                   {/* Message Input */}
-                  <div className="border-t p-4">
+                  <div className="border-t p-3 sm:p-4">
                     {/* Selected Files Preview */}
                     {selectedFiles && selectedFiles.length > 0 && (
                       <div className="mb-3 p-2 bg-gray-50 rounded border">
@@ -574,9 +587,9 @@ export default function UnifiedChatSystem({
                         <div className="space-y-1">
                           {Array.from(selectedFiles).map((file, index) => (
                             <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
-                              <File className="w-4 h-4" />
-                              <span className="truncate">{file.name}</span>
-                              <span className="text-xs">({(file.size / 1024).toFixed(1)}KB)</span>
+                              <File className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate flex-1">{file.name}</span>
+                              <span className="text-xs flex-shrink-0">({(file.size / 1024).toFixed(1)}KB)</span>
                             </div>
                           ))}
                         </div>
@@ -603,7 +616,7 @@ export default function UnifiedChatSystem({
                           size="sm"
                           onClick={handleFileSelect}
                           disabled={sendMessageMutation.isPending}
-                          className="px-3"
+                          className="px-2 sm:px-3 flex-shrink-0"
                         >
                           <Paperclip className="w-4 h-4" />
                         </Button>
@@ -623,13 +636,13 @@ export default function UnifiedChatSystem({
                           onChange={(e) => setMessageInput(e.target.value)}
                           onKeyPress={handleKeyPress}
                           placeholder="Type your message..."
-                          className="flex-1"
+                          className="flex-1 min-w-0"
                           disabled={sendMessageMutation.isPending}
                         />
                         <Button 
                           onClick={handleSendMessage}
                           disabled={(!messageInput.trim() && (!selectedFiles || selectedFiles.length === 0)) || sendMessageMutation.isPending}
-                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 flex-shrink-0 px-2 sm:px-3"
                         >
                           <Send className="w-4 h-4" />
                         </Button>
