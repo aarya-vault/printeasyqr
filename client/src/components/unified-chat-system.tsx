@@ -113,7 +113,9 @@ export default function UnifiedChatSystem({
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: [`/api/messages/order/${selectedOrderId}`],
     enabled: !!selectedOrderId,
-    refetchInterval: 2000,
+    refetchInterval: 1000, // Faster refresh
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache in memory
     select: (data) => {
       return data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     }
@@ -166,7 +168,11 @@ export default function UnifiedChatSystem({
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      // Force immediate refetch of messages
       queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${selectedOrderId}`] });
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: [`/api/messages/order/${selectedOrderId}`] });
+      }, 100);
       // Also invalidate orders to update unread counts
       queryClient.invalidateQueries({ 
         queryKey: effectiveUserRole === 'shop_owner' 

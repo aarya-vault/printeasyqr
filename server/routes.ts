@@ -918,6 +918,10 @@ app.patch('/api/debug/patch-test', (req, res) => {
   app.get("/api/messages/order/:orderId", requireAuth, async (req, res) => {
     try {
       const messages = await storage.getMessagesByOrder(parseInt(req.params.orderId));
+      // Disable caching for messages to ensure real-time updates
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
