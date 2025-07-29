@@ -437,9 +437,14 @@ export default function UnifiedChatSystem({
                                 )}
                                 
                                 {/* File attachments */}
-                                {message.files && message.files.length > 0 && (
+                                {message.files && (
                                   <div className="mt-2 space-y-1">
-                                    {message.files.map((filename, fileIndex) => {
+                                    {(() => {
+                                      try {
+                                        const fileList = typeof message.files === 'string' 
+                                          ? JSON.parse(message.files) 
+                                          : message.files;
+                                        return Array.isArray(fileList) ? fileList.map((filename, fileIndex) => {
                                       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
                                       return (
                                         <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
@@ -470,7 +475,12 @@ export default function UnifiedChatSystem({
                                           )}
                                         </div>
                                       );
-                                    })}
+                                        }) : null;
+                                      } catch (e) {
+                                        console.error('Error parsing files:', e, message.files);
+                                        return null;
+                                      }
+                                    })()}
                                   </div>
                                 )}
                               </div>
