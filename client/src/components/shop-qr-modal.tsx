@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { X, Download, Share2, Copy, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getShopUrl } from '@/utils/domain';
 
 interface ShopQRModalProps {
   shop: {
@@ -28,7 +29,7 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
 
   // Generate QR code on component mount
   useState(() => {
-    const orderUrl = `${window.location.origin}/shop/${shop.slug}`;
+    const orderUrl = getShopUrl(shop.slug);
     QRCode.toDataURL(orderUrl, {
       width: 300,
       margin: 1,
@@ -39,7 +40,7 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
     }).then(setQrCodeUrl).catch(console.error);
   });
 
-  const orderUrl = `${window.location.origin}/shop/${shop.slug}`;
+  const orderUrl = getShopUrl(shop.slug);
 
   const handleDownload = async () => {
     if (!qrRef.current) return;

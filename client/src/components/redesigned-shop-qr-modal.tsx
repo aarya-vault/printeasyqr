@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getShopUrl } from '@/utils/domain';
 
 interface Shop {
   id: number;
@@ -33,7 +34,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
 
   // Generate QR code on mount
   useState(() => {
-    const shopUrl = `${window.location.origin}/shop/${shop.slug}`;
+    const shopUrl = getShopUrl(shop.slug);
     QRCode.toDataURL(shopUrl, {
       width: 280,
       margin: 1,
@@ -63,7 +64,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   };
 
   const handleShare = () => {
-    const shopUrl = `${window.location.origin}/shop/${shop.slug}`;
+    const shopUrl = getShopUrl(shop.slug);
     const shareText = `Visit ${shop.name} at ${shopUrl}`;
     
     if (navigator.share) {
@@ -78,7 +79,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   };
 
   const handleCopy = () => {
-    const shopUrl = `${window.location.origin}/shop/${shop.slug}`;
+    const shopUrl = getShopUrl(shop.slug);
     navigator.clipboard.writeText(shopUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
