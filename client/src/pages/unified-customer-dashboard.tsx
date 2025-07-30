@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
@@ -48,7 +51,7 @@ interface Order {
 }
 
 export default function UnifiedCustomerDashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { showGuides, guideType, showGuide, closeGuides, UserGuidesComponent } = useUserGuides();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -58,6 +61,10 @@ export default function UnifiedCustomerDashboard() {
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
   const [showAllShops, setShowAllShops] = useState(false);
+  
+  // Customer Name Modal for data consistency
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [customerName, setCustomerName] = useState('');
   
   // Chat and order details states
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
@@ -78,6 +85,13 @@ export default function UnifiedCustomerDashboard() {
     setLocation(`/shop/${shopSlug}`);
   };
 
+  // Customer name consistency check - prompt for name if missing
+  useEffect(() => {
+    if (user && user.role === 'customer' && (!user.name || user.name.trim() === '')) {
+      setShowNameModal(true);
+    }
+  }, [user]);
+
   // Redirect if not authenticated or not a customer
   React.useEffect(() => {
     if (!user) {
@@ -86,6 +100,51 @@ export default function UnifiedCustomerDashboard() {
       setLocation('/');
     }
   }, [user, setLocation]);
+
+  // Update customer name mutation
+  const updateNameMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const response = await fetch(`/api/customers/${user?.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update name');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      updateUser({ ...user!, name: data.name });
+      setShowNameModal(false);
+      toast({
+        title: "Profile Updated",
+        description: "Your name has been saved successfully!",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update your name. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleNameSubmit = () => {
+    if (!customerName.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please enter your full name to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    updateNameMutation.mutate(customerName.trim());
+  };
 
   // Fetch customer orders - only active orders for dashboard
   const { data: allOrders = [], isLoading: ordersLoading } = useQuery<Order[]>({
@@ -776,6 +835,44 @@ export default function UnifiedCustomerDashboard() {
 
       {/* User Guides */}
       <UserGuidesComponent />
+
+      {/* Customer Name Modal for Data Consistency */}
+      <Dialog open={showNameModal} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-brand-yellow">Complete Your Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-rich-black" />
+              </div>
+              <p className="text-gray-600 mb-4">
+                To ensure the best experience, please provide your full name for order processing and communication.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="customer-name">Full Name</Label>
+              <Input
+                id="customer-name"
+                placeholder="Enter your full name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
+              />
+            </div>
+            
+            <Button 
+              onClick={handleNameSubmit}
+              className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+              disabled={updateNameMutation.isPending}
+            >
+              {updateNameMutation.isPending ? 'Saving...' : 'Continue to Dashboard'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

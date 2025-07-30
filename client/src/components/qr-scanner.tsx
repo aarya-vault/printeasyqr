@@ -7,17 +7,20 @@ import { X, Camera, QrCode, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 
 interface QRScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onShopUnlocked?: (shopId: number, shopName: string) => void;
+  autoRedirect?: boolean; // Enhanced feature: redirect to order page after unlock
 }
 
-export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScannerProps) {
+export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirect = false }: QRScannerProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const qrScannerRef = useRef<QrScanner | null>(null);
   
@@ -58,7 +61,9 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
     onSuccess: (data) => {
       toast({
         title: 'Shop Unlocked! 🎉',
-        description: `You can now place orders at ${data.shopName}`
+        description: autoRedirect 
+          ? `Redirecting to ${data.shopName} order page...`
+          : `You can now place orders at ${data.shopName}`
       });
       
       // Invalidate queries to refresh unlocked shops
@@ -67,6 +72,13 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
       
       onShopUnlocked?.(data.shopId, data.shopName);
       onClose();
+      
+      // Enhanced QR Scan Workflow: Auto-redirect to order page with prefilled data
+      if (autoRedirect && data.shopSlug) {
+        setTimeout(() => {
+          navigate(`/shop/${data.shopSlug}?source=qr&prefill=true`);
+        }, 1000); // Brief delay to show success message
+      }
     },
     onError: (error: Error) => {
       toast({

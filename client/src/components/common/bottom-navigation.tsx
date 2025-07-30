@@ -94,15 +94,16 @@ export default function BottomNavigation({ className = '' }: BottomNavigationPro
         </div>
       </div>
 
-      {/* QR Scanner Modal */}
+      {/* QR Scanner Modal with Enhanced Auto-Redirect */}
       {showQRScanner && (
         <QRScanner
           isOpen={showQRScanner}
           onClose={() => setShowQRScanner(false)}
+          autoRedirect={true}
           onShopUnlocked={(shopId, shopName) => {
             toast({
               title: "Shop Unlocked! 🎉",
-              description: `You can now place orders at ${shopName}`
+              description: `Redirecting to ${shopName} order page...`
             });
             queryClient.invalidateQueries({ queryKey: [`/api/customer/${user?.id}/unlocked-shops`] });
           }}
