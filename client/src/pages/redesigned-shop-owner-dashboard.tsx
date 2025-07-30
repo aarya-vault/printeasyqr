@@ -531,53 +531,49 @@ export default function RedesignedShopOwnerDashboard() {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Button>
-              {/* Shop Status Toggle */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Shop Status:</span>
-                <Button
-                  variant={shopData?.shop?.isOnline ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    if (shopData?.shop?.id) {
-                      toggleShopStatus.mutate();
-                    }
-                  }}
-                  disabled={toggleShopStatus.isPending}
-                  className={`
-                    ${shopData?.shop?.isOnline 
-                      ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/80' 
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                    } 
-                    transition-all duration-200 font-medium
-                  `}
-                >
-                  <Power className="w-4 h-4 mr-2" />
-                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
-                </Button>
-              </div>
             </div>
           </div>
           
-          {/* LOGOUT BUTTON - Completely isolated */}
-          <div className="absolute top-4 right-4 z-50">
+          {/* NEW PROFESSIONAL HEADER CONTROLS */}
+          <div className="flex items-center space-x-4">
+            {/* Shop Status Toggle - Redesigned */}
+            <div className="flex items-center bg-white rounded-lg border border-gray-200 px-3 py-2 shadow-sm">
+              <span className="text-sm font-medium text-gray-600 mr-3">Status:</span>
+              <button
+                onClick={() => {
+                  if (shopData?.shop?.id) {
+                    toggleShopStatus.mutate();
+                  }
+                }}
+                disabled={toggleShopStatus.isPending}
+                className={`
+                  px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 min-w-[80px]
+                  ${shopData?.shop?.isOnline 
+                    ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }
+                  ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+              >
+                <div className="flex items-center justify-center">
+                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
+                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                </div>
+              </button>
+            </div>
+
+            {/* Logout Button - Redesigned */}
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('=== FINAL LOGOUT CLICKED ===');
-                
-                // Completely isolated logout - no React context, no auth functions
+              onClick={() => {
+                // Simple, direct logout
                 localStorage.clear();
                 sessionStorage.clear();
-                
-                // Force page reload to homepage
-                window.location.replace('/');
+                window.location.href = '/';
               }}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl border-2 border-red-600 hover:border-red-700"
-              style={{ zIndex: 9999 }}
+              className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-md transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <LogOut className="w-4 h-4 mr-2 inline" />
-              LOGOUT
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
             </button>
           </div>
         </div>
