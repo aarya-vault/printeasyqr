@@ -312,6 +312,28 @@ The completely redesigned homepage now serves as a mobile-first conversion machi
 - **Touch Targets**: All buttons properly sized for mobile interaction
 - **Performance**: Optimized for fast mobile loading and interaction
 
+## CRITICAL LOGOUT BUTTON FIX (January 30, 2025) ✅ RESOLVED
+
+### Issue Fixed
+- **CRITICAL BUG**: Logout button in shop dashboard was incorrectly triggering shop status toggle instead of logging out
+- **Root Cause**: Event bubbling and missing shop ID validation causing incorrect mutations to fire
+- **User Impact**: Shop owners clicking logout would accidentally close their shop instead of just logging out
+
+### Technical Resolution
+- **Event Isolation**: Added `e.preventDefault()` and `e.stopPropagation()` to both logout and shop toggle buttons
+- **Unique Button Identifiers**: Added `data-action` attributes to distinguish button functions
+- **Shop ID Validation**: Enhanced toggleShopStatus mutation with proper shop ID validation and error handling
+- **Debug Logging**: Added console logs to track which button is actually being clicked
+- **Error Handling**: Improved error messages for failed shop status updates
+
+### Implementation Details
+- **Logout Button**: Now properly isolated - only calls `logout()` and `navigate('/')`
+- **Shop Toggle Button**: Properly validates shop ID before making API calls
+- **Separation Logic**: Clear separation between user authentication and shop operational status
+- **User Experience**: Logout now functions correctly without affecting shop availability status
+
+**Status**: Logout button now works correctly - shop owners can log out without accidentally closing their shop.
+
 ## Recent Changes (January 2025)
 
 ### Major UI/UX Overhaul & Business Logic Updates

@@ -204,7 +204,10 @@ export default function RedesignedShopOwnerDashboard() {
 
   const toggleShopStatus = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/shops/${shopData?.shop?.id}/toggle-status`, {
+      if (!shopData?.shop?.id) {
+        throw new Error('Shop ID not found');
+      }
+      const response = await fetch(`/api/shops/${shopData.shop.id}/toggle-status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -216,6 +219,13 @@ export default function RedesignedShopOwnerDashboard() {
       toast({ 
         title: shopData?.shop?.isOnline ? 'Shop Closed' : 'Shop Opened',
         description: shopData?.shop?.isOnline ? 'You are no longer accepting orders' : 'You are now accepting orders'
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Failed to update shop status',
+        description: error.message,
+        variant: 'destructive'
       });
     },
   });
@@ -524,7 +534,13 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => toggleShopStatus.mutate()}
+                data-action="toggle-shop-status"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Shop toggle button clicked');
+                  toggleShopStatus.mutate();
+                }}
                 disabled={toggleShopStatus.isPending}
               >
                 <Power className="w-4 h-4 mr-2" />
@@ -533,7 +549,11 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
+                data-action="logout"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Logout button clicked');
                   logout();
                   navigate('/');
                 }}
