@@ -54,7 +54,6 @@ export default function UnifiedCustomerDashboard() {
   // Modal states
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
-  const [showQRScanner, setShowQRScanner] = useState(false);
   const [showAllShops, setShowAllShops] = useState(false);
   
   // Chat and order details states
@@ -237,19 +236,20 @@ export default function UnifiedCustomerDashboard() {
                 </p>
                 <div className="flex flex-col gap-2 sm:gap-3">
                   <Button 
-                    className="bg-rich-black text-white hover:bg-rich-black/90 shadow-lg h-10 sm:h-12 text-sm sm:text-base"
-                    onClick={() => setShowQRScanner(true)}
-                  >
-                    <QrCode className="w-4 h-4 mr-2" />
-                    Scan QR to Unlock Shops
-                  </Button>
-                  <Button 
                     variant="outline"
                     className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
                     onClick={() => setShowAllShops(true)}
                   >
                     <Store className="w-4 h-4 mr-2" />
                     Browse All Print Shops
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-gray-200 text-gray-600 hover:border-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
+                    onClick={() => setShowUploadOrder(true)}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Quick Upload Order
                   </Button>
                 </div>
               </div>
@@ -453,12 +453,7 @@ export default function UnifiedCustomerDashboard() {
                     userRole="customer"
                     onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
                     onCallClick={(phone) => window.open(`tel:${phone}`)}
-                    onViewDetails={(order) => setSelectedOrderForDetails({ 
-                      ...order, 
-                      customerPhone: order.customerPhone || user?.phone || '',
-                      customerName: order.customerName || user?.name || 'Customer',
-                      type: order.type as 'upload' | 'walkin'
-                    })}
+                    onViewDetails={(order) => setSelectedOrderForDetails(order)}
                   />
                 ))}
               </div>
@@ -492,20 +487,7 @@ export default function UnifiedCustomerDashboard() {
         />
       )}
 
-      {/* QR Scanner Modal */}
-      {showQRScanner && (
-        <QRScanner
-          isOpen={showQRScanner}
-          onClose={() => setShowQRScanner(false)}
-          onShopUnlocked={(shopId, shopName) => {
-            toast({
-              title: "Shop Unlocked! 🎉",
-              description: `You can now place orders at ${shopName}`
-            });
-            queryClient.invalidateQueries({ queryKey: [`/api/customer/${user?.id}/unlocked-shops`] });
-          }}
-        />
-      )}
+
 
       {/* Shop Browse Modal */}
       {showAllShops && (

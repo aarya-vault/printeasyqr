@@ -197,56 +197,89 @@ export default function ResponsiveHome() {
         onShopApplication={() => setShowShopApplication(true)}
       />
       
-      {/* Hero Section */}
-      <section className="relative bg-white pt-12 pb-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section - Redesigned with QR Focus */}
+      <section className="relative bg-gradient-to-br from-white via-gray-50 to-white pt-16 pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-rich-black mb-6 leading-tight">
-              Professional Printing
-              <span className="block text-brand-yellow mt-2">Made Simple</span>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-rich-black mb-8 leading-tight">
+              Scan QR & 
+              <span className="block text-brand-yellow mt-2">Print Instantly</span>
             </h1>
-            <p className="text-xl text-medium-gray max-w-2xl mx-auto mb-10 leading-relaxed">
-              Connect with verified local print shops. Upload files, place orders, and track progress all in one place.
+            <p className="text-xl sm:text-2xl text-medium-gray max-w-3xl mx-auto mb-12 leading-relaxed">
+              The fastest way to connect with local print shops. Scan QR codes to unlock exclusive ordering access.
             </p>
             
-            <div className="flex flex-col gap-4 justify-center items-center mb-16">
-              <PhoneLogin />
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button 
-                  onClick={() => setShowQRScanner(true)}
-                  className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-8 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
-                >
-                  <QrCode className="w-5 h-5" />
-                  Scan QR to Unlock Shops
-                </Button>
-                
-                <div className="text-medium-gray text-sm">or</div>
-                
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowShopApplication(true)}
-                  className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Register Your Print Shop
-                </Button>
+            {/* Main Action Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+              {/* QR Scan Card - Primary */}
+              <div className="bg-brand-yellow rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border-4 border-white">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-rich-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <QrCode className="w-10 h-10 text-brand-yellow" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-rich-black mb-4">Scan QR Code</h2>
+                  <p className="text-rich-black/80 mb-6 leading-relaxed">
+                    Unlock exclusive access to print shops by scanning their QR codes. Get instant ordering capabilities!
+                  </p>
+                  <Button 
+                    onClick={() => setShowQRScanner(true)}
+                    size="lg"
+                    className="bg-rich-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                  >
+                    <QrCode className="w-6 h-6 mr-3" />
+                    Start Scanning Now
+                  </Button>
+                </div>
+              </div>
+
+              {/* Login Card - Secondary */}
+              <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-brand-yellow">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Users className="w-10 h-10 text-rich-black" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-rich-black mb-4">Customer Login</h2>
+                  <p className="text-medium-gray mb-6 leading-relaxed">
+                    Already have an account? Login to access your orders, chat with shops, and track progress.
+                  </p>
+                  <div className="space-y-3">
+                    <PhoneLogin />
+                    <div className="text-sm text-medium-gray">
+                      No registration required - just enter your phone number
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-8 text-medium-gray">
-              <div className="flex items-center gap-2">
-                <Store className="w-5 h-5 text-brand-yellow" />
-                <span className="font-medium">Verified Shops</span>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+              <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+                <div className="text-3xl font-bold text-brand-yellow mb-2">50+</div>
+                <div className="text-medium-gray font-medium">Verified Print Shops</div>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand-yellow" />
-                <span className="font-medium">Trusted Service</span>
+              <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+                <div className="text-3xl font-bold text-brand-yellow mb-2">24/7</div>
+                <div className="text-medium-gray font-medium">Customer Support</div>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                <span className="font-medium">Quality Assured</span>
+              <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+                <div className="text-3xl font-bold text-brand-yellow mb-2">2k+</div>
+                <div className="text-medium-gray font-medium">Happy Customers</div>
               </div>
+            </div>
+
+            {/* For Shop Owners */}
+            <div className="bg-gray-50 rounded-2xl p-6 max-w-2xl mx-auto border border-gray-200">
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Are you a Print Shop Owner?</h3>
+              <p className="text-medium-gray mb-4">Join our network and get more customers through QR code marketing</p>
+              <Button 
+                variant="outline"
+                onClick={() => setShowShopApplication(true)}
+                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Register Your Print Shop
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </div>
         </div>
