@@ -566,7 +566,6 @@ export default function UnifiedCustomerDashboard() {
                               variant="outline"
                               onClick={() => {
                                 setShowAllShops(false);
-                                setShowQRScanner(true);
                               }}
                               className="border-[#FFBF00] text-[#FFBF00]"
                             >
@@ -598,9 +597,14 @@ export default function UnifiedCustomerDashboard() {
         </div>
       )}
 
-      {/* Navigation */}
+      {/* Bottom Navigation */}
       <BottomNavigation />
-      <UnifiedFloatingChatButton />
+
+      {/* Unified Floating Chat Button */}
+      <UnifiedFloatingChatButton 
+        activeOrdersCount={activeOrders.length}
+        onChatOpen={() => {}}
+      />
     </div>
   );
 }

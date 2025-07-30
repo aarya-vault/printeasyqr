@@ -6,7 +6,7 @@ import {
   Building2, Award, Zap, HeadphonesIcon, Upload,
   MessageCircle, Search, Camera, Download, Eye,
   ChevronRight, Phone, Mail, Globe, CheckCircle2,
-  Timer, Headphones
+  Timer, Headphones, QrCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,11 +18,15 @@ import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import QRScanner from '@/components/qr-scanner';
+import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showShopLogin, setShowShopLogin] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showShopApplication, setShowShopApplication] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
   const { user, login, updateUser } = useAuth();
   const [, navigate] = useLocation();
@@ -174,63 +178,104 @@ export default function NewHomepage() {
           onSubmit={handleNameUpdate}
         />
       )}
-      {/* Hero Section - Customer Login Priority */}
-      <section className="relative bg-white pt-16 pb-12 sm:pt-20 sm:pb-16">
+      {/* Hero Section - QR Scan & Login Focus */}
+      <section className="relative bg-gradient-to-br from-white via-gray-50 to-white pt-16 pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-rich-black mb-6 leading-tight">
-              Your Printing,
-              <span className="block text-brand-yellow">Simplified</span>
+          <div className="text-center mb-16">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-rich-black mb-8 leading-tight">
+              Scan QR & 
+              <span className="block text-brand-yellow mt-2">Print Instantly</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Connect with trusted local print shops. Upload files, book appointments, chat in real-time, and track your orders from start to finish.
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
+              The fastest way to connect with local print shops. Scan QR codes to unlock exclusive ordering access.
             </p>
           </div>
-
-          {/* Primary Customer Login Section */}
-          <div className="max-w-md mx-auto bg-brand-yellow rounded-2xl p-8 shadow-2xl mb-12">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                <Smartphone className="w-8 h-8 text-brand-yellow" />
+          
+          {/* Main Action Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+            {/* QR Scan Card - Primary */}
+            <div className="bg-brand-yellow rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border-4 border-white">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-rich-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <QrCode className="w-10 h-10 text-brand-yellow" />
+                </div>
+                <h2 className="text-2xl font-bold text-rich-black mb-4">Scan QR Code</h2>
+                <p className="text-rich-black/80 mb-6 leading-relaxed">
+                  Unlock exclusive access to print shops by scanning their QR codes. Get instant ordering capabilities!
+                </p>
+                <Button 
+                  onClick={() => setShowQRScanner(true)}
+                  size="lg"
+                  className="bg-rich-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
+                >
+                  <QrCode className="w-6 h-6 mr-3" />
+                  Start Scanning Now
+                </Button>
               </div>
-              <h2 className="text-2xl font-bold text-rich-black mb-2">Get Started Now</h2>
-              <p className="text-rich-black">Enter your phone number to begin</p>
             </div>
-            
-            <div className="space-y-4">
-              <PhoneInput
-                value={customerPhone}
-                onChange={setCustomerPhone}
-                placeholder="10-digit phone number"
-                className="w-full text-lg py-3"
-              />
-              <Button 
-                onClick={handleCustomerLogin}
-                className="w-full bg-rich-black text-white hover:bg-gray-800 text-lg py-3 font-semibold"
-                size="lg"
-              >
-                Start Printing Journey
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <p className="text-center text-sm text-rich-black">
-                Try demo: 7434052121
-              </p>
+
+            {/* Login Card - Secondary */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-brand-yellow">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Smartphone className="w-10 h-10 text-rich-black" />
+                </div>
+                <h2 className="text-2xl font-bold text-rich-black mb-4">Customer Login</h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Already have an account? Login to access your orders, chat with shops, and track progress.
+                </p>
+                <div className="space-y-3">
+                  <PhoneInput
+                    value={customerPhone}
+                    onChange={setCustomerPhone}
+                    placeholder="10-digit phone number"
+                    className="w-full text-lg py-3"
+                  />
+                  <Button 
+                    onClick={handleCustomerLogin}
+                    className="w-full bg-rich-black text-white hover:bg-gray-800 text-lg py-3 font-semibold"
+                    size="lg"
+                  >
+                    Start Printing Journey
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <div className="text-sm text-gray-500">
+                    Try demo: 7434052121
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-3 gap-6 text-center mb-16">
-            <div className="bg-gray-50 rounded-xl p-6">
-              <div className="text-3xl font-bold text-rich-black mb-2">50+</div>
-              <div className="text-gray-600">Verified Shops</div>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
+            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+              <div className="text-3xl font-bold text-brand-yellow mb-2">50+</div>
+              <div className="text-gray-600 font-medium">Verified Print Shops</div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-6">
-              <div className="text-3xl font-bold text-rich-black mb-2">2k+</div>
-              <div className="text-gray-600">Happy Customers</div>
+            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+              <div className="text-3xl font-bold text-brand-yellow mb-2">24/7</div>
+              <div className="text-gray-600 font-medium">Customer Support</div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-6">
-              <div className="text-3xl font-bold text-rich-black mb-2">24/7</div>
-              <div className="text-gray-600">Support Available</div>
+            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
+              <div className="text-3xl font-bold text-brand-yellow mb-2">2k+</div>
+              <div className="text-gray-600 font-medium">Happy Customers</div>
+            </div>
+          </div>
+
+          {/* For Shop Owners */}
+          <div className="bg-gray-50 rounded-2xl p-6 max-w-2xl mx-auto border border-gray-200">
+            <h3 className="text-lg font-semibold text-rich-black mb-3 text-center">Are you a Print Shop Owner?</h3>
+            <p className="text-gray-600 mb-4 text-center">Join our network and get more customers through QR code marketing</p>
+            <div className="flex justify-center">
+              <Button 
+                variant="outline"
+                onClick={() => setShowShopApplication(true)}
+                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Register Your Print Shop
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </div>
         </div>
@@ -473,6 +518,28 @@ export default function NewHomepage() {
           </div>
         </div>
       </footer>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScanner
+          isOpen={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onShopUnlocked={(shopId, shopName) => {
+            toast({
+              title: "Shop Unlocked! 🎉",
+              description: `You can now place orders at ${shopName}. Login to start ordering.`
+            });
+          }}
+        />
+      )}
+
+      {/* Shop Application Modal */}
+      {showShopApplication && (
+        <EnhancedShopApplicationModal 
+          isOpen={showShopApplication} 
+          onClose={() => setShowShopApplication(false)} 
+        />
+      )}
     </div>
   );
 }
