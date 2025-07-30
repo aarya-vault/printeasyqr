@@ -39,6 +39,12 @@ interface Order {
   status: string;
   createdAt: string;
   unreadMessages?: number;
+  shop?: {
+    id: number;
+    name: string;
+    phone?: string;
+    city?: string;
+  };
 }
 
 interface UnifiedChatSystemProps {
@@ -443,13 +449,16 @@ export default function UnifiedChatSystem({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-sm truncate">{order.title}</h4>
                               <Badge className={`text-xs px-2 py-1 ${getStatusColor(order.status)}`}>
-                                {order.status === 'completed' ? 'completed ✓' : order.status}
+                                {order.status === 'completed' ? 'completed ✓' : 
+                                 order.status === 'processing' ? 'processing' :
+                                 order.status === 'ready' ? 'ready' : 
+                                 order.status === 'new' ? 'pending' : order.status}
                               </Badge>
                             </div>
                             <p className="text-xs text-gray-600 truncate mb-2">
                               {effectiveUserRole === 'shop_owner' 
-                                ? `Customer: ${order.customerName}` 
-                                : `Shop: ${order.shopName || 'Shop'}`}
+                                ? `Customer: ${order.customerName || 'Customer'}` 
+                                : `Shop: ${order.shop?.name || order.shopName || 'Print Shop'}`}
                             </p>
                             <div className="flex items-center gap-3">
                               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -461,10 +470,10 @@ export default function UnifiedChatSystem({
                             </div>
                           </div>
                           
-                          {/* Unread message indicator */}
-                          {order.unreadMessages && order.unreadMessages > 0 && (
+                          {/* Unread message indicator - only show if > 0 */}
+                          {(order.unreadMessages || 0) > 0 && (
                             <div className="bg-brand-yellow text-rich-black text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm border border-rich-black">
-                              {order.unreadMessages > 99 ? '99+' : order.unreadMessages}
+                              {(order.unreadMessages || 0) > 99 ? '99+' : (order.unreadMessages || 0)}
                             </div>
                           )}
                         </div>
@@ -488,8 +497,8 @@ export default function UnifiedChatSystem({
                         <h3 className="font-semibold text-black text-sm sm:text-base truncate">{selectedOrder.title}</h3>
                         <p className="text-xs sm:text-sm text-gray-600 truncate">
                           {effectiveUserRole === 'shop_owner' 
-                            ? `Customer: ${selectedOrder.customerName}` 
-                            : `Shop: ${selectedOrder.shopName || 'Shop'}`}
+                            ? `Customer: ${selectedOrder.customerName || 'Customer'}` 
+                            : `Shop: ${selectedOrder.shop?.name || selectedOrder.shopName || 'Print Shop'}`}
                         </p>
                       </div>
                       <div className="flex items-center gap-1 sm:gap-2 ml-2">
