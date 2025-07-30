@@ -326,7 +326,10 @@ export default function RedesignedShopOwnerDashboard() {
   );
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <Card className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow">
+    <Card 
+      className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow cursor-pointer"
+      onClick={() => setSelectedOrderForDetails(order)}
+    >
       <CardContent className="p-4">
         {/* Order Header */}
         <div className="flex items-start justify-between mb-3">
@@ -385,7 +388,7 @@ export default function RedesignedShopOwnerDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-3 gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
           <Button
             size="sm"
             variant="outline"
@@ -424,7 +427,7 @@ export default function RedesignedShopOwnerDashboard() {
 
         {/* File Actions for Upload Orders */}
         {order.type === 'upload' && order.files && (
-          <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="grid grid-cols-2 gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
             <Button
               size="sm"
               variant="outline"
@@ -448,7 +451,7 @@ export default function RedesignedShopOwnerDashboard() {
 
         {/* Status Update Actions */}
         {order.status !== 'completed' && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
             {order.status === 'new' && (
               <Button
                 size="sm"

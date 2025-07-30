@@ -18,6 +18,7 @@ import OrderDetailsModal from '@/components/order-details-modal';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
+import DetailedShopModal from '@/components/detailed-shop-modal';
 
 interface Order {
   id: number;
@@ -49,6 +50,24 @@ export default function RefinedCustomerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const [showComprehensiveChat, setShowComprehensiveChat] = useState(false);
+  const [selectedShopForDetails, setSelectedShopForDetails] = useState<any>(null);
+  const [showShopDetails, setShowShopDetails] = useState(false);
+
+  // Handle shop card click to show details
+  const handleShopClick = (shop: any) => {
+    setSelectedShopForDetails(shop);
+    setShowShopDetails(true);
+  };
+
+  // Handle shop order click from detailed modal
+  const handleShopOrderClick = (shopSlug: string) => {
+    navigate(`/shop/${shopSlug}`);
+  };
+
+  // Handle order card click to show details
+  const handleOrderClick = (order: Order) => {
+    setSelectedOrderForDetails(order);
+  };
 
 
 
@@ -357,7 +376,11 @@ export default function RefinedCustomerDashboard() {
             </Card>
           ) : (
             recentOrders.map((order) => (
-              <Card key={order.id} className="bg-white hover:shadow-md transition-all">
+              <Card 
+                key={order.id} 
+                className="bg-white hover:shadow-md transition-all cursor-pointer"
+                onClick={() => handleOrderClick(order)}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -379,7 +402,7 @@ export default function RefinedCustomerDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 mt-3">
+                  <div className="flex items-center space-x-2 mt-3" onClick={(e) => e.stopPropagation()}>
                     <Button
                       size="sm"
                       variant="outline"
@@ -432,6 +455,14 @@ export default function RefinedCustomerDashboard() {
           userRole="customer"
         />
       )}
+
+      {/* Detailed Shop Modal */}
+      <DetailedShopModal
+        shop={selectedShopForDetails}
+        isOpen={showShopDetails}
+        onClose={() => setShowShopDetails(false)}
+        onOrderClick={handleShopOrderClick}
+      />
     </div>
   );
 }
