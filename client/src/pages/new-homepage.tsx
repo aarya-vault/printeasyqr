@@ -198,7 +198,7 @@ export default function NewHomepage() {
             {/* Mobile QR Scanner - Giant Button */}
             <Button 
               onClick={() => setShowQRScanner(true)}
-              className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 py-6 rounded-2xl text-xl font-bold shadow-xl border-4 border-white"
+              className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 py-6 rounded-2xl text-xl font-bold shadow-xl"
               size="lg"
             >
               <QrCode className="w-8 h-8 mr-4" />
@@ -208,7 +208,7 @@ export default function NewHomepage() {
             {/* Mobile Login Section */}
             <div className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-200">
               <h3 className="text-lg font-semibold text-rich-black mb-4 text-center">
-                Or Login with Phone Number
+                Or Enter Phone Number
               </h3>
               <div className="space-y-3">
                 <PhoneInput
@@ -221,7 +221,7 @@ export default function NewHomepage() {
                   onClick={handleCustomerLogin}
                   className="w-full bg-rich-black text-white hover:bg-gray-800 py-4 text-lg font-semibold"
                 >
-                  Login & Start Printing
+                  Start Printing Journey
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <p className="text-center text-sm text-gray-500">
@@ -234,7 +234,7 @@ export default function NewHomepage() {
           {/* Desktop Layout - Side by Side */}
           <div className="hidden lg:grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
             {/* QR Scan Card - Primary */}
-            <div className="bg-brand-yellow rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border-4 border-white">
+            <div className="bg-brand-yellow rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="text-center">
                 <div className="w-20 h-20 bg-rich-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <QrCode className="w-10 h-10 text-brand-yellow" />

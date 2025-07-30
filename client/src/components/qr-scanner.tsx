@@ -70,8 +70,15 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
 
   // Initialize scanner when dialog opens
   useEffect(() => {
-    if (isOpen && videoRef.current) {
-      initializeScanner();
+    if (isOpen) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          initializeScanner();
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
     
     return () => {
@@ -174,20 +181,10 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0">
         <DialogHeader className="p-4 bg-[#FFBF00]">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-black font-bold flex items-center gap-2">
-              <QrCode className="w-5 h-5" />
-              Scan Shop QR Code
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="text-black hover:bg-black/10"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-black font-bold flex items-center gap-2">
+            <QrCode className="w-5 h-5" />
+            Scan Shop QR Code
+          </DialogTitle>
         </DialogHeader>
 
         <div className="p-4 space-y-4">
@@ -217,8 +214,8 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
             {!isScanning && !scanError && (
               <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
                 <div className="text-center text-white">
-                  <Camera className="w-8 h-8 mx-auto mb-2" />
-                  <p className="text-sm">Initializing camera...</p>
+                  <div className="w-8 h-8 mx-auto mb-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <p className="text-sm">Starting camera...</p>
                 </div>
               </div>
             )}
