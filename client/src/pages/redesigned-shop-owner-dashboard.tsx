@@ -80,7 +80,7 @@ interface DashboardStats {
 }
 
 export default function RedesignedShopOwnerDashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
@@ -531,61 +531,54 @@ export default function RedesignedShopOwnerDashboard() {
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('=== SHOP TOGGLE BUTTON CLICKED ===');
-                  if (!shopData?.shop?.id) {
-                    console.error('No shop ID found');
-                    return;
-                  }
-                  toggleShopStatus.mutate();
-                }}
-                disabled={toggleShopStatus.isPending}
-              >
-                <Power className="w-4 h-4 mr-2" />
-                {shopData?.shop?.isOnline ? 'Close Shop' : 'Open Shop'}
-              </Button>
+              {/* Shop Status Toggle */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Shop Status:</span>
+                <Button
+                  variant={shopData?.shop?.isOnline ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (shopData?.shop?.id) {
+                      toggleShopStatus.mutate();
+                    }
+                  }}
+                  disabled={toggleShopStatus.isPending}
+                  className={`
+                    ${shopData?.shop?.isOnline 
+                      ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/80' 
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    } 
+                    transition-all duration-200 font-medium
+                  `}
+                >
+                  <Power className="w-4 h-4 mr-2" />
+                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                </Button>
+              </div>
             </div>
           </div>
           
-          {/* Separate logout button container to prevent event conflicts */}
-          <div className="absolute top-4 right-4">
-            <Button
-              variant="outline"
-              size="sm"
+          {/* LOGOUT BUTTON - Completely isolated */}
+          <div className="absolute top-4 right-4 z-50">
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('=== IMMEDIATE LOGOUT BUTTON CLICKED ===');
-                console.log('User before logout:', user);
+                console.log('=== FINAL LOGOUT CLICKED ===');
                 
-                // Immediate logout without async operations
-                try {
-                  // Fire and forget the logout API call
-                  fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                  }).catch(() => {}); // Ignore errors
-                  
-                  // Immediately clear user state and navigate
-                  localStorage.removeItem('user');
-                  navigate('/');
-                  console.log('=== IMMEDIATE LOGOUT COMPLETE ===');
-                } catch (error) {
-                  console.error('Logout error:', error);
-                  // Even if error, still navigate away
-                  navigate('/');
-                }
+                // Completely isolated logout - no React context, no auth functions
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Force page reload to homepage
+                window.location.replace('/');
               }}
-              className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl border-2 border-red-600 hover:border-red-700"
+              style={{ zIndex: 9999 }}
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+              <LogOut className="w-4 h-4 mr-2 inline" />
+              LOGOUT
+            </button>
           </div>
         </div>
       </div>
