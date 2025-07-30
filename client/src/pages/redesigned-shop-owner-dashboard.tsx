@@ -560,13 +560,26 @@ export default function RedesignedShopOwnerDashboard() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('=== ISOLATED LOGOUT BUTTON CLICKED ===');
+                console.log('=== IMMEDIATE LOGOUT BUTTON CLICKED ===');
                 console.log('User before logout:', user);
                 
-                // Simple synchronous logout
-                logout();
-                navigate('/');
-                console.log('=== LOGOUT COMPLETE ===');
+                // Immediate logout without async operations
+                try {
+                  // Fire and forget the logout API call
+                  fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                  }).catch(() => {}); // Ignore errors
+                  
+                  // Immediately clear user state and navigate
+                  localStorage.removeItem('user');
+                  navigate('/');
+                  console.log('=== IMMEDIATE LOGOUT COMPLETE ===');
+                } catch (error) {
+                  console.error('Logout error:', error);
+                  // Even if error, still navigate away
+                  navigate('/');
+                }
               }}
               className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
             >
