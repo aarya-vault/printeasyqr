@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, User, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X
+  Home, ShoppingCart, User, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -19,6 +19,7 @@ import BottomNavigation from '@/components/common/bottom-navigation';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import QRScanner from '@/components/qr-scanner';
 import DetailedShopModal from '@/components/detailed-shop-modal';
+import UserGuides, { useUserGuides } from '@/components/user-guides';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
@@ -48,6 +49,7 @@ interface Order {
 
 export default function UnifiedCustomerDashboard() {
   const { user, logout } = useAuth();
+  const { showGuides, guideType, showGuide, closeGuides, UserGuidesComponent } = useUserGuides();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -91,10 +93,11 @@ export default function UnifiedCustomerDashboard() {
     enabled: !!user?.id,
   });
 
-  // Fetch all shops for browsing
+  // Fetch all shops for browsing - always fetch for availability 
   const { data: allShops = [], isLoading: shopsLoading } = useQuery<any[]>({
     queryKey: ['/api/shops'],
-    enabled: showAllShops
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch unlocked shops for this customer
@@ -175,8 +178,61 @@ export default function UnifiedCustomerDashboard() {
     );
   }
 
+  // Loading state component
+  const LoadingDashboard = () => (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="bg-brand-yellow px-3 sm:px-6 pt-10 pb-6">
+        <div className="animate-pulse">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
+                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-brand-yellow" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold text-rich-black">PrintEasy</h1>
+                <div className="h-4 bg-rich-black/10 rounded w-32 mt-1"></div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-8 h-8 bg-rich-black/10 rounded-lg"></div>
+              <div className="w-8 h-8 bg-rich-black/10 rounded-full"></div>
+              <div className="w-8 h-8 bg-rich-black/10 rounded-lg"></div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-md p-3 sm:p-6 mx-3 sm:mx-0">
+            <div className="h-6 bg-gray-200 rounded w-48 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-64 mb-6"></div>
+            <div className="space-y-3">
+              <div className="h-20 bg-gray-200 rounded-lg"></div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <main className="px-3 sm:px-6 py-4">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-40"></div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+
   if (!user) {
-    return <div>Loading...</div>;
+    return <LoadingDashboard />;
+  }
+
+  if (ordersLoading) {
+    return <LoadingDashboard />;
   }
 
   return (
@@ -197,6 +253,15 @@ export default function UnifiedCustomerDashboard() {
           
           {/* Header Actions with Navigation */}
           <div className="flex items-center gap-1 sm:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-rich-black hover:bg-rich-black/10 p-1.5 sm:p-2"
+              onClick={() => showGuide('general')}
+              title="Help & Guides"
+            >
+              <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -262,10 +327,10 @@ export default function UnifiedCustomerDashboard() {
                   <Button 
                     variant="outline"
                     className="border-gray-200 text-gray-600 hover:border-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
-                    onClick={() => setShowUploadOrder(true)}
+                    onClick={() => showGuide('firstLogin')}
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Quick Upload Order
+                    <Zap className="w-4 h-4 mr-2" />
+                    Quick Start Guide
                   </Button>
                 </div>
               </div>
@@ -329,12 +394,7 @@ export default function UnifiedCustomerDashboard() {
                       <Button
                         size="sm"
                         className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
-                        onClick={() => setSelectedOrderForDetails({ 
-                          ...recentOrders[0], 
-                          customerPhone: recentOrders[0].customerPhone || user?.phone || '',
-                          customerName: recentOrders[0].customerName || user?.name || 'Customer',
-                          type: recentOrders[0].type as 'upload' | 'walkin'
-                        })}
+                        onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         Details
@@ -369,12 +429,7 @@ export default function UnifiedCustomerDashboard() {
                   <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                     <Button 
                       className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
-                      onClick={() => setSelectedOrderForDetails({ 
-                        ...recentOrders[0], 
-                        customerPhone: recentOrders[0].customerPhone || user?.phone || '',
-                        customerName: recentOrders[0].customerName || user?.name || 'Customer',
-                        type: recentOrders[0].type as 'upload' | 'walkin'
-                      })}
+                      onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                     >
                       <Upload className="w-4 h-4" />
                       Add More Files to Order
@@ -386,13 +441,8 @@ export default function UnifiedCustomerDashboard() {
                   // Ready Order - Show Pickup Available
                   <div className="mt-3">
                     <Button 
-                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 font-medium text-sm sm:text-base shadow-sm"
-                      onClick={() => setSelectedOrderForDetails({ 
-                        ...recentOrders[0], 
-                        customerPhone: recentOrders[0].customerPhone || user?.phone || '',
-                        customerName: recentOrders[0].customerName || user?.name || 'Customer',
-                        type: recentOrders[0].type as 'upload' | 'walkin'
-                      })}
+                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
+                      onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Pickup Available - View Details
@@ -696,10 +746,7 @@ export default function UnifiedCustomerDashboard() {
       <BottomNavigation />
 
       {/* Unified Floating Chat Button */}
-      <UnifiedFloatingChatButton 
-        activeOrdersCount={activeOrders.length}
-        onChatOpen={() => {}}
-      />
+      <UnifiedFloatingChatButton />
 
       {/* Chat System */}
       {selectedOrderForChat && (
@@ -714,9 +761,8 @@ export default function UnifiedCustomerDashboard() {
       {/* Order Details Modal */}
       {selectedOrderForDetails && (
         <EnhancedCustomerOrderDetails
-          isOpen={true}
-          onClose={() => setSelectedOrderForDetails(null)}
           order={selectedOrderForDetails}
+          onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
 
@@ -727,6 +773,9 @@ export default function UnifiedCustomerDashboard() {
         onClose={() => setShowShopDetails(false)}
         onOrderClick={handleShopOrderClick}
       />
+
+      {/* User Guides */}
+      <UserGuidesComponent />
     </div>
   );
 }
