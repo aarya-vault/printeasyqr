@@ -178,21 +178,61 @@ export default function NewHomepage() {
           onSubmit={handleNameUpdate}
         />
       )}
-      {/* Hero Section - QR Scan & Login Focus */}
-      <section className="relative bg-gradient-to-br from-white via-gray-50 to-white pt-16 pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-rich-black mb-8 leading-tight">
-              Scan QR & 
-              <span className="block text-brand-yellow mt-2">Print Instantly</span>
+      {/* Mobile-First Hero Section - QR & Login Priority */}
+      <section className="relative bg-white pt-16 pb-12">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
+          
+          {/* Mobile Hero Title */}
+          <div className="text-center mb-8 lg:mb-12">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-rich-black leading-tight">
+              <span className="block">Scan QR Code &</span>
+              <span className="block text-brand-yellow mt-1">Print Instantly</span>
             </h1>
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
-              The fastest way to connect with local print shops. Scan QR codes to unlock exclusive ordering access.
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mt-4 max-w-2xl mx-auto">
+              Find nearby print shops, scan their QR codes, and start printing in seconds
             </p>
           </div>
-          
-          {/* Main Action Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+
+          {/* Primary Actions - Mobile Optimized */}
+          <div className="space-y-4 lg:hidden">
+            {/* Mobile QR Scanner - Giant Button */}
+            <Button 
+              onClick={() => setShowQRScanner(true)}
+              className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 py-6 rounded-2xl text-xl font-bold shadow-xl border-4 border-white"
+              size="lg"
+            >
+              <QrCode className="w-8 h-8 mr-4" />
+              Scan QR Code to Print
+            </Button>
+
+            {/* Mobile Login Section */}
+            <div className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-200">
+              <h3 className="text-lg font-semibold text-rich-black mb-4 text-center">
+                Or Login with Phone Number
+              </h3>
+              <div className="space-y-3">
+                <PhoneInput
+                  value={customerPhone}
+                  onChange={setCustomerPhone}
+                  placeholder="10-digit phone number"
+                  className="w-full text-lg py-4"
+                />
+                <Button 
+                  onClick={handleCustomerLogin}
+                  className="w-full bg-rich-black text-white hover:bg-gray-800 py-4 text-lg font-semibold"
+                >
+                  Login & Start Printing
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <p className="text-center text-sm text-gray-500">
+                  Demo: 7434052121
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout - Side by Side */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
             {/* QR Scan Card - Primary */}
             <div className="bg-brand-yellow rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border-4 border-white">
               <div className="text-center">
@@ -201,7 +241,7 @@ export default function NewHomepage() {
                 </div>
                 <h2 className="text-2xl font-bold text-rich-black mb-4">Scan QR Code</h2>
                 <p className="text-rich-black/80 mb-6 leading-relaxed">
-                  Unlock exclusive access to print shops by scanning their QR codes. Get instant ordering capabilities!
+                  Unlock exclusive access to print shops by scanning their QR codes
                 </p>
                 <Button 
                   onClick={() => setShowQRScanner(true)}
@@ -209,7 +249,7 @@ export default function NewHomepage() {
                   className="bg-rich-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
                 >
                   <QrCode className="w-6 h-6 mr-3" />
-                  Start Scanning Now
+                  Start Scanning
                 </Button>
               </div>
             </div>
@@ -220,9 +260,9 @@ export default function NewHomepage() {
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Smartphone className="w-10 h-10 text-rich-black" />
                 </div>
-                <h2 className="text-2xl font-bold text-rich-black mb-4">Customer Login</h2>
+                <h2 className="text-2xl font-bold text-rich-black mb-4">Login with Phone</h2>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Already have an account? Login to access your orders, chat with shops, and track progress.
+                  Access your orders, chat with shops, and track progress
                 </p>
                 <div className="space-y-3">
                   <PhoneInput
@@ -240,220 +280,184 @@ export default function NewHomepage() {
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                   <div className="text-sm text-gray-500">
-                    Try demo: 7434052121
+                    Demo: 7434052121
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
-            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
-              <div className="text-3xl font-bold text-brand-yellow mb-2">50+</div>
-              <div className="text-gray-600 font-medium">Verified Print Shops</div>
+          {/* Trust Indicators - Mobile Optimized */}
+          <div className="grid grid-cols-3 gap-3 mt-8 lg:max-w-3xl lg:mx-auto lg:gap-6">
+            <div className="text-center p-3 lg:p-6 bg-gray-50 rounded-xl">
+              <div className="text-xl lg:text-3xl font-bold text-brand-yellow mb-1">50+</div>
+              <div className="text-xs lg:text-sm text-gray-600 font-medium">Print Shops</div>
             </div>
-            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
-              <div className="text-3xl font-bold text-brand-yellow mb-2">24/7</div>
-              <div className="text-gray-600 font-medium">Customer Support</div>
+            <div className="text-center p-3 lg:p-6 bg-gray-50 rounded-xl">
+              <div className="text-xl lg:text-3xl font-bold text-brand-yellow mb-1">24/7</div>
+              <div className="text-xs lg:text-sm text-gray-600 font-medium">Support</div>
             </div>
-            <div className="text-center p-6 bg-white/80 rounded-2xl backdrop-blur-sm border border-gray-100">
-              <div className="text-3xl font-bold text-brand-yellow mb-2">2k+</div>
-              <div className="text-gray-600 font-medium">Happy Customers</div>
+            <div className="text-center p-3 lg:p-6 bg-gray-50 rounded-xl">
+              <div className="text-xl lg:text-3xl font-bold text-brand-yellow mb-1">2k+</div>
+              <div className="text-xs lg:text-sm text-gray-600 font-medium">Customers</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Key Features - Mobile First */}
+      <section className="py-8 lg:py-16 bg-gray-50">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
+          
+          {/* Mobile: Stack vertically, Desktop: Grid */}
+          <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
+            
+            {/* QR Code Unlock Feature - Most Important */}
+            <div className="bg-brand-yellow rounded-2xl p-6 lg:col-span-1 shadow-lg">
+              <div className="text-center">
+                <QrCode className="w-12 h-12 text-rich-black mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-rich-black mb-3">QR Code Unlock</h3>
+                <p className="text-rich-black/80 text-sm leading-relaxed">
+                  Scan shop QR codes to instantly unlock ordering capabilities. No registration needed at shops!
+                </p>
+              </div>
+            </div>
+
+            {/* Real-time Chat */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+              <div className="text-center">
+                <MessageCircle className="w-12 h-12 text-brand-yellow mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-rich-black mb-3">Chat with Shops</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Direct messaging with shop owners. Share files, clarify requirements, get instant updates.
+                </p>
+              </div>
+            </div>
+
+            {/* Order Tracking */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+              <div className="text-center">
+                <Eye className="w-12 h-12 text-brand-yellow mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-rich-black mb-3">Live Tracking</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Track your order from upload to pickup. Get notified when your prints are ready.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* For Shop Owners */}
-          <div className="bg-gray-50 rounded-2xl p-6 max-w-2xl mx-auto border border-gray-200">
-            <h3 className="text-lg font-semibold text-rich-black mb-3 text-center">Are you a Print Shop Owner?</h3>
-            <p className="text-gray-600 mb-4 text-center">Join our network and get more customers through QR code marketing</p>
-            <div className="flex justify-center">
+          {/* Mobile CTA */}
+          <div className="mt-8 text-center lg:hidden">
+            <Button 
+              onClick={() => setShowQRScanner(true)}
+              className="bg-rich-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold"
+            >
+              <QrCode className="w-5 h-5 mr-2" />
+              Try QR Scanner Now
+            </Button>
+          </div>
+        </div>
+      </section>
+      {/* How It Works - Mobile Simplified */}
+      <section className="py-8 lg:py-16 bg-white">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-4xl font-bold text-rich-black mb-3">
+              How It Works
+            </h2>
+            <p className="text-gray-600 text-sm lg:text-lg">
+              Three simple steps to print anything
+            </p>
+          </div>
+
+          <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">1</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Scan QR Code</h3>
+              <p className="text-gray-600 text-sm">Find a print shop and scan their QR code to unlock ordering</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">2</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Upload & Order</h3>
+              <p className="text-gray-600 text-sm">Upload files or book walk-in appointments with specifications</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">3</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Collect & Pay</h3>
+              <p className="text-gray-600 text-sm">Get notified when ready and collect your prints</p>
+            </div>
+          </div>
+
+          {/* Mobile Bottom CTA */}
+          <div className="mt-8 text-center">
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Ready to Print?</h3>
+              <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 sm:justify-center">
+                <Button 
+                  onClick={() => setShowQRScanner(true)}
+                  className="w-full sm:w-auto bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-6 py-3 font-bold"
+                >
+                  <QrCode className="w-5 h-5 mr-2" />
+                  Scan QR Code
+                </Button>
+                <Button 
+                  onClick={handleCustomerLogin}
+                  variant="outline"
+                  className="w-full sm:w-auto border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3"
+                >
+                  <Smartphone className="w-5 h-5 mr-2" />
+                  Login Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Shop Owner Section - Mobile Optimized */}
+      <section className="py-8 lg:py-16 bg-brand-yellow">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
+          <div className="text-center">
+            <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
+              For Print Shop Owners
+            </h2>
+            <p className="text-rich-black/80 mb-6 text-sm lg:text-base">
+              Join our network and get more customers through QR code marketing
+            </p>
+            
+            <div className="bg-white rounded-2xl p-6 shadow-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">Free</div>
+                  <div className="text-xs text-gray-600">Registration</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">QR</div>
+                  <div className="text-xs text-gray-600">Marketing</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">More</div>
+                  <div className="text-xs text-gray-600">Customers</div>
+                </div>
+              </div>
+              
               <Button 
-                variant="outline"
                 onClick={() => setShowShopApplication(true)}
-                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-rich-black text-brand-yellow hover:bg-gray-800 py-3 font-bold"
               >
                 Register Your Print Shop
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
-          </div>
-        </div>
-      </section>
-      {/* Key Features USPs */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-rich-black mb-4">
-              Why Choose PrintEasy?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the future of printing with features designed for your convenience
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {usps.map((usp, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 bg-white">
-                <CardContent className="p-6">
-                  <div className={`w-12 h-12 rounded-xl ${usp.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    {usp.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-rich-black mb-3">{usp.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{usp.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* How It Works */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-rich-black mb-4">
-              How PrintEasy Works
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Four simple steps to get your documents printed professionally
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {howItWorks.map((step, index) => (
-              <div key={index} className="relative text-center">
-                {/* Connector Line */}
-                {index < howItWorks.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-brand-yellow/30 transform translate-x-4 -translate-y-1/2 z-0"></div>
-                )}
-                
-                <div className="relative z-10">
-                  {/* Step Number */}
-                  <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4 relative">
-                    <span className="text-2xl font-bold text-rich-black">{step.step}</span>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
-                      {step.icon}
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-rich-black mb-3">{step.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{step.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* Real-time Features Highlight */}
-      <section className="py-16 bg-brand-yellow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-rich-black mb-6">
-                Stay Connected, Stay Informed
-              </h2>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-5 h-5 text-brand-yellow" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-rich-black mb-2">Real-time Chat with Shop Owners</h3>
-                    <p className="text-rich-black">Communicate directly, share files, and clarify requirements instantly</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                    <Eye className="w-5 h-5 text-brand-yellow" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-rich-black mb-2">Live Order Tracking</h3>
-                    <p className="text-rich-black">Know exactly when your order is being processed and ready for pickup</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-5 h-5 text-brand-yellow" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-rich-black mb-2">Automatic File Cleanup</h3>
-                    <p className="text-rich-black">Your files are automatically deleted after order completion for privacy</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-white rounded-2xl p-8 shadow-2xl transform rotate-2">
-                <div className="transform -rotate-2">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-3 h-3 bg-brand-yellow rounded-full"></div>
-                    <span className="text-sm font-medium text-rich-black">Order Processing</span>
-                  </div>
-                  <div className="space-y-3 mb-6">
-                    <div className="bg-gray-100 rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-brand-yellow" />
-                        <span className="text-rich-black">Files uploaded - 10:30 AM</span>
-                      </div>
-                    </div>
-                    <div className="bg-brand-yellow/20 rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Printer className="w-4 h-4 text-brand-yellow" />
-                        <span className="text-rich-black">Printing started - 10:45 AM</span>
-                      </div>
-                    </div>
-                    <div className="bg-brand-yellow/20 rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-brand-yellow" />
-                        <span className="text-rich-black">Ready for pickup - 11:00 AM</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="bg-rich-black text-white hover:bg-gray-800 flex-1">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Chat
-                    </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* Call to Action */}
-      <section className="py-16 bg-rich-black text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-[#ffffff]">
-            Ready to Experience Hassle-Free Printing?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who trust PrintEasy for all their printing needs
-          </p>
-          
-          <div className="max-w-sm mx-auto">
-            <div className="flex gap-3 mb-4">
-              <PhoneInput
-                value={customerPhone}
-                onChange={setCustomerPhone}
-                placeholder="Enter phone number"
-                className="flex-1"
-              />
-              <Button 
-                onClick={handleCustomerLogin}
-                className="bg-brand-yellow text-rich-black hover:bg-yellow-500 px-6"
-              >
-                Start Now
-              </Button>
-            </div>
-            <p className="text-sm text-gray-400">
-              No registration fees • No hidden charges • Instant access
-            </p>
           </div>
         </div>
       </section>
