@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface AdminStats {
   totalUsers: number;
@@ -135,9 +136,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                <Settings className="w-5 h-5 text-rich-black" />
-              </div>
+              <PrintEasyLogo size="md" />
               <div>
                 <h1 className="text-xl font-bold text-rich-black">PrintEasy Admin</h1>
                 <p className="text-sm text-medium-gray">Platform Management Dashboard</p>
@@ -152,9 +151,7 @@ export default function AdminDashboard() {
                 </span>
               </Button>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-rich-black">A</span>
-                </div>
+                <PrintEasyLogo size="sm" />
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="w-5 h-5 text-medium-gray" />
                 </Button>

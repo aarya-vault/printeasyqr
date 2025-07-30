@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import QRScanner from '@/components/qr-scanner';
 import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
@@ -183,7 +184,10 @@ export default function NewHomepage() {
       {showNameModal && (
         <NameCollectionModal
           isOpen={showNameModal}
-          onSubmit={handleNameUpdate}
+          onClose={(name?: string) => {
+            if (name) handleNameUpdate(name);
+            else setShowNameModal(false);
+          }}
         />
       )}
       {/* Mobile-First Hero Section - QR & Login Priority */}

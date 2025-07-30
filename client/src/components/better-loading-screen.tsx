@@ -1,4 +1,5 @@
 import React from 'react';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface BetterLoadingScreenProps {
   message?: string;
@@ -17,8 +18,8 @@ export default function BetterLoadingScreen({
     <div className={containerClass}>
       <div className="text-center">
         {/* PrintEasy Branding */}
-        <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-rich-black font-bold text-xl">PE</span>
+        <div className="mx-auto mb-4">
+          <PrintEasyLogo size="xl" />
         </div>
         
         {/* Loading Progress Bar */}

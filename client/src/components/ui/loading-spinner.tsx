@@ -1,4 +1,5 @@
 import React from 'react';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -30,11 +31,8 @@ export function LoadingSpinner({
   return (
     <div className={`flex flex-col items-center justify-center space-y-4 ${containerClasses[size]} ${className}`}>
       {showLogo && (
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="w-8 h-8 bg-[#FFBF00] rounded-lg flex items-center justify-center">
-            <span className="text-black font-bold text-sm">P</span>
-          </div>
-          <span className="text-xl font-bold text-gray-900">PrintEasy</span>
+        <div className="mb-4">
+          <PrintEasyLogo size="md" showText={true} textSize="lg" />
         </div>
       )}
       

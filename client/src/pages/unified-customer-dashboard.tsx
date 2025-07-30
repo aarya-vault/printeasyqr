@@ -24,12 +24,13 @@ import QRScanner from '@/components/qr-scanner';
 import DetailedShopModal from '@/components/detailed-shop-modal';
 import UserGuides, { useUserGuides } from '@/components/user-guides';
 import { useToast } from '@/hooks/use-toast';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface Order {
   id: number;
   customerId: number;
-  customerName: string;
-  customerPhone: string;
+  customerName?: string;
+  customerPhone?: string;
   shopId: number;
   type: 'upload' | 'walkin';
   title: string;
@@ -231,7 +232,7 @@ export default function UnifiedCustomerDashboard() {
   if (selectedOrderForDetails) {
     return (
       <EnhancedCustomerOrderDetails
-        order={selectedOrderForDetails}
+        order={selectedOrderForDetails as any}
         onClose={handleDetailsClose}
       />
     );
@@ -301,9 +302,7 @@ export default function UnifiedCustomerDashboard() {
         <div className="flex items-center justify-between mb-4">
           {/* Consistent PrintEasy Branding */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
-              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-brand-yellow" />
-            </div>
+            <PrintEasyLogo size="lg" />
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy</h1>
               <p className="text-xs sm:text-sm text-rich-black/80 truncate">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>
@@ -581,7 +580,7 @@ export default function UnifiedCustomerDashboard() {
                     userRole="customer"
                     onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
                     onCallClick={(phone) => window.open(`tel:${phone}`)}
-                    onViewDetails={(order) => setSelectedOrderForDetails(order)}
+                    onViewDetails={(order) => setSelectedOrderForDetails(order as any)}
                   />
                 ))}
               </div>

@@ -19,6 +19,7 @@ import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button
 import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 import BottomNavigation from '@/components/common/bottom-navigation';
 import DetailedShopModal from '@/components/detailed-shop-modal';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface Order {
   id: number;
@@ -155,11 +156,7 @@ export default function RefinedCustomerDashboard() {
         <div className="flex items-center justify-between mb-4">
           {/* Professional PrintEasy QR Branding */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-brand-yellow rounded-sm flex items-center justify-center">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-rich-black rounded-xs"></div>
-              </div>
-            </div>
+            <PrintEasyLogo size="lg" />
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy QR</h1>
               <p className="text-xs sm:text-sm text-rich-black/80 truncate">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>

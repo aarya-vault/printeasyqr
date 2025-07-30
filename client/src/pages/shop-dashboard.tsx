@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeModal } from '@/components/shop/qr-code-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 import { Order, Shop } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -146,9 +147,7 @@ export default function ShopDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                <Store className="w-5 h-5 text-rich-black" />
-              </div>
+              <PrintEasyLogo size="md" />
               <div>
                 <h1 className="text-xl font-bold text-rich-black">{shop.name}</h1>
                 <div className="flex items-center">

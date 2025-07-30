@@ -325,14 +325,15 @@ export function SimpleShopQRModal({ isOpen, onClose, shop }: SimpleShopQRModalPr
                 width: '24px',
                 height: '24px',
                 backgroundColor: '#FFBF00',
-                borderRadius: '50%',
+                borderRadius: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 'bold'
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: '#000'
               }}>
-                P
+                🖨️
               </div>
               <span style={{ fontWeight: '600', color: '#000' }}>PrintEasy</span>
             </div>
