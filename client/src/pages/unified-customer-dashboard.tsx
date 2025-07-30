@@ -148,49 +148,59 @@ export default function UnifiedCustomerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                <Printer className="w-5 h-5 text-rich-black" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-rich-black">PrintEasy</h1>
-                <p className="text-sm text-gray-600">
-                  Welcome back, {user.name || 'Customer'}!
-                </p>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Professional PrintEasy QR Header */}
+      <div className="bg-brand-yellow px-3 sm:px-6 pt-10 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          {/* Professional PrintEasy QR Branding */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-brand-yellow rounded-sm flex items-center justify-center">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-rich-black rounded-xs"></div>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-6 h-6 text-gray-600" />
-              </Button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-rich-black">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
-                  </span>
-                </div>
-                <Button variant="ghost" size="sm" onClick={handleLogout}>
-                  <LogOut className="w-5 h-5 text-gray-600" />
-                </Button>
-              </div>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy QR</h1>
+              <p className="text-xs sm:text-sm text-rich-black/80 truncate">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>
             </div>
           </div>
+          
+          {/* Compact Header Actions */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="relative text-rich-black hover:bg-rich-black/10 p-1.5 sm:p-2"
+            >
+              <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+              {orderStats.active > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {orderStats.active}
+                </span>
+              )}
+            </Button>
+            
+            {/* Compact User Avatar */}
+            <div className="bg-rich-black text-brand-yellow w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">
+              {user?.name?.[0] || 'M'}
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-rich-black hover:bg-rich-black/10 p-1.5 sm:p-2"
+            >
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
+          </div>
         </div>
-      </header>
-      
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
-        {/* Beautiful Hero Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-yellow/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-brand-yellow/5 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
+        
+        {/* Mobile-First Hero Card */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg p-3 sm:p-6 relative overflow-hidden mx-3 sm:mx-0">
+          {/* Subtle Background Pattern */}
+          <div className="absolute top-0 right-0 w-16 sm:w-24 h-16 sm:h-24 bg-brand-yellow/5 rounded-full -translate-y-8 translate-x-8"></div>
+          <div className="absolute bottom-0 left-0 w-12 sm:w-20 h-12 sm:h-20 bg-brand-yellow/3 rounded-full translate-y-6 -translate-x-6"></div>
           
           <div className="relative z-10">
             {/* Main Content Based on Order Status */}
@@ -223,113 +233,132 @@ export default function UnifiedCustomerDashboard() {
                 </div>
               </div>
             ) : (
-              // Has Orders State - Focus on Current Order
+              // Has Orders State - Mobile-First Layout
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-rich-black">Your Print Status</h2>
-                    <p className="text-sm text-gray-600 mt-1">Track and manage your orders</p>
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base sm:text-lg font-bold text-rich-black">Your Print Status</h2>
+                    <p className="text-xs text-gray-600 mt-0.5">Track and manage your orders</p>
                   </div>
-                  <div className="text-right">
-                    <div className="bg-brand-yellow/20 px-3 py-1 rounded-full">
-                      <span className="text-sm font-medium text-rich-black">
+                  <div className="flex-shrink-0">
+                    <div className="bg-brand-yellow/20 px-2 py-1 rounded-full">
+                      <span className="text-xs font-medium text-rich-black">
                         {orderStats.active} Active
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Featured Current Order */}
+                {/* Current Order Card - Mobile Optimized */}
                 {recentOrders[0] && (
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl p-5 mb-5 border border-gray-200">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium`}>
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
+                          {recentOrders[0].status === 'ready' ? (
+                            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                          ) : recentOrders[0].status === 'processing' ? (
+                            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
+                          ) : (
+                            <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 mb-1.5 flex-wrap">
+                          <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium text-xs`}>
                             {getStatusIcon(recentOrders[0].status)}
                             <span className="ml-1 capitalize">{recentOrders[0].status}</span>
                           </Badge>
                           {recentOrders[0].isUrgent && (
-                            <Badge variant="destructive" className="text-xs animate-pulse">Urgent</Badge>
+                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
                           )}
                         </div>
-                        <h3 className="font-semibold text-rich-black text-lg">{recentOrders[0].title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{recentOrders[0].title}</h3>
+                        <p className="text-xs text-gray-600 mb-1">
                           at {recentOrders[0].shop?.name || 'Print Shop'}
                         </p>
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-xs text-gray-500">
                           Ordered {format(new Date(recentOrders[0].createdAt), 'MMM dd, HH:mm')}
                         </p>
                       </div>
-                      <div className="ml-4">
-                        <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center shadow-md">
-                          {recentOrders[0].status === 'ready' ? (
-                            <CheckCircle2 className="w-8 h-8 text-rich-black" />
-                          ) : recentOrders[0].status === 'processing' ? (
-                            <Clock className="w-8 h-8 text-rich-black animate-pulse" />
-                          ) : (
-                            <Package className="w-8 h-8 text-rich-black" />
-                          )}
-                        </div>
-                      </div>
                     </div>
                     
-                    <div className="flex gap-3 mt-4">
+                    {/* Mobile Action Buttons */}
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
                       <Button
                         size="sm"
-                        className="bg-rich-black text-white hover:bg-rich-black/90 flex-1"
+                        className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
                         onClick={() => setSelectedOrderForDetails({ ...recentOrders[0], customerPhone: recentOrders[0].customerPhone || user?.phone || '' })}
                       >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
+                        <Eye className="w-3 h-3 mr-1" />
+                        Details
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black flex-1"
+                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
                         onClick={() => setSelectedOrderForChat(recentOrders[0].id)}
                       >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Chat Shop
+                        <MessageCircle className="w-3 h-3 mr-1" />
+                        Chat
                       </Button>
                       {recentOrders[0].shop?.phone && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => window.open(`tel:${recentOrders[0].shop?.phone}`)}
-                          className="px-3"
+                          className="col-span-2 sm:col-span-1 text-xs h-8 sm:h-9"
                         >
-                          <Phone className="w-4 h-4" />
+                          <Phone className="w-3 h-3 mr-1" />
+                          Call Shop
                         </Button>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline"
-                    className="h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
-                    onClick={() => setShowUploadOrder(true)}
-                  >
-                    <Upload className="w-5 h-5 text-gray-600" />
-                    <span className="text-xs text-gray-600">New Upload</span>
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
-                    onClick={() => setShowWalkinOrder(true)}
-                  >
-                    <MapPin className="w-5 h-5 text-gray-600" />
-                    <span className="text-xs text-gray-600">Walk-in Order</span>
-                  </Button>
-                </div>
+                {/* Smart Actions Based on Order Status */}
+                {recentOrders[0] && (recentOrders[0].status === 'processing' || recentOrders[0].status === 'new') ? (
+                  // Processing Order - Show Add Files Button Only
+                  <div className="mt-3">
+                    <Button 
+                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
+                      onClick={() => setSelectedOrderForDetails({ ...recentOrders[0], customerPhone: recentOrders[0].customerPhone || user?.phone || '' })}
+                    >
+                      <Upload className="w-4 h-4" />
+                      Add More Files to Order
+                    </Button>
+                  </div>
+                ) : (
+                  // Completed Order - Show New Order Options
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <Button 
+                      variant="outline"
+                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
+                      onClick={() => setShowUploadOrder(true)}
+                    >
+                      <Upload className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                      <span className="text-gray-600">New Upload</span>
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
+                      onClick={() => setShowWalkinOrder(true)}
+                    >
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                      <span className="text-gray-600">Walk-in Order</span>
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
-        
+      </div>
+      
+      {/* Main Content Container */}
+      <main className="px-3 sm:px-6 py-4">
         {/* Recent Active Orders */}
         <Card className="mb-8">
           <CardContent className="p-6">
