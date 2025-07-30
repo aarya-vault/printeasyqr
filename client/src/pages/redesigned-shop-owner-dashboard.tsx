@@ -562,19 +562,53 @@ export default function RedesignedShopOwnerDashboard() {
               </button>
             </div>
 
-            {/* Logout Button - Redesigned */}
-            <button
-              onClick={() => {
-                // Simple, direct logout
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = '/';
+            {/* Logout Button - COMPLETELY ISOLATED */}
+            <div 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🚪 LOGOUT BUTTON CLICKED - STARTING LOGOUT PROCESS');
+                
+                try {
+                  // Clear all storage
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  console.log('🗑️ Storage cleared successfully');
+                  
+                  // Multiple redirect attempts to ensure it works
+                  console.log('🔄 Attempting redirect to homepage...');
+                  
+                  // First attempt
+                  window.location.replace('/');
+                  
+                  // Backup attempt after short delay
+                  setTimeout(() => {
+                    window.location.href = '/';
+                  }, 100);
+                  
+                  // Final fallback
+                  setTimeout(() => {
+                    window.location.assign('/');
+                  }, 200);
+                  
+                  console.log('✅ LOGOUT COMPLETE - REDIRECTING');
+                } catch (error) {
+                  console.error('❌ Logout error:', error);
+                  // Force redirect even on error
+                  window.location.href = '/';
+                }
               }}
-              className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-md transition-all duration-200 shadow-md hover:shadow-lg"
+              className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-md transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer select-none"
+              style={{ 
+                zIndex: 9999,
+                pointerEvents: 'auto',
+                userSelect: 'none',
+                WebkitUserSelect: 'none'
+              }}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </button>
+              LOGOUT
+            </div>
           </div>
         </div>
       </div>
