@@ -27,7 +27,7 @@ interface Order {
   shopId: number;
   type: 'upload' | 'walkin';
   title: string;
-  description: string;
+  description?: string;
   status: string;
   files?: any;
   walkinTime?: string;
@@ -41,7 +41,7 @@ interface Order {
     phone: string;
     city: string;
   };
-  customerPhone: string;
+  unreadCount?: number;
 }
 
 export default function UnifiedCustomerDashboard() {
@@ -152,25 +152,24 @@ export default function UnifiedCustomerDashboard() {
       {/* Professional PrintEasy QR Header */}
       <div className="bg-brand-yellow px-3 sm:px-6 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
-          {/* Professional PrintEasy QR Branding */}
+          {/* Consistent PrintEasy Branding */}
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-brand-yellow rounded-sm flex items-center justify-center">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-rich-black rounded-xs"></div>
-              </div>
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-brand-yellow" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy QR</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy</h1>
               <p className="text-xs sm:text-sm text-rich-black/80 truncate">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>
             </div>
           </div>
           
-          {/* Compact Header Actions */}
+          {/* Header Actions with Navigation */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="ghost"
               size="sm"
               className="relative text-rich-black hover:bg-rich-black/10 p-1.5 sm:p-2"
+              onClick={() => setLocation('/customer-notifications')}
             >
               <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
               {orderStats.active > 0 && (
@@ -180,10 +179,15 @@ export default function UnifiedCustomerDashboard() {
               )}
             </Button>
             
-            {/* Compact User Avatar */}
-            <div className="bg-rich-black text-brand-yellow w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">
-              {user?.name?.[0] || 'M'}
-            </div>
+            {/* User Avatar with Account Navigation */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="bg-rich-black text-brand-yellow w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm hover:bg-rich-black/90 p-0"
+              onClick={() => setLocation('/customer-account')}
+            >
+              {user?.name?.[0] || 'C'}
+            </Button>
             
             <Button
               variant="ghost"
@@ -205,30 +209,30 @@ export default function UnifiedCustomerDashboard() {
           <div className="relative z-10">
             {/* Main Content Based on Order Status */}
             {recentOrders.length === 0 ? (
-              // No Orders State - Welcoming and Encouraging
-              <div className="text-center py-8">
-                <div className="bg-gradient-to-br from-brand-yellow to-brand-yellow/80 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Star className="w-10 h-10 text-white" />
+              // Enhanced Fresh Signup Experience
+              <div className="text-center py-6 sm:py-8">
+                <div className="bg-brand-yellow w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                  <Star className="w-8 h-8 sm:w-10 sm:h-10 text-rich-black" />
                 </div>
-                <h2 className="text-2xl font-bold text-rich-black mb-3">Welcome to PrintEasy!</h2>
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <h2 className="text-xl sm:text-2xl font-bold text-rich-black mb-2 sm:mb-3">Welcome to PrintEasy!</h2>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed px-2">
                   Your printing journey starts here. Connect with local print shops and get your documents printed with ease.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex flex-col gap-2 sm:gap-3">
                   <Button 
-                    className="bg-rich-black text-white hover:bg-rich-black/90 shadow-lg"
-                    onClick={() => setLocation('/')}
+                    className="bg-rich-black text-white hover:bg-rich-black/90 shadow-lg h-10 sm:h-12 text-sm sm:text-base"
+                    onClick={() => setLocation('/browse-shops')}
                   >
                     <Store className="w-4 h-4 mr-2" />
                     Explore Print Shops
                   </Button>
                   <Button 
                     variant="outline"
-                    className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                    className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
                     onClick={() => setShowUploadOrder(true)}
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload & Print
+                    Upload & Print Now
                   </Button>
                 </div>
               </div>
@@ -289,7 +293,12 @@ export default function UnifiedCustomerDashboard() {
                       <Button
                         size="sm"
                         className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
-                        onClick={() => setSelectedOrderForDetails({ ...recentOrders[0], customerPhone: recentOrders[0].customerPhone || user?.phone || '' })}
+                        onClick={() => setSelectedOrderForDetails({ 
+                          ...recentOrders[0], 
+                          customerPhone: recentOrders[0].customerPhone || user?.phone || '',
+                          customerName: recentOrders[0].customerName || user?.name || 'Customer',
+                          type: recentOrders[0].type as 'upload' | 'walkin'
+                        })}
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         Details
@@ -301,7 +310,7 @@ export default function UnifiedCustomerDashboard() {
                         onClick={() => setSelectedOrderForChat(recentOrders[0].id)}
                       >
                         <MessageCircle className="w-3 h-3 mr-1" />
-                        Chat
+                        {recentOrders[0].status === 'completed' ? 'Chat History' : 'Chat'}
                       </Button>
                       {recentOrders[0].shop?.phone && (
                         <Button
@@ -318,20 +327,45 @@ export default function UnifiedCustomerDashboard() {
                   </div>
                 )}
 
-                {/* Smart Actions Based on Order Status */}
-                {recentOrders[0] && (recentOrders[0].status === 'processing' || recentOrders[0].status === 'new') ? (
-                  // Processing Order - Show Add Files Button Only
+                {/* Enhanced Smart Actions Based on Order Status */}
+                {recentOrders[0] && recentOrders[0].status === 'processing' && (
+                  // Processing Order - Show Add Files Button 
                   <div className="mt-3">
                     <Button 
                       className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
-                      onClick={() => setSelectedOrderForDetails({ ...recentOrders[0], customerPhone: recentOrders[0].customerPhone || user?.phone || '' })}
+                      onClick={() => setSelectedOrderForDetails({ 
+                        ...recentOrders[0], 
+                        customerPhone: recentOrders[0].customerPhone || user?.phone || '',
+                        customerName: recentOrders[0].customerName || user?.name || 'Customer',
+                        type: recentOrders[0].type as 'upload' | 'walkin'
+                      })}
                     >
                       <Upload className="w-4 h-4" />
                       Add More Files to Order
                     </Button>
                   </div>
-                ) : (
-                  // Completed Order - Show New Order Options
+                )}
+
+                {recentOrders[0] && recentOrders[0].status === 'ready' && (
+                  // Ready Order - Show Pickup Available
+                  <div className="mt-3">
+                    <Button 
+                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 font-medium text-sm sm:text-base shadow-sm"
+                      onClick={() => setSelectedOrderForDetails({ 
+                        ...recentOrders[0], 
+                        customerPhone: recentOrders[0].customerPhone || user?.phone || '',
+                        customerName: recentOrders[0].customerName || user?.name || 'Customer',
+                        type: recentOrders[0].type as 'upload' | 'walkin'
+                      })}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Pickup Available - View Details
+                    </Button>
+                  </div>
+                )}
+
+                {recentOrders[0] && recentOrders[0].status === 'completed' && (
+                  // Completed Order - Show New Order Options (No Add Files)
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     <Button 
                       variant="outline"
@@ -349,6 +383,17 @@ export default function UnifiedCustomerDashboard() {
                       <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                       <span className="text-gray-600">Walk-in Order</span>
                     </Button>
+                  </div>
+                )}
+
+                {recentOrders[0] && recentOrders[0].status === 'new' && (
+                  // New Order - Show Status Message
+                  <div className="mt-3">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-800 text-center">
+                        Your order is being reviewed by the shop. They'll contact you shortly!
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -391,7 +436,12 @@ export default function UnifiedCustomerDashboard() {
                     userRole="customer"
                     onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
                     onCallClick={(phone) => window.open(`tel:${phone}`)}
-                    onViewDetails={(order) => setSelectedOrderForDetails({ ...order, customerPhone: order.customerPhone || user?.phone || '' })}
+                    onViewDetails={(order) => setSelectedOrderForDetails({ 
+                      ...order, 
+                      customerPhone: order.customerPhone || user?.phone || '',
+                      customerName: order.customerName || user?.name || 'Customer',
+                      type: order.type as 'upload' | 'walkin'
+                    })}
                   />
                 ))}
               </div>
@@ -408,6 +458,8 @@ export default function UnifiedCustomerDashboard() {
             setShowUploadOrder(false);
             queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
           }}
+          shops={[]}
+          onSubmit={() => {}}
         />
       )}
 
@@ -418,6 +470,8 @@ export default function UnifiedCustomerDashboard() {
             setShowWalkinOrder(false);
             queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
           }}
+          shops={[]}
+          onSubmit={() => {}}
         />
       )}
 
