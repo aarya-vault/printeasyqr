@@ -10,13 +10,25 @@ interface User {
   needsNameUpdate?: boolean;
 }
 
+// Persistent user data interface for auto-fill
+interface PersistentUserData {
+  phone?: string;
+  name?: string;
+  email?: string;
+  lastLoginTime?: number;
+}
+
 interface AuthContextType {
   user: User | null;
-  login: (credentials: { phone?: string; email?: string; password?: string }) => Promise<User>;
+  login: (credentials: { phone?: string; email?: string; password?: string; name?: string }) => Promise<User>;
   adminLogin: (email: string, password: string) => Promise<User>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
   isLoading: boolean;
+  // New persistent data methods
+  getPersistentUserData: () => PersistentUserData | null;
+  savePersistentUserData: (data: Partial<PersistentUserData>) => void;
+  clearPersistentUserData: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -55,7 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkSession();
   }, []);
 
-  const login = async (credentials: { phone?: string; email?: string; password?: string }): Promise<User> => {
+  const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
     setIsLoading(true);
     try {
       let endpoint = '/api/auth/login';
@@ -65,6 +77,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Customer phone-based login
         endpoint = '/api/auth/phone-login';
         body = { phone: credentials.phone };
+        if (credentials.name) {
+          body.name = credentials.name;
+        }
       } else if (credentials.email && credentials.password) {
         // Shop owner or admin email+password login
         endpoint = '/api/auth/email-login';
@@ -88,6 +103,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userData = await response.json();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Save persistent user data for auto-fill
+      const persistentData: Partial<PersistentUserData> = {};
+      if (userData.phone) persistentData.phone = userData.phone;
+      if (userData.name) persistentData.name = userData.name;
+      if (userData.email) persistentData.email = userData.email;
+      savePersistentUserData(persistentData);
+      
       return userData;
     } catch (error) {
       console.error('Login error:', error);
@@ -164,8 +187,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Persistent user data methods for auto-fill functionality
+  const getPersistentUserData = (): PersistentUserData | null => {
+    try {
+      const stored = localStorage.getItem('persistentUserData');
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.error('Error getting persistent user data:', error);
+      return null;
+    }
+  };
+
+  const savePersistentUserData = (data: Partial<PersistentUserData>) => {
+    try {
+      const existing = getPersistentUserData() || {};
+      const updated = {
+        ...existing,
+        ...data,
+        lastLoginTime: Date.now()
+      };
+      localStorage.setItem('persistentUserData', JSON.stringify(updated));
+    } catch (error) {
+      console.error('Error saving persistent user data:', error);
+    }
+  };
+
+  const clearPersistentUserData = () => {
+    try {
+      localStorage.removeItem('persistentUserData');
+    } catch (error) {
+      console.error('Error clearing persistent user data:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, adminLogin, logout, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      adminLogin, 
+      logout, 
+      updateUser, 
+      isLoading,
+      getPersistentUserData,
+      savePersistentUserData,
+      clearPersistentUserData
+    }}>
       {children}
     </AuthContext.Provider>
   );

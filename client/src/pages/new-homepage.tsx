@@ -28,9 +28,17 @@ export default function NewHomepage() {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [showShopApplication, setShowShopApplication] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
-  const { user, login, updateUser } = useAuth();
+  const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+
+  // Auto-fill customer phone from persistent data
+  useEffect(() => {
+    const persistentData = getPersistentUserData();
+    if (persistentData?.phone && !user) {
+      setCustomerPhone(persistentData.phone);
+    }
+  }, [getPersistentUserData, user]);
 
   // Redirect authenticated users to their respective dashboards
   useEffect(() => {

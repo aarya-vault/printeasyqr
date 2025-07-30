@@ -18,6 +18,8 @@ import {
   FileText, AlertCircle, CheckCircle, X
 } from 'lucide-react';
 import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
+import { useAuth } from '@/hooks/use-auth';
+import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -51,6 +53,7 @@ export default function ShopOrder() {
   const { toast } = useToast();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [orderType, setOrderType] = useState<'upload' | 'walkin'>('upload');
+  const { getPersistentUserData } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<{ shop: Shop }>({
@@ -62,16 +65,27 @@ export default function ShopOrder() {
 
   const shop = shopData?.shop;
 
+  // Auto-fill from persistent data
+  const persistentData = getPersistentUserData();
+  
   const form = useForm<OrderForm>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      name: '',
-      contactNumber: '',
+      name: persistentData?.name || '',
+      contactNumber: persistentData?.phone || '',
       orderType: 'upload',
       isUrgent: false,
       description: '',
     },
   });
+
+  // Update form when persistent data becomes available
+  useEffect(() => {
+    if (persistentData) {
+      if (persistentData.name) form.setValue('name', persistentData.name);
+      if (persistentData.phone) form.setValue('contactNumber', persistentData.phone);
+    }
+  }, [persistentData, form]);
 
   // Calculate if shop is open and accepting orders with 24/7 support
   const isShopOpen = () => {
@@ -193,12 +207,10 @@ export default function ShopOrder() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-32"></div>
-        </div>
-      </div>
+      <DashboardLoading 
+        title="Loading Shop Information..." 
+        subtitle="Getting shop details, working hours, and order settings"
+      />
     );
   }
 

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { printFile, printAllFiles } from '@/utils/print-helpers';
 import {
   Search,
@@ -483,12 +484,10 @@ export default function RedesignedShopOwnerDashboard() {
 
   if (shopLoading || ordersLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
+      <DashboardLoading 
+        title="Loading Shop Dashboard..." 
+        subtitle="Fetching orders, chat messages, and shop data"
+      />
     );
   }
 

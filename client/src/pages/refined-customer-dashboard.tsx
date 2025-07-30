@@ -12,8 +12,7 @@ import {
   Home, ShoppingCart, Bell, User, ArrowRight, MapPin, Phone, Star, Store, LogOut
 } from 'lucide-react';
 import { format } from 'date-fns';
-import LoadingScreen from '@/components/loading-screen';
-import EnhancedOrderChat from '@/components/enhanced-order-chat';
+import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import OrderDetailsModal from '@/components/order-details-modal';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
@@ -127,7 +126,7 @@ export default function RefinedCustomerDashboard() {
   };
 
   if (isLoading) {
-    return <LoadingScreen message="Loading your dashboard..." />;
+    return <DashboardLoading title="Loading your dashboard..." subtitle="Getting your orders, shop data, and account information" />;
   }
 
   return (
