@@ -564,37 +564,35 @@ export default function RedesignedShopOwnerDashboard() {
 
             {/* Logout Button - COMPLETELY ISOLATED */}
             <div 
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('🚪 LOGOUT BUTTON CLICKED - STARTING LOGOUT PROCESS');
                 
                 try {
-                  // Clear all storage
+                  // STEP 1: Call logout API to clear server session
+                  console.log('📡 Calling logout API...');
+                  await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                  });
+                  console.log('✅ Server session cleared');
+                  
+                  // STEP 2: Clear all client storage
                   localStorage.clear();
                   sessionStorage.clear();
-                  console.log('🗑️ Storage cleared successfully');
+                  console.log('🗑️ Client storage cleared successfully');
                   
-                  // Multiple redirect attempts to ensure it works
-                  console.log('🔄 Attempting redirect to homepage...');
-                  
-                  // First attempt
-                  window.location.replace('/');
-                  
-                  // Backup attempt after short delay
-                  setTimeout(() => {
-                    window.location.href = '/';
-                  }, 100);
-                  
-                  // Final fallback
-                  setTimeout(() => {
-                    window.location.assign('/');
-                  }, 200);
+                  // STEP 3: Force immediate redirect
+                  console.log('🔄 Forcing redirect to homepage...');
+                  window.location.href = '/';
                   
                   console.log('✅ LOGOUT COMPLETE - REDIRECTING');
                 } catch (error) {
                   console.error('❌ Logout error:', error);
                   // Force redirect even on error
+                  localStorage.clear();
+                  sessionStorage.clear();
                   window.location.href = '/';
                 }
               }}
