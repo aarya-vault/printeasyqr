@@ -502,112 +502,93 @@ export default function RedesignedShopOwnerDashboard() {
               <h1 className="text-xl font-bold text-rich-black">
                 {shopData?.shop?.name || 'Shop Dashboard'}
               </h1>
-              <Badge className={shopData?.shop?.isOnline ? 'bg-brand-yellow text-rich-black' : 'bg-gray-200 text-gray-800'}>
-                {shopData?.shop?.isOnline ? 'Open' : 'Closed'}
-              </Badge>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowQRModal(true)}
-              >
-                <QrCode className="w-4 h-4 mr-2" />
-                QR Code
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/shop-order-history')}
-              >
-                <History className="w-4 h-4 mr-2" />
-                Order History
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/shop-settings')}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Button>
-            </div>
-          </div>
-          
-          {/* NEW PROFESSIONAL HEADER CONTROLS */}
-          <div className="flex items-center space-x-4">
-            {/* Shop Status Toggle - Redesigned */}
-            <div className="flex items-center bg-white rounded-lg border border-gray-200 px-3 py-2 shadow-sm">
-              <span className="text-sm font-medium text-gray-600 mr-3">Status:</span>
-              <button
-                onClick={() => {
-                  if (shopData?.shop?.id) {
-                    toggleShopStatus.mutate();
-                  }
-                }}
-                disabled={toggleShopStatus.isPending}
-                className={`
-                  px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 min-w-[80px]
-                  ${shopData?.shop?.isOnline 
-                    ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }
-                  ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                `}
-              >
-                <div className="flex items-center justify-center">
+            
+            <div className="flex items-center space-x-4">
+              {/* Navigation Buttons */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowQRModal(true)}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  QR Code
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/shop-order-history')}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  Order History
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/shop-settings')}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Button>
+              </div>
+
+              {/* Shop Status Toggle */}
+              <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200 px-3 py-2">
+                <span className="text-sm font-medium text-gray-700 mr-3">Status:</span>
+                <button
+                  onClick={() => {
+                    if (shopData?.shop?.id) {
+                      toggleShopStatus.mutate();
+                    }
+                  }}
+                  disabled={toggleShopStatus.isPending}
+                  className={`
+                    flex items-center px-3 py-1.5 rounded-md font-semibold text-sm transition-all duration-200 min-w-[70px]
+                    ${shopData?.shop?.isOnline 
+                      ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 shadow-sm' 
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }
+                    ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  `}
+                >
                   <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
                   {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
-                </div>
+                </button>
+              </div>
+
+              {/* Logout Button */}
+              <button 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  try {
+                    await fetch('/api/auth/logout', {
+                      method: 'POST',
+                      credentials: 'include'
+                    });
+                    
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  } catch (error) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  }
+                }}
+                className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
               </button>
             </div>
-
-            {/* Logout Button - COMPLETELY ISOLATED */}
-            <div 
-              onClick={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🚪 LOGOUT BUTTON CLICKED - STARTING LOGOUT PROCESS');
-                
-                try {
-                  // STEP 1: Call logout API to clear server session
-                  console.log('📡 Calling logout API...');
-                  await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                  });
-                  console.log('✅ Server session cleared');
-                  
-                  // STEP 2: Clear all client storage
-                  localStorage.clear();
-                  sessionStorage.clear();
-                  console.log('🗑️ Client storage cleared successfully');
-                  
-                  // STEP 3: Force immediate redirect
-                  console.log('🔄 Forcing redirect to homepage...');
-                  window.location.href = '/';
-                  
-                  console.log('✅ LOGOUT COMPLETE - REDIRECTING');
-                } catch (error) {
-                  console.error('❌ Logout error:', error);
-                  // Force redirect even on error
-                  localStorage.clear();
-                  sessionStorage.clear();
-                  window.location.href = '/';
-                }
-              }}
-              className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-md transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer select-none"
-              style={{ 
-                zIndex: 9999,
-                pointerEvents: 'auto',
-                userSelect: 'none',
-                WebkitUserSelect: 'none'
-              }}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              LOGOUT
-            </div>
           </div>
+
         </div>
       </div>
 
