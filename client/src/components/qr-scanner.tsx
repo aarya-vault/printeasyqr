@@ -27,13 +27,14 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
 
   // Mutation to unlock shop
   const unlockShopMutation = useMutation({
-    mutationFn: async ({ shopId }: { shopId: number }) => {
+    mutationFn: async ({ shopId, shopSlug }: { shopId?: number; shopSlug?: string }) => {
       const response = await fetch('/api/customer/unlock-shop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           customerId: user?.id, 
           shopId,
+          shopSlug,
           qrScanLocation: 'dashboard_scanner'
         })
       });
@@ -140,17 +141,20 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
       
       // Check if it's a numeric shop ID or shop slug
       const shopId = parseInt(shopIdentifier);
-      if (isNaN(shopId)) {
-        throw new Error('Shop slug scanning not yet supported. Please scan shop ID QR codes.');
-      }
       
       // Stop scanning temporarily while processing
       if (qrScannerRef.current) {
         qrScannerRef.current.pause();
       }
       
-      // Unlock the shop
-      unlockShopMutation.mutate({ shopId });
+      // Unlock the shop - handle both numeric IDs and slugs
+      if (isNaN(shopId)) {
+        // It's a shop slug
+        unlockShopMutation.mutate({ shopSlug: shopIdentifier });
+      } else {
+        // It's a numeric shop ID
+        unlockShopMutation.mutate({ shopId });
+      }
       
     } catch (error) {
       console.error('QR scan error:', error);

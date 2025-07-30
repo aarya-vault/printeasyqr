@@ -745,13 +745,24 @@ app.patch('/api/debug/patch-test', (req, res) => {
   // Customer shop unlock endpoints
   app.post('/api/customer/unlock-shop', async (req, res) => {
     try {
-      const { customerId, shopId, qrScanLocation } = req.body;
+      const { customerId, shopId, shopSlug, qrScanLocation } = req.body;
       
-      if (!customerId || !shopId) {
-        return res.status(400).json({ message: 'Customer ID and Shop ID are required' });
+      if (!customerId || (!shopId && !shopSlug)) {
+        return res.status(400).json({ message: 'Customer ID and either Shop ID or Shop Slug are required' });
       }
       
-      const result = await storage.unlockShopForCustomer(customerId, shopId, qrScanLocation);
+      let actualShopId = shopId;
+      
+      // If shopSlug is provided, find the shop by slug first
+      if (shopSlug && !shopId) {
+        const shop = await storage.getShopBySlug(shopSlug);
+        if (!shop) {
+          return res.status(404).json({ message: 'Shop not found with the provided slug' });
+        }
+        actualShopId = shop.id;
+      }
+      
+      const result = await storage.unlockShopForCustomer(customerId, actualShopId, qrScanLocation);
       res.json(result);
     } catch (error) {
       console.error('Error unlocking shop:', error);
