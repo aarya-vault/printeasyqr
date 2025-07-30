@@ -1,8 +1,8 @@
-# PrintEasy - Business Printing Platform
+# PrintEasy QR - Business Printing Platform
 
 ## Overview
 
-PrintEasy is a comprehensive B2B2C digital platform that connects customers needing printing services with local print shops. The application provides two primary order flows: digital file uploads for pre-planned printing needs and walk-in orders for immediate service. The platform facilitates order management, real-time communication, and streamlined business operations for print shops while offering customers a convenient way to access printing services.
+PrintEasy QR (nicknamed PrintEasy) is a comprehensive B2B2C digital platform that connects customers needing printing services with local print shops. The application provides two primary order flows: digital file uploads for pre-planned printing needs and walk-in orders for immediate service. The platform facilitates order management, real-time communication, and streamlined business operations for print shops while offering customers a convenient way to access printing services.
 
 **Current Status (January 30, 2025)**: Revolutionary mobile-first homepage redesign prioritizing QR scanning and login as the two most critical user actions. Complete UX overhaul based on user behavior insights - QR scanning is now the dominant hero action with massive buttons and priority placement. Mobile users see giant QR scanner button immediately, followed by streamlined login section. Desktop maintains elegant two-card layout. Bottom navigation enhanced with elevated golden QR scanner button in center position.
 
