@@ -25,38 +25,23 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
   const [scanError, setScanError] = useState<string | null>(null);
   const [lastScanResult, setLastScanResult] = useState<string | null>(null);
 
-  // Check authentication on component mount
-  useEffect(() => {
-    if (isOpen && !user?.id) {
-      setScanError('Please log in to scan QR codes');
-      toast({
-        title: 'Authentication Required',
-        description: 'Please log in to your account to scan QR codes',
-        variant: 'destructive'
-      });
-    }
-  }, [isOpen, user?.id, toast]);
+  // No authentication check needed - anonymous users can scan QR codes too
 
-  // Mutation to unlock shop
+  // Mutation to unlock shop (for authenticated users)
   const unlockShopMutation = useMutation({
     mutationFn: async ({ shopId, shopSlug }: { shopId?: number; shopSlug?: string }) => {
-      // Validate user authentication
-      if (!user?.id) {
-        throw new Error('Please log in to scan QR codes');
-      }
-      
       // Validate shop identifier
       if (!shopId && !shopSlug) {
         throw new Error('Invalid QR code - no shop identifier found');
       }
       
-      console.log('Unlocking shop:', { customerId: user.id, shopId, shopSlug });
+      console.log('Unlocking shop:', { customerId: user?.id, shopId, shopSlug });
       
       const response = await fetch('/api/customer/unlock-shop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          customerId: user.id, 
+          customerId: user?.id, 
           shopId,
           shopSlug,
           qrScanLocation: 'dashboard_scanner'
@@ -95,7 +80,7 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
 
   // Initialize scanner when dialog opens
   useEffect(() => {
-    if (isOpen && user?.id) {
+    if (isOpen) {
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
         if (videoRef.current) {
@@ -112,7 +97,7 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
         qrScannerRef.current = null;
       }
     };
-  }, [isOpen, user?.id]);
+  }, [isOpen]);
 
   const initializeScanner = async () => {
     try {
@@ -171,13 +156,31 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
         qrScannerRef.current.pause();
       }
       
-      // Unlock the shop - handle both numeric IDs and slugs
-      if (isNaN(shopId)) {
-        // It's a shop slug
-        unlockShopMutation.mutate({ shopSlug: shopIdentifier });
+      // Handle shop access based on user authentication
+      if (user?.id) {
+        // Authenticated user - unlock the shop
+        if (isNaN(shopId)) {
+          // It's a shop slug
+          unlockShopMutation.mutate({ shopSlug: shopIdentifier });
+        } else {
+          // It's a numeric shop ID
+          unlockShopMutation.mutate({ shopId });
+        }
       } else {
-        // It's a numeric shop ID
-        unlockShopMutation.mutate({ shopId });
+        // Anonymous user - redirect to shop page
+        const shopUrl = isNaN(shopId) ? `/shop/${shopIdentifier}` : `/shop/${shopIdentifier}`;
+        
+        toast({
+          title: 'Redirecting to Shop',
+          description: 'You will be taken to the shop page to place orders'
+        });
+        
+        onClose();
+        
+        // Navigate to shop page
+        setTimeout(() => {
+          window.location.href = shopUrl;
+        }, 500);
       }
       
     } catch (error) {
@@ -223,7 +226,10 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
               <div>
                 <h4 className="font-medium text-sm text-black mb-1">How to unlock shops:</h4>
                 <p className="text-xs text-gray-600">
-                  Point your camera at a PrintEasy shop QR code to unlock ordering capabilities for that shop permanently.
+                  {user?.id 
+                    ? "Point your camera at a PrintEasy shop QR code to unlock ordering capabilities for that shop permanently."
+                    : "Point your camera at a PrintEasy shop QR code to visit the shop page and place orders."
+                  }
                 </p>
               </div>
             </div>
