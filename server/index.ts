@@ -3,7 +3,7 @@ import session from "express-session";
 import { registerRoutes } from "./routes";
 import seedDatabase from "./seed-data";
 import { setupVite, serveStatic, log } from "./vite";
-import { errorHandler, notFoundHandler } from "./error-handler";
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 
 // Extend session interface
 declare module 'express-session' {

@@ -10,7 +10,7 @@ import {
   ArrowLeft, Search, Upload, Users, MapPin, Phone, 
   Clock, Star, Package, RefreshCw
 } from 'lucide-react';
-import LoadingScreen from '@/components/loading-screen';
+import LoadingScreen from '@/components/common/loading-screen';
 
 export default function CustomerVisitedShops() {
   const { user } = useAuth();

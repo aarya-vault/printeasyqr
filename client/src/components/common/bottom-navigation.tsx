@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Home, Package, Store, User, QrCode } from 'lucide-react';
-import QRScanner from '@/components/qr-scanner';
+import QRScanner from '@/components/common/qr-scanner';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';

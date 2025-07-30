@@ -11,7 +11,7 @@ import {
   CheckCircle, PlayCircle, Truck, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
-import UnifiedChatSystem from '@/components/unified-chat-system';
+import UnifiedChatSystem from '@/components/common/unified-chat-system';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { printFile, printAllFiles } from '@/utils/print-helpers';

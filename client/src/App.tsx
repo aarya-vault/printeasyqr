@@ -14,18 +14,17 @@ import CustomerAccount from "@/pages/customer-account";
 import CustomerOrders from "@/pages/customer-orders";
 import CustomerVisitedShops from "@/pages/customer-visited-shops";
 import BrowseShops from "@/pages/browse-shops";
-import RedesignedShopOwnerDashboard from "@/pages/redesigned-shop-owner-dashboard";
+import ShopDashboard from "@/pages/shop-dashboard";
 import ShopOrderHistory from "@/pages/shop-order-history";
 import ShopOrderDetails from "@/pages/shop-order-details";
 import ShopChatSystem from "@/pages/shop-chat-system";
 import RedesignedShopSettings from "@/pages/redesigned-shop-settings";
-import EnhancedAdminDashboard from "@/pages/enhanced-admin-dashboard";
+import AdminDashboard from "@/pages/admin-dashboard";
 import { AdminLogin } from "@/components/auth/admin-login";
-import SimpleShopApplication from "@/components/simple-shop-application";
+import SimpleShopApplication from "@/components/pages/simple-shop-application";
 import ShopOrder from "@/pages/shop-order";
 import OrderConfirmation from "@/pages/order-confirmation";
 import ShopNotifications from "@/pages/shop-notifications";
-import EnhancedShopOrderHistory from "./pages/enhanced-shop-order-history";
 
 function Router() {
   return (
@@ -38,18 +37,17 @@ function Router() {
       <Route path="/customer-orders" component={CustomerOrders} />
       <Route path="/customer-visited-shops" component={CustomerVisitedShops} />
       <Route path="/browse-shops" component={BrowseShops} />
-      <Route path="/shop-dashboard" component={RedesignedShopOwnerDashboard} />
+      <Route path="/shop-dashboard" component={ShopDashboard} />
       <Route path="/shop-order-history" component={ShopOrderHistory} />
       <Route path="/shop-dashboard/chat/:orderId" component={ShopChatSystem} />
       <Route path="/shop-dashboard/orders/:orderId" component={ShopOrderDetails} />
       <Route path="/shop-settings" component={RedesignedShopSettings} />
-      <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
+      <Route path="/admin-dashboard" component={AdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/apply-shop" component={SimpleShopApplication} />
       <Route path="/shop/:slug" component={ShopOrder} />
       <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
       <Route path="/shop-notifications" component={ShopNotifications} />
-      <Route path="/enhanced-shop-order-history" component={EnhancedShopOrderHistory} />
       <Route component={NotFound} />
     </Switch>
   );
