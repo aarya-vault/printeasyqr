@@ -12,4 +12,4 @@ export * from './common/shop-status-indicator';
 export * from './common/unified-chat-system';
 export * from './common/unified-floating-chat-button';
 export * from './common/unified-order-card';
-export * from './pages/simple-shop-application';
+// Shop application component removed during cleanup
