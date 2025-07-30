@@ -132,33 +132,34 @@ export default function RefinedCustomerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Professional Header with PrintEasy Branding */}
-      <div className="bg-brand-yellow px-4 sm:px-6 pt-12 pb-8">
-        <div className="flex items-center justify-between mb-6">
-          {/* PrintEasy Logo and Brand */}
-          <div className="flex items-center gap-3">
-            <div className="bg-rich-black p-2 rounded-lg shadow-md">
-              <Package className="w-6 h-6 text-brand-yellow" />
+      {/* Professional PrintEasy QR Header */}
+      <div className="bg-brand-yellow px-3 sm:px-6 pt-10 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          {/* Professional PrintEasy QR Branding */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-rich-black p-1.5 sm:p-2 rounded-lg shadow-lg">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-brand-yellow rounded-sm flex items-center justify-center">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-rich-black rounded-xs"></div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-rich-black">PrintEasy</h1>
-              <p className="text-sm text-rich-black/70 hidden sm:block">Welcome back, {user?.name || 'Metro Stationery & Xerox'}!</p>
-              <p className="text-xs text-rich-black/70 sm:hidden">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold text-rich-black leading-tight">PrintEasy QR</h1>
+              <p className="text-xs sm:text-sm text-rich-black/80 truncate">Welcome, {user?.name?.split(' ')[0] || 'Customer'}!</p>
             </div>
           </div>
           
-          {/* Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Compact Header Actions */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <RealTimeNotificationBell />
             
-            {/* User Avatar */}
-            <div className="bg-rich-black text-brand-yellow w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base">
+            {/* Compact User Avatar */}
+            <div className="bg-rich-black text-brand-yellow w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">
               {user?.name?.[0] || 'M'}
             </div>
             
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={() => {
                 logout();
                 navigate('/');
@@ -167,18 +168,18 @@ export default function RefinedCustomerDashboard() {
                   description: "You have been successfully logged out"
                 });
               }}
-              className="text-rich-black hover:bg-rich-black/10 p-2"
+              className="text-rich-black hover:bg-rich-black/10 p-1.5 sm:p-2"
             >
-              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         </div>
         
-        {/* Mobile Responsive Hero Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-brand-yellow/10 rounded-full -translate-y-8 sm:-translate-y-16 translate-x-8 sm:translate-x-16"></div>
-          <div className="absolute bottom-0 left-0 w-16 sm:w-24 h-16 sm:h-24 bg-brand-yellow/5 rounded-full translate-y-8 sm:translate-y-12 -translate-x-8 sm:-translate-x-12"></div>
+        {/* Mobile-First Hero Card */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg p-3 sm:p-6 relative overflow-hidden">
+          {/* Subtle Background Pattern */}
+          <div className="absolute top-0 right-0 w-16 sm:w-24 h-16 sm:h-24 bg-brand-yellow/5 rounded-full -translate-y-8 translate-x-8"></div>
+          <div className="absolute bottom-0 left-0 w-12 sm:w-20 h-12 sm:h-20 bg-brand-yellow/3 rounded-full translate-y-6 -translate-x-6"></div>
           
           <div className="relative z-10">
             {/* Main Content Based on Order Status */}
@@ -210,119 +211,121 @@ export default function RefinedCustomerDashboard() {
                 </div>
               </div>
             ) : (
-              // Has Orders State - Focus on Current Order
+              // Has Orders State - Mobile-First Layout
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-rich-black">Your Print Status</h2>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">Track and manage your orders</p>
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base sm:text-lg font-bold text-rich-black">Your Print Status</h2>
+                    <p className="text-xs text-gray-600 mt-0.5">Track and manage your orders</p>
                   </div>
-                  <div className="text-left sm:text-right">
-                    <div className="bg-brand-yellow/20 px-2 sm:px-3 py-1 rounded-full inline-block">
-                      <span className="text-xs sm:text-sm font-medium text-rich-black">
+                  <div className="flex-shrink-0">
+                    <div className="bg-brand-yellow/20 px-2 py-1 rounded-full">
+                      <span className="text-xs font-medium text-rich-black">
                         {orderStats.active} Active
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Featured Current Order - Mobile Responsive */}
+                {/* Current Order Card - Mobile Optimized */}
                 {recentOrders[0] && (
-                  <div className="bg-gray-50 rounded-xl p-4 sm:p-5 mb-4 sm:mb-5 border border-gray-200">
-                    <div className="flex items-start justify-between mb-3">
+                  <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
+                          {recentOrders[0].status === 'ready' ? (
+                            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                          ) : recentOrders[0].status === 'processing' ? (
+                            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
+                          ) : (
+                            <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                          )}
+                        </div>
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
+                        <div className="flex items-center gap-1 mb-1.5 flex-wrap">
                           <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium text-xs`}>
                             {getStatusIcon(recentOrders[0].status)}
                             <span className="ml-1 capitalize">{recentOrders[0].status}</span>
                           </Badge>
                           {recentOrders[0].isUrgent && (
-                            <Badge variant="destructive" className="text-xs animate-pulse">Urgent</Badge>
+                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
                           )}
                         </div>
-                        <h3 className="font-semibold text-rich-black text-base sm:text-lg truncate">{recentOrders[0].title}</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
+                        <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{recentOrders[0].title}</h3>
+                        <p className="text-xs text-gray-600 mb-1">
                           at {recentOrders[0].shop?.name || 'Print Shop'}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1 sm:mt-2">
+                        <p className="text-xs text-gray-500">
                           Ordered {format(new Date(recentOrders[0].createdAt), 'MMM dd, HH:mm')}
                         </p>
                       </div>
-                      <div className="ml-2 sm:ml-4 flex-shrink-0">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-yellow rounded-full flex items-center justify-center shadow-md">
-                          {recentOrders[0].status === 'ready' ? (
-                            <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-rich-black" />
-                          ) : recentOrders[0].status === 'processing' ? (
-                            <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-rich-black animate-pulse" />
-                          ) : (
-                            <Package className="w-6 h-6 sm:w-8 sm:h-8 text-rich-black" />
-                          )}
-                        </div>
-                      </div>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
+                    {/* Mobile Action Buttons */}
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
                       <Button
                         size="sm"
-                        className="bg-rich-black text-white hover:bg-rich-black/90 flex-1 text-xs sm:text-sm"
+                        className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
                         onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                       >
-                        <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        View Details
+                        <Eye className="w-3 h-3 mr-1" />
+                        Details
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black flex-1 text-xs sm:text-sm"
+                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
                         onClick={() => setShowComprehensiveChat(true)}
                       >
-                        <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        Chat Shop
+                        <MessageCircle className="w-3 h-3 mr-1" />
+                        Chat
                       </Button>
                       {recentOrders[0].shop?.phone && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => window.open(`tel:${recentOrders[0].shop?.phone}`)}
-                          className="px-2 sm:px-3"
+                          className="col-span-2 sm:col-span-1 text-xs h-8 sm:h-9"
                         >
-                          <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <Phone className="w-3 h-3 mr-1" />
+                          Call Shop
                         </Button>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Smart Quick Actions Based on Order Status */}
+                {/* Smart Actions Based on Order Status */}
                 {recentOrders[0] && (recentOrders[0].status === 'processing' || recentOrders[0].status === 'new') ? (
-                  // Show "Add More Files" for processing/new orders
-                  <div className="grid grid-cols-1 gap-3">
+                  // Processing Order - Show Add Files Button Only
+                  <div className="mt-3">
                     <Button 
-                      className="h-12 sm:h-14 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 shadow-md"
+                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
                       onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                     >
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base font-medium">Add More Files to Order</span>
+                      <Upload className="w-4 h-4" />
+                      Add More Files to Order
                     </Button>
                   </div>
                 ) : (
-                  // Show New Upload/Walk-in for completed orders
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  // Completed Order - Show New Order Options
+                  <div className="grid grid-cols-2 gap-2 mt-3">
                     <Button 
                       variant="outline"
-                      className="h-12 sm:h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
+                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
                       onClick={() => navigate('/')}
                     >
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      <span className="text-xs sm:text-sm text-gray-600">New Upload</span>
+                      <Upload className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                      <span className="text-gray-600">New Upload</span>
                     </Button>
                     <Button 
                       variant="outline"
-                      className="h-12 sm:h-14 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5"
+                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
                       onClick={() => navigate('/')}
                     >
-                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      <span className="text-xs sm:text-sm text-gray-600">Walk-in Order</span>
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                      <span className="text-gray-600">Walk-in Order</span>
                     </Button>
                   </div>
                 )}
