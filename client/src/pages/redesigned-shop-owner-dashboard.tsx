@@ -155,9 +155,50 @@ export default function RedesignedShopOwnerDashboard() {
       if (!response.ok) throw new Error('Failed to update status');
       return response.json();
     },
-    onSuccess: () => {
+    onMutate: async ({ orderId, status }) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
+      
+      // Snapshot the previous value
+      const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData<Order[]>(
+        [`/api/orders/shop/${shopData?.shop?.id}`],
+        (old) => {
+          if (!old) return old;
+          return old.map(order => 
+            order.id === orderId 
+              ? { ...order, status, updatedAt: new Date().toISOString() }
+              : order
+          );
+        }
+      );
+      
+      // Show instant feedback to user
+      toast({ 
+        title: 'Status Updated!', 
+        description: `Order #${orderId} status changed to ${status}` 
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousOrders };
+    },
+    onError: (err, { orderId }, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      queryClient.setQueryData(
+        [`/api/orders/shop/${shopData?.shop?.id}`],
+        context?.previousOrders
+      );
+      toast({ 
+        title: 'Update Failed', 
+        description: 'Failed to update order status. Please try again.',
+        variant: 'destructive' 
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure data consistency
       queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
-      toast({ title: 'Order status updated successfully' });
     },
   });
 
