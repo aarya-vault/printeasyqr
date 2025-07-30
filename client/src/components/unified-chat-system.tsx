@@ -102,19 +102,29 @@ export default function UnifiedChatSystem({
   });
 
   // Fetch orders based on user role
-  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+  const { data: orders = [], isLoading: ordersLoading, error: ordersError } = useQuery<Order[]>({
     queryKey: effectiveUserRole === 'shop_owner' 
       ? [`/api/orders/shop/${shopData?.shop?.id}`]
       : [`/api/orders/customer/${user?.id}`],
     enabled: !!user?.id && isOpen && (effectiveUserRole !== 'shop_owner' || !!shopData?.shop?.id),
+    refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
     select: (data) => {
-      // For chat system, show all orders with messages or active orders
-      return data
+      console.log('🔍 CHAT - Raw orders data received:', data?.length, 'orders');
+      console.log('🔍 CHAT - First few orders:', data?.slice(0, 3));
+      
+      // For chat system, show ALL orders regardless of status (except cancelled)
+      // This ensures completed orders with chat history are visible
+      const filteredOrders = data
         .filter(order => {
-          // Show completed orders if they have messages, or any non-cancelled active orders
-          return order.status !== 'cancelled' && (order.unreadMessages || order.status !== 'completed');
+          // Show all orders except cancelled ones - completed orders MUST be visible for chat history
+          const shouldShow = order.status !== 'cancelled';
+          console.log(`Order ${order.id} (${order.status}): ${shouldShow ? 'SHOWING' : 'HIDING'}`);
+          return shouldShow;
         })
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+      console.log('🔍 CHAT - Final filtered orders:', filteredOrders?.length, 'orders visible');
+      return filteredOrders;
     }
   });
 
@@ -400,15 +410,15 @@ export default function UnifiedChatSystem({
                   <div className="p-8 text-center">
                     <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <h4 className="font-medium text-gray-700 mb-1">
-                      {searchQuery ? 'No matches found' : 'Loading conversations...'}
+                      {searchQuery ? 'No matches found' : (ordersLoading ? 'Loading conversations...' : 'No orders found')}
                     </h4>
                     <p className="text-sm text-gray-500">
-                      {searchQuery ? 'Try a different search term' : 'Orders with messages will appear here'}
+                      {searchQuery ? 'Try a different search term' : (ordersLoading ? 'Orders will appear here once loaded' : 'Start by placing an order to begin chatting')}
                     </p>
-                    {messagesError && (
+                    {(messagesError || ordersError) && (
                       <div className="mt-4 p-3 bg-brand-yellow/20 rounded border text-sm">
                         <p className="text-rich-black">
-                          Authentication issue detected. Please refresh the page if conversations don't load.
+                          {ordersError ? 'Failed to load orders. Please refresh the page.' : 'Authentication issue detected. Please refresh the page if conversations don\'t load.'}
                         </p>
                       </div>
                     )}
@@ -433,7 +443,7 @@ export default function UnifiedChatSystem({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-sm truncate">{order.title}</h4>
                               <Badge className={`text-xs px-2 py-1 ${getStatusColor(order.status)}`}>
-                                {order.status}
+                                {order.status === 'completed' ? 'completed ✓' : order.status}
                               </Badge>
                             </div>
                             <p className="text-xs text-gray-600 truncate mb-2">
@@ -693,7 +703,7 @@ export default function UnifiedChatSystem({
                           <h4 className="font-semibold text-gray-800">Order Completed</h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This order has been completed. All message history and files remain accessible above for your reference.
+                          This order has been completed successfully. All conversation history, files, and images remain accessible above for your reference. No new messages can be sent.
                         </p>
                       </div>
                     ) : (
