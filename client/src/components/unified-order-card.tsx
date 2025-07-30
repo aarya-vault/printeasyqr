@@ -133,7 +133,10 @@ export default function UnifiedOrderCard({
     : order.customer?.phone;
 
   return (
-    <Card className="w-full hover:shadow-md transition-shadow">
+    <Card 
+      className="w-full hover:shadow-md transition-shadow cursor-pointer" 
+      onClick={() => onViewDetails?.(order)}
+    >
       <CardContent className="p-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
@@ -186,7 +189,7 @@ export default function UnifiedOrderCard({
 
         {/* Actions */}
         {showActions && (
-          <div className="flex gap-2">
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="outline"
               size="sm"
@@ -226,7 +229,7 @@ export default function UnifiedOrderCard({
 
         {/* Shop Owner Status Actions */}
         {userRole === 'shop_owner' && onStatusUpdate && order.status !== 'completed' && (
-          <div className="mt-3 pt-3 border-t flex gap-2">
+          <div className="mt-3 pt-3 border-t flex gap-2" onClick={(e) => e.stopPropagation()}>
             {order.status === 'new' && (
               <Button
                 size="sm"

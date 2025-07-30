@@ -18,6 +18,7 @@ import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-d
 import BottomNavigation from '@/components/common/bottom-navigation';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import QRScanner from '@/components/qr-scanner';
+import DetailedShopModal from '@/components/detailed-shop-modal';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
@@ -59,6 +60,21 @@ export default function UnifiedCustomerDashboard() {
   // Chat and order details states
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
+  
+  // Shop details states
+  const [selectedShopForDetails, setSelectedShopForDetails] = useState<any>(null);
+  const [showShopDetails, setShowShopDetails] = useState(false);
+
+  // Handle shop card click to show details
+  const handleShopClick = (shop: any) => {
+    setSelectedShopForDetails(shop);
+    setShowShopDetails(true);
+  };
+
+  // Handle shop order click from detailed modal
+  const handleShopOrderClick = (shopSlug: string) => {
+    setLocation(`/shop/${shopSlug}`);
+  };
 
   // Redirect if not authenticated or not a customer
   React.useEffect(() => {
@@ -519,9 +535,10 @@ export default function UnifiedCustomerDashboard() {
                     return (
                       <div
                         key={shop.id}
-                        className={`p-3 border rounded-lg ${
+                        className={`p-3 border rounded-lg cursor-pointer hover:shadow-md transition-shadow ${
                           isUnlocked ? 'border-[#FFBF00] bg-[#FFBF00]/5' : 'border-gray-200 bg-gray-50'
                         }`}
+                        onClick={() => handleShopClick(shop)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -546,33 +563,35 @@ export default function UnifiedCustomerDashboard() {
                             </div>
                           </div>
                           
-                          {isUnlocked ? (
-                            <div className="flex gap-2">
+                          <div onClick={(e) => e.stopPropagation()}>
+                            {isUnlocked ? (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90"
+                                  onClick={() => {
+                                    setShowAllShops(false);
+                                    setShowUploadOrder(true);
+                                  }}
+                                >
+                                  <Upload className="w-3 h-3 mr-1" />
+                                  Order
+                                </Button>
+                              </div>
+                            ) : (
                               <Button
                                 size="sm"
-                                className="bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90"
+                                variant="outline"
                                 onClick={() => {
                                   setShowAllShops(false);
-                                  setShowUploadOrder(true);
                                 }}
+                                className="border-[#FFBF00] text-[#FFBF00]"
                               >
-                                <Upload className="w-3 h-3 mr-1" />
-                                Order
+                                <QrCode className="w-3 h-3 mr-1" />
+                                Scan QR
                               </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setShowAllShops(false);
-                              }}
-                              className="border-[#FFBF00] text-[#FFBF00]"
-                            >
-                              <QrCode className="w-3 h-3 mr-1" />
-                              Scan QR
-                            </Button>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -604,6 +623,33 @@ export default function UnifiedCustomerDashboard() {
       <UnifiedFloatingChatButton 
         activeOrdersCount={activeOrders.length}
         onChatOpen={() => {}}
+      />
+
+      {/* Chat System */}
+      {selectedOrderForChat && (
+        <UnifiedChatSystem
+          isOpen={true}
+          onClose={() => setSelectedOrderForChat(null)}
+          initialOrderId={selectedOrderForChat}
+          userRole="customer"
+        />
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrderForDetails && (
+        <EnhancedCustomerOrderDetails
+          isOpen={true}
+          onClose={() => setSelectedOrderForDetails(null)}
+          order={selectedOrderForDetails}
+        />
+      )}
+
+      {/* Detailed Shop Modal */}
+      <DetailedShopModal
+        shop={selectedShopForDetails}
+        isOpen={showShopDetails}
+        onClose={() => setShowShopDetails(false)}
+        onOrderClick={handleShopOrderClick}
       />
     </div>
   );
