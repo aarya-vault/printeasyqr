@@ -525,12 +525,11 @@ export default function UnifiedChatSystem({
                         {messages.map((message) => {
                           const isOwnMessage = message.senderId === user?.id;
                           
-                          // Parse files to check if we have valid files
+                          // Parse files - ALWAYS preserve file data for completed orders
                           let hasValidFiles = false;
                           let parsedFiles: any[] = [];
                           if (message.files) {
                             try {
-                              // Debug logging
                               console.log('🔍 FIXED - Raw message.files:', message.files, 'Type:', typeof message.files);
                               
                               const fileList = typeof message.files === 'string' 
@@ -558,12 +557,12 @@ export default function UnifiedChatSystem({
                             }
                           }
                           
-                          // Force show files even if content is empty
+                          // CRITICAL: Always show messages with files, even for completed orders
                           const hasContent = message.content && message.content.trim() !== '';
                           
                           console.log(`🔍 Message ${message.id}: hasContent=${hasContent}, hasValidFiles=${hasValidFiles}, content="${message.content}", files:`, message.files);
                           
-                          // Don't skip rendering if we have files
+                          // Show message if it has content OR files (preserve all data for completed orders)
                           if (!hasContent && !hasValidFiles) {
                             return null;
                           }
@@ -598,7 +597,7 @@ export default function UnifiedChatSystem({
                                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                 )}
                                 
-                                {/* File attachments */}
+                                {/* File attachments - ALWAYS show for completed orders */}
                                 {hasValidFiles && (
                                   <div className="mt-2 space-y-1">
                                     {parsedFiles.map((file, fileIndex) => {
@@ -687,14 +686,14 @@ export default function UnifiedChatSystem({
                     )}
 
                     {selectedOrder?.status === 'completed' ? (
-                      // Show completion message for completed orders
-                      <div className="bg-gray-100 p-4 rounded-lg text-center">
+                      // Show completion message for completed orders - but preserve all message data above
+                      <div className="bg-gray-100 p-4 rounded-lg text-center border border-gray-200">
                         <div className="flex items-center justify-center gap-2 mb-2">
-                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <CheckCircle className="w-5 h-5 text-brand-yellow" />
                           <h4 className="font-semibold text-gray-800">Order Completed</h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          Your order has been completed. You can view the message history above, but no new messages can be sent.
+                          This order has been completed. All message history and files remain accessible above for your reference.
                         </p>
                       </div>
                     ) : (
