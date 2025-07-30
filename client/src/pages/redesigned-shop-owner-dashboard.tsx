@@ -550,12 +550,22 @@ export default function RedesignedShopOwnerDashboard() {
                 variant="outline"
                 size="sm"
                 data-action="logout"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Logout button clicked');
-                  logout();
-                  navigate('/');
+                  console.log('=== LOGOUT BUTTON CLICKED ===');
+                  console.log('User before logout:', user);
+                  
+                  try {
+                    // Clear all queries AFTER logout
+                    await logout();
+                    console.log('Logout successful, clearing queries and navigating');
+                    queryClient.clear();
+                    navigate('/');
+                    console.log('=== LOGOUT COMPLETE ===');
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                  }
                 }}
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -728,6 +738,7 @@ export default function RedesignedShopOwnerDashboard() {
             ...selectedOrderForDetails,
             isUrgent: selectedOrderForDetails.isUrgent || false
           }}
+          userRole="shop_owner"
           onClose={() => setSelectedOrderForDetails(null)}
         />
       )}
