@@ -495,7 +495,7 @@ export default function RedesignedShopOwnerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b relative">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -534,11 +534,14 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                data-action="toggle-shop-status"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Shop toggle button clicked');
+                  console.log('=== SHOP TOGGLE BUTTON CLICKED ===');
+                  if (!shopData?.shop?.id) {
+                    console.error('No shop ID found');
+                    return;
+                  }
                   toggleShopStatus.mutate();
                 }}
                 disabled={toggleShopStatus.isPending}
@@ -546,32 +549,30 @@ export default function RedesignedShopOwnerDashboard() {
                 <Power className="w-4 h-4 mr-2" />
                 {shopData?.shop?.isOnline ? 'Close Shop' : 'Open Shop'}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                data-action="logout"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('=== LOGOUT BUTTON CLICKED ===');
-                  console.log('User before logout:', user);
-                  
-                  try {
-                    // Clear all queries AFTER logout
-                    await logout();
-                    console.log('Logout successful, clearing queries and navigating');
-                    queryClient.clear();
-                    navigate('/');
-                    console.log('=== LOGOUT COMPLETE ===');
-                  } catch (error) {
-                    console.error('Logout error:', error);
-                  }
-                }}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
             </div>
+          </div>
+          
+          {/* Separate logout button container to prevent event conflicts */}
+          <div className="absolute top-4 right-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('=== ISOLATED LOGOUT BUTTON CLICKED ===');
+                console.log('User before logout:', user);
+                
+                // Simple synchronous logout
+                logout();
+                navigate('/');
+                console.log('=== LOGOUT COMPLETE ===');
+              }}
+              className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </div>
