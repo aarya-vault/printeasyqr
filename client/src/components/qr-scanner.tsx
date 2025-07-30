@@ -25,14 +25,38 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
   const [scanError, setScanError] = useState<string | null>(null);
   const [lastScanResult, setLastScanResult] = useState<string | null>(null);
 
+  // Check authentication on component mount
+  useEffect(() => {
+    if (isOpen && !user?.id) {
+      setScanError('Please log in to scan QR codes');
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to your account to scan QR codes',
+        variant: 'destructive'
+      });
+    }
+  }, [isOpen, user?.id, toast]);
+
   // Mutation to unlock shop
   const unlockShopMutation = useMutation({
     mutationFn: async ({ shopId, shopSlug }: { shopId?: number; shopSlug?: string }) => {
+      // Validate user authentication
+      if (!user?.id) {
+        throw new Error('Please log in to scan QR codes');
+      }
+      
+      // Validate shop identifier
+      if (!shopId && !shopSlug) {
+        throw new Error('Invalid QR code - no shop identifier found');
+      }
+      
+      console.log('Unlocking shop:', { customerId: user.id, shopId, shopSlug });
+      
       const response = await fetch('/api/customer/unlock-shop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          customerId: user?.id, 
+          customerId: user.id, 
           shopId,
           shopSlug,
           qrScanLocation: 'dashboard_scanner'
@@ -71,7 +95,7 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
 
   // Initialize scanner when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && user?.id) {
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
         if (videoRef.current) {
@@ -88,7 +112,7 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked }: QRScanner
         qrScannerRef.current = null;
       }
     };
-  }, [isOpen]);
+  }, [isOpen, user?.id]);
 
   const initializeScanner = async () => {
     try {
