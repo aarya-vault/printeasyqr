@@ -17,6 +17,7 @@ import {
   Store, Phone, MapPin, Clock, Upload, Users, 
   FileText, AlertCircle, CheckCircle, X
 } from 'lucide-react';
+import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -316,45 +317,14 @@ export default function ShopOrder() {
                     </TabsList>
 
                     <TabsContent value="upload" className="mt-4">
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Upload Files (No limit - All formats accepted)
-                          </label>
-                          <input
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-yellow file:text-rich-black hover:file:bg-yellow-400"
-                          />
-                        </div>
-
-                        {selectedFiles.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium">Selected Files ({selectedFiles.length}):</p>
-                            {selectedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <FileText className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                                  <span className="text-sm truncate" title={file.name}>{file.name}</span>
-                                  <span className="text-xs text-gray-500 flex-shrink-0">
-                                    ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                                  </span>
-                                </div>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFile(index)}
-                                  className="flex-shrink-0"
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <EnhancedFileUpload
+                        files={selectedFiles}
+                        onFilesChange={setSelectedFiles}
+                        isUploading={createOrderMutation.isPending}
+                        disabled={createOrderMutation.isPending}
+                        maxFiles={10}
+                        acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
+                      />
                     </TabsContent>
 
                     <TabsContent value="walkin" className="mt-4">
@@ -408,10 +378,17 @@ export default function ShopOrder() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-brand-yellow text-rich-black hover:bg-yellow-500"
+                  className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00]"
                   disabled={createOrderMutation.isPending}
                 >
-                  {createOrderMutation.isPending ? 'Creating Order...' : 'Submit Order'}
+                  {createOrderMutation.isPending ? (
+                    <>
+                      <Upload className="w-4 h-4 mr-2 animate-spin" />
+                      Creating Order...
+                    </>
+                  ) : (
+                    'Submit Order'
+                  )}
                 </Button>
               </form>
             </Form>

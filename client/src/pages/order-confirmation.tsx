@@ -9,7 +9,8 @@ import UnifiedChatSystem from '@/components/unified-chat-system';
 import { 
   CheckCircle, Phone, MessageSquare, FileText, 
   MapPin, Clock, Home, ShoppingBag, Calendar,
-  AlertCircle, Star, ArrowRight, Info, User
+  AlertCircle, Package, ArrowRight, Store, User,
+  Upload, Info
 } from 'lucide-react';
 
 interface OrderDetails {
@@ -107,35 +108,35 @@ export default function OrderConfirmation() {
         return {
           text: 'Order Received',
           description: 'Your order has been received and the shop will start processing it soon.',
-          color: 'bg-brand-yellow/20 text-rich-black',
+          color: 'bg-[#FFBF00]/20 text-black',
           icon: <Clock className="w-4 h-4" />
         };
       case 'processing':
         return {
           text: 'Being Prepared',
           description: 'The shop is currently working on your order.',
-          color: 'bg-brand-yellow/40 text-rich-black',
+          color: 'bg-[#FFBF00]/40 text-black',
           icon: <FileText className="w-4 h-4" />
         };
       case 'ready':
         return {
           text: 'Ready for Pickup',
           description: 'Your order is ready! Please visit the shop to collect it.',
-          color: 'bg-brand-yellow/60 text-rich-black',
+          color: 'bg-[#FFBF00]/60 text-black',
           icon: <CheckCircle className="w-4 h-4" />
         };
       case 'completed':
         return {
           text: 'Completed',
           description: 'Order successfully completed and collected.',
-          color: 'bg-gray-100 text-gray-800',
+          color: 'bg-[#FFBF00]/80 text-black',
           icon: <CheckCircle className="w-4 h-4" />
         };
       default:
         return {
           text: status,
           description: 'Order status update.',
-          color: 'bg-gray-100 text-gray-800',
+          color: 'bg-[#FFBF00]/20 text-black',
           icon: <Info className="w-4 h-4" />
         };
     }
@@ -145,7 +146,7 @@ export default function OrderConfirmation() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FFBF00] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -156,7 +157,7 @@ export default function OrderConfirmation() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FFBF00] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
@@ -168,12 +169,12 @@ export default function OrderConfirmation() {
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-brand-yellow mx-auto mb-4" />
+            <AlertCircle className="w-12 h-12 text-[#FFBF00] mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Order Not Found</h2>
             <p className="text-gray-600 mb-4">
               {error ? 'Failed to load order details.' : 'The order you\'re looking for doesn\'t exist.'}
             </p>
-            <Button onClick={() => navigate('/')} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+            <Button onClick={() => navigate('/')} className="bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00]">
               Go to Homepage
             </Button>
           </CardContent>
@@ -187,17 +188,17 @@ export default function OrderConfirmation() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-brand-yellow px-4 py-6">
+      <div className="bg-[#FFBF00] px-4 py-6">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="text-rich-black hover:bg-rich-black hover:text-brand-yellow p-2"
+              className="text-black hover:bg-black hover:text-[#FFBF00] p-2"
             >
               <Home className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold text-rich-black">Order Confirmation</h1>
+            <h1 className="text-xl font-bold text-black">Order Confirmation</h1>
             <div className="w-9" />
           </div>
         </div>
@@ -205,15 +206,15 @@ export default function OrderConfirmation() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Success Message */}
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-[#FFBF00]/30 bg-[#FFBF00]/10">
           <CardContent className="p-6 text-center">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+            <CheckCircle className="w-12 h-12 text-[#FFBF00] mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-black mb-2">Order Confirmed!</h2>
             <p className="text-gray-700 mb-3">
               Order #{order.id} has been successfully placed with {order.shop.name}
             </p>
             {order.isUrgent && (
-              <Badge className="bg-red-100 text-red-800">
+              <Badge className="bg-[#FFBF00] text-black">
                 Priority Order
               </Badge>
             )}
@@ -288,12 +289,12 @@ export default function OrderConfirmation() {
                 <div className="flex items-center gap-2">
                   {order.type === 'upload' ? (
                     <>
-                      <FileText className="w-4 h-4 text-blue-500" />
+                      <FileText className="w-4 h-4 text-[#FFBF00]" />
                       <span className="font-medium">File Upload Order</span>
                     </>
                   ) : (
                     <>
-                      <Clock className="w-4 h-4 text-purple-500" />
+                      <Clock className="w-4 h-4 text-[#FFBF00]" />
                       <span className="font-medium">Walk-in Order</span>
                     </>
                   )}
@@ -318,8 +319,8 @@ export default function OrderConfirmation() {
                 <p className="text-sm text-gray-500 mb-2">Uploaded Files ({order.files.length})</p>
                 <div className="space-y-2">
                   {order.files.map((file, index) => (
-                    <div key={index} className="flex items-center gap-2 bg-blue-50 p-2 rounded">
-                      <FileText className="w-4 h-4 text-blue-500" />
+                    <div key={index} className="flex items-center gap-2 bg-[#FFBF00]/10 p-2 rounded">
+                      <FileText className="w-4 h-4 text-[#FFBF00]" />
                       <span className="text-sm font-medium">
                         {typeof file === 'string' ? file : file.originalName || file.filename}
                       </span>
@@ -335,7 +336,7 @@ export default function OrderConfirmation() {
         <div className="space-y-3">
           <Button
             onClick={handleChatWithShop}
-            className="w-full bg-yellow-400 text-black hover:bg-black hover:text-yellow-400 font-semibold"
+            className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00] font-semibold"
             size="lg"
           >
             <MessageSquare className="w-5 h-5 mr-2" />
@@ -345,7 +346,7 @@ export default function OrderConfirmation() {
           <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={handleCallShop}
-              className="bg-green-500 text-white hover:bg-green-600"
+              className="bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00]"
             >
               <Phone className="w-4 h-4 mr-2" />
               Call Shop
@@ -353,7 +354,7 @@ export default function OrderConfirmation() {
 
             <Button
               onClick={handleGoToDashboard}
-              className="bg-black text-white hover:bg-gray-800"
+              className="bg-black text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
             >
               <User className="w-4 h-4 mr-2" />
               My Orders
@@ -363,7 +364,7 @@ export default function OrderConfirmation() {
           <Button
             onClick={() => navigate('/')}
             variant="outline"
-            className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="w-full border-[#FFBF00]/30 text-black hover:bg-[#FFBF00]/10"
           >
             <Home className="w-4 h-4 mr-2" />
             Back to Homepage
