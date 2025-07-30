@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Shield, Mail, Lock } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
+import { Shield, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
 
 export function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -13,14 +13,16 @@ export function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { adminLogin } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    
+    if (!email.trim() || !password.trim()) {
       toast({
-        title: 'Missing credentials',
-        description: 'Please enter both email and password',
-        variant: 'destructive'
+        title: "Required Fields",
+        description: "Please enter both email and password",
+        variant: "destructive",
       });
       return;
     }
@@ -28,69 +30,106 @@ export function AdminLogin() {
     setIsLoading(true);
     try {
       await adminLogin(email, password);
-    } catch (error) {
-      console.error('Admin login error:', error);
+      setLocation('/admin-dashboard');
+      toast({
+        title: "Welcome Admin!",
+        description: "Successfully logged into admin dashboard",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid admin credentials",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-[#FFBF00]">
-            <Shield className="w-6 h-6 text-black" />
+          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="mt-4 text-2xl font-bold text-gray-900">
+          <CardTitle className="text-2xl font-bold text-rich-black">
             Admin Login
           </CardTitle>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-medium-gray">
             Access the PrintEasy admin dashboard
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="email">Email Address</Label>
-              <div className="mt-1 relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <label className="block text-sm font-medium text-rich-black mb-2">
+                Admin Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
-                  id="email"
                   type="email"
+                  placeholder="admin@printeasy.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
-                  placeholder="admin@printeasy.com"
+                  disabled={isLoading}
                   required
                 />
               </div>
             </div>
-
+            
             <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="mt-1 relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <label className="block text-sm font-medium text-rich-black mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
-                  id="password"
                   type="password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
-                  placeholder="Enter your password"
+                  disabled={isLoading}
                   required
                 />
               </div>
             </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black"
-              disabled={isLoading}
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              disabled={isLoading || !email.trim() || !password.trim()}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  Sign In to Dashboard
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              )}
             </Button>
           </form>
+          
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h4 className="font-medium text-rich-black mb-2">Test Credentials:</h4>
+            <div className="text-sm text-medium-gray space-y-1">
+              <p><strong>Email:</strong> admin@printeasy.com</p>
+              <p><strong>Password:</strong> admin123</p>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <button 
+              onClick={() => setLocation('/')}
+              className="text-sm text-medium-gray hover:text-rich-black transition-colors"
+            >
+              ← Back to Homepage
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>

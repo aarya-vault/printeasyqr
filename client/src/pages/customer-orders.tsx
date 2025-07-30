@@ -12,13 +12,13 @@ import {
   Home, ShoppingCart, User, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
-import LoadingScreen from '@/components/common/loading-screen';
+import LoadingScreen from '@/components/loading-screen';
 import BottomNavigation from '@/components/common/bottom-navigation';
-import EnhancedCustomerOrderDetails from '@/components/common/enhanced-customer-order-details';
-import UnifiedFloatingChatButton from '@/components/common/unified-floating-chat-button';
-import UnifiedChatSystem from '@/components/common/unified-chat-system';
-import UnifiedOrderCard from '@/components/common/unified-order-card';
-import RealTimeNotificationBell from '@/components/common/real-time-notification-bell';
+import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
+import UnifiedChatSystem from '@/components/unified-chat-system';
+import UnifiedOrderCard from '@/components/unified-order-card';
+import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 
 interface Order {
   id: number;

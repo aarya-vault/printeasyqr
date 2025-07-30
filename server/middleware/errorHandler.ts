@@ -1,6 +1,6 @@
 // Centralized error handling middleware
 import { Request, Response, NextFunction } from 'express';
-// Simplified error handler without utils dependency
+import { sendInternalError } from '../utils/response.js';
 
 export const errorHandler = (
   error: Error,
@@ -15,11 +15,7 @@ export const errorHandler = (
     return next(error);
   }
 
-  res.status(500).json({
-    success: false,
-    error: 'Internal server error',
-    timestamp: new Date().toISOString()
-  });
+  return sendInternalError(res, error);
 };
 
 export const notFoundHandler = (req: Request, res: Response) => {

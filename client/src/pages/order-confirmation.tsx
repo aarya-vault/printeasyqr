@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import UnifiedChatSystem from '@/components/common/unified-chat-system';
+import UnifiedChatSystem from '@/components/unified-chat-system';
 import { 
   CheckCircle, Phone, MessageSquare, FileText, 
   MapPin, Clock, Home, ShoppingBag, Calendar,

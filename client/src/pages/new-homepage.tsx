@@ -11,15 +11,23 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import PhoneInput from '@/components/common/phone-input';
+import PhoneInput from '@/components/phone-input';
+import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
+import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
+import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import QRScanner from '@/components/common/qr-scanner';
+import QRScanner from '@/components/qr-scanner';
+import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
+  const [showShopLogin, setShowShopLogin] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showShopApplication, setShowShopApplication] = useState(false);
+  const [tempUser, setTempUser] = useState<any>(null);
   const { user, login, updateUser } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -62,7 +70,12 @@ export default function NewHomepage() {
 
     try {
       const user = await login({ phone: customerPhone });
-      navigate('/customer-dashboard');
+      if (user.needsNameUpdate) {
+        setShowNameModal(true);
+        setTempUser(user);
+      } else {
+        navigate('/customer-dashboard');
+      }
       toast({
         title: "Login Successful",
         description: "Welcome to PrintEasy!",
@@ -76,7 +89,13 @@ export default function NewHomepage() {
     }
   };
 
-  // Simplified login function without name collection modal
+  const handleNameUpdate = async (name: string) => {
+    if (tempUser && updateUser) {
+      await updateUser({ name });
+      setShowNameModal(false);
+      navigate('/customer-dashboard');
+    }
+  };
 
   // Critical USPs from the platform
   const usps = [
@@ -147,6 +166,18 @@ export default function NewHomepage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Navbar 
+        onShopLogin={() => setShowShopLogin(true)}
+      />
+      {showShopLogin && (
+        <ShopOwnerLogin onBack={() => setShowShopLogin(false)} />
+      )}
+      {showNameModal && (
+        <NameCollectionModal
+          isOpen={showNameModal}
+          onSubmit={handleNameUpdate}
+        />
+      )}
       {/* Mobile-First Hero Section - QR & Login Priority */}
       <section className="relative bg-white pt-16 pb-12">
         <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
@@ -420,7 +451,7 @@ export default function NewHomepage() {
               </div>
               
               <Button 
-                onClick={() => navigate('/apply-shop')}
+                onClick={() => setShowShopApplication(true)}
                 className="w-full bg-rich-black text-brand-yellow hover:bg-gray-800 py-3 font-bold"
               >
                 Register Your Print Shop
@@ -506,7 +537,13 @@ export default function NewHomepage() {
         />
       )}
 
-      {/* Shop application handled via separate page */}
+      {/* Shop Application Modal */}
+      {showShopApplication && (
+        <EnhancedShopApplicationModal 
+          isOpen={showShopApplication} 
+          onClose={() => setShowShopApplication(false)} 
+        />
+      )}
     </div>
   );
 }

@@ -9,8 +9,8 @@ import {
   ArrowLeft, Search, MapPin, Clock, Star, Users, Upload,
   Home, Package, ShoppingCart, User, Phone
 } from 'lucide-react';
-import LoadingScreen from '@/components/common/loading-screen';
-import UnifiedFloatingChatButton from '@/components/common/unified-floating-chat-button';
+import LoadingScreen from '@/components/loading-screen';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import BottomNavigation from '@/components/common/bottom-navigation';
 
 interface Shop {

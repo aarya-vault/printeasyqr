@@ -10,13 +10,14 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-// Order modals removed for cleanup - functionality handled elsewhere
-import UnifiedOrderCard from '@/components/common/unified-order-card';
-import UnifiedChatSystem from '@/components/common/unified-chat-system';
-import EnhancedCustomerOrderDetails from '@/components/common/enhanced-customer-order-details';
+import { UploadOrderModal } from '@/components/order/upload-order-modal';
+import { WalkinOrderModal } from '@/components/order/walkin-order-modal';
+import UnifiedOrderCard from '@/components/unified-order-card';
+import UnifiedChatSystem from '@/components/unified-chat-system';
+import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
 import BottomNavigation from '@/components/common/bottom-navigation';
-import UnifiedFloatingChatButton from '@/components/common/unified-floating-chat-button';
-import QRScanner from '@/components/common/qr-scanner';
+import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
+import QRScanner from '@/components/qr-scanner';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
