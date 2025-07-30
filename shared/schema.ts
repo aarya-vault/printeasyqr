@@ -97,6 +97,15 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Customer Shop Unlocks table - tracks which shops customers have unlocked via QR scanning
+export const customerShopUnlocks = pgTable("customer_shop_unlocks", {
+  id: serial("id").primaryKey(),
+  customerId: integer("customer_id").notNull().references(() => users.id),
+  shopId: integer("shop_id").notNull().references(() => shops.id),
+  unlockedAt: timestamp("unlocked_at").notNull().defaultNow(),
+  qrScanLocation: text("qr_scan_location"), // Optional: where QR was scanned (shop_visit, homepage, etc.)
+});
+
 // Shop applications table (for pending approvals)
 export const shopApplications = pgTable("shop_applications", {
   id: serial("id").primaryKey(),

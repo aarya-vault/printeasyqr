@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Store, Clock, MapPin, Users, FileText, Image, BookOpen, Layout, Printer, ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react';
+import { Store, Clock, MapPin, Users, FileText, Image, BookOpen, Layout, Printer, ShieldCheck, ArrowRight, CheckCircle, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Navbar } from '@/components/layout/navbar';
 import { PhoneLogin } from '@/components/auth/phone-login';
 import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
+import QRScanner from '@/components/qr-scanner';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -98,7 +99,9 @@ function ShopLoginModal({ isOpen, onClose }: ShopLoginModalProps) {
 export default function ResponsiveHome() {
   const [showShopLogin, setShowShopLogin] = useState(false);
   const [showShopApplication, setShowShopApplication] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   // Redirect authenticated users to their respective dashboards
@@ -206,16 +209,28 @@ export default function ResponsiveHome() {
               Connect with verified local print shops. Upload files, place orders, and track progress all in one place.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <div className="flex flex-col gap-4 justify-center items-center mb-16">
               <PhoneLogin />
-              <div className="text-medium-gray text-sm">or</div>
-              <Button 
-                variant="outline"
-                onClick={() => setShowShopApplication(true)}
-                className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Register Your Print Shop
-              </Button>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button 
+                  onClick={() => setShowQRScanner(true)}
+                  className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-8 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                >
+                  <QrCode className="w-5 h-5" />
+                  Scan QR to Unlock Shops
+                </Button>
+                
+                <div className="text-medium-gray text-sm">or</div>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowShopApplication(true)}
+                  className="border-2 border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Register Your Print Shop
+                </Button>
+              </div>
             </div>
 
             {/* Trust Indicators */}
@@ -359,6 +374,20 @@ export default function ResponsiveHome() {
         isOpen={showShopApplication} 
         onClose={() => setShowShopApplication(false)} 
       />
+      
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScanner
+          isOpen={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onShopUnlocked={(shopId, shopName) => {
+            toast({
+              title: "Shop Unlocked! 🎉",
+              description: `You can now place orders at ${shopName}. Login to start ordering.`
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

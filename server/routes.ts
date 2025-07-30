@@ -742,6 +742,46 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Customer shop unlock endpoints
+  app.post('/api/customer/unlock-shop', async (req, res) => {
+    try {
+      const { customerId, shopId, qrScanLocation } = req.body;
+      
+      if (!customerId || !shopId) {
+        return res.status(400).json({ message: 'Customer ID and Shop ID are required' });
+      }
+      
+      const result = await storage.unlockShopForCustomer(customerId, shopId, qrScanLocation);
+      res.json(result);
+    } catch (error) {
+      console.error('Error unlocking shop:', error);
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to unlock shop' });
+    }
+  });
+
+  app.get('/api/customer/:customerId/unlocked-shops', async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      const unlockedShopIds = await storage.getUnlockedShopsByCustomer(customerId);
+      res.json({ unlockedShopIds });
+    } catch (error) {
+      console.error('Error fetching unlocked shops:', error);
+      res.status(500).json({ message: 'Failed to fetch unlocked shops' });
+    }
+  });
+
+  app.get('/api/customer/:customerId/shop/:shopId/unlocked', async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      const shopId = parseInt(req.params.shopId);
+      const isUnlocked = await storage.isShopUnlockedForCustomer(customerId, shopId);
+      res.json({ isUnlocked });
+    } catch (error) {
+      console.error('Error checking shop unlock status:', error);
+      res.status(500).json({ message: 'Failed to check unlock status' });
+    }
+  });
+
   app.get("/api/orders/shop/:shopId", async (req, res) => {
     try {
       const shopId = parseInt(req.params.shopId);

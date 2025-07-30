@@ -1,5 +1,5 @@
 import { 
-  users, shops, orders, messages, shopApplications, notifications,
+  users, shops, orders, messages, shopApplications, notifications, customerShopUnlocks,
   type User, type InsertUser, type Shop, type InsertShop, 
   type Order, type InsertOrder, type Message, type InsertMessage,
   type ShopApplication, type InsertShopApplication, type Notification,
@@ -73,6 +73,11 @@ export interface IStorage {
 
   // Security operations
   hashPassword(password: string): Promise<string>;
+
+  // Customer shop unlock operations
+  unlockShopForCustomer(customerId: number, shopId: number, qrScanLocation?: string): Promise<{ shopId: number; shopName: string }>;
+  getUnlockedShopsByCustomer(customerId: number): Promise<number[]>;
+  isShopUnlockedForCustomer(customerId: number, shopId: number): Promise<boolean>;
   verifyPassword(password: string, hash: string): Promise<boolean>;
 }
 
@@ -731,6 +736,49 @@ export class DatabaseStorage implements IStorage {
   // Helper method to verify passwords
   async verifyPassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
+  }
+
+  // Customer shop unlock operations
+  async unlockShopForCustomer(customerId: number, shopId: number, qrScanLocation?: string): Promise<{ shopId: number; shopName: string }> {
+    // Check if shop exists and is active
+    const shop = await this.getShop(shopId);
+    if (!shop || !shop.isApproved || shop.status !== 'active') {
+      throw new Error('Shop not found or not available');
+    }
+
+    // Check if already unlocked
+    const isAlreadyUnlocked = await this.isShopUnlockedForCustomer(customerId, shopId);
+    if (isAlreadyUnlocked) {
+      return { shopId, shopName: shop.name };
+    }
+
+    // Insert new unlock record using Drizzle
+    await db.insert(customerShopUnlocks).values({
+      customerId,
+      shopId,
+      qrScanLocation: qrScanLocation || 'unknown'
+    }).onConflictDoNothing();
+
+    return { shopId, shopName: shop.name };
+  }
+
+  async getUnlockedShopsByCustomer(customerId: number): Promise<number[]> {
+    const result = await db
+      .select({ shopId: customerShopUnlocks.shopId })
+      .from(customerShopUnlocks)
+      .where(eq(customerShopUnlocks.customerId, customerId));
+    
+    return result.map(row => row.shopId);
+  }
+
+  async isShopUnlockedForCustomer(customerId: number, shopId: number): Promise<boolean> {
+    const result = await db
+      .select()
+      .from(customerShopUnlocks)
+      .where(and(eq(customerShopUnlocks.customerId, customerId), eq(customerShopUnlocks.shopId, shopId)))
+      .limit(1);
+    
+    return result.length > 0;
   }
 }
 

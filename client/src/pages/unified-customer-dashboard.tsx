@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, User, ArrowRight, Phone, Star, Store
+  Home, ShoppingCart, User, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -17,6 +17,7 @@ import UnifiedChatSystem from '@/components/unified-chat-system';
 import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-details';
 import BottomNavigation from '@/components/common/bottom-navigation';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
+import QRScanner from '@/components/qr-scanner';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
@@ -53,6 +54,8 @@ export default function UnifiedCustomerDashboard() {
   // Modal states
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showAllShops, setShowAllShops] = useState(false);
   
   // Chat and order details states
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
@@ -72,6 +75,20 @@ export default function UnifiedCustomerDashboard() {
     queryKey: [`/api/orders/customer/${user?.id}`],
     enabled: !!user?.id,
   });
+
+  // Fetch all shops for browsing
+  const { data: allShops = [], isLoading: shopsLoading } = useQuery<any[]>({
+    queryKey: ['/api/shops'],
+    enabled: showAllShops
+  });
+
+  // Fetch unlocked shops for this customer
+  const { data: unlockedShopsData } = useQuery<{ unlockedShopIds: number[] }>({
+    queryKey: [`/api/customer/${user?.id}/unlocked-shops`],
+    enabled: !!user?.id,
+  });
+
+  const unlockedShopIds = unlockedShopsData?.unlockedShopIds || [];
 
   // Filter to show only active orders (not completed) in dashboard
   const activeOrders = allOrders.filter(order => order.status !== 'completed');
@@ -221,18 +238,18 @@ export default function UnifiedCustomerDashboard() {
                 <div className="flex flex-col gap-2 sm:gap-3">
                   <Button 
                     className="bg-rich-black text-white hover:bg-rich-black/90 shadow-lg h-10 sm:h-12 text-sm sm:text-base"
-                    onClick={() => setLocation('/browse-shops')}
+                    onClick={() => setShowQRScanner(true)}
                   >
-                    <Store className="w-4 h-4 mr-2" />
-                    Explore Print Shops
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Scan QR to Unlock Shops
                   </Button>
                   <Button 
                     variant="outline"
                     className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
-                    onClick={() => setShowUploadOrder(true)}
+                    onClick={() => setShowAllShops(true)}
                   >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload & Print Now
+                    <Store className="w-4 h-4 mr-2" />
+                    Browse All Print Shops
                   </Button>
                 </div>
               </div>
@@ -473,6 +490,130 @@ export default function UnifiedCustomerDashboard() {
           shops={[]}
           onSubmit={() => {}}
         />
+      )}
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScanner
+          isOpen={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onShopUnlocked={(shopId, shopName) => {
+            toast({
+              title: "Shop Unlocked! 🎉",
+              description: `You can now place orders at ${shopName}`
+            });
+            queryClient.invalidateQueries({ queryKey: [`/api/customer/${user?.id}/unlocked-shops`] });
+          }}
+        />
+      )}
+
+      {/* Shop Browse Modal */}
+      {showAllShops && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="bg-[#FFBF00] px-4 py-3 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-black">Browse Print Shops</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAllShops(false)}
+                className="text-black hover:bg-black/10"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto max-h-96">
+              {shopsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {allShops.map((shop) => {
+                    const isUnlocked = unlockedShopIds.includes(shop.id);
+                    return (
+                      <div
+                        key={shop.id}
+                        className={`p-3 border rounded-lg ${
+                          isUnlocked ? 'border-[#FFBF00] bg-[#FFBF00]/5' : 'border-gray-200 bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-black">{shop.name}</h3>
+                              {isUnlocked ? (
+                                <Unlock className="w-4 h-4 text-[#FFBF00]" />
+                              ) : (
+                                <Lock className="w-4 h-4 text-gray-400" />
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">{shop.city}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant={shop.isOnline ? 'default' : 'secondary'} className="text-xs">
+                                {shop.isOnline ? 'Online' : 'Offline'}
+                              </Badge>
+                              {isUnlocked ? (
+                                <Badge className="bg-[#FFBF00] text-black text-xs">Unlocked</Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-xs">Scan QR to Unlock</Badge>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {isUnlocked ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                className="bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90"
+                                onClick={() => {
+                                  setShowAllShops(false);
+                                  setShowUploadOrder(true);
+                                }}
+                              >
+                                <Upload className="w-3 h-3 mr-1" />
+                                Order
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setShowAllShops(false);
+                                setShowQRScanner(true);
+                              }}
+                              className="border-[#FFBF00] text-[#FFBF00]"
+                            >
+                              <QrCode className="w-3 h-3 mr-1" />
+                              Scan QR
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {allShops.length === 0 && (
+                    <div className="text-center py-8">
+                      <Store className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600">No print shops available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="px-4 py-3 border-t bg-gray-50">
+              <p className="text-xs text-gray-600 text-center">
+                Scan shop QR codes to unlock ordering capabilities. Visit shops physically or scan QR codes from their promotional materials.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Navigation */}
