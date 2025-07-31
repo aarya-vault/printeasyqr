@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import QrScanner from 'qr-scanner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { X, Camera, QrCode, CheckCircle, AlertCircle, Printer } from 'lucide-react';
@@ -222,17 +222,14 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0 overflow-hidden aspect-square">
+      <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0 overflow-hidden aspect-square border-none">
+        <DialogHeader className="sr-only">
+          <DialogTitle>QR Code Scanner</DialogTitle>
+          <DialogDescription>Scan QR codes to unlock PrintEasy shops</DialogDescription>
+        </DialogHeader>
+        
         {/* Beautiful PrintEasy Header */}
         <div className="bg-brand-yellow p-6 text-center relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            className="absolute right-2 top-2 h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 text-rich-black"
-          >
-            <X className="h-5 w-5" />
-          </Button>
           
           {/* PrintEasy Logo and Title */}
           <div className="flex flex-col items-center mb-4">
@@ -293,8 +290,8 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">
               {user?.id 
-                ? "Point your camera at a PrintEasy shop QR code to unlock ordering capabilities."
-                : "Point your camera at a PrintEasy shop QR code to visit the shop and place orders."
+                ? "Point your camera at a PrintEasy shop QR code to unlock ordering capabilities and access shop services."
+                : "Point your camera at a PrintEasy shop QR code to visit the shop page and place orders instantly."
               }
             </p>
           </div>

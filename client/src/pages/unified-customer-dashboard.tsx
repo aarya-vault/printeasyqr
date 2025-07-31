@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocation, Link } from 'wouter';
@@ -863,6 +863,9 @@ export default function UnifiedCustomerDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center text-brand-yellow">Complete Your Profile</DialogTitle>
+            <DialogDescription className="text-center">
+              Please provide your full name to enhance your ordering experience
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="text-center">

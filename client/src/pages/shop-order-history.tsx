@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Search, 
@@ -325,9 +325,9 @@ export default function ShopOrderHistory() {
                 <MessageSquare className="w-5 h-5" />
                 Chat History - Order #{selectedOrder.id}
               </DialogTitle>
-              <div className="text-sm text-gray-600">
+              <DialogDescription className="text-sm text-gray-600">
                 Conversation with {selectedOrder.customerName}
-              </div>
+              </DialogDescription>
             </DialogHeader>
             
             <ScrollArea className="flex-1 p-4 border rounded-lg bg-gray-50">
