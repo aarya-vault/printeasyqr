@@ -483,7 +483,6 @@ export default function NewHomepage() {
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>• Pre-book your printing session</li>
                 <li>• Skip the waiting lines</li>
-                <li>• Get estimated completion time</li>
                 <li>• Real-time status updates</li>
               </ul>
             </div>
@@ -528,80 +527,7 @@ export default function NewHomepage() {
         </div>
       </section>
 
-      {/* Customer Support Section */}
-      <section id="customer-support" className="py-8 lg:py-16 bg-white">
-        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
-              Customer Support
-            </h2>
-            <p className="text-gray-600 mb-6 text-sm lg:text-base">
-              We're here to help you 24/7 with any printing needs
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Live Chat */}
-            <div className="bg-gray-50 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Live Chat</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Chat directly with shop owners for instant support
-              </p>
-              <div className="text-xs text-gray-500">Available after QR scan</div>
-            </div>
-
-            {/* Phone Support */}
-            <div className="bg-gray-50 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Phone Support</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Call us anytime for immediate assistance
-              </p>
-              <div className="text-sm font-medium text-brand-yellow">1800-PRINT-NOW</div>
-            </div>
-
-            {/* Email Support */}
-            <div className="bg-gray-50 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Email Support</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Send us your questions and get detailed responses
-              </p>
-              <div className="text-sm font-medium text-brand-yellow">help@printeasy.com</div>
-            </div>
-          </div>
-
-          {/* FAQ Highlights */}
-          <div className="mt-8 bg-brand-yellow/10 rounded-xl p-6 border border-brand-yellow/20">
-            <h3 className="text-lg font-semibold text-rich-black mb-4 text-center">Quick Help</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-rich-black">QR not working?</span>
-                <p className="text-gray-600">Check camera permissions and ensure QR code is well-lit</p>
-              </div>
-              <div>
-                <span className="font-medium text-rich-black">File upload issues?</span>
-                <p className="text-gray-600">All file types supported - no size restrictions!</p>
-              </div>
-              <div>
-                <span className="font-medium text-rich-black">Order status?</span>
-                <p className="text-gray-600">Track in real-time through your customer dashboard</p>
-              </div>
-              <div>
-                <span className="font-medium text-rich-black">Payment questions?</span>
-                <p className="text-gray-600">Pay directly at the shop when collecting your prints</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      
       {/* Beautiful Redesigned Footer */}
       <footer className="bg-rich-black text-white relative overflow-hidden">
         {/* Background Pattern */}
