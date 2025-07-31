@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Shield, Users, Store, Package, TrendingUp, CheckCircle2, 
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
-  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3
+  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3, Ban
 } from 'lucide-react';
 import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
@@ -659,7 +659,17 @@ export default function EnhancedAdminDashboard() {
                                   {user.role}
                                 </Badge>
                                 <Badge variant={user.isActive ? 'default' : 'destructive'} className="text-xs">
-                                  {user.isActive ? 'Active' : 'Inactive'}
+                                  {user.isActive ? (
+                                    <>
+                                      <Shield className="w-3 h-3 mr-1" />
+                                      Active
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Ban className="w-3 h-3 mr-1" />
+                                      Inactive
+                                    </>
+                                  )}
                                 </Badge>
                               </div>
                               <div className="space-y-1 text-sm text-medium-gray">
@@ -706,7 +716,7 @@ export default function EnhancedAdminDashboard() {
                               className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
                               onClick={() => setSelectedUserForEdit(user)}
                             >
-                              <Edit3 className="w-3 h-3 mr-1" />
+                              <Settings className="w-3 h-3 mr-1" />
                               Manage
                             </Button>
                           </div>
