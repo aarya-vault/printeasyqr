@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
+import AdminUserEditModal from "@/components/admin-user-edit-modal";
 
 
 
@@ -50,6 +51,7 @@ interface User {
   email?: string;
   role: 'customer' | 'shop_owner' | 'admin';
   createdAt: string;
+  isActive: boolean;
 }
 
 interface Shop {
@@ -92,6 +94,10 @@ export default function EnhancedAdminDashboard() {
   // Modal states for shops
   const [selectedShopForView, setSelectedShopForView] = useState<Shop | null>(null);
   const [selectedShopForEdit, setSelectedShopForEdit] = useState<Shop | null>(null);
+  
+  // Modal states for users - restoring detailed user management
+  const [selectedUserForView, setSelectedUserForView] = useState<User | null>(null);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
 
   const [adminNotes, setAdminNotes] = useState('');
   const [searchQueries, setSearchQueries] = useState({
@@ -635,170 +641,268 @@ export default function EnhancedAdminDashboard() {
                       // Filter by search
                       if (!searchQueries.users) return true;
                       const search = searchQueries.users.toLowerCase();
-                      return (
-                        user.name?.toLowerCase().includes(search) ||
-                        user.phone?.toLowerCase().includes(search) ||
-                        user.email?.toLowerCase().includes(search)
-                      );
+                      return user.name?.toLowerCase().includes(search) || 
+                             user.phone?.toLowerCase().includes(search) ||
+                             user.email?.toLowerCase().includes(search);
                     })
-                    .filter((user: any) => user.role !== 'admin') // Hide admin users
                     .map((user: any) => (
-                    <Card key={user.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-rich-black">{user.name || 'Unnamed User'}</h4>
-                            <p className="text-sm text-medium-gray">{user.phone}</p>
-                            {user.email && (
-                              <p className="text-xs text-medium-gray">{user.email}</p>
-                            )}
+                      <Card key={user.id} className="border border-gray-200 hover:border-brand-yellow/50 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h3 className="font-semibold text-rich-black">{user.name || 'Unnamed User'}</h3>
+                                <Badge variant={user.role === 'admin' ? 'default' : user.role === 'shop_owner' ? 'secondary' : 'outline'}>
+                                  {user.role}
+                                </Badge>
+                                <Badge variant={user.isActive ? 'default' : 'destructive'} className="text-xs">
+                                  {user.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                              <div className="space-y-1 text-sm text-medium-gray">
+                                <p className="flex items-center">
+                                  <span className="font-medium">Phone:</span>
+                                  <span className="ml-2">{user.phone}</span>
+                                </p>
+                                {user.email && (
+                                  <p className="flex items-center">
+                                    <span className="font-medium">Email:</span>
+                                    <span className="ml-2">{user.email}</span>
+                                  </p>
+                                )}
+                                <p className="flex items-center">
+                                  <span className="font-medium">Joined:</span>
+                                  <span className="ml-2">{new Date(user.createdAt).toLocaleDateString()}</span>
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <Badge 
-                            className={
-                              user.role === 'admin' ? 'bg-brand-yellow text-rich-black' :
-                              user.role === 'shop_owner' ? 'bg-gray-100 text-gray-800' :
-                              'bg-light-gray text-medium-gray'
-                            }
-                          >
-                            {user.role.replace('_', ' ')}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs text-medium-gray mb-3">
-                          <span>ID: {user.id}</span>
-                          <span className={`flex items-center ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                            <div className={`w-2 h-2 rounded-full mr-1 ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                            {user.isActive ? 'Active' : 'Deactivated'}
-                          </span>
-                        </div>
-
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => setEditingUser(user)}
-                          className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                        >
-                          <Settings className="w-3 h-3 mr-1" />
-                          Edit User
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          
+                          {/* Restored Detailed Action Buttons */}
+                          <div className="flex space-x-2 mt-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              onClick={() => setSelectedUserForView(user)}
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              View
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              onClick={() => window.open(`tel:${user.phone}`, '_blank')}
+                            >
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              Contact
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                              onClick={() => setSelectedUserForEdit(user)}
+                            >
+                              <Edit3 className="w-3 h-3 mr-1" />
+                              Manage
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               )}
             </div>
           </TabsContent>
 
-          {/* Shops Tab */}
+          {/* Shop Management Tab */}
           <TabsContent value="shops" className="space-y-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-rich-black">Shop Management</h2>
-              <Badge variant="outline" className="text-sm">
-                {shops.filter((shop: Shop) => shop.isOnline).length} Online
-              </Badge>
-            </div>
-
-            {/* Search Bar */}
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
-                <Input
-                  placeholder="Search shops by name, owner, city..."
-                  value={searchQueries.shops}
-                  onChange={(e) => setSearchQueries({ ...searchQueries, shops: e.target.value })}
-                  className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
-                />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-rich-black">Shop Management</h2>
+                <p className="text-medium-gray">Manage active shops and their settings</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search shops..."
+                    value={searchQueries.shops}
+                    onChange={(e) => setSearchQueries(prev => ({ ...prev, shops: e.target.value }))}
+                    className="pl-10 w-64"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shops
-                .filter((shop: Shop) => {
-                  if (!searchQueries.shops) return true;
-                  const search = searchQueries.shops.toLowerCase();
-                  return (
-                    shop.name?.toLowerCase().includes(search) ||
-                    shop.ownerName?.toLowerCase().includes(search) ||
-                    shop.city?.toLowerCase().includes(search)
-                  );
-                })
-                .map((shop: Shop) => (
-                <Card key={shop.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-rich-black mb-1">{shop.name}</h3>
-                        <p className="text-sm text-medium-gray">{shop.ownerName}</p>
-                        <p className="text-sm text-medium-gray">{shop.city}</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${shop.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                        <span className="text-xs text-medium-gray">
-                          {shop.isOnline ? 'Online' : 'Offline'}
-                        </span>
-                      </div>
+            {/* Shop Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Store className="w-8 h-8 text-brand-yellow" />
+                    <div>
+                      <p className="text-2xl font-bold text-rich-black">{shops.length}</p>
+                      <p className="text-sm text-medium-gray">Total Shops</p>
                     </div>
-                    
-                    <div className="space-y-2 text-sm">
-
-                      <div className="flex justify-between">
-                        <span className="text-medium-gray">Total Orders:</span>
-                        <span className="font-medium">{shop.totalOrders}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-medium-gray">Status:</span>
-                        <Badge className={shop.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
-                          {shop.isApproved ? 'Approved' : 'Pending'}
-                        </Badge>
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+                    <div>
+                      <p className="text-2xl font-bold text-rich-black">
+                        {shops.filter((shop: Shop) => shop.isApproved).length}
+                      </p>
+                      <p className="text-sm text-medium-gray">Approved</p>
                     </div>
-
-                    <div className="flex space-x-2 mt-4">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => setSelectedShopForView(shop)}
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        View
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => window.open(`tel:${shop.contactNumber}`, '_blank')}
-                      >
-                        <MessageSquare className="w-3 h-3 mr-1" />
-                        Contact
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                        onClick={() => setSelectedShopForEdit(shop)}
-                      >
-                        <Edit3 className="w-3 h-3 mr-1" />
-                        Edit
-                      </Button>
-
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-8 h-8 text-brand-yellow" />
+                    <div>
+                      <p className="text-2xl font-bold text-rich-black">
+                        {shops.filter((shop: Shop) => shop.isOnline).length}
+                      </p>
+                      <p className="text-sm text-medium-gray">Online Now</p>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <p className="text-2xl font-bold text-rich-black">
+                        {shops.reduce((total: number, shop: Shop) => total + (shop.totalOrders || 0), 0)}
+                      </p>
+                      <p className="text-sm text-medium-gray">Total Orders</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Shop List */}
+            <div className="space-y-4">
+              {shopsLoading ? (
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Card key={i} className="animate-pulse">
+                      <CardContent className="p-4">
+                        <div className="h-5 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : shops.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Store className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-rich-black mb-2">No shops found</h3>
+                    <p className="text-medium-gray">Approved shops will appear here</p>
                   </CardContent>
                 </Card>
-              ))}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {shops
+                    .filter((shop: Shop) => {
+                      if (!searchQueries.shops) return true;
+                      const search = searchQueries.shops.toLowerCase();
+                      return shop.name?.toLowerCase().includes(search) || 
+                             shop.ownerName?.toLowerCase().includes(search) ||
+                             shop.city?.toLowerCase().includes(search);
+                    })
+                    .map((shop: Shop) => (
+                      <Card key={shop.id} className="border border-gray-200 hover:border-brand-yellow/50 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h3 className="font-semibold text-rich-black">{shop.name}</h3>
+                                <Badge variant={shop.isApproved ? 'default' : 'secondary'}>
+                                  {shop.isApproved ? 'Approved' : 'Pending'}
+                                </Badge>
+                                <Badge variant={shop.isOnline ? 'default' : 'outline'} className="text-xs">
+                                  {shop.isOnline ? 'Online' : 'Offline'}
+                                </Badge>
+                              </div>
+                              <div className="space-y-1 text-sm text-medium-gray">
+                                <p className="flex items-center">
+                                  <span className="font-medium">Owner:</span>
+                                  <span className="ml-2">{shop.ownerName}</span>
+                                </p>
+                                <p className="flex items-center">
+                                  <span className="font-medium">Location:</span>
+                                  <span className="ml-2">{shop.city}</span>
+                                </p>
+                                <p className="flex items-center">
+                                  <span className="font-medium">Orders:</span>
+                                  <span className="ml-2">{shop.totalOrders || 0}</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Restored Shop Action Buttons */}
+                          <div className="flex space-x-2 mt-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              onClick={() => setSelectedShopForView(shop)}
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              View
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              onClick={() => window.open(`tel:${shop.contactNumber}`, '_blank')}
+                            >
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              Contact
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                              onClick={() => setSelectedShopForEdit(shop)}
+                            >
+                              <Edit3 className="w-3 h-3 mr-1" />
+                              Manage
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              )}
             </div>
           </TabsContent>
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-rich-black">Platform Analytics</h2>
+                <p className="text-medium-gray">View platform statistics and performance metrics</p>
+              </div>
               <div className="flex items-center space-x-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medium-gray w-4 h-4" />
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Search analytics by shop name..."
+                    placeholder="Search analytics..."
                     value={searchQueries.analytics}
-                    onChange={(e) => setSearchQueries({ ...searchQueries, analytics: e.target.value })}
-                    className="pl-10 border-brand-yellow/30 focus:border-brand-yellow"
+                    onChange={(e) => setSearchQueries(prev => ({ ...prev, analytics: e.target.value }))}
+                    className="pl-10 w-64"
                   />
                 </div>
               </div>
@@ -841,6 +945,18 @@ export default function EnhancedAdminDashboard() {
 
 
       </div>
+      
+      {/* User Management Modals - Restored */}
+      {selectedUserForEdit && (
+        <AdminUserEditModal
+          user={selectedUserForEdit}
+          onClose={() => setSelectedUserForEdit(null)}
+          onSave={() => {
+            setSelectedUserForEdit(null);
+            queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+          }}
+        />
+      )}
       
       {/* Shop Modals */}
       {selectedShopForView && (

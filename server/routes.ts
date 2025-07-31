@@ -1551,7 +1551,7 @@ app.patch('/api/debug/patch-test', (req, res) => {
   });
 
   // Admin user management routes
-  app.put("/api/admin/users/:id", async (req, res) => {
+  app.put("/api/admin/users/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const updateData = req.body;

@@ -49,6 +49,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
       const response = await fetch(`/api/admin/users/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -80,6 +81,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
     mutationFn: async () => {
       const response = await fetch(`/api/admin/users/${user.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -111,6 +113,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
       const response = await fetch(`/api/admin/users/${user.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ isActive }),
       });
 
