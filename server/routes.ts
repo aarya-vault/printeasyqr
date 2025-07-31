@@ -1452,8 +1452,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
 
   app.get("/api/admin/shops", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const shops = await storage.getActiveShops();
-      res.json(shops);
+      // Admin should see ALL approved shops regardless of online status
+      const allShops = await storage.getAllShops();
+      res.json(allShops);
     } catch (error) {
       console.error("Admin shops error:", error);
       res.status(500).json({ message: "Internal server error" });

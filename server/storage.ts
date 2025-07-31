@@ -25,6 +25,7 @@ export interface IStorage {
   getShopByEmail(email: string): Promise<Shop | undefined>;
   getShopsByOwner(ownerId: number): Promise<Shop[]>;
   getActiveShops(): Promise<Shop[]>;
+  getAllShops(): Promise<Shop[]>;
   getVisitedShopsByCustomer(customerId: number): Promise<Shop[]>;
   createShop(shop: InsertShop): Promise<Shop>;
   updateShop(id: number, updates: Partial<Shop>): Promise<Shop | undefined>;
@@ -164,6 +165,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(shops)
       .where(and(eq(shops.isApproved, true), eq(shops.isOnline, true)))
+      .orderBy(desc(shops.rating));
+  }
+
+  async getAllShops(): Promise<Shop[]> {
+    return await db
+      .select()
+      .from(shops)
+      .where(eq(shops.isApproved, true))
       .orderBy(desc(shops.rating));
   }
 
