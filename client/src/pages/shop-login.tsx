@@ -175,14 +175,7 @@ export default function ShopLoginPage() {
                 </Button>
               </form>
 
-              {/* Demo Credentials */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Demo Shop Credentials:</h4>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div><strong>Email:</strong> quickprint@example.com</div>
-                  <div><strong>Password:</strong> password123</div>
-                </div>
-              </div>
+              
 
               {/* Links */}
               <div className="mt-8 space-y-4">
