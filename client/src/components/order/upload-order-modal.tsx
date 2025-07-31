@@ -256,7 +256,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
                   onChange={handleFileSelect}
                 />
                 <p className="text-xs text-medium-gray mt-2">
-                  Supported: PDF, DOC, JPG, PNG, TXT (Max 50MB each)
+                  Supported: PDF, DOC, JPG, PNG, TXT (Unlimited file size)
                 </p>
               </div>
               

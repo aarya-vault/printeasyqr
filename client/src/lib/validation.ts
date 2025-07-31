@@ -51,7 +51,6 @@ export const messageSchema = z.object({
 });
 
 export const fileValidation = {
-  maxSize: 50 * 1024 * 1024, // 50MB
   allowedTypes: [
     'application/pdf',
     'application/msword',
@@ -62,9 +61,7 @@ export const fileValidation = {
   ],
   
   validateFile: (file: File): { isValid: boolean; error?: string } => {
-    if (file.size > fileValidation.maxSize) {
-      return { isValid: false, error: `File size must be less than 50MB` };
-    }
+    // No size limit - unlimited file uploads
     
     if (!fileValidation.allowedTypes.includes(file.type)) {
       return { isValid: false, error: `File type not supported. Allowed: PDF, DOC, DOCX, JPG, PNG, TXT` };

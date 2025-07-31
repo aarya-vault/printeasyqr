@@ -38,7 +38,6 @@ export const API_ENDPOINTS = {
 
 // File upload constraints
 export const FILE_UPLOAD = {
-  MAX_SIZE: 50 * 1024 * 1024, // 50MB
   ALLOWED_TYPES: [
     'application/pdf',
     'application/msword',

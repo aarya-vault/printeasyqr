@@ -24,7 +24,7 @@ export function EnhancedFileUpload({
   onFilesChange,
   isUploading = false,
   disabled = false,
-  maxFiles = 10,
+  maxFiles = Infinity, // Unlimited files
   acceptedFileTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']
 }: EnhancedFileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
@@ -66,28 +66,12 @@ export function EnhancedFileUpload({
         return;
       }
 
-      // Check file size (50MB limit)
-      if (file.size > 50 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: `${file.name} is larger than 50MB. Please choose a smaller file.`,
-          variant: "destructive",
-        });
-        return;
-      }
+      // No file size limit - unlimited file uploads
 
       validFiles.push(file);
     });
 
-    // Check total file count
-    if (files.length + validFiles.length > maxFiles) {
-      toast({
-        title: "Too many files",
-        description: `You can only upload up to ${maxFiles} files total.`,
-        variant: "destructive",
-      });
-      return;
-    }
+    // No file count restrictions - unlimited uploads
 
     // Add valid files
     onFilesChange([...files, ...validFiles]);
@@ -178,7 +162,7 @@ export function EnhancedFileUpload({
               <div className="text-center">
                 <p className="text-black font-medium">Drop files here or click to upload</p>
                 <p className="text-gray-600 text-sm">
-                  Support: {acceptedFileTypes.join(', ')} • Max {maxFiles} files • Up to 50MB each
+                  Support: {acceptedFileTypes.join(', ')} • Unlimited file size
                 </p>
               </div>
             </>
