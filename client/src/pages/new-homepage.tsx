@@ -479,19 +479,38 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-      {/* Footer */}
-      <footer className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="col-span-1 md:col-span-2">
-              <PrintEasyLogoNav className="mb-4" />
-              <p className="text-gray-600 mb-4 max-w-md">
-                Connecting customers with trusted local print shops for seamless, hassle-free printing experiences.
+      {/* Beautiful Redesigned Footer */}
+      <footer className="bg-rich-black text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-yellow rounded-full -translate-y-48 translate-x-48"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-yellow rounded-full translate-y-32 -translate-x-32"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* Brand Section */}
+            <div className="lg:col-span-5">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center mr-4">
+                  <Printer className="w-6 h-6 text-rich-black" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">PrintEasy</h2>
+                  <p className="text-brand-yellow text-sm font-medium">Your Print Partner</p>
+                </div>
+              </div>
+              <p className="text-gray-300 mb-6 text-sm leading-relaxed max-w-md">
+                Connecting customers with trusted local print shops for seamless, hassle-free printing experiences. 
+                Quick, reliable, and always professional.
               </p>
-              <div className="flex gap-4">
+              
+              {/* Partner Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  className="bg-transparent border-2 border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black font-semibold transition-all duration-300"
                   onClick={() => navigate('/apply-shop')}
                 >
                   <Building2 className="w-4 h-4 mr-2" />
@@ -499,49 +518,105 @@ export default function NewHomepage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-rich-black font-semibold transition-all duration-300"
                   onClick={() => navigate('/shop-login')}
                 >
                   <User className="w-4 h-4 mr-2" />
                   Shop Owner Login
                 </Button>
               </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 lg:max-w-md">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">50+</div>
+                  <div className="text-xs text-gray-400">Verified Shops</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">2k+</div>
+                  <div className="text-xs text-gray-400">Happy Customers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-yellow">24/7</div>
+                  <div className="text-xs text-gray-400">Support</div>
+                </div>
+              </div>
             </div>
             
-            <div>
-              <h3 className="font-semibold text-rich-black mb-4">For Customers</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>How It Works</li>
-                <li>Upload & Print</li>
-                <li>Walk-in Booking</li>
-                <li>Order Tracking</li>
-                <li>Customer Support</li>
+            {/* Quick Links */}
+            <div className="lg:col-span-3">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <div className="w-1 h-6 bg-brand-yellow mr-3 rounded-full"></div>
+                For Customers
+              </h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">How It Works</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Upload & Print</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Walk-in Booking</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Order Tracking</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Customer Support</a></li>
               </ul>
             </div>
             
-            <div>
-              <h3 className="font-semibold text-rich-black mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-center gap-2">
-                  <Headphones className="w-4 h-4" />
-                  24/7 Customer Care
-                </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  help@printeasy.com
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  1800-PRINT-NOW
-                </li>
-              </ul>
+            {/* Contact Support */}
+            <div className="lg:col-span-4">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <div className="w-1 h-6 bg-brand-yellow mr-3 rounded-full"></div>
+                Get in Touch
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg backdrop-blur-sm">
+                  <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Headphones className="w-4 h-4 text-brand-yellow" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">24/7 Customer Care</div>
+                    <div className="text-xs text-gray-400">Always here to help</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg backdrop-blur-sm">
+                  <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-4 h-4 text-brand-yellow" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">help@printeasy.com</div>
+                    <div className="text-xs text-gray-400">Email support</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg backdrop-blur-sm">
+                  <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 text-brand-yellow" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">1800-PRINT-NOW</div>
+                    <div className="text-xs text-gray-400">Call anytime</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center">
-            <p className="text-sm text-gray-600">
-              © 2025 PrintEasy. All rights reserved. Made with ♥ for seamless printing experiences.
-            </p>
+          {/* Bottom Bar */}
+          <div className="border-t border-gray-700 mt-12 pt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-rich-black">P</span>
+                </div>
+                <p className="text-sm text-gray-400">
+                  © 2025 PrintEasy. All rights reserved.
+                </p>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-gray-400">
+                <span>Connect</span>
+                <div className="w-1 h-1 bg-brand-yellow rounded-full"></div>
+                <span>Print</span>
+                <div className="w-1 h-1 bg-brand-yellow rounded-full"></div>
+                <span>Collect</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

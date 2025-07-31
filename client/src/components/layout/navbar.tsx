@@ -24,28 +24,6 @@ export function Navbar({ onShopLogin, onShopApplication, additionalActions }: Na
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             {additionalActions}
-            <Link href="/apply-shop">
-              <Button 
-                variant="outline"
-                className="border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-              >
-                Shop Application
-              </Button>
-            </Link>
-            <Button 
-              onClick={onShopLogin}
-              className="bg-brand-yellow text-rich-black hover:bg-yellow-500"
-            >
-              Shop Owner Login
-            </Button>
-            <Link href="/admin-login">
-              <Button 
-                variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-              >
-                Admin Login
-              </Button>
-            </Link>
           </div>
           
           {/* Mobile Menu Trigger */}
@@ -57,33 +35,11 @@ export function Navbar({ onShopLogin, onShopApplication, additionalActions }: Na
             </SheetTrigger>
             <SheetContent side="right" className="w-64">
               <div className="flex flex-col space-y-4 mt-6">
-                <Link href="/apply-shop">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full border-rich-black text-rich-black hover:bg-rich-black hover:text-white"
-                  >
-                    Shop Application
-                  </Button>
-                </Link>
-                <Button 
-                  onClick={() => {
-                    onShopLogin?.();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-brand-yellow text-rich-black hover:bg-yellow-500"
-                >
-                  Shop Owner Login
-                </Button>
-                <Link href="/admin-login">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                  >
-                    Admin Login
-                  </Button>
-                </Link>
+                {additionalActions && (
+                  <div className="w-full">
+                    {additionalActions}
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>
