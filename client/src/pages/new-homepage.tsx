@@ -441,118 +441,64 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-      {/* Customer Quick Guide - Mobile Optimized */}
-      <section className="py-8 lg:py-16 bg-gray-50">
-        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-6xl lg:px-8">
+      {/* Customer Quick Guide - Simplified */}
+      <section id="how-it-works" className="py-8 lg:py-16 bg-gray-50">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
               Customer Quick Guide
             </h2>
             <p className="text-gray-600 mb-6 text-sm lg:text-base">
-              Everything you need to know to start printing with PrintEasy
+              Simple steps to get started with PrintEasy
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Guide 1: QR Scanning */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
-                <QrCode className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">How to Scan QR Codes</h3>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Click "Scan QR" button in the top header</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Allow camera access when prompted</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Point camera at shop's QR code</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Get instant access to shop services</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Guide 2: Placing Orders */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Guide 1: Upload & Print */}
+            <div id="upload-print" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
               <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
                 <Upload className="w-6 h-6 text-brand-yellow" />
               </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Placing Your Orders</h3>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Upload files: PDF, DOC, images supported</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Walk-in booking: Reserve your time slot</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Add specifications: copies, color, size</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Mark urgent for priority processing</span>
-                </li>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Upload & Print</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Upload any file type and get it printed at nearby shops
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Scan shop QR code to unlock ordering</li>
+                <li>• Upload any file - no restrictions!</li>
+                <li>• Add printing specifications</li>
+                <li>• Chat directly with shop owners</li>
               </ul>
             </div>
 
-            {/* Guide 3: Communication & Tracking */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 md:col-span-2 lg:col-span-1">
+            {/* Guide 2: Walk-in Booking */}
+            <div id="walk-in-booking" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
               <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
-                <MessageCircle className="w-6 h-6 text-brand-yellow" />
+                <Clock className="w-6 h-6 text-brand-yellow" />
               </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Stay Connected</h3>
-              <ul className="text-sm text-gray-600 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Live chat with shop owners anytime</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Share additional files through chat</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Real-time order status updates</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2 flex-shrink-0"></span>
-                  <span>Get notified when order is ready</span>
-                </li>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Walk-in Booking</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Book your visit to avoid waiting in long queues
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Pre-book your printing session</li>
+                <li>• Skip the waiting lines</li>
+                <li>• Get estimated completion time</li>
+                <li>• Real-time status updates</li>
               </ul>
             </div>
           </div>
 
-          {/* Quick Tips Section */}
-          <div className="mt-8 bg-brand-yellow/10 rounded-xl p-6 border border-brand-yellow/20">
-            <h3 className="text-lg font-semibold text-rich-black mb-4 text-center">💡 Pro Tips for Best Experience</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
-                <span>Save shop phone numbers for quick calling</span>
+          {/* Order Tracking */}
+          <div id="order-tracking" className="mt-6 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-6 h-6 text-brand-yellow" />
               </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
-                <span>Use demo phone: 7434052121 for testing</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
-                <span>Files are automatically deleted after completion</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
-                <span>Rate limit: 50MB per file, multiple files allowed</span>
-              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Order Tracking</h3>
+              <p className="text-sm text-gray-600">
+                Track your orders in real-time from placement to completion with live chat support
+              </p>
             </div>
           </div>
 
@@ -566,7 +512,7 @@ export default function NewHomepage() {
                   className="w-full sm:w-auto bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-6 py-3 font-bold"
                 >
                   <QrCode className="w-5 h-5 mr-2" />
-                  Scan Your First QR Code
+                  Scan QR Code Now
                 </Button>
                 <Button 
                   onClick={handleCustomerLogin}
@@ -574,8 +520,83 @@ export default function NewHomepage() {
                   className="w-full sm:w-auto border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3"
                 >
                   <User className="w-5 h-5 mr-2" />
-                  Login to Dashboard
+                  Customer Login
                 </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Support Section */}
+      <section id="customer-support" className="py-8 lg:py-16 bg-white">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
+              Customer Support
+            </h2>
+            <p className="text-gray-600 mb-6 text-sm lg:text-base">
+              We're here to help you 24/7 with any printing needs
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Live Chat */}
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Live Chat</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Chat directly with shop owners for instant support
+              </p>
+              <div className="text-xs text-gray-500">Available after QR scan</div>
+            </div>
+
+            {/* Phone Support */}
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Phone Support</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Call us anytime for immediate assistance
+              </p>
+              <div className="text-sm font-medium text-brand-yellow">1800-PRINT-NOW</div>
+            </div>
+
+            {/* Email Support */}
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Email Support</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Send us your questions and get detailed responses
+              </p>
+              <div className="text-sm font-medium text-brand-yellow">help@printeasy.com</div>
+            </div>
+          </div>
+
+          {/* FAQ Highlights */}
+          <div className="mt-8 bg-brand-yellow/10 rounded-xl p-6 border border-brand-yellow/20">
+            <h3 className="text-lg font-semibold text-rich-black mb-4 text-center">Quick Help</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-rich-black">QR not working?</span>
+                <p className="text-gray-600">Check camera permissions and ensure QR code is well-lit</p>
+              </div>
+              <div>
+                <span className="font-medium text-rich-black">File upload issues?</span>
+                <p className="text-gray-600">All file types supported - no size restrictions!</p>
+              </div>
+              <div>
+                <span className="font-medium text-rich-black">Order status?</span>
+                <p className="text-gray-600">Track in real-time through your customer dashboard</p>
+              </div>
+              <div>
+                <span className="font-medium text-rich-black">Payment questions?</span>
+                <p className="text-gray-600">Pay directly at the shop when collecting your prints</p>
               </div>
             </div>
           </div>
@@ -652,11 +673,11 @@ export default function NewHomepage() {
                 For Customers
               </h3>
               <ul className="space-y-3">
-                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">How It Works</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Upload & Print</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Walk-in Booking</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Order Tracking</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Customer Support</a></li>
+                <li><a href="#how-it-works" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">How It Works</a></li>
+                <li><a href="#upload-print" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Upload & Print</a></li>
+                <li><a href="#walk-in-booking" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Walk-in Booking</a></li>
+                <li><a href="#order-tracking" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Order Tracking</a></li>
+                <li><a href="#customer-support" className="text-gray-300 hover:text-brand-yellow transition-colors text-sm">Customer Support</a></li>
               </ul>
             </div>
             
