@@ -342,6 +342,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer-specific update route for name updates
+  app.patch("/api/customers/:id", requireAuth, async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.id);
+      const { name } = req.body;
+      
+      // Verify user can only update their own information or is admin
+      if (req.user && req.user.role !== 'admin' && req.user.id !== customerId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const updatedUser = await storage.updateUser(customerId, { name });
+      if (!updatedUser) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Update customer error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Admin login with environment variables
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
@@ -1618,6 +1641,32 @@ app.patch('/api/debug/patch-test', (req, res) => {
       res.json(allOrders);
     } catch (error) {
       console.error("Admin shop orders error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin shop update route
+  app.patch('/api/admin/shops/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const [updatedShop] = await db
+        .update(shops)
+        .set({
+          ...updates,
+          updatedAt: new Date(),
+        })
+        .where(eq(shops.id, shopId))
+        .returning();
+      
+      if (!updatedShop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      res.json(updatedShop);
+    } catch (error) {
+      console.error("Update shop error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

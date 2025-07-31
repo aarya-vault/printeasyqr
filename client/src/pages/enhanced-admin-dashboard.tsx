@@ -15,6 +15,8 @@ import {
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
   BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3
 } from 'lucide-react';
+import { ShopViewModal } from "@/components/admin/shop-view-modal";
+import { ShopEditModal } from "@/components/admin/shop-edit-modal";
 
 
 
@@ -54,11 +56,15 @@ interface Shop {
   id: number;
   name: string;
   ownerName: string;
+  email: string;
   city: string;
-  rating: number;
+  address: string;
+  contactNumber: string;
+  rating?: number;
   totalOrders: number;
   isOnline: boolean;
   isApproved: boolean;
+  workingHours?: string;
 }
 
 export default function EnhancedAdminDashboard() {
@@ -82,6 +88,10 @@ export default function EnhancedAdminDashboard() {
   }, [user, queryClient]);
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
   const [editingApplication, setEditingApplication] = useState<ShopApplication | null>(null);
+  
+  // Modal states for shops
+  const [selectedShopForView, setSelectedShopForView] = useState<Shop | null>(null);
+  const [selectedShopForEdit, setSelectedShopForEdit] = useState<Shop | null>(null);
 
   const [adminNotes, setAdminNotes] = useState('');
   const [searchQueries, setSearchQueries] = useState({
@@ -748,12 +758,7 @@ export default function EnhancedAdminDashboard() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => {
-                          toast({
-                            title: "View Shop",
-                            description: `Viewing ${shop.name} details`,
-                          });
-                        }}
+                        onClick={() => setSelectedShopForView(shop)}
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         View
@@ -762,12 +767,7 @@ export default function EnhancedAdminDashboard() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => {
-                          toast({
-                            title: "Contact Shop",
-                            description: `Contact ${shop.name}`,
-                          });
-                        }}
+                        onClick={() => window.open(`tel:${shop.contactNumber}`, '_blank')}
                       >
                         <MessageSquare className="w-3 h-3 mr-1" />
                         Contact
@@ -775,12 +775,7 @@ export default function EnhancedAdminDashboard() {
                       <Button 
                         size="sm" 
                         className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                        onClick={() => {
-                          toast({
-                            title: "Edit Shop",
-                            description: `Edit ${shop.name} details`,
-                          });
-                        }}
+                        onClick={() => setSelectedShopForEdit(shop)}
                       >
                         <Edit3 className="w-3 h-3 mr-1" />
                         Edit
@@ -846,6 +841,24 @@ export default function EnhancedAdminDashboard() {
 
 
       </div>
+      
+      {/* Shop Modals */}
+      {selectedShopForView && (
+        <ShopViewModal
+          shop={selectedShopForView}
+          onClose={() => setSelectedShopForView(null)}
+        />
+      )}
+      
+      {selectedShopForEdit && (
+        <ShopEditModal
+          shop={selectedShopForEdit}
+          onClose={() => setSelectedShopForEdit(null)}
+          onUpdate={() => {
+            queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+          }}
+        />
+      )}
     </div>
   );
 }

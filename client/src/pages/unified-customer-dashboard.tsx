@@ -108,6 +108,7 @@ export default function UnifiedCustomerDashboard() {
       const response = await fetch(`/api/customers/${user?.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name: name.trim() })
       });
       
