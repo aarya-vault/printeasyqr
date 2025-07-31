@@ -266,10 +266,22 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
                       variant={user.isActive ? "outline" : "default"}
                       onClick={() => toggleUserStatus.mutate(!user.isActive)}
                       disabled={toggleUserStatus.isPending}
-                      className={user.isActive ? "border-red-500 text-red-500 hover:bg-red-50" : "bg-green-600 hover:bg-green-700"}
+                      className={user.isActive 
+                        ? "border-red-500 text-red-500 hover:bg-red-50" 
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                      }
                     >
-                      <Ban className="w-4 h-4 mr-2" />
-                      {user.isActive ? 'Deactivate User' : 'Activate User'}
+                      {user.isActive ? (
+                        <>
+                          <Ban className="w-4 h-4 mr-2" />
+                          Deactivate User
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Activate User
+                        </>
+                      )}
                     </Button>
 
                     <Button

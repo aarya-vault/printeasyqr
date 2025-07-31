@@ -18,6 +18,7 @@ import {
 import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
 import AdminUserEditModal from "@/components/admin-user-edit-modal";
+import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-management-modal";
 
 
 
@@ -94,6 +95,7 @@ export default function EnhancedAdminDashboard() {
   // Modal states for shops
   const [selectedShopForView, setSelectedShopForView] = useState<Shop | null>(null);
   const [selectedShopForEdit, setSelectedShopForEdit] = useState<Shop | null>(null);
+  const [selectedShopForManagement, setSelectedShopForManagement] = useState<Shop | null>(null);
   
   // Modal states for users - restoring detailed user management
   const [selectedUserForView, setSelectedUserForView] = useState<User | null>(null);
@@ -635,6 +637,7 @@ export default function EnhancedAdminDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {users
+                    .filter((user: any) => user.role !== 'admin') // Hide admin users from management
                     .filter((user: any) => {
                       // Filter by role
                       if (userFilter !== 'all' && user.role !== userFilter) return false;
@@ -874,9 +877,9 @@ export default function EnhancedAdminDashboard() {
                             <Button 
                               size="sm" 
                               className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                              onClick={() => setSelectedShopForEdit(shop)}
+                              onClick={() => setSelectedShopForManagement(shop)}
                             >
-                              <Edit3 className="w-3 h-3 mr-1" />
+                              <Settings className="w-3 h-3 mr-1" />
                               Manage
                             </Button>
                           </div>
@@ -971,6 +974,18 @@ export default function EnhancedAdminDashboard() {
           shop={selectedShopForEdit}
           onClose={() => setSelectedShopForEdit(null)}
           onUpdate={() => {
+            queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+          }}
+        />
+      )}
+      
+      {/* Comprehensive Shop Management Modal */}
+      {selectedShopForManagement && (
+        <ComprehensiveShopManagementModal
+          shop={selectedShopForManagement}
+          onClose={() => setSelectedShopForManagement(null)}
+          onUpdate={() => {
+            setSelectedShopForManagement(null);
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
           }}
         />

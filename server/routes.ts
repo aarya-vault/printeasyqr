@@ -10,6 +10,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { requireAuth, requireAdmin, requireShopOwner, requireShopOwnerOrAdmin } from "./middleware/auth";
+import adminRoutes from "./admin-routes";
 
 // Configure multer for file uploads
 const uploadDir = "uploads";
@@ -1549,6 +1550,9 @@ app.patch('/api/debug/patch-test', (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+  // Register admin routes
+  app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 
   // Admin user management routes
   app.put("/api/admin/users/:id", requireAuth, requireAdmin, async (req, res) => {
