@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertUserSchema, insertOrderSchema, insertMessageSchema, insertShopApplicationSchema, users, orders, shops, shopApplications, messages, notifications } from "@shared/schema";
+import { insertUserSchema, insertOrderSchema, insertMessageSchema, insertShopApplicationSchema, users, orders, shops, shopApplications, messages, notifications, customerShopUnlocks } from "@shared/schema";
 import { eq, desc, and, or, sql } from "drizzle-orm";
 import { db } from "./db";
 import { z } from "zod";

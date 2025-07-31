@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Store, Phone, MapPin, Clock, Upload, Users, 
-  FileText, AlertCircle, CheckCircle, X
+  FileText, AlertCircle, CheckCircle, X, Package, CheckCircle2
 } from 'lucide-react';
 import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 import { useAuth } from '@/hooks/use-auth';
@@ -235,22 +235,53 @@ export default function ShopOrder() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-brand-yellow p-6">
+      {/* Enhanced PrintEasy Header with Branding */}
+      <div className="bg-brand-yellow p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-rich-black mb-2">{shop.name}</h1>
-          <div className="flex flex-wrap gap-4 text-rich-black">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <span>{shop.address}</span>
+          {/* PrintEasy Brand Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-rich-black p-2 rounded-lg">
+                <Package className="w-5 h-5 text-brand-yellow" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-rich-black">PrintEasy</h2>
+                <p className="text-xs text-rich-black/70">Your Printing Partner</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4" />
-              <span>{shop.phone}</span>
-            </div>
-            <Badge variant={shopOpen ? 'default' : 'secondary'} className="bg-white">
-              {shopOpen ? 'Open Now' : 'Closed'}
+            <Badge className="bg-rich-black text-brand-yellow border-0">
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              Verified Platform
             </Badge>
+          </div>
+          
+          {/* Shop Information */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-xl sm:text-2xl font-bold text-rich-black">{shop.name}</h1>
+                  <Badge className="bg-green-600 text-white border-0 text-xs">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    Verified Shop
+                  </Badge>
+                </div>
+              </div>
+              <Badge variant={shopOpen ? 'default' : 'secondary'} className="bg-white/90 text-rich-black">
+                {shopOpen ? 'Open Now' : 'Closed'}
+              </Badge>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-rich-black text-sm">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{shop.address}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                <span>{shop.phone}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -306,47 +337,74 @@ export default function ShopOrder() {
                   />
                 </div>
 
-                {/* Order Type */}
+                {/* Order Type - Fixed Mobile Responsive */}
                 <div>
                   <h3 className="text-lg font-medium mb-4">Order Type</h3>
-                  <Tabs value={orderType} onValueChange={(v) => setOrderType(v as 'upload' | 'walkin')}>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="upload">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Files
-                      </TabsTrigger>
-                      {shop.acceptsWalkinOrders ? (
+                  {shop.acceptsWalkinOrders ? (
+                    // Both options available - show tabs
+                    <Tabs value={orderType} onValueChange={(v) => setOrderType(v as 'upload' | 'walkin')}>
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="upload">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Files
+                        </TabsTrigger>
                         <TabsTrigger value="walkin" disabled={!canPlaceWalkinOrder()}>
                           <Users className="w-4 h-4 mr-2" />
                           Walk-in Order {!shopOpen && '(Closed)'}
                         </TabsTrigger>
-                      ) : (
-                        <TabsTrigger value="walkin" disabled className="opacity-50">
-                          <Users className="w-4 h-4 mr-2" />
-                          Walk-in Order (Not Available)
-                        </TabsTrigger>
-                      )}
-                    </TabsList>
+                      </TabsList>
 
-                    <TabsContent value="upload" className="mt-4">
-                      <EnhancedFileUpload
-                        files={selectedFiles}
-                        onFilesChange={setSelectedFiles}
-                        isUploading={createOrderMutation.isPending}
-                        disabled={createOrderMutation.isPending}
-                        maxFiles={10}
-                        acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
-                      />
-                    </TabsContent>
+                      <TabsContent value="upload" className="mt-4">
+                        <EnhancedFileUpload
+                          files={selectedFiles}
+                          onFilesChange={setSelectedFiles}
+                          isUploading={createOrderMutation.isPending}
+                          disabled={createOrderMutation.isPending}
+                          maxFiles={10}
+                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
+                        />
+                      </TabsContent>
 
-                    <TabsContent value="walkin" className="mt-4">
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600">
-                          Visit our shop with your documents. We'll handle the printing on-site.
+                      <TabsContent value="walkin" className="mt-4">
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">
+                            Visit our shop with your documents. We'll handle the printing on-site.
+                          </p>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    // Only upload available - direct UI without tabs
+                    <div className="space-y-4">
+                      <div className="bg-brand-yellow/10 border border-brand-yellow/30 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Upload className="w-5 h-5 text-brand-yellow" />
+                          <h4 className="font-medium text-rich-black">Upload Files</h4>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">Upload your documents for printing</p>
+                        <EnhancedFileUpload
+                          files={selectedFiles}
+                          onFilesChange={setSelectedFiles}
+                          isUploading={createOrderMutation.isPending}
+                          disabled={createOrderMutation.isPending}
+                          maxFiles={10}
+                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
+                        />
+                      </div>
+                      
+                      {/* Walk-in disabled notice */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="w-5 h-5 text-gray-400" />
+                          <h4 className="font-medium text-gray-500">Walk-in Orders</h4>
+                          <Badge variant="outline" className="text-xs">Not Available</Badge>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          This shop currently only accepts file upload orders.
                         </p>
                       </div>
-                    </TabsContent>
-                  </Tabs>
+                    </div>
+                  )}
                 </div>
 
                 {/* Urgent Checkbox */}
