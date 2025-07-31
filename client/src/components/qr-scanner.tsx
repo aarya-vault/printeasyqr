@@ -222,43 +222,41 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0 overflow-hidden aspect-square border-none">
+      <DialogContent className="w-full max-w-lg mx-2 sm:mx-auto p-0 overflow-hidden max-h-[95vh] border-none flex flex-col">
         <DialogHeader className="sr-only">
           <DialogTitle>QR Code Scanner</DialogTitle>
           <DialogDescription>Scan QR codes to unlock PrintEasy shops</DialogDescription>
         </DialogHeader>
         
         {/* Beautiful PrintEasy Header */}
-        <div className="bg-brand-yellow p-6 text-center relative">
-          
+        <div className="bg-brand-yellow p-4 sm:p-6 text-center relative flex-shrink-0">
           {/* PrintEasy Logo and Title */}
-          <div className="flex flex-col items-center mb-4">
+          <div className="flex flex-col items-center">
             <div className="bg-rich-black rounded-full p-3 mb-3 shadow-lg">
-              <Printer className="w-8 h-8 text-brand-yellow" />
+              <Printer className="w-6 h-6 sm:w-8 sm:h-8 text-brand-yellow" />
             </div>
-            <h2 className="text-2xl font-bold text-rich-black">PrintEasy</h2>
-            <p className="text-rich-black/80 text-sm mt-1">Scan QR to Unlock Shop</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-rich-black">PrintEasy</h2>
+            <p className="text-rich-black/80 text-xs sm:text-sm mt-1">Scan QR to Unlock Shop</p>
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col p-4 space-y-3 bg-white">
+        <div className="flex-1 flex flex-col p-3 sm:p-4 space-y-3 bg-white overflow-y-auto min-h-0">
           {/* Scanner Area - Centered and Square */}
-          <div className="flex-1 flex items-center justify-center">
-
-            <div className="relative w-full max-w-xs">
+          <div className="flex-1 flex items-center justify-center py-2">
+            <div className="relative w-full max-w-[280px] sm:max-w-xs">
               <video
                 ref={videoRef}
-                className="w-full aspect-square bg-black rounded-2xl object-cover shadow-xl"
+                className="w-full aspect-square bg-black rounded-xl sm:rounded-2xl object-cover shadow-xl"
                 playsInline
                 muted
               />
             
               {/* Loading overlay */}
               {!isScanning && !scanError && (
-                <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 rounded-xl sm:rounded-2xl flex items-center justify-center">
                   <div className="text-center text-white">
-                    <div className="w-10 h-10 mx-auto mb-3 animate-spin rounded-full border-3 border-brand-yellow border-t-transparent"></div>
-                    <p className="text-sm font-medium">Starting camera...</p>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 animate-spin rounded-full border-2 sm:border-3 border-brand-yellow border-t-transparent"></div>
+                    <p className="text-xs sm:text-sm font-medium">Starting camera...</p>
                   </div>
                 </div>
               )}
@@ -281,12 +279,12 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
           </div>
 
           {/* Instructions - Beautiful Card */}
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-200 flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center">
-                <Camera className="w-4 h-4 text-brand-yellow" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <Camera className="w-3 h-3 sm:w-4 sm:h-4 text-brand-yellow" />
               </div>
-              <h4 className="font-semibold text-sm text-rich-black">How to scan</h4>
+              <h4 className="font-semibold text-xs sm:text-sm text-rich-black">How to scan</h4>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">
               {user?.id 
@@ -298,27 +296,28 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
 
           {/* Status Messages */}
           {scanError && (
-            <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
+            <div className="bg-red-50 rounded-xl p-3 sm:p-4 border border-red-200 flex-shrink-0">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-red-800 mb-1">Scan Error</h4>
-                  <p className="text-xs text-red-600">{scanError}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-semibold text-xs sm:text-sm text-red-800 mb-1">Scan Error</h4>
+                  <p className="text-xs text-red-700 leading-relaxed break-words">{scanError}</p>
+                  <p className="text-xs text-red-600 mt-2">Retrying in 2 seconds...</p>
                 </div>
               </div>
             </div>
           )}
 
           {unlockShopMutation.isPending && (
-            <div className="bg-brand-yellow/10 rounded-xl p-4 border border-brand-yellow/30">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-yellow border-t-transparent"></div>
+            <div className="bg-brand-yellow/10 rounded-xl p-3 sm:p-4 border border-brand-yellow/30 flex-shrink-0">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 animate-spin rounded-full border-2 border-brand-yellow border-t-transparent"></div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-rich-black mb-1">Unlocking Shop...</h4>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-semibold text-xs sm:text-sm text-rich-black mb-1">Unlocking Shop...</h4>
                   <p className="text-xs text-gray-600">Processing QR code and unlocking shop access</p>
                 </div>
               </div>
@@ -327,13 +326,14 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
 
           {/* Retry Button - Beautiful Design */}
           {scanError && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center flex-shrink-0">
               <Button
                 onClick={initializeScanner}
-                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-semibold shadow-lg px-6"
+                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-semibold shadow-lg px-4 sm:px-6"
                 disabled={unlockShopMutation.isPending}
+                size="sm"
               >
-                <Camera className="w-4 h-4 mr-2" />
+                <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Retry Camera Access
               </Button>
             </div>
