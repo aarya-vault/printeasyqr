@@ -631,15 +631,17 @@ export class DatabaseStorage implements IStorage {
     activeShops: number;
     totalOrders: number;
   }> {
+    // Count ALL active users regardless of role
     const [userCount] = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(eq(users.role, "customer"));
+      .where(eq(users.isActive, true));
 
+    // Count ALL approved shops regardless of online status
     const [shopCount] = await db
       .select({ count: sql<number>`count(*)` })
       .from(shops)
-      .where(and(eq(shops.isApproved, true), eq(shops.isOnline, true)));
+      .where(eq(shops.isApproved, true));
 
     const [orderCount] = await db
       .select({ count: sql<number>`count(*)` })

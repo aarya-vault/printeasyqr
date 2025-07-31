@@ -91,7 +91,9 @@ export default function EnhancedAdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['/api/admin/stats'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/stats');
+      const response = await fetch('/api/admin/stats', {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     }
@@ -101,7 +103,9 @@ export default function EnhancedAdminDashboard() {
   const { data: applications = [], isLoading: applicationsLoading } = useQuery({
     queryKey: ['/api/admin/shop-applications'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/shop-applications');
+      const response = await fetch('/api/admin/shop-applications', {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch applications');
       return response.json();
     }
@@ -111,7 +115,9 @@ export default function EnhancedAdminDashboard() {
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ['/api/admin/users'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/users');
+      const response = await fetch('/api/admin/users', {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch users');
       return response.json();
     }
@@ -121,7 +127,9 @@ export default function EnhancedAdminDashboard() {
   const { data: shops = [], isLoading: shopsLoading } = useQuery({
     queryKey: ['/api/admin/shops'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/shops');
+      const response = await fetch('/api/admin/shops', {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch shops');
       return response.json();
     }
