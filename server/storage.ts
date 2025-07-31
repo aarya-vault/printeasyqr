@@ -727,10 +727,10 @@ export class DatabaseStorage implements IStorage {
         .set({ files: null })
         .where(eq(orders.id, orderId));
 
-      // Clear chat files references
-      await db.update(messages)
-        .set({ files: null })
-        .where(eq(messages.orderId, orderId));
+      // Clear chat files references using raw SQL to avoid schema issues
+      await db.execute(
+        sql`UPDATE messages SET files = NULL WHERE order_id = ${orderId}`
+      );
         
       console.log(`All files deleted for completed order ${orderId} - memory optimized`);
     } catch (error) {

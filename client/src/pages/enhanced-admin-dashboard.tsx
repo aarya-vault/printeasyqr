@@ -142,6 +142,7 @@ export default function EnhancedAdminDashboard() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, adminNotes: notes }),
+        credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to update application');
       return response.json();
