@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
@@ -72,6 +72,20 @@ export default function EnhancedAdminDashboard() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Refresh queries when component mounts to ensure session is established
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      // Small delay to ensure session is fully established
+      const timer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, queryClient]);
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
   const [editingApplication, setEditingApplication] = useState<ShopApplication | null>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -96,7 +110,10 @@ export default function EnhancedAdminDashboard() {
       });
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
-    }
+    },
+    enabled: !!user && user.role === 'admin',
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Fetch shop applications
@@ -108,7 +125,10 @@ export default function EnhancedAdminDashboard() {
       });
       if (!response.ok) throw new Error('Failed to fetch applications');
       return response.json();
-    }
+    },
+    enabled: !!user && user.role === 'admin',
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Fetch all users
@@ -120,7 +140,10 @@ export default function EnhancedAdminDashboard() {
       });
       if (!response.ok) throw new Error('Failed to fetch users');
       return response.json();
-    }
+    },
+    enabled: !!user && user.role === 'admin',
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Fetch all shops
@@ -132,7 +155,10 @@ export default function EnhancedAdminDashboard() {
       });
       if (!response.ok) throw new Error('Failed to fetch shops');
       return response.json();
-    }
+    },
+    enabled: !!user && user.role === 'admin',
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Update shop application mutation
