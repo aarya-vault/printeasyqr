@@ -3,13 +3,15 @@ import { Link } from 'wouter';
 import { Menu, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
 
 interface NavbarProps {
   onShopLogin?: () => void;
   onShopApplication?: () => void;
+  additionalActions?: React.ReactNode;
 }
 
-export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
+export function Navbar({ onShopLogin, onShopApplication, additionalActions }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -17,15 +19,11 @@ export function Navbar({ onShopLogin, onShopApplication }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-              <Printer className="w-5 h-5 text-rich-black" />
-            </div>
-            <span className="text-xl font-bold text-rich-black">PrintEasy</span>
-          </Link>
+          <PrintEasyLogoNav />
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {additionalActions}
             <Link href="/apply-shop">
               <Button 
                 variant="outline"

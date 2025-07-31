@@ -48,7 +48,7 @@ export default function UserGuides({ isOpen, onClose, guideType = 'general' }: U
           title: "Place Your First Order",
           content: [
             "Upload files: PDF, Word docs, images for printing",
-            "Walk-in orders: Book time slots to visit shops",
+            "Walk-in orders: For users waiting in long queues or tracking shop-placed orders",
             "Track orders real-time from placement to pickup"
           ]
         },

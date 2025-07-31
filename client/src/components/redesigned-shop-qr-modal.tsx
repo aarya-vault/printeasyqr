@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   X, Download, Share2, MapPin, Phone, Clock, 
   Store, ExternalLink, Check, Copy, MessageSquare,
-  QrCode as QrCodeIcon
+  QrCode as QrCodeIcon, Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -147,74 +147,80 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="bg-white w-full max-w-lg relative overflow-hidden">
-        {/* Close Button */}
+      <div className="bg-white w-full max-w-sm sm:max-w-md md:max-w-lg relative overflow-hidden rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto">
+        {/* Close Button - Mobile Optimized */}
         <Button
           variant="ghost"
-          size="icon"
+          size="sm"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 hover:bg-gray-100 rounded-full"
+          className="absolute right-2 top-2 z-20 bg-white/80 hover:bg-white rounded-full shadow-md"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </Button>
 
-        {/* QR Code Design */}
-        <div ref={qrRef} className="bg-white" style={{ width: '480px', height: 'auto' }}>
-          {/* Header */}
-          <div className="bg-brand-yellow p-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
-                <Store className="w-8 h-8 text-rich-black" />
+        {/* QR Code Design - Mobile Responsive */}
+        <div ref={qrRef} className="bg-white w-full">
+          {/* Header with PrintEasy Branding */}
+          <div className="bg-brand-yellow p-4 sm:p-6 md:p-8 text-center">
+            {/* PrintEasy Logo */}
+            <div className="flex items-center justify-center mb-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-rich-black rounded-full flex items-center justify-center shadow-lg">
+                <Printer className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-brand-yellow" />
+              </div>
+              <div className="ml-3">
+                <div className="text-base sm:text-lg md:text-xl font-bold text-rich-black">PrintEasy</div>
+                <div className="text-xs text-rich-black/70">Verified Partner</div>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-rich-black mb-3 leading-tight">
+            
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-rich-black mb-2 leading-tight">
               {displayShop?.name || 'Shop Name'}
             </h2>
-            <p className="text-rich-black/80 text-sm font-medium mb-4">Professional Printing Services</p>
+            <p className="text-rich-black/80 text-xs sm:text-sm font-medium mb-3">Professional Printing Services</p>
             
-            {/* Status Badges - Redesigned for better layout */}
+            {/* Status Badges - Mobile Responsive */}
             {displayShop && (
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="px-3 py-1 bg-white/20 rounded-full">
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
+                <div className="px-2 py-1 bg-white/20 rounded-full">
                   <span className="text-xs font-medium text-rich-black">
-                    {displayShop.isOnline ? '🟢 Online' : '🔴 Offline'}
+                    {displayShop.isOnline ? '✅ Verified' : '⏸️ Offline'}
                   </span>
                 </div>
                 {displayShop.acceptsWalkinOrders && (
-                  <div className="px-3 py-1 bg-white/20 rounded-full">
-                    <span className="text-xs font-medium text-rich-black">Walk-in Available</span>
+                  <div className="px-2 py-1 bg-white/20 rounded-full">
+                    <span className="text-xs font-medium text-rich-black">Walk-in Ready</span>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* QR Code */}
-          <div className="px-8 py-6 bg-white flex flex-col items-center">
-            <div className="bg-white p-3 rounded-lg shadow-md border border-gray-200 mx-auto">
+          {/* QR Code - Mobile Responsive */}
+          <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white flex flex-col items-center">
+            <div className="bg-white p-2 sm:p-3 rounded-lg shadow-md border border-gray-200 mx-auto">
               {qrDataUrl && (
                 <img 
                   src={qrDataUrl} 
                   alt="Shop QR Code" 
-                  className="w-48 h-48 block"
+                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 block"
                   style={{ imageRendering: 'pixelated' }}
                 />
               )}
             </div>
             
-            {/* Scan Instructions */}
-            <div className="text-center mt-4 mb-4">
-              <div className="flex items-center justify-center space-x-2 mb-2">
+            {/* Scan Instructions - Mobile Responsive */}
+            <div className="text-center mt-3 mb-3">
+              <div className="flex items-center justify-center space-x-2 mb-1">
                 <QrCodeIcon className="w-4 h-4 text-brand-yellow" />
-                <p className="text-base font-semibold text-rich-black">Scan to Visit Shop</p>
+                <p className="text-sm sm:text-base font-semibold text-rich-black">Scan to Visit Shop</p>
               </div>
-              <p className="text-xs text-gray-600 max-w-xs leading-relaxed">
+              <p className="text-xs text-gray-600 max-w-xs leading-relaxed px-2">
                 Scan this QR code to view our services and place orders
               </p>
             </div>
 
-            {/* Shop Details */}
-            <div className="space-y-3 bg-gray-50 rounded-lg p-4 mx-6 mb-4">
+            {/* Shop Details - Mobile Responsive */}
+            <div className="space-y-2 bg-gray-50 rounded-lg p-3 sm:p-4 mx-2 sm:mx-4 md:mx-6 mb-3">
               <div className="flex items-start space-x-2">
                 <MapPin className="w-3 h-3 text-brand-yellow mt-1 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -276,12 +282,13 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="p-6 bg-gray-50 border-t space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        {/* Action Buttons - Mobile Responsive */}
+        <div className="p-3 sm:p-4 md:p-6 bg-gray-50 border-t space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             <Button
               onClick={handleDownload}
-              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium"
+              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm"
+              size="sm"
             >
               <Download className="w-4 h-4 mr-2" />
               Download QR
@@ -289,7 +296,8 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
             <Button
               onClick={handleShare}
               variant="outline"
-              className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
+              className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10 text-sm"
+              size="sm"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Share
@@ -297,33 +305,33 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
           </div>
           
           <div className="relative">
-            <div className="flex items-center space-x-2 p-3 bg-white border rounded-lg">
+            <div className="flex items-center space-x-2 p-2 sm:p-3 bg-white border rounded-lg">
               <input
                 type="text"
                 value={`${window.location.origin}/shop/${shop.slug}`}
                 readOnly
-                className="flex-1 text-sm text-gray-600 bg-transparent outline-none"
+                className="flex-1 text-xs sm:text-sm text-gray-600 bg-transparent outline-none"
               />
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={handleCopy}
-                className="hover:bg-gray-100"
+                className="hover:bg-gray-100 p-1"
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-green-600" />
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                 ) : (
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
                 )}
               </Button>
             </div>
           </div>
 
-          <p className="text-xs text-center text-gray-500 mt-4">
+          <p className="text-xs text-center text-gray-500 mt-2">
             This QR code is permanent and linked to your shop
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

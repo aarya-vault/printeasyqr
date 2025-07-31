@@ -251,7 +251,7 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
           <div className="relative">
             <video
               ref={videoRef}
-              className="w-full h-64 bg-black rounded-lg object-cover"
+              className="w-full aspect-square bg-black rounded-lg object-cover"
               playsInline
               muted
             />

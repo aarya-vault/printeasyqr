@@ -6,7 +6,7 @@ import {
   Building2, Award, Zap, HeadphonesIcon, Upload,
   MessageCircle, Search, Camera, Download, Eye,
   ChevronRight, Phone, Mail, Globe, CheckCircle2,
-  Timer, Headphones, QrCode
+  Timer, Headphones, QrCode, User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import { useLocation } from 'wouter';
 import QRScanner from '@/components/qr-scanner';
 import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
 import PrintEasyLogo from '@/components/common/printeasy-logo';
+import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
@@ -177,6 +178,16 @@ export default function NewHomepage() {
     <div className="min-h-screen bg-white">
       <Navbar 
         onShopLogin={() => setShowShopLogin(true)}
+        additionalActions={
+          <Button
+            onClick={() => setShowQRScanner(true)}
+            className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium"
+            size="sm"
+          >
+            <QrCode className="w-4 h-4 mr-2" />
+            Scan QR
+          </Button>
+        }
       />
       {showShopLogin && (
         <ShopOwnerLogin onBack={() => setShowShopLogin(false)} />
@@ -478,22 +489,27 @@ export default function NewHomepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
-                  <Printer className="w-5 h-5 text-rich-black" />
-                </div>
-                <span className="text-2xl font-bold text-rich-black">PrintEasy</span>
-              </div>
+              <PrintEasyLogoNav className="mb-4" />
               <p className="text-gray-600 mb-4 max-w-md">
                 Connecting customers with trusted local print shops for seamless, hassle-free printing experiences.
               </p>
               <div className="flex gap-4">
-                <Link href="/apply-shop">
-                  <Button variant="outline" size="sm">
-                    <Building2 className="w-4 h-4 mr-2" />
-                    Partner with Us
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowShopApplication(true)}
+                >
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Register Your Shop
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowShopLogin(true)}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Shop Owner Login
+                </Button>
               </div>
             </div>
             
