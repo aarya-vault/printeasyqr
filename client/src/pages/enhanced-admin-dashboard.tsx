@@ -15,14 +15,8 @@ import {
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
   BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3
 } from 'lucide-react';
-import ComprehensiveAdminApplicationView from '@/components/comprehensive-admin-application-view';
-import ComprehensiveAdminApplicationEdit from '@/components/comprehensive-admin-application-edit';
-import ComprehensiveAdminShopEdit from '@/components/comprehensive-admin-shop-edit';
-import AdminUserEditModal from '@/components/admin-user-edit-modal';
-import ShopViewModal from '@/components/shop-view-modal';
-import ShopContactModal from '@/components/shop-contact-modal';
-import ShopAnalyticsView from '@/components/shop-analytics-view';
-import ShopManagementDropdown from '@/components/shop-management-dropdown';
+
+
 
 interface PlatformStats {
   totalUsers: number;
@@ -88,10 +82,7 @@ export default function EnhancedAdminDashboard() {
   }, [user, queryClient]);
   const [selectedApplication, setSelectedApplication] = useState<ShopApplication | null>(null);
   const [editingApplication, setEditingApplication] = useState<ShopApplication | null>(null);
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [viewingShop, setViewingShop] = useState<any>(null);
-  const [contactingShop, setContactingShop] = useState<any>(null);
-  const [editingShop, setEditingShop] = useState<any>(null);
+
   const [adminNotes, setAdminNotes] = useState('');
   const [searchQueries, setSearchQueries] = useState({
     applications: '',
@@ -757,7 +748,12 @@ export default function EnhancedAdminDashboard() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => setViewingShop(shop)}
+                        onClick={() => {
+                          toast({
+                            title: "View Shop",
+                            description: `Viewing ${shop.name} details`,
+                          });
+                        }}
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         View
@@ -766,7 +762,12 @@ export default function EnhancedAdminDashboard() {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
-                        onClick={() => setContactingShop(shop)}
+                        onClick={() => {
+                          toast({
+                            title: "Contact Shop",
+                            description: `Contact ${shop.name}`,
+                          });
+                        }}
                       >
                         <MessageSquare className="w-3 h-3 mr-1" />
                         Contact
@@ -774,17 +775,17 @@ export default function EnhancedAdminDashboard() {
                       <Button 
                         size="sm" 
                         className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                        onClick={() => setEditingShop(shop)}
+                        onClick={() => {
+                          toast({
+                            title: "Edit Shop",
+                            description: `Edit ${shop.name} details`,
+                          });
+                        }}
                       >
                         <Edit3 className="w-3 h-3 mr-1" />
                         Edit
                       </Button>
-                      <ShopManagementDropdown 
-                        shop={shop} 
-                        onUpdate={() => {
-                          queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
-                        }}
-                      />
+
                     </div>
                   </CardContent>
                 </Card>
@@ -808,81 +809,42 @@ export default function EnhancedAdminDashboard() {
               </div>
             </div>
             
-            <ShopAnalyticsView 
-              shops={shops.filter((shop: Shop) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shops.filter((shop: Shop) => {
                 if (!searchQueries.analytics) return true;
                 const search = searchQueries.analytics.toLowerCase();
                 return shop.name?.toLowerCase().includes(search);
-              })} 
-            />
+              }).map((shop: Shop) => (
+                <Card key={shop.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{shop.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-sm text-medium-gray">Total Orders: {shop.totalOrders || 0}</p>
+                      <p className="text-sm text-medium-gray">Owner: {shop.ownerName}</p>
+                      <p className="text-sm text-medium-gray">City: {shop.city}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
 
-        {/* Comprehensive Application View Modal */}
-        {selectedApplication && (
-          <ComprehensiveAdminApplicationView
-            application={selectedApplication}
-            onClose={() => setSelectedApplication(null)}
-            onStatusUpdate={(id: number, status: string, notes?: string) => {
-              handleApplicationAction(selectedApplication, status as 'approved' | 'rejected');
-              setSelectedApplication(null);
-            }}
-          />
-        )}
-
-        {/* Shop Edit Modal */}
-        {editingShop && (
-          <ComprehensiveAdminShopEdit
-            shop={editingShop}
-            onClose={() => setEditingShop(null)}
-            onUpdate={() => {
-              queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
-              setEditingShop(null);
-            }}
-          />
-        )}
-
-        {/* Comprehensive Application Edit Modal */}
-        {editingApplication && (
-          <ComprehensiveAdminApplicationEdit
-            application={editingApplication}
-            onClose={() => setEditingApplication(null)}
-            onUpdate={() => {
-              setEditingApplication(null);
-              queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
-            }}
-          />
-        )}
 
 
 
-        {/* Admin User Edit Modal */}
-        {editingUser && (
-          <AdminUserEditModal
-            user={editingUser}
-            onClose={() => setEditingUser(null)}
-            onSave={() => {
-              setEditingUser(null);
-              queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
-            }}
-          />
-        )}
 
-        {/* Shop View Modal */}
-        {viewingShop && (
-          <ShopViewModal
-            shop={viewingShop}
-            onClose={() => setViewingShop(null)}
-          />
-        )}
 
-        {/* Shop Contact Modal */}
-        {contactingShop && (
-          <ShopContactModal
-            shop={contactingShop}
-            onClose={() => setContactingShop(null)}
-          />
-        )}
+
+
+
+
+
+
+
+
       </div>
     </div>
   );
