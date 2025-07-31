@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import seedDatabase from "./seed-data";
 import { setupVite, serveStatic, log } from "./vite";
@@ -37,18 +38,25 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Configure session middleware with proper cookie settings for development
+// Configure PostgreSQL session store for persistence across server restarts
+const PgSession = connectPgSimple(session);
+
 app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+    tableName: 'session', // Will be created automatically
+  }),
   secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
-  name: 'connect.sid', // Explicit session cookie name
+  name: 'connect.sid',
   cookie: {
-    secure: false, // Allow cookies over HTTP in development
-    httpOnly: false, // Allow JavaScript access to debug session issues
+    secure: false,
+    httpOnly: false,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax', // Essential for cross-origin requests
-    domain: undefined // Let browser determine domain
+    sameSite: 'lax',
+    domain: undefined
   }
 }));
 
