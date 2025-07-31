@@ -53,10 +53,9 @@ app.use(session({
   name: 'connect.sid',
   cookie: {
     secure: false,
-    httpOnly: false,
+    httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax',
-    domain: undefined
+    sameSite: 'lax'
   }
 }));
 
