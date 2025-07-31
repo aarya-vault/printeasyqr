@@ -19,18 +19,34 @@ declare module 'express-session' {
 }
 
 const app = express();
+
+// Add CORS headers for session management
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Configure session middleware
+// Configure session middleware with proper cookie settings
 app.use(session({
   secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Allow cookies over HTTP in development
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    sameSite: 'lax' // Essential for cross-origin requests
   }
 }));
 
