@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 import {
   Search,
   Package,
@@ -85,6 +86,7 @@ export default function RedesignedShopOwnerDashboard() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const deleteOrderMutation = useDeleteOrder();
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -477,6 +479,23 @@ export default function RedesignedShopOwnerDashboard() {
                 className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
               >
                 Complete Order
+              </Button>
+            )}
+            
+            {/* Delete Button - Only for shop owners after processing */}
+            {canDeleteOrder(order, 'shop_owner', user?.id || 0).canDelete && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                    deleteOrderMutation.mutate(order.id);
+                  }
+                }}
+                disabled={deleteOrderMutation.isPending}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 text-xs col-span-2"
+              >
+                {deleteOrderMutation.isPending ? 'Deleting...' : 'Delete Order'}
               </Button>
             )}
           </div>

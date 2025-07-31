@@ -25,6 +25,7 @@ import DetailedShopModal from '@/components/detailed-shop-modal';
 import UserGuides, { useUserGuides } from '@/components/user-guides';
 import { useToast } from '@/hooks/use-toast';
 import PrintEasyLogo from '@/components/common/printeasy-logo';
+import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 
 interface Order {
   id: number;
@@ -57,6 +58,7 @@ export default function UnifiedCustomerDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const deleteOrderMutation = useDeleteOrder();
   
   // Modal states
   const [showUploadOrder, setShowUploadOrder] = useState(false);
@@ -467,6 +469,25 @@ export default function UnifiedCustomerDashboard() {
                         <MessageCircle className="w-3 h-3 mr-1" />
                         {recentOrders[0].status === 'completed' ? 'Chat History' : 'Chat'}
                       </Button>
+                      
+                      {/* Delete Button - Only for customers before processing */}
+                      {canDeleteOrder(recentOrders[0], user?.role || '', user?.id || 0).canDelete && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs h-8 sm:h-9"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+                              deleteOrderMutation.mutate(recentOrders[0].id);
+                            }
+                          }}
+                          disabled={deleteOrderMutation.isPending}
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          {deleteOrderMutation.isPending ? 'Cancelling...' : 'Cancel Order'}
+                        </Button>
+                      )}
+                      
                       {recentOrders[0].shop?.phone && (
                         <Button
                           size="sm"
@@ -579,6 +600,7 @@ export default function UnifiedCustomerDashboard() {
                     key={order.id}
                     order={order}
                     userRole="customer"
+                    userId={user?.id}
                     onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
                     onCallClick={(phone) => window.open(`tel:${phone}`)}
                     onViewDetails={(order) => setSelectedOrderForDetails(order as any)}

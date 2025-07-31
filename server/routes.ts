@@ -1058,6 +1058,107 @@ app.patch('/api/debug/patch-test', (req, res) => {
     }
   });
 
+  // Delete order - role-based permissions
+  app.delete("/api/orders/:id", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      // Get order to check permissions and status
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const userRole = req.user!.role;
+      const userId = req.user!.id;
+
+      // Role-based deletion permissions
+      if (userRole === 'customer') {
+        // Customers can only delete their own orders before processing
+        if (existingOrder.customerId !== userId) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+        if (existingOrder.status === 'processing' || existingOrder.status === 'ready' || existingOrder.status === 'completed') {
+          return res.status(400).json({ message: "Cannot delete order after processing has started" });
+        }
+      } else if (userRole === 'shop_owner') {
+        // Shop owners can only delete orders from their shop after processing
+        const shop = await storage.getShop(existingOrder.shopId);
+        if (!shop || shop.ownerId !== userId) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+        if (existingOrder.status === 'new') {
+          return res.status(400).json({ message: "Cannot delete new orders. Customer must delete or order must be in processing" });
+        }
+      } else if (userRole === 'admin') {
+        // Admins can delete any order at any time
+      } else {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Delete associated files first
+      try {
+        await storage.deleteOrderFiles(orderId);
+        console.log(`[ORDER-DELETE] Files deleted for order ${orderId}`);
+      } catch (error) {
+        console.error(`[ORDER-DELETE] Error deleting files for order ${orderId}:`, error);
+        // Continue with order deletion even if file deletion fails
+      }
+
+      // Delete the order
+      const success = await storage.deleteOrder(orderId);
+      if (!success) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Send deletion notification to the other party
+      let notificationUserId: number | undefined;
+      let notificationTitle: string = "";
+      let notificationMessage: string = "";
+
+      if (userRole === 'customer') {
+        // Notify shop owner
+        const shop = await storage.getShop(existingOrder.shopId);
+        if (shop) {
+          notificationUserId = shop.ownerId;
+          notificationTitle = "Order Cancelled";
+          notificationMessage = `Customer cancelled order "${existingOrder.title}"`;
+        }
+      } else if (userRole === 'shop_owner') {
+        // Notify customer
+        notificationUserId = existingOrder.customerId;
+        notificationTitle = "Order Deleted";
+        notificationMessage = `Shop owner deleted order "${existingOrder.title}"`;
+      }
+
+      // Send notification if applicable
+      if (notificationUserId && notificationTitle && notificationMessage) {
+        await storage.createNotification({
+          userId: notificationUserId,
+          title: notificationTitle,
+          message: notificationMessage,
+          type: "order_update",
+          relatedId: orderId
+        });
+
+        // Send WebSocket notification
+        const recipientWs = wsConnections.get(notificationUserId);
+        if (recipientWs && recipientWs.readyState === WebSocket.OPEN) {
+          recipientWs.send(JSON.stringify({
+            type: 'order_deleted',
+            orderId,
+            message: notificationMessage
+          }));
+        }
+      }
+
+      res.json({ message: "Order deleted successfully", orderId });
+    } catch (error) {
+      console.error('Delete order error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   app.patch("/api/orders/:id", requireAuth, async (req, res) => {
     try {
       const orderId = parseInt(req.params.id);

@@ -10,9 +10,12 @@ import {
   CheckCircle,
   Package,
   Star,
-  PlayCircle
+  PlayCircle,
+  Trash2,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 
 interface Order {
   id: number;
@@ -46,6 +49,7 @@ interface Order {
 interface UnifiedOrderCardProps {
   order: Order;
   userRole: 'customer' | 'shop_owner';
+  userId?: number;
   onChatClick: (orderId: number) => void;
   onCallClick?: (phone: string) => void;
   onViewDetails?: (order: Order) => void;
@@ -114,6 +118,7 @@ const parseFiles = (files: any) => {
 export default function UnifiedOrderCard({ 
   order, 
   userRole, 
+  userId,
   onChatClick, 
   onCallClick, 
   onViewDetails, 
@@ -123,6 +128,7 @@ export default function UnifiedOrderCard({
   const statusInfo = getStatusInfo(order.status);
   const files = parseFiles(order.files);
   const StatusIcon = statusInfo.icon;
+  const deleteOrderMutation = useDeleteOrder();
 
   const displayName = userRole === 'customer' 
     ? order.shop?.name || order.shopName || 'Unknown Shop'
@@ -212,6 +218,29 @@ export default function UnifiedOrderCard({
                 onClick={() => onCallClick(displayPhone)}
               >
                 <Phone className="w-4 h-4" />
+              </Button>
+            )}
+
+            {/* Delete Button - Role-based permissions */}
+            {userId && canDeleteOrder(order, userRole, userId).canDelete && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const action = userRole === 'customer' ? 'cancel' : 'delete';
+                  if (window.confirm(`Are you sure you want to ${action} this order? This action cannot be undone.`)) {
+                    deleteOrderMutation.mutate(order.id);
+                  }
+                }}
+                disabled={deleteOrderMutation.isPending}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                title={canDeleteOrder(order, userRole, userId).reason || `${userRole === 'customer' ? 'Cancel' : 'Delete'} order`}
+              >
+                {deleteOrderMutation.isPending ? (
+                  <Clock className="w-4 h-4 animate-spin" />
+                ) : (
+                  userRole === 'customer' ? <X className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />
+                )}
               </Button>
             )}
 

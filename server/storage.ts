@@ -38,6 +38,7 @@ export interface IStorage {
   getOrdersByShop(shopId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: number, updates: Partial<Order>): Promise<Order | undefined>;
+  deleteOrder(id: number): Promise<boolean>;
   deleteOrderFiles(orderId: number): Promise<void>;
   
   // Message operations
@@ -431,8 +432,18 @@ export class DatabaseStorage implements IStorage {
     await db.delete(notifications).where(eq(notifications.id, id));
   }
 
-  async deleteOrder(id: number): Promise<void> {
-    await db.delete(orders).where(eq(orders.id, id));
+  async deleteOrder(id: number): Promise<boolean> {
+    try {
+      // First delete all related messages for this order
+      await db.delete(messages).where(eq(messages.orderId, id));
+      
+      // Then delete the order
+      const result = await db.delete(orders).where(eq(orders.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      return false;
+    }
   }
 
   async createShopApplication(insertApplication: InsertShopApplication): Promise<ShopApplication> {
