@@ -25,6 +25,7 @@ import SimpleShopApplication from "@/components/simple-shop-application";
 import ShopOrder from "@/pages/shop-order";
 import OrderConfirmation from "@/pages/order-confirmation";
 import ShopNotifications from "@/pages/shop-notifications";
+import ShopLoginPage from "@/pages/shop-login";
 
 
 function Router() {
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/shop-settings" component={RedesignedShopSettings} />
       <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
       <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/shop-login" component={ShopLoginPage} />
       <Route path="/apply-shop" component={SimpleShopApplication} />
       <Route path="/shop/:slug" component={ShopOrder} />
       <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />

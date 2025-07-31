@@ -19,16 +19,14 @@ import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import QRScanner from '@/components/qr-scanner';
-import { EnhancedShopApplicationModal } from '@/components/shop/enhanced-shop-application-modal';
+
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
-  const [showShopLogin, setShowShopLogin] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
-  const [showShopApplication, setShowShopApplication] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
   const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
@@ -177,7 +175,7 @@ export default function NewHomepage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar 
-        onShopLogin={() => setShowShopLogin(true)}
+        onShopLogin={() => navigate('/shop-login')}
         additionalActions={
           <Button
             onClick={() => setShowQRScanner(true)}
@@ -189,15 +187,12 @@ export default function NewHomepage() {
           </Button>
         }
       />
-      {showShopLogin && (
-        <ShopOwnerLogin onBack={() => setShowShopLogin(false)} />
-      )}
       {showNameModal && (
         <NameCollectionModal
           isOpen={showNameModal}
-          onClose={(name?: string) => {
-            if (name) handleNameUpdate(name);
-            else setShowNameModal(false);
+          onComplete={(name: string) => {
+            handleNameUpdate(name);
+            setShowNameModal(false);
           }}
         />
       )}
@@ -474,7 +469,7 @@ export default function NewHomepage() {
               </div>
               
               <Button 
-                onClick={() => setShowShopApplication(true)}
+                onClick={() => navigate('/apply-shop')}
                 className="w-full bg-rich-black text-brand-yellow hover:bg-gray-800 py-3 font-bold"
               >
                 Register Your Print Shop
@@ -497,7 +492,7 @@ export default function NewHomepage() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => setShowShopApplication(true)}
+                  onClick={() => navigate('/apply-shop')}
                 >
                   <Building2 className="w-4 h-4 mr-2" />
                   Register Your Shop
@@ -505,7 +500,7 @@ export default function NewHomepage() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => setShowShopLogin(true)}
+                  onClick={() => navigate('/shop-login')}
                 >
                   <User className="w-4 h-4 mr-2" />
                   Shop Owner Login
@@ -565,13 +560,7 @@ export default function NewHomepage() {
         />
       )}
 
-      {/* Shop Application Modal */}
-      {showShopApplication && (
-        <EnhancedShopApplicationModal 
-          isOpen={showShopApplication} 
-          onClose={() => setShowShopApplication(false)} 
-        />
-      )}
+
     </div>
   );
 }
