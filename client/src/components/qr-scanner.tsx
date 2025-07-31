@@ -3,7 +3,7 @@ import QrScanner from 'qr-scanner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { X, Camera, QrCode, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Camera, QrCode, CheckCircle, AlertCircle, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -222,96 +222,124 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0">
-        <DialogHeader className="p-4 bg-[#FFBF00]">
-          <DialogTitle className="text-black font-bold flex items-center gap-2">
-            <QrCode className="w-5 h-5" />
-            Scan Shop QR Code
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="p-4 space-y-4">
-          {/* Instructions */}
-          <Card className="p-3 bg-gray-50 border-[#FFBF00]/30">
-            <div className="flex items-start gap-3">
-              <Camera className="w-5 h-5 text-[#FFBF00] mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="font-medium text-sm text-black mb-1">How to unlock shops:</h4>
-                <p className="text-xs text-gray-600">
-                  {user?.id 
-                    ? "Point your camera at a PrintEasy shop QR code to unlock ordering capabilities for that shop permanently."
-                    : "Point your camera at a PrintEasy shop QR code to visit the shop page and place orders."
-                  }
-                </p>
-              </div>
+      <DialogContent className="w-full max-w-md mx-2 sm:mx-auto p-0 overflow-hidden aspect-square">
+        {/* Beautiful PrintEasy Header */}
+        <div className="bg-brand-yellow p-6 text-center relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            className="absolute right-2 top-2 h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 text-rich-black"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          
+          {/* PrintEasy Logo and Title */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="bg-rich-black rounded-full p-3 mb-3 shadow-lg">
+              <Printer className="w-8 h-8 text-brand-yellow" />
             </div>
-          </Card>
+            <h2 className="text-2xl font-bold text-rich-black">PrintEasy</h2>
+            <p className="text-rich-black/80 text-sm mt-1">Scan QR to Unlock Shop</p>
+          </div>
+        </div>
 
-          {/* Scanner Area */}
-          <div className="relative">
-            <video
-              ref={videoRef}
-              className="w-full aspect-square bg-black rounded-lg object-cover"
-              playsInline
-              muted
-            />
+        <div className="flex-1 flex flex-col p-4 space-y-3 bg-white">
+          {/* Scanner Area - Centered and Square */}
+          <div className="flex-1 flex items-center justify-center">
+
+            <div className="relative w-full max-w-xs">
+              <video
+                ref={videoRef}
+                className="w-full aspect-square bg-black rounded-2xl object-cover shadow-xl"
+                playsInline
+                muted
+              />
             
-            {/* Loading overlay */}
-            {!isScanning && !scanError && (
-              <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="w-8 h-8 mx-auto mb-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  <p className="text-sm">Starting camera...</p>
+              {/* Loading overlay */}
+              {!isScanning && !scanError && (
+                <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <div className="w-10 h-10 mx-auto mb-3 animate-spin rounded-full border-3 border-brand-yellow border-t-transparent"></div>
+                    <p className="text-sm font-medium">Starting camera...</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Scan guidelines overlay */}
-            {isScanning && (
-              <div className="absolute inset-4 border-2 border-[#FFBF00] rounded-lg pointer-events-none">
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#FFBF00]"></div>
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-[#FFBF00]"></div>
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-[#FFBF00]"></div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#FFBF00]"></div>
+              {/* Scan guidelines overlay */}
+              {isScanning && (
+                <div className="absolute inset-4 rounded-xl pointer-events-none">
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-brand-yellow rounded-tl-xl"></div>
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-brand-yellow rounded-tr-xl"></div>
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-brand-yellow rounded-bl-xl"></div>
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-brand-yellow rounded-br-xl"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-rich-black/80 px-3 py-1 rounded-full">
+                      <p className="text-xs text-brand-yellow font-medium">Scanning...</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Instructions - Beautiful Card */}
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center">
+                <Camera className="w-4 h-4 text-brand-yellow" />
               </div>
-            )}
+              <h4 className="font-semibold text-sm text-rich-black">How to scan</h4>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              {user?.id 
+                ? "Point your camera at a PrintEasy shop QR code to unlock ordering capabilities."
+                : "Point your camera at a PrintEasy shop QR code to visit the shop and place orders."
+              }
+            </p>
           </div>
 
           {/* Status Messages */}
           {scanError && (
-            <Card className="p-3 bg-red-50 border-red-200">
+            <div className="bg-red-50 rounded-xl p-4 border border-red-200">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-4 h-4 text-red-600" />
+                </div>
                 <div>
-                  <h4 className="font-medium text-sm text-red-800 mb-1">Scan Error</h4>
+                  <h4 className="font-semibold text-sm text-red-800 mb-1">Scan Error</h4>
                   <p className="text-xs text-red-600">{scanError}</p>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {unlockShopMutation.isPending && (
-            <Card className="p-3 bg-[#FFBF00]/20 border-[#FFBF00]/50">
+            <div className="bg-brand-yellow/10 rounded-xl p-4 border border-brand-yellow/30">
               <div className="flex items-start gap-3">
-                <div className="w-5 h-5 mt-0.5 animate-spin rounded-full border-2 border-[#FFBF00] border-t-transparent"></div>
+                <div className="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-yellow border-t-transparent"></div>
+                </div>
                 <div>
-                  <h4 className="font-medium text-sm text-black mb-1">Unlocking Shop...</h4>
+                  <h4 className="font-semibold text-sm text-rich-black mb-1">Unlocking Shop...</h4>
                   <p className="text-xs text-gray-600">Processing QR code and unlocking shop access</p>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
-          {/* Retry Button */}
+          {/* Retry Button - Beautiful Design */}
           {scanError && (
-            <Button
-              onClick={initializeScanner}
-              className="w-full bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black"
-              disabled={unlockShopMutation.isPending}
-            >
-              <Camera className="w-4 h-4 mr-2" />
-              Retry Camera Access
-            </Button>
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={initializeScanner}
+                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-semibold shadow-lg px-6"
+                disabled={unlockShopMutation.isPending}
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Retry Camera Access
+              </Button>
+            </div>
           )}
         </div>
       </DialogContent>
