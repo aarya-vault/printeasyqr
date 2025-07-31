@@ -114,19 +114,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(adminUser);
       }
 
-      // Shop owner login - check shop applications table
-      const shop = await storage.getShopByEmail(email);
-      if (shop && shop.password === password) {
-        const shopOwnerUser = {
-          id: shop.ownerId,
-          email: shop.email,
-          name: shop.ownerFullName || 'Shop Owner',
-          role: 'shop_owner' as const,
-          phone: shop.ownerPhone || '0000000000'
-        };
-        req.session.user = shopOwnerUser;
-        await req.session.save();
-        return res.json(shopOwnerUser);
+      // Shop owner login - check shops via users table
+      const user = await storage.getUserByEmail(email);
+      console.log('Login attempt for:', email);
+      console.log('User found:', user ? { id: user.id, email: user.email, role: user.role, hasPassword: !!user.passwordHash } : null);
+      
+      if (user && user.passwordHash && user.role === 'shop_owner') {
+        // Use bcrypt to compare passwords
+        const bcrypt = await import('bcrypt');
+        const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+        console.log('Password validation result:', isValidPassword);
+        
+        if (isValidPassword) {
+          req.session.user = {
+            id: user.id,
+            email: user.email || undefined,
+            name: user.name || 'Shop Owner',
+            role: user.role,
+            phone: user.phone || undefined
+          };
+          await req.session.save();
+          return res.json(user);
+        }
       }
 
       return res.status(401).json({ message: 'Invalid credentials' });

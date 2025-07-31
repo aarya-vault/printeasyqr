@@ -8,14 +8,16 @@ export async function seedDatabase() {
     
     // No test customer created - only real users should exist
     
-    // Create admin user
-    const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@printeasy.com"));
+    // Create admin user with proper environment variable handling
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@printeasy.com";
+    const existingAdmin = await db.select().from(users).where(eq(users.email, adminEmail));
     if (existingAdmin.length === 0) {
       const [admin] = await db.insert(users).values({
         phone: "9999999999",
         name: "PrintEasy Admin",
-        email: "admin@printeasy.com",
-        password: "admin123",
+        email: adminEmail,
+        // passwordHash is null since admin login uses environment variables
+        passwordHash: null,
         role: "admin"
       }).returning();
       console.log("Created admin user:", admin.email);
