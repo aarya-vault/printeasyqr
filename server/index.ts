@@ -37,16 +37,18 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Configure session middleware with proper cookie settings
+// Configure session middleware with proper cookie settings for development
 app.use(session({
   secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  name: 'connect.sid', // Explicit session cookie name
   cookie: {
     secure: false, // Allow cookies over HTTP in development
-    httpOnly: true,
+    httpOnly: false, // Allow JavaScript access to debug session issues
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax' // Essential for cross-origin requests
+    sameSite: 'lax', // Essential for cross-origin requests
+    domain: undefined // Let browser determine domain
   }
 }));
 
