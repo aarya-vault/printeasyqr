@@ -387,6 +387,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role: user.role
       };
       
+      // Ensure session is saved before responding
+      await req.session.save();
+      
       res.json({ user });
     } catch (error) {
       console.error("Admin login error:", error);
