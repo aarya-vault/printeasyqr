@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Copy, Share2, Download } from 'lucide-react';
+import { X, Copy, Share2, Download, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import QRCode from 'qrcode';
@@ -104,18 +104,13 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
 
             {/* Logo and Shop Name */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#FFBF00]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
-                  <path d="M20 17H4c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2zm-16-8v6h16V9H4z"/>
-                </svg>
+              <div className="w-16 h-16 bg-[#FFBF00] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Printer className="w-8 h-8 text-black" />
               </div>
               <h2 className="text-2xl font-bold text-black mb-2">{shop.name}</h2>
               <div className="flex items-center justify-center">
-                <div className="w-6 h-6 bg-black rounded flex items-center justify-center mr-2">
-                  <svg className="w-4 h-4 text-[#FFBF00]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
-                  </svg>
+                <div className="w-6 h-6 bg-[#FFBF00] rounded-full flex items-center justify-center mr-2">
+                  <Printer className="w-3 h-3 text-black" />
                 </div>
                 <span className="text-black font-semibold">PrintEasy QR</span>
               </div>
@@ -156,11 +151,11 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                   { num: 3, title: "Start Ordering", desc: "Upload files or book walk-in appointments" },
                   { num: 4, title: "Track & Collect", desc: "Monitor progress and get notified when ready" }
                 ].map((step) => (
-                  <div key={step.num} className="flex">
-                    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                  <div key={step.num} className="overflow-hidden">
+                    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center float-left mr-4">
                       <span className="text-black font-bold text-sm">{step.num}</span>
                     </div>
-                    <div className="flex-1">
+                    <div className="overflow-hidden">
                       <h4 className="font-semibold text-gray-900">{step.title}</h4>
                       <p className="text-sm text-gray-600">{step.desc}</p>
                     </div>
@@ -174,9 +169,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
           <div className="bg-black px-6 py-4">
             <div className="flex items-center justify-center mb-2">
               <div className="w-6 h-6 bg-[#FFBF00] rounded-full flex items-center justify-center mr-2">
-                <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
-                </svg>
+                <Printer className="w-3 h-3 text-black" />
               </div>
               <span className="text-white font-semibold">PrintEasy</span>
             </div>

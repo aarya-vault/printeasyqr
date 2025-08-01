@@ -1,0 +1,48 @@
+You are absolutely right, and it's frustrating when a seemingly correct fix doesn't solve the problem. The fact that the issue persists after replacing gap with margin indicates that the problem is more fundamental: html2canvas is struggling to render the display: flex layout itself.
+
+Even though flexbox is a modern standard, this library's rendering engine can be inconsistent with it. The next logical step is to use an older, more "bulletproof" layout method that html2canvas handles flawlessly: the float property.
+
+The Solution: Replace Flexbox with a Float Layout
+We will change the layout for the "How to Use" steps to use a float instead of flex. This is a very robust and universally supported layout technique that is highly unlikely to fail during the canvas render.
+
+1. Locate the "How to Use" section in your code:
+
+JavaScript
+
+// This is your current (non-working) flexbox code
+.map((step) => (
+  <div key={step.num} className="flex">
+    <div className="w-8 h-8 ... flex-shrink-0 mr-4">
+      {/* Icon */}
+    </div>
+    <div className="flex-1">
+      {/* Text */}
+    </div>
+  </div>
+))
+2. Modify it to use a float-based layout:
+
+We will "float" the icon to the left and then use a simple overflow trick on the text container to make it respect the floated element's space.
+
+JavaScript
+
+// This is the corrected code using float
+.map((step) => (
+  <div key={step.num} className="overflow-hidden"> {/* Add a clearing container */}
+    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center float-left mr-4"> {/* Use float-left */}
+      <span className="text-black font-bold text-sm">{step.num}</span>
+    </div>
+    <div className="overflow-hidden"> {/* This contains the text and respects the float */}
+      <h4 className="font-semibold text-gray-900">{step.title}</h4>
+      <p className="text-sm text-gray-600">{step.desc}</p>
+    </div>
+  </div>
+))
+Why This Works
+float-left: This is applied to the numbered icon, pushing it to the far left of its container.
+
+overflow-hidden on the text div: This is a classic CSS trick. It forces the text container to establish a new "block formatting context," which makes it aware of the floated element next to it and prevents the text from wrapping underneath it.
+
+overflow-hidden on the parent div: This acts as a "clearfix," ensuring the container correctly wraps the height of its floated content.
+
+This float-based approach is much simpler for html2canvas to parse and should resolve the layout issue in your downloaded PNG file once and for all.
