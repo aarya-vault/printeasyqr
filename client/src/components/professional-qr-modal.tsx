@@ -105,12 +105,17 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
             {/* Logo and Shop Name */}
             <div className="text-center">
               <div className="w-16 h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-[#FFBF00] font-bold text-2xl">P</span>
+                <svg className="w-8 h-8 text-[#FFBF00]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
+                  <path d="M20 17H4c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2zm-16-8v6h16V9H4z"/>
+                </svg>
               </div>
               <h2 className="text-2xl font-bold text-black mb-2">{shop.name}</h2>
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-6 h-6 bg-black rounded flex items-center justify-center">
-                  <span className="text-[#FFBF00] font-bold text-xs">QR</span>
+              <div className="flex items-center justify-center">
+                <div className="w-6 h-6 bg-black rounded flex items-center justify-center mr-2">
+                  <svg className="w-4 h-4 text-[#FFBF00]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
+                  </svg>
                 </div>
                 <span className="text-black font-semibold">PrintEasy QR</span>
               </div>
@@ -151,8 +156,8 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                   { num: 3, title: "Start Ordering", desc: "Upload files or book walk-in appointments" },
                   { num: 4, title: "Track & Collect", desc: "Monitor progress and get notified when ready" }
                 ].map((step) => (
-                  <div key={step.num} className="flex gap-4">
-                    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div key={step.num} className="flex">
+                    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                       <span className="text-black font-bold text-sm">{step.num}</span>
                     </div>
                     <div className="flex-1">
@@ -167,27 +172,29 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
 
           {/* Footer */}
           <div className="bg-black px-6 py-4">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-[#FFBF00] rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-xs">P</span>
+            <div className="flex items-center justify-center mb-2">
+              <div className="w-6 h-6 bg-[#FFBF00] rounded-full flex items-center justify-center mr-2">
+                <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 3H6C4.35 3 3 4.35 3 6v12c0 1.65 1.35 3 3 3h12c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3zM16 9h-3v8h-2V9H8V7h8v2z"/>
+                </svg>
               </div>
               <span className="text-white font-semibold">PrintEasy</span>
             </div>
-            <div className="flex items-center justify-center gap-6 text-white/80 text-xs">
-              <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center justify-center text-white/80 text-xs">
+              <div className="flex items-center mr-6">
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                 </svg>
                 <span>Secure</span>
               </div>
-              <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-center mr-6">
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                 </svg>
                 <span>Fast</span>
               </div>
-              <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                 </svg>
                 <span>Easy</span>

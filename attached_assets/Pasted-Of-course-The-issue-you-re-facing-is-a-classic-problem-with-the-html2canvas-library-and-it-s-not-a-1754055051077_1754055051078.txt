@@ -1,0 +1,47 @@
+Of course. The issue you're facing is a classic problem with the html2canvas library, and it's not an error in your React logic but rather a limitation in how the library renders CSS.
+
+The text is shifting because html2canvas is not taking a literal screenshot. Instead, it reads the DOM and your CSS, and then tries to redraw it on a <canvas> element. Its internal CSS rendering engine is not as sophisticated as a modern browser's, and it has known issues accurately replicating certain modern CSS properties, especially flexbox and the gap property.
+
+The Problem: flexbox and gap
+In your "How to Use" section, you have this code:
+
+JavaScript
+
+<div key={step.num} className="flex gap-4">
+  {/* Numbered Icon */}
+  <div className="w-8 h-8 ... flex-shrink-0">
+    ...
+  </div>
+  {/* Text Content */}
+  <div className="flex-1">
+    ...
+  </div>
+</div>
+You're using className="flex gap-4" to create a side-by-side layout with a 1rem space between the numbered icon and the text. While this works perfectly in your browser, the html2canvas renderer is likely failing to interpret the gap-4 utility correctly. When it fails, it ignores the spacing, and the layout engine may also struggle with the flex container itself, causing the text div to wrap underneath the icon div.
+
+The Solution: Use Margins Instead of gap
+To fix this, you should use a more fundamental and widely-supported CSS property like margin, which html2canvas handles more reliably.
+
+Simply remove the gap-4 from the parent container and add a right margin (mr-4) to the icon element.
+
+1. Locate the problematic line in your ProfessionalQRModal.tsx file:
+
+JavaScript
+
+// This is your current, problematic code
+<div key={step.num} className="flex gap-4">
+2. Modify it by moving the spacing logic from the parent to the child element:
+
+JavaScript
+
+// This is the corrected code
+<div key={step.num} className="flex"> {/* Removed gap-4 */}
+  <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0 mr-4"> {/* Added mr-4 */}
+    <span className="text-black font-bold text-sm">{step.num}</span>
+  </div>
+  <div className="flex-1">
+    <h4 className="font-semibold text-gray-900">{step.title}</h4>
+    <p className="text-sm text-gray-600">{step.desc}</p>
+  </div>
+</div>
+By replacing gap with margin, you create an identical visual layout but use CSS properties that html2canvas can correctly parse, ensuring your downloaded image matches what you see on the screen.
