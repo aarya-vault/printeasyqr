@@ -111,11 +111,40 @@ export default function RedesignedShopOwnerDashboard() {
     staleTime: 5000, // 5 seconds for fresh data
   });
 
-  // Calculate order statistics efficiently
+  // Calculate order statistics efficiently with real insights
   const statusCounts = orders.reduce((acc, order) => {
     acc[order.status] = (acc[order.status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  // Calculate real average processing time
+  const calculateAvgProcessingTime = () => {
+    const completedOrders = orders.filter(o => o.status === 'completed' || o.status === 'ready');
+    if (completedOrders.length === 0) return 'N/A';
+    
+    let totalMinutes = 0;
+    let validOrders = 0;
+    
+    completedOrders.forEach(order => {
+      const startTime = new Date(order.createdAt).getTime();
+      const endTime = new Date(order.updatedAt).getTime();
+      const diffMinutes = (endTime - startTime) / (1000 * 60);
+      
+      // Only count reasonable processing times (less than 24 hours)
+      if (diffMinutes > 0 && diffMinutes < 1440) {
+        totalMinutes += diffMinutes;
+        validOrders++;
+      }
+    });
+    
+    if (validOrders === 0) return 'N/A';
+    
+    const avgMinutes = Math.round(totalMinutes / validOrders);
+    if (avgMinutes < 60) return `${avgMinutes} min`;
+    const hours = Math.floor(avgMinutes / 60);
+    const minutes = avgMinutes % 60;
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hrs`;
+  };
 
   const dashboardStats: DashboardStats = {
     totalOrdersToday: orders.filter(o => 
@@ -124,9 +153,9 @@ export default function RedesignedShopOwnerDashboard() {
     pendingOrders: (statusCounts.new || 0) + (statusCounts.processing || 0),
     completedToday: orders.filter(o => 
       o.status === 'completed' && 
-      new Date(o.createdAt).toDateString() === new Date().toDateString()
+      new Date(o.updatedAt).toDateString() === new Date().toDateString()
     ).length,
-    avgProcessingTime: '2.5 hrs'
+    avgProcessingTime: calculateAvgProcessingTime()
   };
 
   // Filter orders with improved performance - exclude completed orders
@@ -642,6 +671,124 @@ export default function RedesignedShopOwnerDashboard() {
             subtitle="Average time"
           />
         </div>
+
+        {/* Real Insights Section */}
+        <Card className="mb-6 border-2 border-brand-yellow/20 bg-gradient-to-br from-white to-brand-yellow/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Activity className="w-5 h-5 text-brand-yellow" />
+              <span className="text-rich-black">Real-Time Shop Insights</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {/* Peak Hour Analysis */}
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Timer className="w-4 h-4 text-brand-yellow" />
+                  <h4 className="text-sm font-semibold text-gray-700">Peak Hours</h4>
+                </div>
+                <p className="text-xl font-bold text-rich-black">
+                  {(() => {
+                    const hourCounts = orders.reduce((acc, order) => {
+                      const hour = new Date(order.createdAt).getHours();
+                      acc[hour] = (acc[hour] || 0) + 1;
+                      return acc;
+                    }, {} as Record<number, number>);
+                    
+                    const peakHour = Object.entries(hourCounts).sort(([,a], [,b]) => b - a)[0];
+                    return peakHour ? `${peakHour[0]}:00-${(parseInt(peakHour[0]) + 1) % 24}:00` : 'N/A';
+                  })()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Most busy time</p>
+              </div>
+
+              {/* Customer Retention */}
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-brand-yellow" />
+                  <h4 className="text-sm font-semibold text-gray-700">Repeat Customers</h4>
+                </div>
+                <p className="text-xl font-bold text-rich-black">
+                  {(() => {
+                    const customerCounts = orders.reduce((acc, order) => {
+                      acc[order.customerPhone] = (acc[order.customerPhone] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                    
+                    const repeatCustomers = Object.values(customerCounts).filter(count => count > 1).length;
+                    const totalCustomers = Object.keys(customerCounts).length;
+                    return totalCustomers > 0 ? `${Math.round((repeatCustomers / totalCustomers) * 100)}%` : '0%';
+                  })()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Return rate</p>
+              </div>
+
+              {/* Order Type Distribution */}
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-brand-yellow" />
+                  <h4 className="text-sm font-semibold text-gray-700">Order Types</h4>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-lg font-bold text-rich-black">
+                    {orders.filter(o => o.type === 'upload').length}
+                  </p>
+                  <span className="text-xs text-gray-500">uploads</span>
+                  <span className="text-gray-400">/</span>
+                  <p className="text-lg font-bold text-rich-black">
+                    {orders.filter(o => o.type === 'walkin').length}
+                  </p>
+                  <span className="text-xs text-gray-500">walk-ins</span>
+                </div>
+              </div>
+
+              {/* Urgent Orders */}
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-brand-yellow" />
+                  <h4 className="text-sm font-semibold text-gray-700">Urgent Orders</h4>
+                </div>
+                <p className="text-xl font-bold text-rich-black">
+                  {orders.filter(o => o.isUrgent && o.status !== 'completed').length}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Need priority</p>
+              </div>
+
+              {/* Weekly Trend */}
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="w-4 h-4 text-brand-yellow" />
+                  <h4 className="text-sm font-semibold text-gray-700">Weekly Trend</h4>
+                </div>
+                <p className="text-xl font-bold text-rich-black">
+                  {(() => {
+                    const thisWeek = orders.filter(o => {
+                      const orderDate = new Date(o.createdAt);
+                      const weekAgo = new Date();
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      return orderDate > weekAgo;
+                    }).length;
+                    
+                    const lastWeek = orders.filter(o => {
+                      const orderDate = new Date(o.createdAt);
+                      const twoWeeksAgo = new Date();
+                      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+                      const weekAgo = new Date();
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      return orderDate > twoWeeksAgo && orderDate <= weekAgo;
+                    }).length;
+                    
+                    if (lastWeek === 0) return '+100%';
+                    const change = ((thisWeek - lastWeek) / lastWeek * 100).toFixed(0);
+                    return `${change > 0 ? '+' : ''}${change}%`;
+                  })()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">vs last week</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Search and Filters */}
         <Card className="mb-6">
