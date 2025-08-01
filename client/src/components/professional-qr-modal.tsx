@@ -161,11 +161,11 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
 
             {/* Customer Guide Section */}
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-center text-gray-900 mb-4 flex items-center justify-center gap-2">
-                <span className="bg-brand-yellow text-rich-black px-3 py-1 rounded-full text-sm font-bold">CUSTOMER GUIDE</span>
+              <h3 className="text-lg font-bold text-center text-gray-900 mb-4">
+                <span className="bg-brand-yellow text-rich-black px-4 py-2 rounded-lg text-sm font-bold">CUSTOMER GUIDE</span>
               </h3>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[
                   { 
                     icon: <Camera className="w-5 h-5" />, 
@@ -193,16 +193,18 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                     desc: "Voila! Monitor progress and get notified when ready" 
                   }
                 ].map((step, index) => (
-                  <div key={index} className="flex gap-3 sm:gap-4">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-yellow rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-rich-black font-bold text-xs sm:text-sm">{index + 1}</span>
+                  <div key={index} className="flex gap-4 items-start bg-gray-50 rounded-lg p-3">
+                    <div className="w-8 h-8 bg-rich-black rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-brand-yellow font-bold text-sm">{index + 1}</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
-                        <span className="text-brand-yellow">{step.icon}</span>
+                      <h4 className="font-semibold text-gray-900 text-sm mb-1">
                         {step.title}
                       </h4>
-                      <p className="text-xs sm:text-sm text-gray-600">{step.desc}</p>
+                      <p className="text-xs text-gray-600 leading-relaxed">{step.desc}</p>
+                    </div>
+                    <div className="text-brand-yellow flex-shrink-0 mt-1">
+                      {step.icon}
                     </div>
                   </div>
                 ))}
@@ -211,18 +213,14 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
           </div>
 
           {/* Footer */}
-          <div className="bg-black px-6 py-4">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-[#FFBF00] rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-xs">P</span>
-              </div>
+          <div className="bg-rich-black px-6 py-4">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <PrintEasyLogo size="sm" showText={false} />
               <span className="text-white font-semibold">PrintEasy</span>
             </div>
-            <div className="flex items-center justify-center gap-6 text-white/80 text-xs">
+            <div className="flex items-center justify-center gap-6 text-white/90 text-xs">
               <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                </svg>
+                <Shield className="w-3 h-3" />
                 <span>Secure</span>
               </div>
               <div className="flex items-center gap-1">
@@ -232,9 +230,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                 <span>Fast</span>
               </div>
               <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                </svg>
+                <Check className="w-3 h-3" />
                 <span>Easy</span>
               </div>
             </div>
