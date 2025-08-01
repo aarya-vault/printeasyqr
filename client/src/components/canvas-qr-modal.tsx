@@ -43,20 +43,21 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
       console.log('QR code generated successfully');
       setQrDataUrl(qrCodeDataUrl);
       
-      // Generate the full design on canvas for download
+      // Pass the QR data directly to avoid state update delay
       setTimeout(() => {
         console.log('Starting to draw full design');
-        drawFullDesign();
+        drawFullDesign(qrCodeDataUrl);
       }, 100);
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
   };
 
-  const drawFullDesign = async () => {
+  const drawFullDesign = async (qrData?: string) => {
     const canvas = canvasRef.current;
-    if (!canvas || !qrDataUrl) {
-      console.log('Canvas or QR data not ready:', { canvas: !!canvas, qrDataUrl: !!qrDataUrl });
+    const qrToUse = qrData || qrDataUrl;
+    if (!canvas || !qrToUse) {
+      console.log('Canvas or QR data not ready:', { canvas: !!canvas, qrDataUrl: !!qrToUse });
       return;
     }
 
@@ -209,7 +210,7 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
     qrImg.onerror = () => {
       console.error('Failed to load QR image');
     };
-    qrImg.src = qrDataUrl;
+    qrImg.src = qrToUse;
   };
 
   const handleDownload = () => {
