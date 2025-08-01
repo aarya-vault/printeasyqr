@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isProduction = process.env.NODE_ENV === 'production';
       
       browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -373,10 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ] : [])
         ],
         defaultViewport: { width: 400, height: 800 },
-        timeout: 90000,
-        ...(isProduction && {
-          executablePath: '/usr/bin/chromium-browser'
-        })
+        timeout: 90000
       });
 
       const page = await browser.newPage();
