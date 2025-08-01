@@ -151,61 +151,34 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
             </div>
 
             {/* Shop Contact */}
-            <div className="text-center mb-6 bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Shop Contact</h3>
-              <div className="flex items-center justify-center gap-2 text-gray-700">
+            <div className="text-center mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Shop Contact</h3>
+              <div className="flex items-center justify-center gap-2 text-rich-black">
                 <Phone className="w-5 h-5 text-brand-yellow" />
-                <span className="font-medium">{shop.phone}</span>
+                <span className="font-semibold">{shop.phone}</span>
               </div>
             </div>
 
             {/* Customer Guide Section */}
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-center text-gray-900 mb-4">
-                <span className="bg-brand-yellow text-rich-black px-4 py-2 rounded-lg text-sm font-bold">CUSTOMER GUIDE</span>
-              </h3>
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-bold text-rich-black mb-2">Customer Guide</h3>
+                <div className="w-16 h-1 bg-brand-yellow mx-auto rounded-full"></div>
+              </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[
-                  { 
-                    icon: <Camera className="w-5 h-5" />, 
-                    title: "Scan QR Code", 
-                    desc: "Use your app scanner or visit printeasyqr.com and scan it" 
-                  },
-                  { 
-                    icon: <Phone className="w-5 h-5" />, 
-                    title: "Enter Details", 
-                    desc: "Enter your name and phone number" 
-                  },
-                  { 
-                    icon: <Upload className="w-5 h-5" />, 
-                    title: "Upload & Order", 
-                    desc: "Upload your files or create a walk-in order for tracking" 
-                  },
-                  { 
-                    icon: <MessageCircle className="w-5 h-5" />, 
-                    title: "Explore & Chat", 
-                    desc: "Use dashboard, chat with shop owner - uploaded files auto-delete when complete" 
-                  },
-                  { 
-                    icon: <Check className="w-5 h-5" />, 
-                    title: "That's It! Trust", 
-                    desc: "Voila! Monitor progress and get notified when ready" 
-                  }
+                  "Scan this QR via your app scanner or visit printeasyqr.com website and scan it",
+                  "Enter your name and phone number", 
+                  "Upload your files or create a walk-in order for tracking purpose",
+                  "Explore dashboard, chat with shop owner and don't worry - uploaded files are auto-deleted when complete",
+                  "Voila! That's it - trust the process"
                 ].map((step, index) => (
-                  <div key={index} className="flex gap-4 items-start bg-gray-50 rounded-lg p-3">
-                    <div className="w-8 h-8 bg-rich-black rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-brand-yellow font-bold text-sm">{index + 1}</span>
+                  <div key={index} className="flex gap-3 items-start bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                    <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-rich-black font-bold text-xs">{index + 1}</span>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                        {step.title}
-                      </h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">{step.desc}</p>
-                    </div>
-                    <div className="text-brand-yellow flex-shrink-0 mt-1">
-                      {step.icon}
-                    </div>
+                    <p className="text-sm text-rich-black leading-relaxed font-medium">{step}</p>
                   </div>
                 ))}
               </div>

@@ -359,15 +359,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             flex-shrink: 0;
         }
         
-        .step-content h4 {
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 2px;
-        }
-        
-        .step-content p {
+        .step-text {
             font-size: 14px;
-            color: #4B5563;
+            color: #374151;
+            line-height: 1.5;
+            flex: 1;
         }
         
         .footer {
@@ -443,34 +439,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             </div>
             
             <div class="steps-section">
-                <div class="steps-title">How to Use This QR Code</div>
+                <div class="steps-title">Customer Guide</div>
                 <div class="step">
                     <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Open Camera App</h4>
-                        <p>Point your phone camera at this QR code</p>
-                    </div>
+                    <div class="step-text">Scan this QR via your app scanner or visit printeasyqr.com website and scan it</div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Tap the Link</h4>
-                        <p>Your phone will show a notification - tap it</p>
-                    </div>
+                    <div class="step-text">Enter your name and phone number</div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Start Ordering</h4>
-                        <p>Upload files or book walk-in appointments</p>
-                    </div>
+                    <div class="step-text">Upload your files or create a walk-in order for tracking purpose</div>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>Track & Collect</h4>
-                        <p>Monitor progress and get notified when ready</p>
-                    </div>
+                    <div class="step-text">Explore dashboard, chat with shop owner and don't worry - uploaded files are auto-deleted when complete</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Voila! That's it - trust the process</div>
                 </div>
             </div>
         </div>
