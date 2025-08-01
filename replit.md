@@ -33,7 +33,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Order Flows**: Supports digital file upload and walk-in order booking.
 - **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
 - **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). Enhanced analytics with revenue potential, user distribution, shop performance metrics, and detailed data visualization.
-- **Enhanced QR Code System**: Generates unique, branded QR codes for each shop, enabling seamless scan-to-order workflow and shop unlocking. QR downloads include PrintEasy branding and verification.
+- **Enhanced QR Code System**: Generates unique, branded QR codes for each shop with automatic shop unlocking and direct order page redirection. Features step-by-step customer guide, verified shop badges, and PrintEasy branding with USP messaging (500MB files, 100+ formats, 24/7 support).
 - **Dynamic Homepage**: Mobile-first design prioritizing QR scanning and login, showcasing key features like real-time chat, order tracking, and secure file handling.
 - **File Management**: Supports all file types with no restrictions. Unlimited file uploads (up to 500MB per file, 100 files per order). Files are stored locally and automatically deleted upon order completion. Print functionality supports various file types directly from the browser.
 - **Smart Order Logic**: Customer dashboards dynamically adapt UI based on order status (e.g., "Add More Files" for processing orders). Order numbering system for queue management.
@@ -42,6 +42,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Comprehensive Order/Chat History**: Dedicated read-only sections for completed orders and their associated chat logs.
 - **Order Deletion System**: Soft delete implementation with role-based permissions. Customers can delete pending orders, shop owners can delete processing/ready orders, admins can delete any order. Deleted orders are hidden from all views but retained in database with deletion tracking.
 - **Shop Slug System**: Manual shop slug entry during application with validation. No auto-generation from shop name.
+- **Optimized Shop Dashboard**: Streamlined dashboard with 4 vital cards showing essential metrics (Today's Orders, Pending Orders, Completed Today, Average Processing Time) in a single row for better usability.
 
 ## External Dependencies
 
