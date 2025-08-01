@@ -36,7 +36,7 @@ import {
   BarChart3,
   Activity
 } from 'lucide-react';
-import SvgQrModal from '@/components/svg-qr-modal';
+import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import OrderDetailsModal from '@/components/order-details-modal';
@@ -776,9 +776,8 @@ export default function RedesignedShopOwnerDashboard() {
 
       {/* Modals */}
       {showQRModal && shopData?.shop && (
-        <SvgQrModal
+        <ProfessionalQRModal
           shop={shopData.shop}
-          isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
         />
       )}
