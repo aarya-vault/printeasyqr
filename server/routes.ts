@@ -318,31 +318,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const puppeteer = await import('puppeteer');
 
-      // Try to find Chrome executable
-      let chromePath = undefined;
-      try {
-        const { execSync } = require('child_process');
-        const possiblePaths = [
-          '/usr/bin/chromium-browser',
-          '/usr/bin/chromium',
-          '/usr/bin/google-chrome',
-          '/usr/bin/google-chrome-stable'
-        ];
-        
-        for (const path of possiblePaths) {
-          try {
-            execSync(`test -f ${path}`);
-            chromePath = path;
-            break;
-          } catch (e) {
-            // Continue to next path
-          }
-        }
-      } catch (e) {
-        console.log('Could not find Chrome executable, using Puppeteer bundled Chrome');
-      }
-
-      // Launch Puppeteer with bundled Chrome
+      // Production-ready Puppeteer configuration
+      const isProduction = process.env.NODE_ENV === 'production';
+      
       browser = await puppeteer.launch({
         headless: 'new',
         args: [
@@ -360,10 +338,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '--disable-extensions',
           '--disable-plugins',
           '--no-default-browser-check',
-          '--disable-default-apps'
+          '--disable-default-apps',
+          '--disable-web-security',
+          '--allow-running-insecure-content',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-ipc-flooding-protection',
+          ...(isProduction ? [
+            '--disable-background-networking',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-breakpad',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-default-apps',
+            '--disable-dev-shm-usage',
+            '--disable-extensions',
+            '--disable-features=TranslateUI',
+            '--disable-hang-monitor',
+            '--disable-ipc-flooding-protection',
+            '--disable-popup-blocking',
+            '--disable-prompt-on-repost',
+            '--disable-renderer-backgrounding',
+            '--disable-sync',
+            '--force-color-profile=srgb',
+            '--metrics-recording-only',
+            '--no-crash-upload',
+            '--no-default-browser-check',
+            '--no-first-run',
+            '--no-pings',
+            '--no-sandbox',
+            '--no-zygote',
+            '--password-store=basic',
+            '--use-mock-keychain',
+            '--single-process'
+          ] : [])
         ],
         defaultViewport: { width: 400, height: 800 },
-        timeout: 60000
+        timeout: 90000,
+        ...(isProduction && {
+          executablePath: '/usr/bin/chromium-browser'
+        })
       });
 
       const page = await browser.newPage();
