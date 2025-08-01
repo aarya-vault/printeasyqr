@@ -104,16 +104,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(adminUser);
       }
 
-      // Shop owner login - check shops via users table
+      // Shop owner login - optimized query
       const user = await storage.getUserByEmail(email);
-      console.log('Login attempt for:', email);
-      console.log('User found:', user ? { id: user.id, email: user.email, role: user.role, hasPassword: !!user.passwordHash } : null);
       
       if (user && user.passwordHash && user.role === 'shop_owner') {
         // Use bcrypt to compare passwords
         const bcrypt = await import('bcrypt');
         const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-        console.log('Password validation result:', isValidPassword);
         
         if (isValidPassword) {
           req.session.user = {
@@ -123,7 +120,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             role: user.role,
             phone: user.phone || undefined
           };
-          await req.session.save();
           return res.json(user);
         }
       }

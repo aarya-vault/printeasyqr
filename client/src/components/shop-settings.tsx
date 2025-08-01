@@ -81,12 +81,12 @@ export default function ShopSettings() {
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch shop data
-  const { data: shops = [], isLoading } = useQuery({
+  const { data: shopResponse, isLoading } = useQuery({
     queryKey: ['/api/shops/owner', user?.id],
     enabled: !!user && user.role === 'shop_owner',
   });
 
-  const shop = shops[0]; // Assuming one shop per owner
+  const shop = (shopResponse as any)?.shop; // Extract shop from response
 
   const form = useForm<ShopSettingsForm>({
     resolver: zodResolver(shopSettingsSchema),
@@ -243,7 +243,7 @@ export default function ShopSettings() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-medium-gray">Loading settings...</p>
+          <p className="text-medium-gray">Loading shop settings...</p>
         </div>
       </div>
     );
