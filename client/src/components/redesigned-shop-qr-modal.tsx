@@ -252,15 +252,15 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
               <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
                 <div className="flex items-center gap-1">
                   <Shield className="w-3 h-3" />
-                  <span>500MB Files</span>
+                  <span>Secure</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="w-3 h-3" />
-                  <span>100+ Formats</span>
+                  <span>Fast</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Smartphone className="w-3 h-3" />
-                  <span>24/7 Support</span>
+                  <span>Easy</span>
                 </div>
               </div>
             </div>
