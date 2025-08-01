@@ -31,6 +31,7 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
 
   const generateQRCode = async () => {
     try {
+      console.log('Generating QR code for:', shopUrl);
       const qrCodeDataUrl = await QRCode.toDataURL(shopUrl, {
         width: 200,
         margin: 2,
@@ -39,10 +40,12 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
           light: '#FFFFFF',
         },
       });
+      console.log('QR code generated successfully');
       setQrDataUrl(qrCodeDataUrl);
       
       // Generate the full design on canvas for download
       setTimeout(() => {
+        console.log('Starting to draw full design');
         drawFullDesign();
       }, 100);
     } catch (error) {
@@ -52,10 +55,18 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
 
   const drawFullDesign = async () => {
     const canvas = canvasRef.current;
-    if (!canvas || !qrDataUrl) return;
+    if (!canvas || !qrDataUrl) {
+      console.log('Canvas or QR data not ready:', { canvas: !!canvas, qrDataUrl: !!qrDataUrl });
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.log('Could not get canvas context');
+      return;
+    }
+
+    console.log('Drawing on canvas...');
 
     // Set canvas size for high quality
     canvas.width = 600;
@@ -101,9 +112,14 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
     ctx.font = '18px Arial';
     ctx.fillText('PrintEasy Partner', 300, 180);
 
+    // Set initial preview with basic content
+    setPreviewDataUrl(canvas.toDataURL());
+    console.log('Set initial preview');
+
     // QR Code
     const qrImg = new Image();
     qrImg.onload = () => {
+      console.log('QR image loaded, adding to canvas');
       // QR background
       ctx.fillStyle = '#F9FAFB';
       ctx.fillRect(150, 220, 300, 300);
@@ -186,8 +202,12 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
       ctx.font = '14px Arial';
       ctx.fillText('Fast • Secure • Professional', 300, canvas.height - 5);
 
-      // Set preview
+      // Set final preview
       setPreviewDataUrl(canvas.toDataURL());
+      console.log('Final preview set with QR code and all content');
+    };
+    qrImg.onerror = () => {
+      console.error('Failed to load QR image');
     };
     qrImg.src = qrDataUrl;
   };
