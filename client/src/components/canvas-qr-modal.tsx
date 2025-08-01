@@ -103,17 +103,15 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
     ctx.font = '24px Arial';
     ctx.fillText('🔲 PrintEasy QR', 400, 210);
 
-    // Verified badge (if shop is verified)
-    if (shop.verified) {
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(540, 40, 120, 32);
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(540, 40, 120, 32);
-      ctx.fillStyle = '#000000';
-      ctx.font = '16px Arial';
-      ctx.fillText('✓ VERIFIED', 600, 60);
-    }
+    // Verified badge - show for all shops as "VERIFIED"
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(540, 40, 120, 32);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(540, 40, 120, 32);
+    ctx.fillStyle = '#000000';
+    ctx.font = '16px Arial';
+    ctx.fillText('✓ VERIFIED', 600, 60);
 
     // Set initial preview with basic content
     setPreviewDataUrl(canvas.toDataURL());
