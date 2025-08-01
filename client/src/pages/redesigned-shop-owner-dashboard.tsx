@@ -530,7 +530,7 @@ export default function RedesignedShopOwnerDashboard() {
   if (shopLoading || ordersLoading) {
     return (
       <DashboardLoading 
-        title="Loading Shop Dashboard..." 
+        title="Loading Dashboard..." 
         subtitle="Fetching orders, chat messages, and shop data"
       />
     );

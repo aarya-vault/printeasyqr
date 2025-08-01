@@ -153,7 +153,7 @@ export default function RedesignedShopSettings() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 font-medium">Loading shop settings...</p>
+          <p className="text-lg text-gray-600 font-medium">Loading settings...</p>
         </div>
       </div>
     );

@@ -93,7 +93,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading shop data...</p>
+          <p className="text-gray-600">Loading data...</p>
         </div>
       </div>
     );

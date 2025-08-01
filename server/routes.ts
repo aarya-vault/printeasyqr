@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/orders/shop/:shopId', async (req, res) => {
     try {
       const shopId = parseInt(req.params.shopId);
-      const orders = await storage.getOrdersByShopId(shopId);
+      const orders = await storage.getOrdersByShop(shopId);
       res.json(orders || []);
     } catch (error) {
       console.error('Get shop orders error:', error);
@@ -206,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/orders/customer/:customerId', async (req, res) => {
     try {
       const customerId = parseInt(req.params.customerId);
-      const orders = await storage.getOrdersByCustomerId(customerId);
+      const orders = await storage.getOrdersByCustomer(customerId);
       res.json(orders || []);
     } catch (error) {
       console.error('Get customer orders error:', error);
@@ -216,17 +216,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/orders', upload.array('files'), async (req, res) => {
     try {
-      const { shopId, customerId, customerName, customerPhone, orderType, instructions } = req.body;
+      const { shopId, customerId, orderType, instructions } = req.body;
       
       const newOrder = await storage.createOrder({
         shopId: parseInt(shopId),
         customerId: parseInt(customerId),
-        customerName,
-        customerPhone,
-        orderType,
-        instructions: instructions || '',
-        status: 'pending',
-        files: req.files ? req.files.map(file => ({
+        type: orderType || 'file_upload',
+        title: `Order #${Date.now()}`,
+        description: instructions || '',
+        files: req.files && Array.isArray(req.files) ? req.files.map((file: any) => ({
           name: file.originalname,
           path: file.path,
           size: file.size,
