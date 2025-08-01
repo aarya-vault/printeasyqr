@@ -40,15 +40,22 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         description: "Please wait while we create your high-quality image",
       });
 
-      const response = await fetch('/api/generate-qr-image', {
+      // Capture the fully rendered HTML from the client
+      const renderedHtml = qrRef.current?.innerHTML;
+      
+      if (!renderedHtml) {
+        throw new Error('Failed to capture QR content');
+      }
+
+      // Send the rendered HTML to server for screenshot
+      const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          shopName: shop.name,
-          shopPhone: shop.phone,
-          shopSlug: shop.slug,
+          htmlContent: renderedHtml,
+          filename: `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`
         }),
       });
 
