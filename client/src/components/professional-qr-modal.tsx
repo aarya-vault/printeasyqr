@@ -3,7 +3,6 @@ import { X, Copy, Share2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import QRCode from 'qrcode';
-import html2canvas from 'html2canvas';
 import type { Shop } from '@shared/schema';
 
 interface ProfessionalQRModalProps {
@@ -34,57 +33,44 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
   }, [shopUrl]);
 
   const handleDownload = async () => {
-    if (!qrRef.current) return;
-
     try {
-      // Create a clone of the element to ensure proper rendering
-      const element = qrRef.current.cloneNode(true) as HTMLElement;
-      
-      // Temporarily add the clone to the DOM for proper font loading
-      element.style.position = 'fixed';
-      element.style.top = '-9999px';
-      element.style.left = '-9999px';
-      element.style.width = '400px';
-      element.style.zIndex = '-1';
-      document.body.appendChild(element);
-
-      // Wait for fonts and images to load
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#FFFFFF',
-        scale: 3, // High quality scaling
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        width: 400,
-        height: element.scrollHeight,
-        windowWidth: 400,
-        windowHeight: element.scrollHeight,
-        removeContainer: true,
-        imageTimeout: 0,
-        onclone: (clonedDoc) => {
-          // Ensure all styles are properly cloned
-          const clonedElement = clonedDoc.querySelector('[data-html2canvas-clone]') as HTMLElement;
-          if (clonedElement) {
-            clonedElement.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-          }
-        }
+      toast({
+        title: "Generating QR Code...",
+        description: "Please wait while we create your high-quality image",
       });
 
-      // Clean up the temporary element
-      document.body.removeChild(element);
+      const response = await fetch('/api/generate-qr-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shopName: shop.name,
+          shopPhone: shop.phone,
+          shopSlug: shop.slug,
+        }),
+      });
 
-      // Convert to PNG and download
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      if (!response.ok) {
+        throw new Error('Failed to generate QR code');
+      }
+
+      // Get the image blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
+      link.href = url;
       link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
-      link.href = dataUrl;
       
       // Trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
 
       toast({
         title: "QR Code Downloaded",
@@ -126,9 +112,9 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden relative">
-        {/* Modal Content for Preview and Download */}
-        <div ref={qrRef} className="bg-white" data-html2canvas-clone="true" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md overflow-hidden relative max-h-[95vh] overflow-y-auto">
+        {/* Modal Content for Preview */}
+        <div ref={qrRef} className="bg-white">
           {/* Header with Golden Background */}
           <div className="bg-[#FFBF00] px-6 py-8 relative">
             {/* Verified Badge - Positioned in top right */}
@@ -155,15 +141,14 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
           </div>
 
           {/* QR Code Section */}
-          <div className="p-8">
-            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+          <div className="p-4 sm:p-8">
+            <div className="bg-gray-50 rounded-xl p-4 sm:p-6 mb-6">
               {qrDataUrl && (
                 <img 
                   src={qrDataUrl} 
                   alt="QR Code" 
-                  className="w-64 h-64 mx-auto"
+                  className="w-48 h-48 sm:w-64 sm:h-64 mx-auto block"
                   crossOrigin="anonymous"
-                  style={{ maxWidth: '264px', maxHeight: '264px', width: '264px', height: '264px' }}
                 />
               )}
             </div>
@@ -180,7 +165,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
             </div>
 
             {/* How to Use Section */}
-            <div className="space-y-4 mb-8">
+            <div className="space-y-4 mb-6 sm:mb-8">
               <h3 className="text-lg font-semibold text-center text-gray-900 mb-4">How to Use This QR Code</h3>
               
               <div className="space-y-3">
@@ -190,13 +175,13 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                   { num: 3, title: "Start Ordering", desc: "Upload files or book walk-in appointments" },
                   { num: 4, title: "Track & Collect", desc: "Monitor progress and get notified when ready" }
                 ].map((step) => (
-                  <div key={step.num} className="flex gap-4">
-                    <div className="w-8 h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-black font-bold text-sm">{step.num}</span>
+                  <div key={step.num} className="flex gap-3 sm:gap-4">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-black font-bold text-xs sm:text-sm">{step.num}</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{step.title}</h4>
-                      <p className="text-sm text-gray-600">{step.desc}</p>
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{step.title}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600">{step.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -236,12 +221,12 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         </div>
 
         {/* Action Buttons - Outside the preview area */}
-        <div className="p-6 border-t bg-gray-50">
-          <div className="flex gap-3">
+        <div className="p-4 sm:p-6 border-t bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
               onClick={handleCopy}
-              className="flex-1"
+              className="flex-1 text-sm"
               data-testid="button-copy-link"
             >
               <Copy className="w-4 h-4 mr-2" />
@@ -250,7 +235,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
             <Button
               variant="outline"
               onClick={handleShare}
-              className="flex-1"
+              className="flex-1 text-sm"
               data-testid="button-share"
             >
               <Share2 className="w-4 h-4 mr-2" />
@@ -258,11 +243,11 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
             </Button>
             <Button
               onClick={handleDownload}
-              className="flex-1 bg-[#FFBF00] text-black hover:bg-[#E5AC00]"
+              className="flex-1 bg-[#FFBF00] text-black hover:bg-[#E5AC00] text-sm font-semibold"
               data-testid="button-download-qr"
             >
               <Download className="w-4 h-4 mr-2" />
-              Download
+              Download PNG
             </Button>
           </div>
         </div>

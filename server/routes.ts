@@ -173,6 +173,352 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Message routes are handled later in the file - removing duplicate broken implementation
 
+  // QR Code Generation with Puppeteer
+  app.post('/api/generate-qr-image', async (req, res) => {
+    try {
+      const { shopName, shopPhone, shopSlug } = req.body;
+      
+      if (!shopName || !shopPhone || !shopSlug) {
+        return res.status(400).json({ message: 'Missing required shop data' });
+      }
+
+      const puppeteer = await import('puppeteer');
+      const QRCode = await import('qrcode');
+      
+      // Generate QR code data URL
+      const shopUrl = `${process.env.REPLIT_DOMAIN || 'http://localhost:5000'}/shop/${shopSlug}`;
+      const qrDataUrl = await QRCode.toDataURL(shopUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+        errorCorrectionLevel: 'H',
+      });
+
+      // Create HTML template
+      const htmlTemplate = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintEasy QR Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: white;
+            width: 400px;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .qr-container {
+            background: white;
+            width: 400px;
+            margin: 0;
+        }
+        
+        .header {
+            background: #FFBF00;
+            padding: 32px 24px;
+            position: relative;
+            text-align: center;
+        }
+        
+        .verified-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: black;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #FFBF00;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .shop-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 8px;
+        }
+        
+        .printeasy-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .qr-icon {
+            width: 24px;
+            height: 24px;
+            background: black;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFBF00;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 32px;
+        }
+        
+        .qr-section {
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .qr-code {
+            width: 264px;
+            height: 264px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .contact-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .contact-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        
+        .phone-number {
+            font-size: 16px;
+            font-weight: 500;
+            color: #4B5563;
+        }
+        
+        .steps-section {
+            margin-bottom: 32px;
+        }
+        
+        .steps-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+        
+        .step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #FFBF00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+        
+        .step-content p {
+            font-size: 14px;
+            color: #4B5563;
+        }
+        
+        .footer {
+            background: black;
+            padding: 16px 24px;
+            text-align: center;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .footer-logo {
+            width: 24px;
+            height: 24px;
+            background: #FFBF00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .footer-name {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .footer-features {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-container">
+        <div class="header">
+            <div class="verified-badge">
+                ✓ VERIFIED
+            </div>
+            <div class="logo">P</div>
+            <div class="shop-name">${shopName}</div>
+            <div class="printeasy-brand">
+                <div class="qr-icon">QR</div>
+                <span style="color: black; font-weight: 600;">PrintEasy QR</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="qr-section">
+                <img src="${qrDataUrl}" alt="QR Code" class="qr-code" />
+            </div>
+            
+            <div class="contact-section">
+                <div class="contact-title">Shop Contact</div>
+                <div class="phone-number">${shopPhone}</div>
+            </div>
+            
+            <div class="steps-section">
+                <div class="steps-title">How to Use This QR Code</div>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open Camera App</h4>
+                        <p>Point your phone camera at this QR code</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Tap the Link</h4>
+                        <p>Your phone will show a notification - tap it</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Start Ordering</h4>
+                        <p>Upload files or book walk-in appointments</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Track & Collect</h4>
+                        <p>Monitor progress and get notified when ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-brand">
+                <div class="footer-logo">P</div>
+                <div class="footer-name">PrintEasy</div>
+            </div>
+            <div class="footer-features">
+                <div class="feature">🛡️ Secure</div>
+                <div class="feature">⚡ Fast</div>
+                <div class="feature">❤️ Easy</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+
+      // Launch Puppeteer
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      });
+
+      const page = await browser.newPage();
+      await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 3 });
+      await page.setContent(htmlTemplate, { waitUntil: 'networkidle0' });
+
+      // Take screenshot
+      const screenshot = await page.screenshot({
+        type: 'png',
+        fullPage: true,
+        omitBackground: false,
+      });
+
+      await browser.close();
+
+      // Set headers for image download
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Content-Disposition', `attachment; filename="PrintEasy_${shopName.replace(/\s+/g, '_')}_QR.png"`);
+      res.send(screenshot);
+
+    } catch (error) {
+      console.error('QR generation error:', error);
+      res.status(500).json({ message: 'Failed to generate QR code image' });
+    }
+  });
+
   // Setup WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
