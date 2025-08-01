@@ -52,3 +52,28 @@ export enum OrderStatusEnum {
   READY = 'ready',
   COMPLETED = 'completed'
 }
+
+// Shop type definition
+export interface Shop {
+  id: number;
+  name: string;
+  address: string;
+  phone: string;
+  rating: number;
+  isOnline: boolean;
+}
+
+// Order form data type
+export interface OrderFormData {
+  shopId: number;
+  type: 'upload' | 'walkin';
+  title: string;
+  specifications?: {
+    copies?: number;
+    colorType?: 'bw' | 'color';
+    paperSize?: string;
+    binding?: string;
+    specialInstructions?: string;
+  };
+  isUrgent?: boolean;
+}

@@ -6,7 +6,7 @@ import {
   type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql, ne } from "drizzle-orm";
+import { eq, desc, and, or, sql, ne, isNull } from "drizzle-orm";
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -38,7 +38,7 @@ export interface IStorage {
   getOrdersByShop(shopId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: number, updates: Partial<Order>): Promise<Order | undefined>;
-  deleteOrder(id: number): Promise<boolean>;
+  deleteOrder(id: number, deletedBy?: number): Promise<boolean>;
   deleteOrderFiles(orderId: number): Promise<void>;
   
   // Message operations
@@ -223,7 +223,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrder(id: number): Promise<Order | undefined> {
-    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    const [order] = await db.select().from(orders).where(
+      and(
+        eq(orders.id, id),
+        isNull(orders.deletedAt) // Exclude soft deleted orders
+      )
+    );
     return order || undefined;
   }
 
@@ -242,7 +247,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(orders)
       .leftJoin(shops, eq(orders.shopId, shops.id))
-      .where(eq(orders.customerId, customerId))
+      .where(
+        and(
+          eq(orders.customerId, customerId),
+          isNull(orders.deletedAt) // Exclude soft deleted orders
+        )
+      )
       .orderBy(desc(orders.createdAt));
 
     return orderList.map(row => ({
@@ -263,7 +273,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(orders)
       .leftJoin(users, eq(orders.customerId, users.id))
-      .where(eq(orders.shopId, shopId))
+      .where(
+        and(
+          eq(orders.shopId, shopId),
+          isNull(orders.deletedAt) // Exclude soft deleted orders
+        )
+      )
       .orderBy(desc(orders.createdAt));
 
     return orderList.map(row => ({
@@ -274,10 +289,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    // Get the next order number for this shop
+    const [lastOrder] = await db
+      .select({ maxOrderNumber: sql<number>`MAX(order_number)` })
+      .from(orders)
+      .where(eq(orders.shopId, insertOrder.shopId));
+    
+    const nextOrderNumber = (lastOrder?.maxOrderNumber || 0) + 1;
+    
     const [order] = await db
       .insert(orders)
       .values({
         ...insertOrder,
+        orderNumber: nextOrderNumber,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -432,13 +456,17 @@ export class DatabaseStorage implements IStorage {
     await db.delete(notifications).where(eq(notifications.id, id));
   }
 
-  async deleteOrder(id: number): Promise<boolean> {
+  async deleteOrder(id: number, deletedBy?: number): Promise<boolean> {
     try {
-      // First delete all related messages for this order
-      await db.delete(messages).where(eq(messages.orderId, id));
-      
-      // Then delete the order
-      const result = await db.delete(orders).where(eq(orders.id, id));
+      // Soft delete - mark as deleted instead of removing
+      const result = await db
+        .update(orders)
+        .set({
+          deletedBy: deletedBy,
+          deletedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(orders.id, id));
       return true;
     } catch (error) {
       console.error('Error deleting order:', error);

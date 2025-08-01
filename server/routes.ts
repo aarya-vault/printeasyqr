@@ -20,22 +20,13 @@ if (!fs.existsSync(uploadDir)) {
 
 const upload = multer({
   dest: uploadDir,
-  // No file size or file count limits - unlimited uploads
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500MB per file
+    files: 100 // Up to 100 files at once
+  },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'image/jpeg',
-      'image/png',
-      'text/plain'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
+    // Accept all file types - no restrictions
+    cb(null, true);
   }
 });
 
@@ -729,7 +720,12 @@ app.patch('/api/debug/patch-test', (req, res) => {
       .from(orders)
       .innerJoin(users, eq(orders.customerId, users.id))
       .innerJoin(shops, eq(orders.shopId, shops.id))
-      .where(eq(orders.id, orderId))
+      .where(
+        and(
+          eq(orders.id, orderId),
+          isNull(orders.deletedAt) // Exclude soft deleted orders
+        )
+      )
       .limit(1);
       
       if (orderDetails.length === 0) {
@@ -1103,8 +1099,8 @@ app.patch('/api/debug/patch-test', (req, res) => {
         // Continue with order deletion even if file deletion fails
       }
 
-      // Delete the order
-      const success = await storage.deleteOrder(orderId);
+      // Delete the order with soft delete tracking
+      const success = await storage.deleteOrder(orderId, userId);
       if (!success) {
         return res.status(404).json({ message: "Order not found" });
       }
