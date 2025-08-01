@@ -40,55 +40,92 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         description: "Please wait while we create your high-quality image",
       });
 
-      // Capture the fully rendered HTML from the client
-      const renderedHtml = qrRef.current?.innerHTML;
-      
-      if (!renderedHtml) {
-        throw new Error('Failed to capture QR content');
+      // Try server-side generation first
+      try {
+        const renderedHtml = qrRef.current?.innerHTML;
+        if (!renderedHtml) {
+          throw new Error('Failed to capture QR content');
+        }
+
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            htmlContent: renderedHtml,
+            filename: `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`
+          }),
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+
+          toast({
+            title: "QR Code Downloaded",
+            description: "Professional quality PNG saved to your device",
+          });
+          return;
+        } else {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+      } catch (serverError) {
+        console.log('Server generation failed, using client-side fallback:', serverError);
+        
+        // Client-side fallback using html2canvas
+        const html2canvas = (await import('html2canvas')).default;
+        const element = qrRef.current;
+        if (!element) {
+          throw new Error('QR element not found');
+        }
+
+        const canvas = await html2canvas(element, {
+          useCORS: true,
+          scale: 3,
+          backgroundColor: '#ffffff',
+          width: 400,
+          height: 800,
+          logging: false,
+          allowTaint: false
+        });
+
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            throw new Error('Failed to create image');
+          }
+          
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+
+          toast({
+            title: "QR Code Downloaded",
+            description: "High-quality PNG saved to your device",
+          });
+        }, 'image/png', 0.95);
       }
 
-      // Send the rendered HTML to server for screenshot
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          htmlContent: renderedHtml,
-          filename: `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate QR code');
-      }
-
-      // Get the image blob
-      const blob = await response.blob();
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "QR Code Downloaded",
-        description: "High-quality PNG saved to your device",
-      });
     } catch (error) {
       console.error('Error downloading QR code:', error);
       toast({
         title: "Download Failed",
-        description: "Please try again",
+        description: "Unable to generate QR code. Please try again.",
         variant: "destructive",
       });
     }

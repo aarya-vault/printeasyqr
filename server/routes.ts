@@ -318,10 +318,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const puppeteer = await import('puppeteer');
 
-      // Production-ready Puppeteer configuration
-      const isProduction = process.env.NODE_ENV === 'production';
-      
-      browser = await puppeteer.launch({
+      // Robust Puppeteer configuration for Replit deployment
+      const launchOptions = {
         headless: true,
         args: [
           '--no-sandbox',
@@ -343,38 +341,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '--allow-running-insecure-content',
           '--disable-features=VizDisplayCompositor',
           '--disable-ipc-flooding-protection',
-          ...(isProduction ? [
-            '--disable-background-networking',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-breakpad',
-            '--disable-component-extensions-with-background-pages',
-            '--disable-default-apps',
-            '--disable-dev-shm-usage',
-            '--disable-extensions',
-            '--disable-features=TranslateUI',
-            '--disable-hang-monitor',
-            '--disable-ipc-flooding-protection',
-            '--disable-popup-blocking',
-            '--disable-prompt-on-repost',
-            '--disable-renderer-backgrounding',
-            '--disable-sync',
-            '--force-color-profile=srgb',
-            '--metrics-recording-only',
-            '--no-crash-upload',
-            '--no-default-browser-check',
-            '--no-first-run',
-            '--no-pings',
-            '--no-sandbox',
-            '--no-zygote',
-            '--password-store=basic',
-            '--use-mock-keychain',
-            '--single-process'
-          ] : [])
+          '--disable-breakpad',
+          '--disable-component-extensions-with-background-pages',
+          '--disable-features=TranslateUI',
+          '--disable-hang-monitor',
+          '--disable-popup-blocking',
+          '--disable-prompt-on-repost',
+          '--disable-sync',
+          '--force-color-profile=srgb',
+          '--metrics-recording-only',
+          '--no-crash-upload',
+          '--no-pings',
+          '--password-store=basic',
+          '--use-mock-keychain'
         ],
         defaultViewport: { width: 400, height: 800 },
-        timeout: 90000
-      });
+        timeout: 120000,
+        // Use system Chromium if available, fallback to Puppeteer's bundled version
+        ...(process.env.PUPPETEER_EXECUTABLE_PATH && {
+          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+        })
+      };
+
+      console.log('Attempting to launch Puppeteer with options:', JSON.stringify(launchOptions, null, 2));
+      browser = await puppeteer.launch(launchOptions);
 
       const page = await browser.newPage();
       await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 3 });
@@ -411,6 +401,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('Image generation error:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      
+      // Log detailed system information for debugging
+      console.error('System details:', {
+        nodeEnv: process.env.NODE_ENV,
+        platform: process.platform,
+        arch: process.arch,
+        puppeteerExecutablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+        puppeteerSkipDownload: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+      });
       
       // Ensure browser is closed on error
       if (browser) {
@@ -423,7 +423,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(500).json({ 
         message: 'Failed to generate image',
-        error: (error as Error).message 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        details: 'Check server logs for detailed error information'
       });
     }
   });
