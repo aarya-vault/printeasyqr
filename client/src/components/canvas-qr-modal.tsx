@@ -69,161 +69,170 @@ export default function CanvasQRModal({ shop, isOpen, onClose }: QRModalProps) {
 
     console.log('Drawing on canvas...');
 
-    // Set canvas size for high quality
-    canvas.width = 600;
-    canvas.height = 900;
+    // Set canvas size for A4 proportions (high quality)
+    canvas.width = 800;
+    canvas.height = 1130; // A4 ratio
 
     // Clear canvas with white background
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Header section - White background with yellow accent
+    // Header section with generous spacing
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, 180);
+    ctx.fillRect(0, 0, canvas.width, 200);
 
-    // PrintEasy logo - Yellow circle with black printer
+    // PrintEasy logo - Yellow circle with black printer (proper size for A4)
     ctx.fillStyle = '#FFBF00';
     ctx.beginPath();
-    ctx.arc(300, 60, 35, 0, 2 * Math.PI);
+    ctx.arc(400, 80, 45, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Printer icon (clean design)
+    // Printer icon (clean Lucide-style design)
     ctx.fillStyle = '#000000';
-    ctx.fillRect(285, 47, 30, 20);
-    ctx.fillRect(288, 52, 24, 10);
+    ctx.fillRect(380, 62, 40, 28);
+    ctx.fillRect(385, 68, 30, 16);
     ctx.fillStyle = '#FFBF00';
-    ctx.fillRect(290, 54, 20, 6);
-    // Printer lines
+    ctx.fillRect(388, 72, 24, 8);
+    // Printer details
     ctx.fillStyle = '#000000';
-    ctx.fillRect(292, 56, 16, 1);
-    ctx.fillRect(292, 58, 16, 1);
+    ctx.fillRect(392, 75, 16, 1);
+    ctx.fillRect(392, 78, 16, 1);
 
-    // PrintEasy QR title
+    // PrintEasy title (correct branding)
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 24px Arial';
+    ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('PrintEasy QR', 300, 110);
+    ctx.fillText('PrintEasy', 400, 150);
 
-    // Shop name (larger, prominent)
-    ctx.font = 'bold 28px Arial';
-    ctx.fillText(shop.name, 300, 145);
+    // Shop name (prominent with generous spacing)
+    ctx.font = 'bold 32px Arial';
+    ctx.fillText(shop.name, 400, 190);
 
-    // Shop contact info
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#666666';
-    ctx.fillText(`Contact: ${shop.phone}`, 300, 170);
+    // Divider line
+    ctx.strokeStyle = '#E5E7EB';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(100, 220);
+    ctx.lineTo(700, 220);
+    ctx.stroke();
 
     // Set initial preview with basic content
     setPreviewDataUrl(canvas.toDataURL());
     console.log('Set initial preview');
 
-    // QR Code section
+    // QR Code section with proper A4 spacing
     const qrImg = new Image();
     qrImg.onload = () => {
       console.log('QR image loaded, adding to canvas');
       
-      // QR section background
+      // QR section with background
       ctx.fillStyle = '#F8F9FA';
-      ctx.fillRect(0, 190, canvas.width, 280);
+      ctx.fillRect(0, 240, canvas.width, 350);
       
-      // QR code container (white background)
+      // QR code container (centered, larger for A4)
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(175, 220, 250, 250);
+      ctx.fillRect(250, 280, 300, 300);
       
       // QR code border
-      ctx.strokeStyle = '#E5E7EB';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(175, 220, 250, 250);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(250, 280, 300, 300);
       
-      // QR code
-      ctx.drawImage(qrImg, 200, 245, 200, 200);
+      // QR code (larger size)
+      ctx.drawImage(qrImg, 275, 305, 250, 250);
       
-      // "Scan to Order" text
-      ctx.fillStyle = '#000000';
-      ctx.font = 'bold 18px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Scan QR Code to Order', 300, 500);
-
-      // How to use section
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 520, canvas.width, 260);
-      
+      // Shop contact information
       ctx.fillStyle = '#000000';
       ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('How to Use This QR Code', 300, 550);
+      ctx.fillText(`Contact: ${shop.phone}`, 400, 620);
+      
+      // Shop URL
+      ctx.font = '18px Arial';
+      ctx.fillStyle = '#666666';
+      ctx.fillText(`Visit: ${shopUrl}`, 400, 650);
 
-      const steps = [
-        { num: '1', title: 'Open Camera App', desc: 'Point your phone camera at the QR code above' },
-        { num: '2', title: 'Tap the Link', desc: 'Your phone will show a notification - tap it' },
-        { num: '3', title: 'Upload & Order', desc: 'Select files or book walk-in appointment' },
-        { num: '4', title: 'Track & Collect', desc: 'Monitor progress and collect when ready' }
+      // Customer Guide section with generous spacing
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 680, canvas.width, 350);
+      
+      // Title
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Customer Guide', 400, 720);
+
+      // Main instruction paragraph with proper line breaks
+      ctx.font = '18px Arial';
+      ctx.textAlign = 'left';
+      const guideText = [
+        'Scan this QR via your phone camera or visit printeasyqr.com',
+        'and scan it there. Enter your name and number, upload your',
+        'files or create a walk-in order for tracking purposes.',
+        '',
+        'Voilà! Explore the dashboard, chat with shop owner and',
+        'don\'t worry - uploaded files are auto-deleted on completion.',
+        'Trust PrintEasy for secure, hassle-free printing!'
       ];
 
-      let yPos = 580;
-      steps.forEach((step, index) => {
-        // Step number circle
-        ctx.fillStyle = '#FFBF00';
-        ctx.beginPath();
-        ctx.arc(120, yPos, 12, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Step number
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 14px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(step.num, 120, yPos + 4);
-        
-        // Step title
-        ctx.font = 'bold 15px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(step.title, 145, yPos - 5);
-        
-        // Step description
-        ctx.font = '13px Arial';
-        ctx.fillStyle = '#666666';
-        ctx.fillText(step.desc, 145, yPos + 12);
-        
-        yPos += 40;
+      let textY = 760;
+      guideText.forEach((line, index) => {
+        if (line === '') {
+          textY += 15; // Extra space for paragraph break
+        } else {
+          if (index < 3) {
+            ctx.fillStyle = '#000000';
+          } else {
+            ctx.fillStyle = '#666666';
+          }
+          ctx.fillText(line, 80, textY);
+          textY += 25;
+        }
       });
 
-      // Footer background
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+      // Trust indicators
+      ctx.fillStyle = '#FFBF00';
+      ctx.font = 'bold 20px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('✓ Secure File Handling  ✓ Auto-Delete  ✓ Real-time Chat', 400, 950);
 
-      // PrintEasy footer logo
+      // Footer with generous spacing
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, canvas.height - 160, canvas.width, 160);
+
+      // PrintEasy footer logo (larger for A4)
       ctx.fillStyle = '#FFBF00';
       ctx.beginPath();
-      ctx.arc(190, canvas.height - 80, 16, 0, 2 * Math.PI);
+      ctx.arc(300, canvas.height - 110, 20, 0, 2 * Math.PI);
       ctx.fill();
 
-      // Mini printer icon
+      // Mini printer icon (larger)
       ctx.fillStyle = '#000000';
-      ctx.fillRect(182, canvas.height - 88, 16, 12);
-      ctx.fillRect(184, canvas.height - 84, 12, 8);
+      ctx.fillRect(290, canvas.height - 120, 20, 16);
+      ctx.fillRect(293, canvas.height - 115, 14, 10);
       ctx.fillStyle = '#FFBF00';
-      ctx.fillRect(185, canvas.height - 82, 10, 4);
+      ctx.fillRect(295, canvas.height - 112, 10, 4);
 
       // PrintEasy text
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 20px Arial';
+      ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'left';
-      ctx.fillText('PrintEasy', 220, canvas.height - 72);
+      ctx.fillText('PrintEasy', 330, canvas.height - 100);
 
-      // Website URL
-      ctx.font = '16px Arial';
+      // Website URL (prominent)
+      ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('www.printeasyqr.com', 300, canvas.height - 50);
+      ctx.fillText('https://printeasyqr.com', 400, canvas.height - 70);
 
-      // Shop URL
-      ctx.font = '14px Arial';
+      // Platform USP
       ctx.fillStyle = '#FFBF00';
-      ctx.fillText(`Visit: ${shopUrl}`, 300, canvas.height - 30);
+      ctx.font = '16px Arial';
+      ctx.fillText('Connecting You to Local Print Shops', 400, canvas.height - 45);
 
-      // USP
+      // Final tagline
       ctx.fillStyle = '#CCCCCC';
-      ctx.font = '12px Arial';
-      ctx.fillText('Fast • Secure • Professional Printing Services', 300, canvas.height - 10);
+      ctx.font = '14px Arial';
+      ctx.fillText('Fast • Secure • Reliable • Professional', 400, canvas.height - 20);
 
       // Set final preview
       setPreviewDataUrl(canvas.toDataURL());
