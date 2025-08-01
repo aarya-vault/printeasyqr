@@ -51,7 +51,6 @@ export default function SvgQrModal({ isOpen, onClose, shop }: SvgQrModalProps) {
       // Replace placeholders with actual data
       svgTemplate = svgTemplate.replace('{{shop_name}}', shop.name);
       svgTemplate = svgTemplate.replace('{{phone_number}}', shop.phone);
-      svgTemplate = svgTemplate.replace('{{shop_url}}', shopUrl);
       svgTemplate = svgTemplate.replace('{{qr_code_data}}', qrCodeDataUrl);
 
       // Convert SVG to data URL for preview
@@ -92,13 +91,12 @@ export default function SvgQrModal({ isOpen, onClose, shop }: SvgQrModalProps) {
       // Replace placeholders
       svgTemplate = svgTemplate.replace('{{shop_name}}', shop.name);
       svgTemplate = svgTemplate.replace('{{phone_number}}', shop.phone);
-      svgTemplate = svgTemplate.replace('{{shop_url}}', shopUrl);
       svgTemplate = svgTemplate.replace('{{qr_code_data}}', qrCodeDataUrl);
 
       // Create canvas for high-quality PNG export
       const canvas = document.createElement('canvas');
       canvas.width = 800;
-      canvas.height = 1130;
+      canvas.height = 1200;
       const ctx = canvas.getContext('2d');
 
       if (!ctx) {
