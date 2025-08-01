@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, Copy, Share2, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import QRCode from 'qrcode';
 
 interface SvgQrModalProps {
@@ -50,6 +51,7 @@ export default function SvgQrModal({ isOpen, onClose, shop }: SvgQrModalProps) {
       // Replace placeholders with actual data
       svgTemplate = svgTemplate.replace('{{shop_name}}', shop.name);
       svgTemplate = svgTemplate.replace('{{phone_number}}', shop.phone);
+      svgTemplate = svgTemplate.replace('{{shop_url}}', shopUrl);
       svgTemplate = svgTemplate.replace('{{qr_code_data}}', qrCodeDataUrl);
 
       // Convert SVG to data URL for preview
@@ -90,6 +92,7 @@ export default function SvgQrModal({ isOpen, onClose, shop }: SvgQrModalProps) {
       // Replace placeholders
       svgTemplate = svgTemplate.replace('{{shop_name}}', shop.name);
       svgTemplate = svgTemplate.replace('{{phone_number}}', shop.phone);
+      svgTemplate = svgTemplate.replace('{{shop_url}}', shopUrl);
       svgTemplate = svgTemplate.replace('{{qr_code_data}}', qrCodeDataUrl);
 
       // Create canvas for high-quality PNG export
@@ -184,35 +187,41 @@ export default function SvgQrModal({ isOpen, onClose, shop }: SvgQrModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[500px] p-0">
+        <VisuallyHidden>
+          <DialogTitle>QR Code for {shop.name}</DialogTitle>
+          <DialogDescription>
+            Download and share the QR code for {shop.name} to allow customers to easily place orders
+          </DialogDescription>
+        </VisuallyHidden>
         <div className="relative">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-semibold">QR Code</h2>
+          {/* Header with close button */}
+          <div className="absolute top-4 right-4 z-10">
             <button
               onClick={onClose}
-              className="rounded-full p-1 hover:bg-gray-100 transition-colors"
+              className="bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-colors"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 text-black" />
             </button>
           </div>
 
           {/* Preview */}
-          <div className="p-4 bg-gray-50">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-gray-100 p-4">
+            <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-md mx-auto">
               {isGenerating ? (
-                <div className="flex items-center justify-center h-[400px]">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                <div className="flex flex-col items-center justify-center h-[500px] space-y-4">
+                  <Loader2 className="h-10 w-10 animate-spin text-brand-yellow" />
+                  <p className="text-gray-600">Generating QR code...</p>
                 </div>
               ) : previewUrl ? (
                 <img 
                   src={previewUrl} 
                   alt="QR Code Preview" 
                   className="w-full h-auto"
-                  style={{ maxHeight: '500px', objectFit: 'contain' }}
+                  style={{ maxHeight: '600px', objectFit: 'contain' }}
                 />
               ) : (
-                <div className="flex items-center justify-center h-[400px] text-gray-500">
-                  Failed to load preview
+                <div className="flex items-center justify-center h-[500px] text-gray-500">
+                  <p>Failed to load preview</p>
                 </div>
               )}
             </div>

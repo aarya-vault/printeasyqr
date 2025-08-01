@@ -1,63 +1,91 @@
 <svg width="800" height="1130" viewBox="0 0 800 1130" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Yellow Header Background -->
-  <rect width="800" height="300" fill="#FFBF00"/>
+  <rect width="800" height="320" fill="#FFBF00"/>
   
   <!-- Verified Badge -->
-  <rect x="540" y="40" width="120" height="32" fill="white" stroke="black" stroke-width="1"/>
-  <text x="600" y="60" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="black">✓ VERIFIED</text>
+  <rect x="580" y="30" width="100" height="28" fill="white" stroke="black" stroke-width="1"/>
+  <text x="630" y="49" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="black">VERIFIED</text>
   
-  <!-- Black Square Logo -->
-  <rect x="360" y="40" width="80" height="80" fill="black"/>
-  <text x="400" y="95" text-anchor="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#FFBF00">P</text>
+  <!-- PrintEasy Logo Circle -->
+  <circle cx="400" cy="90" r="45" fill="#FFBF00" stroke="black" stroke-width="3"/>
   
-  <!-- Shop Name -->
-  <text x="400" y="170" text-anchor="middle" font-family="Arial" font-size="36" font-weight="bold" fill="black">{{shop_name}}</text>
-  
-  <!-- PrintEasy QR Text -->
-  <text x="400" y="210" text-anchor="middle" font-family="Arial" font-size="24" fill="black">🔲 PrintEasy QR</text>
-  
-  <!-- White Background for QR Section -->
-  <rect y="300" width="800" height="400" fill="white"/>
-  
-  <!-- QR Code Placeholder -->
-  <rect x="250" y="340" width="300" height="300" fill="#f0f0f0" stroke="black" stroke-width="3"/>
-  <image x="250" y="340" width="300" height="300" href="{{qr_code_data}}"/>
-  
-  <!-- Shop Contact -->
-  <text x="400" y="690" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="black">Shop Contact</text>
-  <text x="400" y="720" text-anchor="middle" font-family="Arial" font-size="20" fill="black">📞 {{phone_number}}</text>
-  
-  <!-- Customer Guide Section -->
-  <rect y="750" width="800" height="250" fill="white"/>
-  
-  <!-- Customer Guide Title -->
-  <text x="400" y="790" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="black">Customer Guide</text>
-  
-  <!-- Guide Text -->
-  <text x="400" y="825" text-anchor="middle" font-family="Arial" font-size="17" fill="black">Scan this QR via your phone camera or visit</text>
-  <text x="400" y="847" text-anchor="middle" font-family="Arial" font-size="17" fill="black">printeasyqr.com website and scan it.</text>
-  
-  <text x="400" y="880" text-anchor="middle" font-family="Arial" font-size="17" fill="black">Enter your name &amp; number, upload your file</text>
-  <text x="400" y="902" text-anchor="middle" font-family="Arial" font-size="17" fill="black">or create a walk-in order for tracking.</text>
-  
-  <text x="400" y="935" text-anchor="middle" font-family="Arial" font-size="17" fill="black">Voilà! Explore dashboard, chat with shop owner.</text>
-  <text x="400" y="957" text-anchor="middle" font-family="Arial" font-size="17" fill="black">Uploaded files are auto-deleted on completion.</text>
-  
-  <text x="400" y="990" text-anchor="middle" font-family="Arial" font-size="17" font-weight="bold" fill="black">Trust PrintEasy for secure printing!</text>
-  
-  <!-- Black Footer -->
-  <rect y="1000" width="800" height="130" fill="black"/>
-  
-  <!-- Footer Logo -->
-  <circle cx="350" cy="1050" r="20" fill="#FFBF00"/>
-  <text x="350" y="1058" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="black">P</text>
+  <!-- Printer Icon (Professional Design) -->
+  <rect x="380" y="72" width="40" height="28" fill="black"/>
+  <rect x="385" y="78" width="30" height="16" fill="black"/>
+  <rect x="388" y="82" width="24" height="8" fill="#FFBF00"/>
+  <!-- Printer details -->
+  <rect x="392" y="85" width="16" height="1" fill="black"/>
+  <rect x="392" y="88" width="16" height="1" fill="black"/>
   
   <!-- PrintEasy Text -->
-  <text x="380" y="1058" font-family="Arial" font-size="22" font-weight="bold" fill="white">PrintEasy</text>
+  <text x="400" y="160" text-anchor="middle" font-family="Arial" font-size="32" font-weight="bold" fill="black">PrintEasy</text>
   
-  <!-- Feature Tags -->
-  <text x="400" y="1090" text-anchor="middle" font-family="Arial" font-size="16" fill="white">⭕ Secure   ⭐ Fast   ☐ Easy</text>
+  <!-- Shop Name -->
+  <text x="400" y="200" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="black">{{shop_name}}</text>
+  
+  <!-- Contact Info -->
+  <text x="400" y="240" text-anchor="middle" font-family="Arial" font-size="18" fill="black">Contact: {{phone_number}}</text>
+  
+  <!-- QR Code Label -->
+  <text x="400" y="280" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="black">Scan QR Code to Order</text>
+  
+  <!-- White Background for QR Section -->
+  <rect y="320" width="800" height="380" fill="white"/>
+  
+  <!-- QR Code Container -->
+  <rect x="225" y="350" width="350" height="350" fill="white" stroke="black" stroke-width="2"/>
+  <image x="250" y="375" width="300" height="300" href="{{qr_code_data}}"/>
+  
+  <!-- QR Code URL -->
+  <text x="400" y="730" text-anchor="middle" font-family="Arial" font-size="16" fill="#666666">{{shop_url}}</text>
+  
+  <!-- Customer Guide Section -->
+  <rect y="730" width="800" height="270" fill="white"/>
+  
+  <!-- Customer Guide Title -->
+  <text x="400" y="770" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="black">Customer Guide</text>
+  
+  <!-- Step 1 -->
+  <circle cx="120" cy="810" r="15" fill="#FFBF00" stroke="black" stroke-width="1"/>
+  <text x="120" y="816" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="black">1</text>
+  <text x="150" y="810" font-family="Arial" font-size="18" font-weight="bold" fill="black">Scan QR Code</text>
+  <text x="150" y="830" font-family="Arial" font-size="16" fill="#666666">Use your phone camera or visit printeasyqr.com</text>
+  
+  <!-- Step 2 -->
+  <circle cx="120" cy="870" r="15" fill="#FFBF00" stroke="black" stroke-width="1"/>
+  <text x="120" y="876" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="black">2</text>
+  <text x="150" y="870" font-family="Arial" font-size="18" font-weight="bold" fill="black">Enter Details</text>
+  <text x="150" y="890" font-family="Arial" font-size="16" fill="#666666">Provide your name and phone number</text>
+  
+  <!-- Step 3 -->
+  <circle cx="120" cy="930" r="15" fill="#FFBF00" stroke="black" stroke-width="1"/>
+  <text x="120" y="936" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="black">3</text>
+  <text x="150" y="930" font-family="Arial" font-size="18" font-weight="bold" fill="black">Upload Files or Book Walk-in</text>
+  <text x="150" y="950" font-family="Arial" font-size="16" fill="#666666">Choose your documents or schedule a visit</text>
+  
+  <!-- Step 4 -->
+  <circle cx="120" cy="990" r="15" fill="#FFBF00" stroke="black" stroke-width="1"/>
+  <text x="120" y="996" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="black">4</text>
+  <text x="150" y="990" font-family="Arial" font-size="18" font-weight="bold" fill="black">Track and Collect</text>
+  <text x="150" y="1010" font-family="Arial" font-size="16" fill="#666666">Chat with shop owner, get updates, collect order</text>
+  
+  <!-- Black Footer -->
+  <rect y="1030" width="800" height="100" fill="black"/>
+  
+  <!-- Footer Logo Circle -->
+  <circle cx="320" cy="1070" r="18" fill="#FFBF00" stroke="black" stroke-width="2"/>
+  
+  <!-- Footer Printer Icon -->
+  <rect x="310" y="1060" width="20" height="14" fill="black"/>
+  <rect x="312" y="1063" width="16" height="8" fill="black"/>
+  <rect x="314" y="1065" width="12" height="4" fill="#FFBF00"/>
+  
+  <!-- PrintEasy Text -->
+  <text x="350" y="1078" font-family="Arial" font-size="20" font-weight="bold" fill="white">PrintEasy</text>
   
   <!-- Website URL -->
-  <text x="400" y="1115" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#FFBF00">https://printeasyqr.com</text>
+  <text x="400" y="1105" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#FFBF00">https://printeasyqr.com</text>
+  
+  <!-- Trust Message -->
+  <text x="400" y="1120" text-anchor="middle" font-family="Arial" font-size="14" fill="white">Files auto-deleted on completion - Trust PrintEasy</text>
 </svg>
