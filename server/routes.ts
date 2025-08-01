@@ -342,10 +342,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Could not find Chrome executable, using Puppeteer bundled Chrome');
       }
 
-      // Launch Puppeteer
+      // Launch Puppeteer with bundled Chrome
       browser = await puppeteer.launch({
-        headless: true,
-        executablePath: chromePath,
+        headless: 'new',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -361,9 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '--disable-extensions',
           '--disable-plugins',
           '--no-default-browser-check',
-          '--disable-default-apps',
-          '--disable-web-security',
-          '--allow-running-insecure-content'
+          '--disable-default-apps'
         ],
         defaultViewport: { width: 400, height: 800 },
         timeout: 60000
