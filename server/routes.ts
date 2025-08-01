@@ -552,14 +552,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Wait a bit more for fonts to load
-      await page.waitForTimeout(500);
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Take screenshot
       const screenshot = await page.screenshot({
         type: 'png',
         fullPage: true,
         omitBackground: false,
-        quality: 100,
       });
 
       await browser.close();
