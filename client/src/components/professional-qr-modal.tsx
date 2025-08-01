@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { X, Copy, Share2, Download } from 'lucide-react';
+import { X, Copy, Share2, Download, Camera, Upload, MessageCircle, Shield, FileCheck, Phone, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import QRCode from 'qrcode';
 import type { Shop } from '@shared/schema';
+import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface ProfessionalQRModalProps {
   shop: Shop;
@@ -112,75 +113,95 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md overflow-hidden relative max-h-[95vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-lg overflow-hidden relative max-h-[95vh] overflow-y-auto">
         {/* Modal Content for Preview */}
         <div ref={qrRef} className="bg-white">
           {/* Header with Golden Background */}
-          <div className="bg-[#FFBF00] px-6 py-8 relative">
+          <div className="bg-brand-yellow px-6 py-6 relative">
             {/* Verified Badge - Positioned in top right */}
-            <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full flex items-center gap-1">
-              <svg className="w-4 h-4 text-[#FFBF00]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-xs font-semibold text-gray-700">VERIFIED</span>
+            <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+              <Shield className="w-4 h-4 text-brand-yellow" />
+              <span className="text-xs font-bold text-rich-black">VERIFIED</span>
             </div>
 
             {/* Logo and Shop Name */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-[#FFBF00] font-bold text-2xl">P</span>
+              {/* Exact PrintEasy Logo from Homepage */}
+              <div className="flex justify-center mb-4">
+                <PrintEasyLogo size="xl" showText={false} />
               </div>
-              <h2 className="text-2xl font-bold text-black mb-2">{shop.name}</h2>
+              <h2 className="text-2xl font-bold text-rich-black mb-2">{shop.name}</h2>
               <div className="flex items-center justify-center gap-2">
-                <div className="w-6 h-6 bg-black rounded flex items-center justify-center">
-                  <span className="text-[#FFBF00] font-bold text-xs">QR</span>
-                </div>
-                <span className="text-black font-semibold">PrintEasy QR</span>
+                <span className="text-rich-black font-bold text-lg">PrintEasy QR</span>
               </div>
             </div>
           </div>
 
           {/* QR Code Section */}
-          <div className="p-4 sm:p-8">
-            <div className="bg-gray-50 rounded-xl p-4 sm:p-6 mb-6">
+          <div className="p-6">
+            <div className="bg-gray-50 rounded-xl p-6 mb-6 border-2 border-gray-100">
               {qrDataUrl && (
                 <img 
                   src={qrDataUrl} 
                   alt="QR Code" 
-                  className="w-48 h-48 sm:w-64 sm:h-64 mx-auto block"
+                  className="w-48 h-48 sm:w-56 sm:h-56 mx-auto block"
                   crossOrigin="anonymous"
                 />
               )}
             </div>
 
             {/* Shop Contact */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6 bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Shop Contact</h3>
-              <div className="flex items-center justify-center gap-2 text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
+              <div className="flex items-center justify-center gap-2 text-gray-700">
+                <Phone className="w-5 h-5 text-brand-yellow" />
                 <span className="font-medium">{shop.phone}</span>
               </div>
             </div>
 
-            {/* How to Use Section */}
-            <div className="space-y-4 mb-6 sm:mb-8">
-              <h3 className="text-lg font-semibold text-center text-gray-900 mb-4">How to Use This QR Code</h3>
+            {/* Customer Guide Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-bold text-center text-gray-900 mb-4 flex items-center justify-center gap-2">
+                <span className="bg-brand-yellow text-rich-black px-3 py-1 rounded-full text-sm font-bold">CUSTOMER GUIDE</span>
+              </h3>
               
               <div className="space-y-3">
                 {[
-                  { num: 1, title: "Open Camera App", desc: "Point your phone camera at this QR code" },
-                  { num: 2, title: "Tap the Link", desc: "Your phone will show a notification - tap it" },
-                  { num: 3, title: "Start Ordering", desc: "Upload files or book walk-in appointments" },
-                  { num: 4, title: "Track & Collect", desc: "Monitor progress and get notified when ready" }
-                ].map((step) => (
-                  <div key={step.num} className="flex gap-3 sm:gap-4">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#FFBF00] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-black font-bold text-xs sm:text-sm">{step.num}</span>
+                  { 
+                    icon: <Camera className="w-5 h-5" />, 
+                    title: "Scan QR Code", 
+                    desc: "Use your app scanner or visit printeasyqr.com and scan it" 
+                  },
+                  { 
+                    icon: <Phone className="w-5 h-5" />, 
+                    title: "Enter Details", 
+                    desc: "Enter your name and phone number" 
+                  },
+                  { 
+                    icon: <Upload className="w-5 h-5" />, 
+                    title: "Upload & Order", 
+                    desc: "Upload your files or create a walk-in order for tracking" 
+                  },
+                  { 
+                    icon: <MessageCircle className="w-5 h-5" />, 
+                    title: "Explore & Chat", 
+                    desc: "Use dashboard, chat with shop owner - uploaded files auto-delete when complete" 
+                  },
+                  { 
+                    icon: <Check className="w-5 h-5" />, 
+                    title: "That's It! Trust", 
+                    desc: "Voila! Monitor progress and get notified when ready" 
+                  }
+                ].map((step, index) => (
+                  <div key={index} className="flex gap-3 sm:gap-4">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-yellow rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-rich-black font-bold text-xs sm:text-sm">{index + 1}</span>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{step.title}</h4>
+                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                        <span className="text-brand-yellow">{step.icon}</span>
+                        {step.title}
+                      </h4>
                       <p className="text-xs sm:text-sm text-gray-600">{step.desc}</p>
                     </div>
                   </div>

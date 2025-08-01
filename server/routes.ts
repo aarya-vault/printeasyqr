@@ -517,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Launch Puppeteer with optimized config for Replit
       browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
         executablePath: chromePath,
         args: [
           '--no-sandbox',
@@ -551,8 +551,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timeout: 15000 
       });
 
-      // Wait a bit more for fonts to load
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for fonts to load completely - fixes icon font loading race condition
+      await page.evaluate(() => {
+        return document.fonts.ready;
+      });
+      
+      // Extra safety wait for any remaining async loading
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Take screenshot
       const screenshot = await page.screenshot({
