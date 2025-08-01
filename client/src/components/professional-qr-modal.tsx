@@ -37,21 +37,58 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
     if (!qrRef.current) return;
 
     try {
-      const canvas = await html2canvas(qrRef.current, {
+      // Create a clone of the element to ensure proper rendering
+      const element = qrRef.current.cloneNode(true) as HTMLElement;
+      
+      // Temporarily add the clone to the DOM for proper font loading
+      element.style.position = 'fixed';
+      element.style.top = '-9999px';
+      element.style.left = '-9999px';
+      element.style.width = '400px';
+      element.style.zIndex = '-1';
+      document.body.appendChild(element);
+
+      // Wait for fonts and images to load
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(element, {
         backgroundColor: '#FFFFFF',
-        scale: 3,
+        scale: 3, // High quality scaling
         useCORS: true,
+        allowTaint: false,
         logging: false,
+        width: 400,
+        height: element.scrollHeight,
+        windowWidth: 400,
+        windowHeight: element.scrollHeight,
+        removeContainer: true,
+        imageTimeout: 0,
+        onclone: (clonedDoc) => {
+          // Ensure all styles are properly cloned
+          const clonedElement = clonedDoc.querySelector('[data-html2canvas-clone]') as HTMLElement;
+          if (clonedElement) {
+            clonedElement.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+          }
+        }
       });
 
+      // Clean up the temporary element
+      document.body.removeChild(element);
+
+      // Convert to PNG and download
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
       link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
-      link.href = canvas.toDataURL('image/png', 1.0);
+      link.href = dataUrl;
+      
+      // Trigger download
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
 
       toast({
         title: "QR Code Downloaded",
-        description: "The QR code has been saved to your device",
+        description: "High-quality PNG saved to your device",
       });
     } catch (error) {
       console.error('Error downloading QR code:', error);
@@ -91,7 +128,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden relative">
         {/* Modal Content for Preview and Download */}
-        <div ref={qrRef} className="bg-white">
+        <div ref={qrRef} className="bg-white" data-html2canvas-clone="true" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
           {/* Header with Golden Background */}
           <div className="bg-[#FFBF00] px-6 py-8 relative">
             {/* Verified Badge - Positioned in top right */}
@@ -125,6 +162,8 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
                   src={qrDataUrl} 
                   alt="QR Code" 
                   className="w-64 h-64 mx-auto"
+                  crossOrigin="anonymous"
+                  style={{ maxWidth: '264px', maxHeight: '264px', width: '264px', height: '264px' }}
                 />
               )}
             </div>
