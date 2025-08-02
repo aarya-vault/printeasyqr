@@ -271,7 +271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // New Single Source of Truth image generation endpoint
+  // Hybrid image generation endpoint - microservice with local fallback
   app.post('/api/generate-image', async (req, res) => {
     const { htmlContent, filename } = req.body;
     
@@ -279,6 +279,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: 'Missing htmlContent' });
     }
 
+    // Try microservice first if configured
+    const microserviceUrl = process.env.QR_MICROSERVICE_URL;
+    
+    if (microserviceUrl) {
+      try {
+        console.log('Using QR microservice:', microserviceUrl);
+        
+        const response = await fetch(microserviceUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ htmlContent, filename }),
+          signal: AbortSignal.timeout(35000) // 35 second timeout
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success && data.image) {
+            // Convert base64 back to buffer
+            const imageBuffer = Buffer.from(data.image, 'base64');
+            
+            // Set headers for image download
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Content-Disposition', `attachment; filename="${data.filename || 'PrintEasy_QR.png'}"`);
+            res.setHeader('Content-Length', imageBuffer.length);
+            return res.send(imageBuffer);
+          }
+        }
+        
+        console.log('Microservice failed, falling back to local generation');
+      } catch (microError) {
+        console.log('Microservice error, falling back to local:', microError instanceof Error ? microError.message : 'Unknown error');
+      }
+    }
+
+    // Fallback to local Puppeteer generation
     let browser = null;
     
     try {
@@ -469,7 +507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(500).json({ 
         message: 'Failed to generate image',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Both microservice and local generation failed',
         details: 'Check server logs for detailed error information'
       });
     }
