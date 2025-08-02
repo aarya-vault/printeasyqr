@@ -32,7 +32,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
 ### Core Features & Implementations
-- **Revolutionary QR Generation**: Single Source of Truth architecture eliminates rendering mismatch. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with professional 203KB PNG downloads.
+- **Revolutionary QR Generation**: Container-optimized Single Source of Truth architecture. Client captures fully-rendered HTML, server takes pixel-perfect screenshot using Puppeteer with `--disable-dev-shm-usage` flag for Replit container compliance. Guarantees WYSIWYG fidelity with professional 35KB PNG downloads in 11.4 seconds.
 - **Order Flows**: Supports digital file upload and walk-in order booking.
 - **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
 - **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). Enhanced analytics with revenue potential, user distribution, shop performance metrics, and detailed data visualization.

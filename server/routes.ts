@@ -360,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
+          '--disable-dev-shm-usage', // CRITICAL: Prevents shared memory usage in containers
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
           '--no-zygote',
@@ -391,10 +391,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '--password-store=basic',
           '--use-mock-keychain',
           '--disable-font-subpixel-positioning',
-          '--disable-lcd-text'
+          '--disable-lcd-text',
+          '--disable-background-networking',
+          '--disable-default-apps',
+          '--disable-sync',
+          '--hide-scrollbars',
+          '--mute-audio'
         ],
         defaultViewport: { width: 400, height: 800 },
-        timeout: 120000,
+        timeout: 120000, // 2 minutes browser launch timeout
         // Use system Chromium if found, otherwise let Puppeteer handle it
         ...(chromiumPath && { executablePath: chromiumPath })
       };
@@ -410,10 +415,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const page = await browser.newPage();
       await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 3 });
       
-      // Set the full HTML content
+      // Set the full HTML content with increased timeout for robustness
       await page.setContent(createFullHtml(htmlContent), { 
         waitUntil: ['networkidle0', 'domcontentloaded'],
-        timeout: 15000 
+        timeout: 60000 // Increased to 60 seconds for cold starts
       });
 
       // Wait for fonts and external resources to load completely
