@@ -318,7 +318,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const puppeteer = await import('puppeteer');
 
-      // Robust Puppeteer configuration for Replit deployment
+      // Robust Puppeteer configuration with system Chromium detection
+      const { execSync } = await import('child_process');
+      
+      // Find system Chromium path
+      let chromiumPath = null;
+      
+      try {
+        // Method 1: which command
+        chromiumPath = execSync('which chromium', { encoding: 'utf8' }).trim();
+        console.log('Found Chromium via which:', chromiumPath);
+      } catch (e) {
+        try {
+          // Method 2: find in nix store
+          chromiumPath = execSync('find /nix/store -name chromium -type f -executable 2>/dev/null | head -1', { encoding: 'utf8' }).trim();
+          console.log('Found Chromium in nix store:', chromiumPath);
+        } catch (e2) {
+          // Method 3: common paths
+          const commonPaths = [
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/google-chrome',
+            '/opt/google/chrome/chrome'
+          ];
+          
+          for (const path of commonPaths) {
+            try {
+              execSync(`test -x ${path}`, { encoding: 'utf8' });
+              chromiumPath = path;
+              console.log('Found Chromium at common path:', chromiumPath);
+              break;
+            } catch (e3) {
+              continue;
+            }
+          }
+        }
+      }
+
       const launchOptions = {
         headless: true,
         args: [
@@ -353,17 +389,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           '--no-crash-upload',
           '--no-pings',
           '--password-store=basic',
-          '--use-mock-keychain'
+          '--use-mock-keychain',
+          '--disable-font-subpixel-positioning',
+          '--disable-lcd-text'
         ],
         defaultViewport: { width: 400, height: 800 },
         timeout: 120000,
-        // Use system Chromium if available, fallback to Puppeteer's bundled version
-        ...(process.env.PUPPETEER_EXECUTABLE_PATH && {
-          executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
-        })
+        // Use system Chromium if found, otherwise let Puppeteer handle it
+        ...(chromiumPath && { executablePath: chromiumPath })
       };
 
-      console.log('Attempting to launch Puppeteer with options:', JSON.stringify(launchOptions, null, 2));
+      console.log('Launching Puppeteer with configuration:', {
+        executablePath: launchOptions.executablePath,
+        argsCount: launchOptions.args.length,
+        nodeEnv: process.env.NODE_ENV
+      });
+      
       browser = await puppeteer.launch(launchOptions);
 
       const page = await browser.newPage();
