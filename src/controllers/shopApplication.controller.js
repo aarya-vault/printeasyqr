@@ -75,7 +75,32 @@ class ShopApplicationController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.json(applications);
+      // Transform data to match frontend expectations
+      const transformedApplications = applications.map(app => ({
+        id: app.id,
+        shopName: app.publicShopName,
+        shopSlug: app.shopSlug,
+        applicantName: app.ownerFullName,
+        email: app.email,
+        phoneNumber: app.phoneNumber,
+        city: app.city,
+        state: app.state,
+        pinCode: app.pinCode,
+        services: app.services,
+        customServices: app.customServices,
+        equipment: app.equipment,
+        customEquipment: app.customEquipment,
+        yearsOfExperience: app.yearsOfExperience,
+        workingHours: app.workingHours,
+        acceptsWalkinOrders: app.acceptsWalkinOrders,
+        status: app.status,
+        adminNotes: app.adminNotes,
+        createdAt: app.createdAt,
+        updatedAt: app.updatedAt,
+        applicant: app.applicant
+      }));
+      
+      res.json(transformedApplications);
     } catch (error) {
       console.error('Error fetching applications:', error);
       res.status(500).json({ message: 'Failed to fetch applications' });
