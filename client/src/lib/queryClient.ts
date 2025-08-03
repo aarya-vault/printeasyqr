@@ -24,7 +24,10 @@ export async function apiRequest(
   const timeoutId = setTimeout(() => controller.abort(), DEFAULTS.TIMEOUTS.API_REQUEST);
 
   try {
-    const res = await fetch(url, {
+    // 🔥 CRITICAL: Ensure proper URL for API calls
+    const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+    
+    const res = await fetch(fullUrl, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
@@ -52,7 +55,11 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    // 🔥 CRITICAL: Ensure proper URL for API calls
+    const url = queryKey.join("/") as string;
+    const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 

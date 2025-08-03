@@ -60,10 +60,12 @@ export default function ShopOrderHistory() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
 
-  // 🚨 EMERGENCY DISABLE: Session sync issue
+  // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: false, // DISABLED TO STOP 401 FLOOD
+    enabled: Boolean(user?.id && user?.role === 'shop_owner'),
+    staleTime: 300000,
+    retry: 2,
   });
 
   // Fetch completed orders

@@ -45,10 +45,12 @@ export default function RedesignedShopSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('general');
 
-  // 🚨 EMERGENCY DISABLE: Session sync issue
+  // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shop, isLoading } = useQuery({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: false, // DISABLED TO STOP 401 FLOOD
+    enabled: Boolean(user?.id && user?.role === 'shop_owner'),
+    staleTime: 300000,
+    retry: 2,
   });
 
   const currentShop = shop && typeof shop === 'object' && 'shop' in shop ? (shop as any).shop : shop;

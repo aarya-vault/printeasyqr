@@ -33,7 +33,8 @@ if (!fs.existsSync(uploadDir)) {
 
 // CORS configuration
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  const allowedOrigin = req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -44,30 +45,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// Body parsing middleware
+// Body parsing middleware - MUST BE BEFORE SESSION
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Trust proxy for proper cookie handling
+app.set('trust proxy', 1);
 
 // Session configuration
 const PgSession = connectPgSimple(session);
 
-app.use(session({
+// 🔥 CRITICAL SESSION FIX - With debugging
+const sessionMiddleware = session({
   store: new PgSession({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
     tableName: 'session',
+    errorLog: console.error.bind(console)
   }),
   secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true to ensure session is created
   name: 'connect.sid',
   cookie: {
-    secure: false,
+    secure: true, // MUST be true for HTTPS in Replit
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax'
-  }
-}));
+    sameSite: 'lax', // 'lax' works for same-origin requests
+    path: '/', // Ensure cookie is available on all paths
+  },
+  rolling: true, // Reset expiry on activity
+  proxy: true // Changed to true for Replit environment
+});
+
+app.use(sessionMiddleware);
+
+// Session debugging removed - issue was fixed
 
 // Request logging middleware
 app.use((req, res, next) => {

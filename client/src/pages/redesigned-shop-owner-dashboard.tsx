@@ -84,28 +84,25 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // 🔄 TESTING: Re-enabled with session sync fix
+  // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading && user?.email && user?.name && user?.name.trim() && user?.name !== 'Shop Owner'),
-    refetchInterval: false, // No auto-refresh to prevent issues
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading),
+    refetchInterval: 60000, // 1 minute refresh
     refetchIntervalInBackground: false,
-    staleTime: 600000, // 10 minutes
-    gcTime: 900000, // 15 minutes
-    retry: (failureCount, error: any) => {
-      // Absolutely no retries on 401 to prevent flooding
-      if (error?.status === 401) {
-        console.log('🔒 401 detected - stopping retries');
-        return false;
-      }
-      return failureCount < 1;
-    },
-    retryDelay: 60000, // 1 minute between retries if any
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
+    retry: 2,
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-    enabled: false, // DISABLED TO STOP 401 FLOOD
+    enabled: Boolean(shopData?.shop?.id && user?.id && user?.role === 'shop_owner' && !authLoading),
+    refetchInterval: 30000, // 30 seconds
+    refetchIntervalInBackground: false,
+    staleTime: 15000, // 15 seconds
+    gcTime: 60000, // 1 minute
+    retry: 2,
   });
 
   // Calculate order statistics efficiently with real insights

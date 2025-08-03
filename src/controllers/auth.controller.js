@@ -43,6 +43,7 @@ class AuthController {
         name: user.name || 'Customer',
         role: user.role
       };
+      
       await req.session.save();
 
       // Add needsNameUpdate flag for customers without names
@@ -89,6 +90,7 @@ class AuthController {
           name: adminUser.name || 'Admin',
           role: adminUser.role
         };
+        
         await req.session.save();
         return res.json(adminUser);
       }
@@ -112,6 +114,11 @@ class AuthController {
             role: user.role,
             phone: user.phone || undefined
           };
+          
+          console.log('🔐 Shop Owner Login - Setting session user:', req.session.user);
+          console.log('🔐 Shop Owner Login - Session ID:', req.sessionID);
+          
+          
           await req.session.save();
           return res.json(user);
         }
@@ -148,6 +155,7 @@ class AuthController {
           name: currentUser.name || (currentUser.role === 'customer' ? 'Customer' : 'Shop Owner'),
           role: currentUser.role
         };
+        
         await req.session.save();
       }
       
