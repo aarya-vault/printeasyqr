@@ -5,6 +5,7 @@ import { registerRoutes } from "./routes";
 import seedDatabase from "./seed-data";
 import { setupVite, serveStatic, log } from "./vite";
 import { errorHandler, notFoundHandler } from "./error-handler";
+import { createRequire } from "module";
 
 // Extend session interface
 declare module 'express-session' {
@@ -91,31 +92,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Use dynamic import for Sequelize server
-  const { startSequelizeServer, app: sequelizeApp } = await import("../src/server.js");
+  // Use createRequire for Sequelize server to avoid TypeScript module resolution issues
+  const require = createRequire(import.meta.url);
+  const serverModule = require("../src/server.js");
+  const { startSequelizeServer, app: sequelizeApp } = serverModule;
   
   // Start with new Sequelize server
   await startSequelizeServer(app);
   
-  // Create server after Sequelize setup
-  const { createServer } = await import('http');
-  const server = createServer(app);
+  // Setup routes with WebSocket integration
+  const server = await registerRoutes(app);
   
-  // Setup WebSocket on the server
-  sequelizeApp.setupWebSocket(server);
+  // Disable the old Sequelize WebSocket setup to avoid conflicts
+  // sequelizeApp.setupWebSocket(server);
 
   // Old seed database is handled by Sequelize now
   // await seedDatabase();
-
-  // CRITICAL: Handle unmatched API routes BEFORE Vite setup
-  // This ensures API routes always return JSON, not HTML
-  app.use('/api/*', (req, res) => {
-    // If we reach here, the API route doesn't exist
-    res.status(404).json({ 
-      message: `API endpoint ${req.originalUrl} not found`,
-      error: 'Route not found' 
-    });
-  });
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

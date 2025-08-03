@@ -668,7 +668,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: application.internalShopName,
           slug: application.shopSlug,
           ownerId: ownerUser.id,
-          ownerName: application.ownerFullName,
           ownerFullName: application.ownerFullName,
           publicOwnerName: application.publicOwnerName,
           email: application.email,
@@ -678,8 +677,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           state: application.state,
           pinCode: application.pinCode,
           workingHours: application.workingHours as any,
-          printingServices: application.services,
-          servicesOffered: application.customServices,
+          services: application.services as any,
+          // servicesOffered: application.customServices, // Property not in schema
           description: '',
           isOnline: true,
           isApproved: true,
