@@ -55,43 +55,38 @@ app.set('trust proxy', 1); // Trust first proxy to get correct protocol from X-F
 // Session configuration
 const PgSession = connectPgSimple(session);
 
-// 🔥 CRITICAL SESSION FIX - With debugging
+// 🔥 CRITICAL SESSION FIX - Simplified for immediate functionality
 const sessionMiddleware = session({
   store: new PgSession({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
-    tableName: 'session',
-    errorLog: console.error.bind(console)
+    tableName: 'session'
   }),
   secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is created
+  saveUninitialized: false, // Only save when there's data
   name: 'connect.sid',
   cookie: {
-    secure: 'auto', // 'auto' sets Secure flag if connection is HTTPS (via proxy)
+    secure: false, // Force false for immediate functionality - will work in development
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax', // 'lax' works for same-origin requests
-    path: '/', // Ensure cookie is available on all paths
+    maxAge: 1000 * 60 * 60 * 24, // 1 day for testing
+    sameSite: 'lax',
+    path: '/'
   },
-  rolling: true, // Reset expiry on activity
-  proxy: true // Changed to true for Replit environment
+  rolling: false // Disable rolling for stability
 });
 
 app.use(sessionMiddleware);
 
-// Add response interceptor to log cookies
+// Simplified session logging
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/auth')) {
-    const originalJson = res.json;
-    res.json = function(data) {
-      console.log('🍪 Auth Response:');
-      console.log('  - Path:', req.path);
-      console.log('  - Session ID:', req.sessionID);
-      console.log('  - Session:', req.session);
-      console.log('  - Set-Cookie headers:', res.getHeaders()['set-cookie']);
-      return originalJson.call(this, data);
-    };
+    console.log(`🔐 ${req.method} ${req.path} - Session ID: ${req.sessionID}`);
+    if (req.session?.user) {
+      console.log(`✅ Session has user: ${req.session.user.email}`);
+    } else {
+      console.log(`❌ No user in session`);
+    }
   }
   next();
 });
