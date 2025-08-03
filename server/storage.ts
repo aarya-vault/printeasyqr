@@ -95,17 +95,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    try {
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-      return user || undefined;
-    } catch (error) {
-      console.error('Error fetching user by email:', error);
-      return undefined;
-    }
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
@@ -132,17 +123,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getShopByOwnerId(ownerId: number): Promise<Shop | undefined> {
-    try {
-      const [shop] = await db
-        .select()
-        .from(shops)
-        .where(eq(shops.ownerId, ownerId))
-        .limit(1);
-      return shop || undefined;
-    } catch (error) {
-      console.error('Error fetching shop by owner ID:', error);
-      return undefined;
-    }
+    const [shop] = await db.select().from(shops).where(eq(shops.ownerId, ownerId));
+    return shop || undefined;
   }
 
   async getShopByEmail(email: string): Promise<any> {
@@ -251,71 +233,59 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByCustomer(customerId: number): Promise<Order[]> {
-    try {
-      const orderList = await db
-        .select({
-          order: orders,
-          shop: {
-            id: shops.id,
-            name: shops.name,
-            phone: shops.phone,
-            publicContactNumber: shops.phone, // Using phone for now
-            publicAddress: shops.address,
-            city: shops.city,
-          }
-        })
-        .from(orders)
-        .leftJoin(shops, eq(orders.shopId, shops.id))
-        .where(
-          and(
-            eq(orders.customerId, customerId),
-            isNull(orders.deletedAt) // Exclude soft deleted orders
-          )
+    const orderList = await db
+      .select({
+        order: orders,
+        shop: {
+          id: shops.id,
+          name: shops.name,
+          phone: shops.phone,
+          publicContactNumber: shops.phone, // Using phone for now
+          publicAddress: shops.address,
+          city: shops.city,
+        }
+      })
+      .from(orders)
+      .leftJoin(shops, eq(orders.shopId, shops.id))
+      .where(
+        and(
+          eq(orders.customerId, customerId),
+          isNull(orders.deletedAt) // Exclude soft deleted orders
         )
-        .orderBy(desc(orders.createdAt))
-        .limit(50); // Limit for performance
+      )
+      .orderBy(desc(orders.createdAt));
 
-      return orderList.map(row => ({
-        ...row.order,
-        shop: row.shop
-      })) as Order[];
-    } catch (error) {
-      console.error('Error fetching orders by customer:', error);
-      return [];
-    }
+    return orderList.map(row => ({
+      ...row.order,
+      shop: row.shop
+    })) as Order[];
   }
 
   async getOrdersByShop(shopId: number): Promise<Order[]> {
-    try {
-      const orderList = await db
-        .select({
-          order: orders,
-          customer: {
-            id: users.id,
-            name: users.name,
-            phone: users.phone,
-          }
-        })
-        .from(orders)
-        .leftJoin(users, eq(orders.customerId, users.id))
-        .where(
-          and(
-            eq(orders.shopId, shopId),
-            isNull(orders.deletedAt) // Exclude soft deleted orders
-          )
+    const orderList = await db
+      .select({
+        order: orders,
+        customer: {
+          id: users.id,
+          name: users.name,
+          phone: users.phone,
+        }
+      })
+      .from(orders)
+      .leftJoin(users, eq(orders.customerId, users.id))
+      .where(
+        and(
+          eq(orders.shopId, shopId),
+          isNull(orders.deletedAt) // Exclude soft deleted orders
         )
-        .orderBy(desc(orders.createdAt))
-        .limit(50); // Limit for performance
+      )
+      .orderBy(desc(orders.createdAt));
 
-      return orderList.map(row => ({
-        ...row.order,
-        customerName: row.customer?.name || '',
-        customerPhone: row.customer?.phone || '',
-      })) as Order[];
-    } catch (error) {
-      console.error('Error fetching orders by shop:', error);
-      return [];
-    }
+    return orderList.map(row => ({
+      ...row.order,
+      customerName: row.customer?.name || '',
+      customerPhone: row.customer?.phone || '',
+    })) as Order[];
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
@@ -637,7 +607,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVisitedShopsByCustomer(customerId: number): Promise<any[]> {
-    // Get shops from both orders and unlocked shops for comprehensive view
     const result = await db
       .select({
         id: shops.id,
@@ -646,19 +615,11 @@ export class DatabaseStorage implements IStorage {
         city: shops.city,
         isOnline: shops.isOnline,
         phone: shops.phone,
-        address: shops.address,
-        rating: shops.rating,
-        status: shops.status,
-        isApproved: shops.isApproved
       })
-      .from(customerShopUnlocks)
-      .innerJoin(shops, eq(customerShopUnlocks.shopId, shops.id))
-      .where(and(
-        eq(customerShopUnlocks.customerId, customerId),
-        eq(shops.status, 'active'),
-        eq(shops.isApproved, true)
-      ))
-      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone, shops.address, shops.rating, shops.status, shops.isApproved);
+      .from(orders)
+      .innerJoin(shops, eq(orders.shopId, shops.id))
+      .where(eq(orders.customerId, customerId))
+      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone);
     
     return result;
   }

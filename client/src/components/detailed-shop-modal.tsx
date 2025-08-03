@@ -252,7 +252,14 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          {/* Place Order button removed as requested */}
+          {isShopOpen() && (
+            <Button 
+              onClick={handleOrderNow}
+              className="bg-brand-yellow hover:bg-brand-yellow/90 text-rich-black"
+            >
+              Place Order
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, X } from 'lucide-react';
+import { User } from 'lucide-react';
 
 interface NameCollectionModalProps {
   isOpen: boolean;
   onComplete: (name: string) => void;
-  onClose?: () => void;
 }
 
 export function NameCollectionModal({ isOpen, onComplete }: NameCollectionModalProps) {
@@ -24,8 +23,7 @@ export function NameCollectionModal({ isOpen, onComplete }: NameCollectionModalP
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-0 shadow-lg relative">
-        {/* Removed close button - name collection is mandatory */}
+      <Card className="w-full max-w-md border-0 shadow-lg">
         <CardHeader className="text-center space-y-2">
           <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto">
             <User className="w-8 h-8 text-rich-black" />
