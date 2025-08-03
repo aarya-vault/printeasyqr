@@ -39,6 +39,11 @@ export async function apiRequest(
     perf.mark(`${requestId}-end`);
     perf.measure(`API Request: ${method} ${url}`, `${requestId}-start`, `${requestId}-end`);
 
+    // Handle 401 errors globally
+    if (res.status === 401) {
+      handle401Error();
+    }
+
     await throwIfResNotOk(res);
     debug.log(`API Success: ${method} ${url}`, { status: res.status });
     return res;
@@ -63,13 +68,41 @@ export const getQueryFn: <T>(options: {
       credentials: "include",
     });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+    if (res.status === 401) {
+      if (unauthorizedBehavior === "returnNull") {
+        return null;
+      }
+      // Global 401 handler will be triggered by throwIfResNotOk
+      handle401Error();
     }
 
     await throwIfResNotOk(res);
     return await res.json();
   };
+
+// Global 401 handler for automatic logout and redirect
+let authLogoutHandler: (() => void) | null = null;
+
+export const setAuthLogoutHandler = (handler: () => void) => {
+  authLogoutHandler = handler;
+};
+
+const handle401Error = () => {
+  console.log('🚨 Global 401 Handler: Session expired, clearing auth state');
+  // Clear local storage
+  localStorage.removeItem('user');
+  localStorage.removeItem('persistentUserData');
+  
+  // Call auth logout handler if available
+  if (authLogoutHandler) {
+    authLogoutHandler();
+  }
+  
+  // Redirect to login page
+  if (window.location.pathname !== '/' && !window.location.pathname.includes('login')) {
+    window.location.href = '/';
+  }
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,8 +114,15 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 10, // 10 minutes garbage collection
       retry: (failureCount, error) => {
         debug.warn(`Query retry attempt ${failureCount}`, error);
-        // Don't retry on 4xx errors
-        if (error.message.includes('401') || error.message.includes('404') || error.message.includes('403')) {
+        
+        // Global 401 handler
+        if (error.message.includes('401')) {
+          handle401Error();
+          return false;
+        }
+        
+        // Don't retry on other 4xx errors
+        if (error.message.includes('404') || error.message.includes('403')) {
           return false;
         }
         return failureCount < 2;
@@ -92,8 +132,15 @@ export const queryClient = new QueryClient({
     mutations: {
       retry: (failureCount, error) => {
         debug.warn(`Mutation retry attempt ${failureCount}`, error);
-        // Don't retry on 4xx errors
-        if (error.message.includes('401') || error.message.includes('404') || error.message.includes('403')) {
+        
+        // Global 401 handler
+        if (error.message.includes('401')) {
+          handle401Error();
+          return false;
+        }
+        
+        // Don't retry on other 4xx errors
+        if (error.message.includes('404') || error.message.includes('403')) {
           return false;
         }
         return failureCount < 1;

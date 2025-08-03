@@ -37,7 +37,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
     }
   });
 
-  // 🔥 EMERGENCY DISABLE
+  // 🔥 FIXED: Admin-specific query with proper conditions
   const { data: shopData } = useQuery({
     queryKey: ['/api/shops/owner', application?.applicantId],
     queryFn: async () => {
@@ -48,7 +48,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
       if (!response.ok) return null;
       return response.json();
     },
-    enabled: Boolean(user?.id && user?.role === 'shop_owner')
+    enabled: Boolean(application?.applicantId && isAdminView)
   });
 
   // Update mutation with unified sync

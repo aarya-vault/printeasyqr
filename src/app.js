@@ -68,7 +68,7 @@ const sessionMiddleware = session({
   saveUninitialized: true, // Changed to true to ensure session is created
   name: 'connect.sid',
   cookie: {
-    secure: true, // MUST be true for HTTPS in Replit
+    secure: false, // Disable secure for development to fix browser cookie issues
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax', // 'lax' works for same-origin requests

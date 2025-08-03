@@ -75,7 +75,7 @@ interface Shop {
 }
 
 export default function ShopSettings() {
-  const { user } = useAuth();
+  const { user, isSessionVerified } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -83,7 +83,7 @@ export default function ShopSettings() {
   // 🔥 FIXED: Proper authentication guard
   const { data: shopResponse, isLoading } = useQuery({
     queryKey: ['/api/shops/owner', user?.id],
-    enabled: Boolean(user?.id && user?.role === 'shop_owner'),
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && isSessionVerified),
   });
 
   const shop = (shopResponse as any)?.shop; // Extract shop from response

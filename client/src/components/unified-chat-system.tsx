@@ -31,7 +31,7 @@ export default function UnifiedChatSystem({
   initialOrderId, 
   userRole 
 }: UnifiedChatSystemProps) {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isSessionVerified } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -75,7 +75,7 @@ export default function UnifiedChatSystem({
   // 🔥 FIXED: Proper authentication guard
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading),
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && isSessionVerified),
   });
 
   // Fetch orders based on user role
@@ -85,7 +85,7 @@ export default function UnifiedChatSystem({
       : [`/api/orders/customer/${user?.id}`],
     enabled: Boolean(
       user?.id && 
-      !authLoading && 
+      isSessionVerified && 
       (effectiveUserRole === 'customer' || 
        (effectiveUserRole === 'shop_owner' && shopData?.shop?.id))
     ),

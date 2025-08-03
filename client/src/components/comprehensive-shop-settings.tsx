@@ -88,12 +88,12 @@ export default function ComprehensiveShopSettings() {
   const [currentAvailability, setCurrentAvailability] = useState<string>('Checking...');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, isSessionVerified } = useAuth();
 
   // 🔥 FIXED: Proper authentication guard
   const { data: shopData, isLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: Boolean(user?.id && user?.role === 'shop_owner'),
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && isSessionVerified),
   });
 
   const shop = shopData?.shop;

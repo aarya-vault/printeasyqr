@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@shared/types';
+import { setAuthLogoutHandler } from '@/lib/queryClient';
 
 // Persistent user data interface for auto-fill
 interface PersistentUserData {
@@ -16,6 +17,7 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
   isLoading: boolean;
+  isSessionVerified: boolean;
   // New persistent data methods
   getPersistentUserData: () => PersistentUserData | null;
   savePersistentUserData: (data: Partial<PersistentUserData>) => void;
@@ -31,49 +33,57 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSessionVerified, setIsSessionVerified] = useState(false);
+
+  // Global logout handler for 401 interceptor
+  const handleGlobalLogout = () => {
+    setUser(null);
+    setIsSessionVerified(false);
+    localStorage.removeItem('user');
+    localStorage.removeItem('persistentUserData');
+    console.log('🚨 Global logout triggered by 401 error');
+  };
 
   useEffect(() => {
-    // 🔥 CRITICAL FIX: Proper auth synchronization with server
-    const checkSession = async () => {
+    // Set up global 401 handler
+    setAuthLogoutHandler(handleGlobalLogout);
+
+    // 🔥 CRITICAL FIX: Single lightweight session verification
+    const verifySession = async () => {
       try {
-        // Always verify with server first for accurate auth state
+        console.log('🔍 Auth Context: Verifying session with server...');
+        
         const response = await fetch('/api/auth/me', {
-          credentials: 'include'
+          credentials: 'include',
+          signal: AbortSignal.timeout(10000) // 10 second timeout
         });
         
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          console.log('✅ Auth Context: User authenticated', userData.role, userData.id);
+          setIsSessionVerified(true);
+          console.log('✅ Auth Context: Session verified, user authenticated:', userData.role, userData.id);
         } else {
           // Server says not authenticated - clear everything
           setUser(null);
           localStorage.removeItem('user');
-          console.log('❌ Auth Context: User not authenticated, cleared state');
+          localStorage.removeItem('persistentUserData');
+          setIsSessionVerified(true); // Mark as verified even if not authenticated
+          console.log('❌ Auth Context: Session invalid, cleared state');
         }
       } catch (error) {
-        console.error('❌ Auth Context: Session check failed:', error);
-        // On network error, fall back to localStorage if available
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          try {
-            const userData = JSON.parse(savedUser);
-            setUser(userData);
-            console.log('⚠️ Auth Context: Using cached user data due to network error');
-          } catch (e) {
-            setUser(null);
-            localStorage.removeItem('user');
-          }
-        } else {
-          setUser(null);
-        }
+        console.error('❌ Auth Context: Session verification failed:', error);
+        // On network error, don't use localStorage - server is source of truth
+        setUser(null);
+        localStorage.removeItem('user');
+        setIsSessionVerified(true); // Mark as verified even on error
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkSession();
+    verifySession();
   }, []);
 
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
@@ -114,6 +124,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      setIsSessionVerified(true);
       console.log('✅ Auth Login: User authenticated', userData.role, userData.id);
       
       // Force a small delay to ensure auth state is synchronized before any API calls
@@ -145,7 +156,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      setIsSessionVerified(false);
       localStorage.removeItem('user');
+      localStorage.removeItem('persistentUserData');
+      console.log('✅ Auth Context: User logged out');
     }
   };
 
@@ -195,6 +209,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization  
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      setIsSessionVerified(true);
       console.log('✅ Auth Admin Login: User authenticated', userData.role, userData.id);
       
       // Force a small delay to ensure auth state is synchronized before any API calls
@@ -250,6 +265,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout, 
       updateUser, 
       isLoading,
+      isSessionVerified,
       getPersistentUserData,
       savePersistentUserData,
       clearPersistentUserData
