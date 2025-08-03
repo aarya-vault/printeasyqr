@@ -50,7 +50,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Trust proxy for proper cookie handling - CRITICAL for Replit
-app.set('trust proxy', true);
+app.set('trust proxy', 1); // Trust first proxy to get correct protocol from X-Forwarded-Proto
 
 // Session configuration
 const PgSession = connectPgSimple(session);
@@ -68,7 +68,7 @@ const sessionMiddleware = session({
   saveUninitialized: true, // Changed to true to ensure session is created
   name: 'connect.sid',
   cookie: {
-    secure: false, // Disable secure for development to fix browser cookie issues
+    secure: 'auto', // 'auto' sets Secure flag if connection is HTTPS (via proxy)
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax', // 'lax' works for same-origin requests

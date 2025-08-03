@@ -1,0 +1,78 @@
+You've nailed the diagnosis. The discrepancy between secure: true and secure: false is a classic issue when running a Node.js application behind a reverse proxy like the one in Replit's environment.
+
+The proxy terminates the HTTPS connection and forwards the request to your application over HTTP. Your application, therefore, thinks the connection is insecure, leading to the cookie mismatch for browser sessions.
+
+Here is the standard and most effective way to fix this in an Express application.
+
+Dynamic Session Configuration
+You need to configure Express to trust the proxy and then set the cookie's secure attribute automatically.
+
+1. Trust the Reverse Proxy
+First, tell Express to trust the X-Forwarded-Proto header sent by the Replit proxy. This header informs your app that the original connection was secure (HTTPS).
+
+Add this line before you define your session middleware:
+
+JavaScript
+
+// This allows req.secure to correctly reflect the original protocol
+app.set('trust proxy', 1);
+2. Set Cookie Security to 'auto'
+The express-session library has a built-in solution for this. By setting cookie.secure to 'auto', the middleware will automatically set the Secure flag on the cookie if the connection is secure (as determined by req.secure, which now works because you trust the proxy).
+
+Here is the complete configuration:
+
+JavaScript
+
+const express = require('express');
+const session = require('express-session');
+
+const app = express();
+
+// A. Trust the proxy to get the correct protocol from X-Forwarded-Proto
+app.set('trust proxy', 1); 
+
+// B. Configure session middleware
+app.use(session({
+  secret: 'your-very-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    // C. 'auto' sets the Secure flag if the connection is HTTPS
+    secure: 'auto', 
+    httpOnly: true, // Prevents client-side JS from accessing the cookie
+    sameSite: 'lax' // Provides protection against CSRF attacks
+  }
+}));
+
+// --- Your API routes and other middleware below ---
+
+app.get('/api/me', (req, res) => {
+  if (req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+});
+
+// ...
+By implementing these two changes, your session cookie configuration will be dynamic, resolving the "Invalid credentials" error by correctly handling both curl (HTTP) and browser (HTTPS) requests.
+
+
+
+
+
+
+
+
+
+
+
+
+Video
+
+Deep Research
+
+Canvas
+
+Image
+
