@@ -637,6 +637,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVisitedShopsByCustomer(customerId: number): Promise<any[]> {
+    // Get shops from both orders and unlocked shops for comprehensive view
     const result = await db
       .select({
         id: shops.id,
@@ -645,11 +646,19 @@ export class DatabaseStorage implements IStorage {
         city: shops.city,
         isOnline: shops.isOnline,
         phone: shops.phone,
+        address: shops.address,
+        rating: shops.rating,
+        status: shops.status,
+        isApproved: shops.isApproved
       })
-      .from(orders)
-      .innerJoin(shops, eq(orders.shopId, shops.id))
-      .where(eq(orders.customerId, customerId))
-      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone);
+      .from(customerShopUnlocks)
+      .innerJoin(shops, eq(customerShopUnlocks.shopId, shops.id))
+      .where(and(
+        eq(customerShopUnlocks.customerId, customerId),
+        eq(shops.status, 'active'),
+        eq(shops.isApproved, true)
+      ))
+      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone, shops.address, shops.rating, shops.status, shops.isApproved);
     
     return result;
   }

@@ -6,6 +6,8 @@ PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting
 
 **Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
 
+**Recent Fixes (August 2025)**: Fixed critical structural issues with API routing being intercepted by Vite middleware. Resolved customer name collection modal (removed close button as mandatory), fixed QR scanner API endpoint mismatch, added proper needsNameUpdate server logic, and ensured all APIs return correct JSON responses. Customer workflow, shop browsing, and QR scanning now fully functional.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

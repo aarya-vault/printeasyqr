@@ -63,21 +63,21 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       toast({
         title: 'Shop Unlocked! 🎉',
         description: autoRedirect 
-          ? `Redirecting to ${data.shopName} order page...`
-          : `You can now place orders at ${data.shopName}`
+          ? `Redirecting to ${data.shop?.name || 'shop'} order page...`
+          : `You can now place orders at ${data.shop?.name || 'this shop'}`
       });
       
       // Invalidate queries to refresh unlocked shops
       queryClient.invalidateQueries({ queryKey: ['/api/customer/unlocked-shops'] });
       queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       
-      onShopUnlocked?.(data.shopId, data.shopName);
+      onShopUnlocked?.(data.shop?.id, data.shop?.name);
       onClose();
       
       // Enhanced QR Scan Workflow: Auto-redirect to order page with prefilled data
-      if (autoRedirect && data.shopSlug) {
+      if (autoRedirect && data.shop?.slug) {
         setTimeout(() => {
-          navigate(`/shop/${data.shopSlug}?source=qr&prefill=true`);
+          navigate(`/shop/${data.shop.slug}?source=qr&prefill=true`);
         }, 1000); // Brief delay to show success message
       }
     },

@@ -194,7 +194,6 @@ export default function NewHomepage() {
             handleNameUpdate(name);
             setShowNameModal(false);
           }}
-          onClose={() => setShowNameModal(false)}
         />
       )}
       {/* Mobile-First Hero Section - QR & Login Priority */}

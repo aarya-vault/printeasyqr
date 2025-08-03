@@ -234,6 +234,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all active shops for customers
+  app.get('/api/shops', async (req, res) => {
+    try {
+      const shops = await storage.getActiveShops();
+      res.json(shops || []);
+    } catch (error) {
+      console.error('Get all shops error:', error);
+      res.status(500).json({ message: 'Failed to get shops' });
+    }
+  });
+
+  // Customer unlocked shops route
+  app.get('/api/customer/:customerId/unlocked-shops', async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      const shops = await storage.getVisitedShopsByCustomer(customerId);
+      res.json(shops || []);
+    } catch (error) {
+      console.error('Get unlocked shops error:', error);
+      res.status(500).json({ message: 'Failed to get unlocked shops' });
+    }
+  });
+
   // Order routes
   app.get('/api/orders/shop/:shopId', async (req, res) => {
     try {
