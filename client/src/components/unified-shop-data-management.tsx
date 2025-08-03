@@ -48,7 +48,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
       if (!response.ok) return null;
       return response.json();
     },
-    enabled: false
+    enabled: Boolean(user?.id && user?.role === 'shop_owner')
   });
 
   // Update mutation with unified sync

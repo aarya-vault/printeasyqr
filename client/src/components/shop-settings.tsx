@@ -80,10 +80,10 @@ export default function ShopSettings() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  // 🔥 EMERGENCY DISABLE
+  // 🔥 FIXED: Proper authentication guard
   const { data: shopResponse, isLoading } = useQuery({
     queryKey: ['/api/shops/owner', user?.id],
-    enabled: false,
+    enabled: Boolean(user?.id && user?.role === 'shop_owner'),
   });
 
   const shop = (shopResponse as any)?.shop; // Extract shop from response

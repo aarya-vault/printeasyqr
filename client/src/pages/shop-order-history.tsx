@@ -54,7 +54,7 @@ interface Message {
 }
 
 export default function ShopOrderHistory() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -71,7 +71,7 @@ export default function ShopOrderHistory() {
   // Fetch completed orders
   const { data: completedOrders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}/history`],
-    enabled: false,
+    enabled: Boolean(shopData?.shop?.id && user?.role === 'shop_owner' && !authLoading),
     staleTime: 30000, // 30 seconds cache since completed orders don't change often
   });
 

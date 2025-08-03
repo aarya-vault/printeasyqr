@@ -33,21 +33,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 🔥 CRITICAL FIX: Check localStorage first to avoid null user state
+    // 🔥 CRITICAL FIX: Proper auth synchronization with server
     const checkSession = async () => {
       try {
-        // First check localStorage to maintain user state during session check
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          try {
-            const userData = JSON.parse(savedUser);
-            setUser(userData); // Set user immediately from localStorage
-          } catch (e) {
-            localStorage.removeItem('user');
-          }
-        }
-        
-        // Then verify with server (but don't reset user to null)
+        // Always verify with server first for accurate auth state
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
         });
@@ -56,21 +45,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = await response.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
+          console.log('✅ Auth Context: User authenticated', userData.role, userData.id);
         } else {
-          // Only clear user if we don't have valid localStorage data
-          if (!savedUser) {
-            setUser(null);
-          }
+          // Server says not authenticated - clear everything
+          setUser(null);
           localStorage.removeItem('user');
+          console.log('❌ Auth Context: User not authenticated, cleared state');
         }
       } catch (error) {
-        console.error('Session check error:', error);
-        // Don't clear user state if localStorage has valid data
+        console.error('❌ Auth Context: Session check failed:', error);
+        // On network error, fall back to localStorage if available
         const savedUser = localStorage.getItem('user');
-        if (!savedUser) {
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+            console.log('⚠️ Auth Context: Using cached user data due to network error');
+          } catch (e) {
+            setUser(null);
+            localStorage.removeItem('user');
+          }
+        } else {
           setUser(null);
         }
-        localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
       }
@@ -117,9 +114,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      console.log('✅ Auth Login: User authenticated', userData.role, userData.id);
       
       // Force a small delay to ensure auth state is synchronized before any API calls
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       // Save persistent user data for auto-fill
       const persistentData: Partial<PersistentUserData> = {};
@@ -197,9 +195,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization  
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      console.log('✅ Auth Admin Login: User authenticated', userData.role, userData.id);
       
       // Force a small delay to ensure auth state is synchronized before any API calls
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       return userData;
     } catch (error) {
