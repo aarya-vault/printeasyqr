@@ -91,10 +91,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // Use dynamic import for Sequelize server
+  const { startSequelizeServer } = await import("../src/server.js");
+  
+  // Start with new Sequelize server
+  await startSequelizeServer(app);
+  
+  // Create server after Sequelize setup
+  const { createServer } = await import('http');
+  const server = createServer(app);
+  
+  // Setup WebSocket on the server
+  const { app: sequelizeApp } = await import('../src/server.js');
+  sequelizeApp.setupWebSocket(server);
 
-  // Seed database on startup
-  await seedDatabase();
+  // Old seed database is handled by Sequelize now
+  // await seedDatabase();
 
   // CRITICAL: Handle unmatched API routes BEFORE Vite setup
   // This ensures API routes always return JSON, not HTML

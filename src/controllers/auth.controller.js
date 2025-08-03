@@ -1,0 +1,140 @@
+import { User } from '../models/index.js';
+import bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
+
+class AuthController {
+  // Phone login for customers
+  static async phoneLogin(req, res) {
+    try {
+      const { phone } = req.body;
+      
+      if (!phone || !/^[6-9][0-9]{9}$/.test(phone)) {
+        return res.status(400).json({ message: 'Invalid phone number' });
+      }
+
+      // Find or create user
+      let user = await User.findOne({ where: { phone } });
+      
+      if (!user) {
+        user = await User.create({
+          phone,
+          role: 'customer'
+        });
+      }
+
+      // Set session
+      req.session.user = {
+        id: user.id,
+        phone: user.phone,
+        name: user.name || 'Customer',
+        role: user.role
+      };
+      await req.session.save();
+
+      // Add needsNameUpdate flag for customers without names
+      const userResponse = {
+        ...user.toJSON(),
+        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
+      };
+      
+      res.json(userResponse);
+    } catch (error) {
+      console.error('Phone login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  }
+
+  // Email login for shop owners and admin
+  static async emailLogin(req, res) {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password required' });
+      }
+
+      // Admin login special case
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      
+      if (email === adminEmail && password === adminPassword) {
+        let adminUser = await User.findOne({ where: { email } });
+        
+        if (!adminUser) {
+          adminUser = await User.create({
+            phone: "0000000000",
+            email: email,
+            name: "Admin",
+            role: "admin"
+          });
+        }
+        
+        req.session.user = {
+          id: adminUser.id,
+          email: adminUser.email || undefined,
+          name: adminUser.name || 'Admin',
+          role: adminUser.role
+        };
+        await req.session.save();
+        return res.json(adminUser);
+      }
+
+      // Shop owner login
+      const user = await User.findOne({ 
+        where: { 
+          email,
+          role: 'shop_owner'
+        }
+      });
+      
+      if (user && user.passwordHash) {
+        const isValidPassword = await user.validatePassword(password);
+        
+        if (isValidPassword) {
+          req.session.user = {
+            id: user.id,
+            email: user.email || undefined,
+            name: user.name || 'Shop Owner',
+            role: user.role,
+            phone: user.phone || undefined
+          };
+          await req.session.save();
+          return res.json(user);
+        }
+      }
+
+      return res.status(401).json({ message: 'Invalid credentials' });
+    } catch (error) {
+      console.error('Email login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  }
+
+  // Get current user
+  static async getCurrentUser(req, res) {
+    if (!req.session?.user) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
+    // Add needsNameUpdate flag
+    const userResponse = {
+      ...req.session.user,
+      needsNameUpdate: req.session.user.role === 'customer' && 
+        (!req.session.user.name || req.session.user.name === 'Customer')
+    };
+    
+    res.json(userResponse);
+  }
+
+  // Logout
+  static async logout(req, res) {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Could not log out' });
+      }
+      res.json({ message: 'Logged out successfully' });
+    });
+  }
+}
+
+export default AuthController;
