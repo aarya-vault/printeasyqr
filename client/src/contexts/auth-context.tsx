@@ -48,14 +48,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up global 401 handler
     setAuthLogoutHandler(handleGlobalLogout);
 
-    // 🔥 CRITICAL FIX: Single lightweight session verification
-    const verifySession = async () => {
+    // 🔥 DELAY SESSION CHECK - Only verify after user tries to use the app
+    const delayedSessionCheck = async () => {
+      console.log('🔍 Auth Context: Checking for existing session...');
+      
+      // First check localStorage to see if we should verify
+      const savedUser = localStorage.getItem('user');
+      if (!savedUser) {
+        console.log('❌ No saved user, skipping session verification');
+        setIsSessionVerified(true);
+        setIsLoading(false);
+        return;
+      }
+      
       try {
-        console.log('🔍 Auth Context: Verifying session with server...');
-        
         const response = await fetch('/api/auth/me', {
           credentials: 'include',
-          signal: AbortSignal.timeout(10000) // 10 second timeout
+          signal: AbortSignal.timeout(5000)
         });
         
         if (response.ok) {
@@ -63,27 +72,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
           setIsSessionVerified(true);
-          console.log('✅ Auth Context: Session verified, user authenticated:', userData.role, userData.id);
+          console.log('✅ Auth Context: Session verified:', userData.role, userData.id);
         } else {
-          // Server says not authenticated - clear everything
           setUser(null);
           localStorage.removeItem('user');
-          localStorage.removeItem('persistentUserData');
-          setIsSessionVerified(true); // Mark as verified even if not authenticated
-          console.log('❌ Auth Context: Session invalid, cleared state');
+          setIsSessionVerified(true);
+          console.log('❌ Auth Context: Session expired');
         }
       } catch (error) {
-        console.error('❌ Auth Context: Session verification failed:', error);
-        // On network error, don't use localStorage - server is source of truth
         setUser(null);
         localStorage.removeItem('user');
-        setIsSessionVerified(true); // Mark as verified even on error
+        setIsSessionVerified(true);
+        console.log('❌ Auth Context: Session check failed');
       } finally {
         setIsLoading(false);
       }
     };
 
-    verifySession();
+    // Delay session check by 1 second to let everything load
+    setTimeout(delayedSessionCheck, 1000);
   }, []);
 
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
