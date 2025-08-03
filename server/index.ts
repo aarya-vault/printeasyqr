@@ -1,7 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import { registerRoutes } from "./routes";
+import { createServer } from "http";
+import { registerRoutes, setupWebSocket } from "./routes";
 import seedDatabase from "./seed-data";
 import { setupVite, serveStatic, log } from "./vite";
 import { errorHandler, notFoundHandler } from "./error-handler";
@@ -91,17 +92,46 @@ app.use((req, res, next) => {
   next();
 });
 
+console.log('🚀 Server startup beginning...');
+
 (async () => {
+  console.log('🔄 Async function started...');
   // Use createRequire for Sequelize server to avoid TypeScript module resolution issues
   const require = createRequire(import.meta.url);
+  console.log('📁 createRequire completed...');
   const serverModule = require("../src/server.js");
+  console.log('📦 Server module loaded...');
   const { startSequelizeServer, app: sequelizeApp } = serverModule;
+  console.log('📝 Destructured server components...');
+  
+  // Create HTTP server
+  console.log('🌐 Creating HTTP server...');
+  const server = createServer(app);
   
   // Setup new TypeScript routes FIRST to avoid conflicts
-  const server = await registerRoutes(app);
+  console.log('🔧 About to call registerRoutes...');
+  try {
+    await registerRoutes(app);
+    console.log('✅ registerRoutes completed successfully');
+  } catch (error) {
+    console.error('❌ registerRoutes failed:', error);
+    throw error;
+  }
+  
+  // Setup WebSocket server
+  console.log('🔧 Setting up WebSocket...');
+  try {
+    setupWebSocket(server);
+    console.log('✅ WebSocket setup completed successfully');
+  } catch (error) {
+    console.error('❌ WebSocket setup failed:', error);
+    throw error;
+  }
   
   // Start Sequelize server AFTER new routes are registered
+  console.log('🔧 About to start Sequelize server...');
   await startSequelizeServer(app);
+  console.log('✅ Sequelize server started');
   
   // Note: WebSocket is now handled by registerRoutes
   // sequelizeApp.setupWebSocket(server); // Disabled to avoid conflicts
@@ -128,15 +158,7 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  // Add health check endpoint for deployment monitoring
-  app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'OK', 
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
-      version: '1.0.0'
-    });
-  });
+  // Health check endpoint is now handled in registerRoutes
 
   const port = parseInt(process.env.PORT || '5000', 10);
   

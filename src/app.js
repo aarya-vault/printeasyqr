@@ -106,13 +106,14 @@ app.get('/api/health', (req, res) => {
 });
 
 // Register API routes
-app.use('/api', authRoutes);
-app.use('/api', userRoutes);
-app.use('/api', shopRoutes);
-app.use('/api', orderRoutes);
-app.use('/api', messageRoutes);
-app.use('/api', shopApplicationRoutes);
-app.use('/api/admin', adminRoutes);
+// OLD ROUTES DISABLED - Using new TypeScript routing system
+// app.use('/api', authRoutes);
+// app.use('/api', userRoutes);
+// app.use('/api', shopRoutes);
+// app.use('/api', orderRoutes);
+// app.use('/api', messageRoutes);
+// app.use('/api', shopApplicationRoutes);
+// app.use('/api/admin', adminRoutes);
 
 // File download route
 app.get('/api/download/:filename', (req, res) => {
@@ -127,13 +128,8 @@ app.get('/api/download/:filename', (req, res) => {
   }
 });
 
-// Handle unmatched API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ 
-    message: `API endpoint ${req.originalUrl} not found`,
-    error: 'Route not found' 
-  });
-});
+// REMOVED: This catch-all was blocking new TypeScript routes
+// Unmatched API routes are now handled by the new system
 
 // WebSocket setup function
 app.setupWebSocket = (server) => {

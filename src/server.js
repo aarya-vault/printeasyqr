@@ -16,13 +16,14 @@ export async function startSequelizeServer(expressApp) {
     // Seed initial data
     await seedDatabase();
     
-    // Copy all routes from our Sequelize app to the main app
-    expressApp._router.stack = expressApp._router.stack.filter(layer => {
-      return !layer.route || !layer.route.path?.startsWith('/api');
-    });
+    // DISABLED: Don't remove new TypeScript API routes - they should take precedence
+    // The new TypeScript routing system handles API routes now
+    // expressApp._router.stack = expressApp._router.stack.filter(layer => {
+    //   return !layer.route || !layer.route.path?.startsWith('/api');
+    // });
     
-    // Add all routes from Sequelize app
-    expressApp.use(app);
+    // DISABLED: Don't add old Sequelize app routes - causes conflicts with new system
+    // expressApp.use(app);
     
     console.log('Sequelize server integrated successfully');
   } catch (error) {

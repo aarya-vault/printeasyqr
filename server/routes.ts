@@ -33,10 +33,21 @@ const upload = multer({
 // WebSocket connections store
 const wsConnections = new Map<number, WebSocket>();
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  const httpServer = createServer(app);
+export async function registerRoutes(app: Express): Promise<void> {
+  console.log('🚀 Starting route registration...');
 
   // Authentication routes
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0'
+    });
+  });
+
+  console.log('📝 Registering authentication routes...');
   app.post('/api/auth/phone-login', async (req, res) => {
     try {
       const { phone } = req.body;
@@ -679,10 +690,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           workingHours: application.workingHours as any,
           services: application.services as any,
           // servicesOffered: application.customServices, // Property not in schema
-          description: '',
+          // description: '', // Property not in schema
           isOnline: true,
           isApproved: true,
-          isAvailable24Hours: false // Default value
+          // isAvailable24Hours: false // Property not in schema
         });
         
         // Update owner with shop ID - NOT IN USER TABLE
@@ -805,6 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all shop applications (admin only)
+  console.log('🔧 Registering admin routes...');
   app.get("/api/admin/shop-applications", requireAuth, requireAdmin, async (req, res) => {
     console.log("🔍 Admin shop applications route accessed");
     try {
@@ -813,7 +825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(applications || []);
     } catch (error) {
       console.error('❌ Get shop applications error:', error);
-      res.status(500).json({ message: "Failed to fetch applications", error: error.message });
+      res.status(500).json({ message: "Failed to fetch applications", error: (error as Error).message });
     }
   });
 
@@ -1134,7 +1146,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Setup WebSocket server
+  // Handle unmatched API routes LAST
+  console.log('🚫 Adding API 404 handler...');
+  app.use('/api/*', (req, res) => {
+    console.log('❌ Unmatched API route:', req.originalUrl);
+    res.status(404).json({ 
+      message: `API endpoint ${req.originalUrl} not found`,
+      error: 'Route not found' 
+    });
+  });
+
+  console.log('✅ Route registration completed successfully!');
+}
+
+// Export separate function for WebSocket setup
+export function setupWebSocket(httpServer: Server): void {
+  console.log('🔗 Setting up WebSocket server...');
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   wss.on('connection', (ws, req) => {
@@ -1195,5 +1222,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  return httpServer;
+  console.log('✅ WebSocket setup completed successfully!');
 }
