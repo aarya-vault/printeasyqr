@@ -20,6 +20,7 @@ import {
 import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Shop, OrderFormInput } from '@shared/types';
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -31,21 +32,6 @@ const orderSchema = z.object({
 });
 
 type OrderForm = z.infer<typeof orderSchema>;
-
-interface Shop {
-  id: number;
-  name: string;
-  slug: string;
-  address: string;
-  city: string;
-  state: string;
-  phone: string;
-  publicOwnerName?: string;
-  workingHours: any;
-  acceptsWalkinOrders: boolean;
-  isOnline: boolean;
-  autoAvailability: boolean;
-}
 
 export default function ShopOrder() {
   const [, params] = useRoute('/shop/:slug');

@@ -1,6 +1,25 @@
 import { User } from '../models/index.js';
 
 class UserController {
+  // Data transformation helper for consistent API responses
+  static transformUserData(user) {
+    if (!user) return null;
+    
+    const userData = user.toJSON ? user.toJSON() : user;
+    
+    return {
+      id: userData.id,
+      phone: userData.phone,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+      isActive: userData.isActive,
+      createdAt: userData.createdAt,
+      updatedAt: userData.updatedAt,
+      // Add needsNameUpdate flag for frontend compatibility
+      needsNameUpdate: userData.role === 'customer' && (!userData.name || userData.name === 'Customer')
+    };
+  }
   // Update user
   static async updateUser(req, res) {
     try {
@@ -25,13 +44,9 @@ class UserController {
         };
       }
       
-      // Add needsNameUpdate flag
-      const userResponse = {
-        ...user.toJSON(),
-        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
-      };
-      
-      res.json(userResponse);
+      // Transform user data for consistent response
+      const transformedUser = UserController.transformUserData(user);
+      res.json(transformedUser);
     } catch (error) {
       console.error('Update user error:', error);
       res.status(500).json({ message: 'Update failed' });
@@ -44,7 +59,8 @@ class UserController {
       const users = await User.findAll({
         order: [['createdAt', 'DESC']]
       });
-      res.json(users);
+      const transformedUsers = users.map(user => UserController.transformUserData(user));
+      res.json(transformedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).json({ message: 'Failed to fetch users' });
@@ -88,7 +104,8 @@ class UserController {
 
       await user.update({ isActive });
       
-      res.json(user);
+      const transformedUser = UserController.transformUserData(user);
+      res.json(transformedUser);
     } catch (error) {
       console.error('Error toggling user status:', error);
       res.status(500).json({ message: 'Failed to update user status' });
@@ -105,7 +122,8 @@ class UserController {
         return res.status(404).json({ message: 'User not found' });
       }
       
-      res.json(user);
+      const transformedUser = UserController.transformUserData(user);
+      res.json(transformedUser);
     } catch (error) {
       console.error('Error fetching user:', error);
       res.status(500).json({ message: 'Failed to fetch user' });

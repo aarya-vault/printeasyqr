@@ -16,35 +16,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
-
-interface Order {
-  id: number;
-  customerId: number;
-  shopId: number;
-  type: string;
-  title: string;
-  description?: string;
-  specifications?: any;
-  files?: any;
-  status: string;
-  isUrgent: boolean;
-  createdAt: string;
-  updatedAt: string;
-  shop?: {
-    id: number;
-    name: string;
-    phone: string;
-    city: string;
-  };
-  customer?: {
-    id: number;
-    name: string;
-    phone: string;
-  };
-  customerName?: string;
-  shopName?: string;
-  unreadCount?: number;
-}
+import { Order } from '@shared/types';
 
 interface UnifiedOrderCardProps {
   order: Order;

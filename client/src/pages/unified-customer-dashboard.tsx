@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, User, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap
+  Home, ShoppingCart, User as UserIcon, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -26,31 +26,7 @@ import UserGuides, { useUserGuides } from '@/components/user-guides';
 import { useToast } from '@/hooks/use-toast';
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
-
-interface Order {
-  id: number;
-  customerId: number;
-  customerName?: string;
-  customerPhone?: string;
-  shopId: number;
-  type: 'upload' | 'walkin';
-  title: string;
-  description?: string;
-  status: string;
-  files?: any;
-  walkinTime?: string;
-  specifications?: any;
-  createdAt: string;
-  updatedAt: string;
-  isUrgent: boolean;
-  shop?: {
-    id: number;
-    name: string;
-    phone: string;
-    city: string;
-  };
-  unreadCount?: number;
-}
+import { Order, Shop, User } from '@shared/types';
 
 export default function UnifiedCustomerDashboard() {
   const { user, logout, updateUser } = useAuth();
@@ -874,7 +850,7 @@ export default function UnifiedCustomerDashboard() {
           <div className="space-y-4 py-4">
             <div className="text-center">
               <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-rich-black" />
+                <UserIcon className="w-8 h-8 text-rich-black" />
               </div>
               <p className="text-gray-600 mb-4">
                 To ensure the best experience, please provide your full name for order processing and communication.

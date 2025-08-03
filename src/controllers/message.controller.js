@@ -3,6 +3,32 @@ import { Op } from 'sequelize';
 import { sendToUser } from '../utils/websocket.js';
 
 class MessageController {
+  // Data transformation helper for consistent API responses
+  static transformMessageData(message) {
+    if (!message) return null;
+    
+    const messageData = message.toJSON ? message.toJSON() : message;
+    
+    return {
+      id: messageData.id,
+      orderId: messageData.orderId,
+      senderId: messageData.senderId,
+      senderName: messageData.senderName,
+      senderRole: messageData.senderRole,
+      content: messageData.content,
+      files: messageData.files,
+      messageType: messageData.messageType,
+      isRead: messageData.isRead,
+      createdAt: messageData.createdAt,
+      // Include sender data if present
+      sender: messageData.sender ? {
+        id: messageData.sender.id,
+        name: messageData.sender.name,
+        phone: messageData.sender.phone,
+        role: messageData.sender.role
+      } : undefined
+    };
+  }
   // Get messages by order
   static async getMessagesByOrder(req, res) {
     try {
@@ -13,7 +39,8 @@ class MessageController {
         order: [['createdAt', 'ASC']]
       });
       
-      res.json(messages);
+      const transformedMessages = messages.map(message => MessageController.transformMessageData(message));
+      res.json(transformedMessages);
     } catch (error) {
       console.error('Get messages error:', error);
       res.status(500).json({ message: 'Failed to fetch messages' });
@@ -59,6 +86,8 @@ class MessageController {
         include: [{ model: Shop, as: 'shop' }]
       });
       
+      const transformedMessage = MessageController.transformMessageData(messageWithSender);
+      
       if (order) {
         const recipientId = parseInt(senderId) === order.customerId 
           ? order.shop.ownerId 
@@ -66,12 +95,12 @@ class MessageController {
         
         sendToUser(recipientId, {
           type: 'new_message',
-          message: messageWithSender,
+          message: transformedMessage,
           orderId: order.id
         });
       }
       
-      res.json(messageWithSender);
+      res.json(transformedMessage);
     } catch (error) {
       console.error('Send message error:', error);
       res.status(500).json({ message: 'Failed to send message' });

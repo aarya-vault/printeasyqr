@@ -1,14 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  id: number;
-  phone?: string;
-  email?: string;
-  name?: string;
-  role: 'customer' | 'shop_owner' | 'admin';
-  shopId?: number;
-  needsNameUpdate?: boolean;
-}
+import { User } from '@shared/types';
 
 // Persistent user data interface for auto-fill
 interface PersistentUserData {

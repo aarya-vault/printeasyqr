@@ -16,37 +16,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { formatToIndiaTime, formatToIndiaDateTime, isToday } from '@/lib/time-utils';
-
-interface Message {
-  id: number;
-  orderId: number;
-  senderId: number;
-  senderName: string;
-  content: string;
-  files?: string | string[];
-  createdAt: string;
-  isRead: boolean;
-}
-
-interface Order {
-  id: number;
-  customerId: number;
-  customerName: string;
-  customerPhone: string;
-  shopId: number;
-  shopName?: string;
-  type: string;
-  title: string;
-  status: string;
-  createdAt: string;
-  unreadMessages?: number;
-  shop?: {
-    id: number;
-    name: string;
-    phone?: string;
-    city?: string;
-  };
-}
+import { Message, Order } from '@shared/types';
 
 interface UnifiedChatSystemProps {
   isOpen: boolean;
@@ -123,8 +93,8 @@ export default function UnifiedChatSystem({
       // This ensures completed orders with chat history are visible
       const filteredOrders = data
         .filter(order => {
-          // Show all orders except cancelled ones - completed orders MUST be visible for chat history
-          const shouldShow = order.status !== 'cancelled';
+          // Show all orders - completed orders MUST be visible for chat history
+          const shouldShow = true;
           console.log(`Order ${order.id} (${order.status}): ${shouldShow ? 'SHOWING' : 'HIDING'}`);
           return shouldShow;
         })
@@ -472,9 +442,9 @@ export default function UnifiedChatSystem({
                           </div>
                           
                           {/* Unread message indicator - only show if > 0 */}
-                          {(order.unreadMessages || 0) > 0 && (
+                          {(order.unreadCount || 0) > 0 && (
                             <div className="bg-brand-yellow text-rich-black text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm border border-rich-black">
-                              {(order.unreadMessages || 0) > 99 ? '99+' : (order.unreadMessages || 0)}
+                              {(order.unreadCount || 0) > 99 ? '99+' : (order.unreadCount || 0)}
                             </div>
                           )}
                         </div>
@@ -506,22 +476,22 @@ export default function UnifiedChatSystem({
                         <Badge className={`text-xs ${getStatusColor(selectedOrder.status)}`}>
                           {selectedOrder.status}
                         </Badge>
-                        {effectiveUserRole === 'shop_owner' && selectedOrder.customerPhone && (
+                        {effectiveUserRole === 'shop_owner' && selectedOrder.customer?.phone && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(`tel:${selectedOrder.customerPhone}`)}
+                            onClick={() => window.open(`tel:${selectedOrder.customer?.phone}`)}
                             className="hidden sm:flex"
                           >
                             <Phone className="w-4 h-4 mr-2" />
                             Call
                           </Button>
                         )}
-                        {effectiveUserRole === 'shop_owner' && selectedOrder.customerPhone && (
+                        {effectiveUserRole === 'shop_owner' && selectedOrder.customer?.phone && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(`tel:${selectedOrder.customerPhone}`)}
+                            onClick={() => window.open(`tel:${selectedOrder.customer?.phone}`)}
                             className="sm:hidden px-2"
                           >
                             <Phone className="w-4 h-4" />

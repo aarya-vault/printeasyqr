@@ -3,6 +3,60 @@ import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
 class ShopController {
+  // Data transformation helper for consistent API responses
+  static transformShopData(shop) {
+    if (!shop) return null;
+    
+    const shopData = shop.toJSON ? shop.toJSON() : shop;
+    
+    return {
+      id: shopData.id,
+      name: shopData.name,
+      slug: shopData.slug,
+      address: shopData.address,
+      city: shopData.city,
+      state: shopData.state,
+      pinCode: shopData.pinCode,
+      phone: shopData.phone,
+      contactNumber: shopData.phone, // Frontend compatibility
+      publicOwnerName: shopData.publicOwnerName,
+      ownerName: shopData.ownerFullName, // Frontend compatibility
+      // Internal Information
+      internalName: shopData.internalName,
+      ownerFullName: shopData.ownerFullName,
+      email: shopData.email,
+      ownerPhone: shopData.ownerPhone,
+      completeAddress: shopData.completeAddress,
+      // Business Details
+      services: shopData.services,
+      equipment: shopData.equipment,
+      yearsOfExperience: shopData.yearsOfExperience,
+      // Working Hours and Availability
+      workingHours: shopData.workingHours,
+      acceptsWalkinOrders: shopData.acceptsWalkinOrders,
+      isOnline: shopData.isOnline,
+      autoAvailability: shopData.autoAvailability,
+      // Admin and Status
+      isApproved: shopData.isApproved,
+      isPublic: shopData.isPublic,
+      status: shopData.status,
+      qrCode: shopData.qrCode,
+      rating: shopData.rating,
+      totalOrders: shopData.totalOrders,
+      // Timestamps
+      createdAt: shopData.createdAt,
+      updatedAt: shopData.updatedAt,
+      // Include owner data if present
+      owner: shopData.owner ? {
+        id: shopData.owner.id,
+        name: shopData.owner.name,
+        phone: shopData.owner.phone,
+        email: shopData.owner.email,
+        role: shopData.owner.role
+      } : undefined
+    };
+  }
+
   // Get shop by owner ID
   static async getShopByOwnerId(req, res) {
     try {
@@ -16,7 +70,8 @@ class ShopController {
         return res.status(404).json({ message: 'Shop not found' });
       }
       
-      res.json({ shop });
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json({ shop: transformedShop });
     } catch (error) {
       console.error('Get shop error:', error);
       res.status(500).json({ message: 'Failed to get shop' });
@@ -36,7 +91,8 @@ class ShopController {
         return res.status(404).json({ message: 'Shop not found' });
       }
       
-      res.json(shop);
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json(transformedShop);
     } catch (error) {
       console.error('Get shop by slug error:', error);
       res.status(500).json({ message: 'Failed to get shop' });
@@ -56,7 +112,8 @@ class ShopController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.json(shops || []);
+      const transformedShops = (shops || []).map(shop => ShopController.transformShopData(shop));
+      res.json(transformedShops);
     } catch (error) {
       console.error('Get all shops error:', error);
       res.status(500).json({ message: 'Failed to get shops' });
@@ -71,7 +128,8 @@ class ShopController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.json(shops);
+      const transformedShops = shops.map(shop => ShopController.transformShopData(shop));
+      res.json(transformedShops);
     } catch (error) {
       console.error('Error fetching shops:', error);
       res.status(500).json({ message: 'Failed to fetch shops' });
@@ -96,7 +154,8 @@ class ShopController {
       });
       
       const shops = unlocks.map(unlock => unlock.shop);
-      res.json(shops);
+      const transformedShops = shops.map(shop => ShopController.transformShopData(shop));
+      res.json(transformedShops);
     } catch (error) {
       console.error('Get unlocked shops error:', error);
       res.status(500).json({ message: 'Failed to get unlocked shops' });
@@ -129,7 +188,8 @@ class ShopController {
         }
       });
       
-      res.json({ success: true, shop });
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json({ success: true, shop: transformedShop });
     } catch (error) {
       console.error('Unlock shop error:', error);
       res.status(500).json({ message: 'Failed to unlock shop' });
@@ -153,7 +213,8 @@ class ShopController {
       
       await shop.update({ isOnline: !shop.isOnline });
       
-      res.json(shop);
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json(transformedShop);
     } catch (error) {
       console.error('Toggle shop status error:', error);
       res.status(500).json({ message: 'Failed to update shop status' });
@@ -185,9 +246,10 @@ class ShopController {
 
       await shop.update(updateData);
       
+      const transformedShop = ShopController.transformShopData(shop);
       res.json({ 
         message: 'Shop updated successfully',
-        shop 
+        shop: transformedShop
       });
     } catch (error) {
       console.error('Error updating shop:', error);
@@ -207,7 +269,8 @@ class ShopController {
       
       await shop.update({ isApproved: false });
       
-      res.json({ success: true, shop });
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json({ success: true, shop: transformedShop });
     } catch (error) {
       console.error('Error deactivating shop:', error);
       res.status(500).json({ message: 'Failed to deactivate shop' });
@@ -226,7 +289,8 @@ class ShopController {
       
       await shop.update({ isApproved: true });
       
-      res.json({ success: true, shop });
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json({ success: true, shop: transformedShop });
     } catch (error) {
       console.error('Error activating shop:', error);
       res.status(500).json({ message: 'Failed to activate shop' });

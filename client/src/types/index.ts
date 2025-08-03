@@ -1,11 +1,13 @@
-// Centralized type definitions for better organization
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
+// Re-export centralized types for backward compatibility
+export type {
+  User, Shop, Order, Message, ShopApplication, OrderFile, MessageFile,
+  CreateOrderInput, UpdateOrderInput, CreateMessageInput,
+  PlatformStats, ApiResponse, OrderFormInput, ShopApplicationFormInput,
+  LoginCredentials, AuthSession, Notification, CreateNotificationInput,
+  WebSocketMessage, SearchQueries, FilterOptions
+} from '@shared/types';
 
+// Frontend-specific utility types
 export interface FileInfo {
   filename: string;
   originalName: string;
@@ -17,21 +19,6 @@ export interface PrintProgress {
   current: number;
   total: number;
   status: 'printing' | 'completed' | 'error';
-}
-
-export interface OrderStatus {
-  id: number;
-  status: 'new' | 'processing' | 'ready' | 'completed';
-  updatedAt: string;
-}
-
-export interface NotificationData {
-  id: number;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  isRead: boolean;
-  createdAt: string;
 }
 
 // Enums for better type safety
@@ -51,29 +38,4 @@ export enum OrderStatusEnum {
   PROCESSING = 'processing',
   READY = 'ready',
   COMPLETED = 'completed'
-}
-
-// Shop type definition
-export interface Shop {
-  id: number;
-  name: string;
-  address: string;
-  phone: string;
-  rating: number;
-  isOnline: boolean;
-}
-
-// Order form data type
-export interface OrderFormData {
-  shopId: number;
-  type: 'upload' | 'walkin';
-  title: string;
-  specifications?: {
-    copies?: number;
-    colorType?: 'bw' | 'color';
-    paperSize?: string;
-    binding?: string;
-    specialInstructions?: string;
-  };
-  isUrgent?: boolean;
 }

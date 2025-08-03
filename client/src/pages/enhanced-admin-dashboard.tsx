@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { User, Shop, ShopApplication, PlatformStats, SearchQueries } from '@shared/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,53 +23,7 @@ import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-ma
 
 
 
-interface PlatformStats {
-  totalUsers: number;
-  activeShops: number;
-  totalOrders: number;
-}
-
-interface ShopApplication {
-  id: number;
-  shopName: string;
-  shopSlug: string;
-  applicantName: string;
-  ownerFullName?: string;
-  publicOwnerName?: string;
-  email: string;
-  city: string;
-  state: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  services: string[];
-  yearsOfExperience: string;
-  [key: string]: any;
-}
-
-interface User {
-  id: number;
-  name: string;
-  phone: string;
-  email?: string;
-  role: 'customer' | 'shop_owner' | 'admin';
-  createdAt: string;
-  isActive: boolean;
-}
-
-interface Shop {
-  id: number;
-  name: string;
-  ownerName: string;
-  email: string;
-  city: string;
-  address: string;
-  contactNumber: string;
-  rating?: number;
-  totalOrders: number;
-  isOnline: boolean;
-  isApproved: boolean;
-  workingHours?: string;
-}
+// All interfaces now imported from centralized types
 
 export default function EnhancedAdminDashboard() {
   const { user, logout } = useAuth();
@@ -102,7 +57,7 @@ export default function EnhancedAdminDashboard() {
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
 
   const [adminNotes, setAdminNotes] = useState('');
-  const [searchQueries, setSearchQueries] = useState({
+  const [searchQueries, setSearchQueries] = useState<SearchQueries>({
     applications: '',
     users: '',
     shops: '',

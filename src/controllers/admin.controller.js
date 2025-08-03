@@ -1,6 +1,10 @@
 import { User, Shop, Order, ShopApplication, sequelize } from '../models/index.js';
 import { Op } from 'sequelize';
 
+// Import data transformers from other controllers
+import ShopController from './shop.controller.js';
+import OrderController from './order.controller.js';
+
 class AdminController {
   // Get platform statistics
   static async getPlatformStats(req, res) {
@@ -73,6 +77,9 @@ class AdminController {
         type: sequelize.QueryTypes.SELECT
       });
 
+      // Transform recent orders for consistent frontend data
+      const transformedRecentOrders = recentOrders.map(order => OrderController.transformOrderData(order));
+      
       res.json({
         totalUsers,
         totalShops,
@@ -82,7 +89,7 @@ class AdminController {
         shopOwnerCount,
         activeShops,
         totalRevenue: totalRevenue || 0,
-        recentOrders,
+        recentOrders: transformedRecentOrders,
         orderStats,
         monthlyGrowth
       });

@@ -5,6 +5,54 @@ import path from 'path';
 import { sendToUser } from '../utils/websocket.js';
 
 class OrderController {
+  // Data transformation helper for consistent API responses
+  static transformOrderData(order) {
+    if (!order) return null;
+    
+    const orderData = order.toJSON ? order.toJSON() : order;
+    
+    return {
+      id: orderData.id,
+      customerId: orderData.customerId,
+      shopId: orderData.shopId,
+      orderNumber: orderData.orderNumber,
+      type: orderData.type,
+      title: orderData.title,
+      description: orderData.description,
+      specifications: orderData.specifications,
+      files: orderData.files,
+      walkinTime: orderData.walkinTime,
+      status: orderData.status,
+      isUrgent: orderData.isUrgent,
+      estimatedPages: orderData.estimatedPages,
+      estimatedBudget: orderData.estimatedBudget,
+      finalAmount: orderData.finalAmount,
+      notes: orderData.notes,
+      deletedBy: orderData.deletedBy,
+      deletedAt: orderData.deletedAt,
+      createdAt: orderData.createdAt,
+      updatedAt: orderData.updatedAt,
+      // Include shop data if present
+      shop: orderData.shop ? {
+        id: orderData.shop.id,
+        name: orderData.shop.name,
+        phone: orderData.shop.phone,
+        city: orderData.shop.city,
+        address: orderData.shop.address,
+        publicOwnerName: orderData.shop.publicOwnerName
+      } : undefined,
+      // Include customer data if present
+      customer: orderData.customer ? {
+        id: orderData.customer.id,
+        name: orderData.customer.name,
+        phone: orderData.customer.phone
+      } : undefined,
+      // Frontend compatibility fields
+      customerName: orderData.customer?.name,
+      shopName: orderData.shop?.name
+    };
+  }
+
   // Get orders by shop
   static async getOrdersByShop(req, res) {
     try {
@@ -21,7 +69,8 @@ class OrderController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.json(orders || []);
+      const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
+      res.json(transformedOrders);
     } catch (error) {
       console.error('Get shop orders error:', error);
       res.status(500).json({ message: 'Failed to get orders' });
@@ -44,7 +93,8 @@ class OrderController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.json(orders || []);
+      const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
+      res.json(transformedOrders);
     } catch (error) {
       console.error('Get customer orders error:', error);
       res.status(500).json({ message: 'Failed to get orders' });
@@ -92,7 +142,8 @@ class OrderController {
         ]
       });
       
-      res.json(orderWithDetails);
+      const transformedOrder = OrderController.transformOrderData(orderWithDetails);
+      res.json(transformedOrder);
     } catch (error) {
       console.error('Create order error:', error);
       res.status(500).json({ message: 'Failed to create order' });
@@ -141,13 +192,14 @@ class OrderController {
       });
       
       // Send real-time notification to customer
+      const transformedOrder = OrderController.transformOrderData(updatedOrder);
       sendToUser(updatedOrder.customerId, {
         type: 'order_update',
-        order: updatedOrder,
+        order: transformedOrder,
         message: `Order status updated to ${status}`
       });
       
-      res.json(updatedOrder);
+      res.json(transformedOrder);
     } catch (error) {
       await transaction.rollback();
       console.error('Update order status error:', error);
@@ -271,7 +323,8 @@ class OrderController {
         ]
       });
       
-      res.json(orderWithDetails);
+      const transformedOrder = OrderController.transformOrderData(orderWithDetails);
+      res.json(transformedOrder);
     } catch (error) {
       await transaction.rollback();
       console.error('Create anonymous order error:', error);
