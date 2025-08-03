@@ -1,32 +1,36 @@
 import { User } from '../models/index.js';
+import { SessionHelpers } from '../config/session.js';
 
 const requireAuth = async (req, res, next) => {
-  if (!req.session?.user) {
-    return res.status(401).json({ message: 'Authentication required' });
-  }
-  
   try {
-    // Fetch current user from database to ensure role is up-to-date
-    const currentUser = await User.findByPk(req.session.user.id);
+    // Check session authentication
+    if (!SessionHelpers.isAuthenticated(req)) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
     
+    const sessionUser = SessionHelpers.getCurrentUser(req);
+    
+    // Verify user exists in database
+    const currentUser = await User.findByPk(sessionUser.id);
     if (!currentUser) {
+      await SessionHelpers.destroyUserSession(req);
       return res.status(401).json({ message: 'User not found' });
     }
     
-    // Update session if role changed (handles customer → shop_owner transition)
-    if (currentUser.role !== req.session.user.role) {
-      console.log(`🔄 Auth middleware: User ${currentUser.id} role changed: ${req.session.user.role} → ${currentUser.role}`);
-      req.session.user = {
+    // Update session if role changed
+    if (currentUser.role !== sessionUser.role) {
+      console.log(`🔄 Auth middleware: Role changed ${sessionUser.role} → ${currentUser.role}`);
+      await SessionHelpers.createUserSession(req, {
         id: currentUser.id,
-        phone: currentUser.phone || undefined,
-        email: currentUser.email || undefined,
-        name: currentUser.name || (currentUser.role === 'customer' ? 'Customer' : 'Shop Owner'),
+        phone: currentUser.phone,
+        email: currentUser.email,
+        name: currentUser.name,
         role: currentUser.role
-      };
-      await req.session.save();
+      });
     }
     
-    req.user = req.session.user;
+    // Set user on request object
+    req.user = SessionHelpers.getCurrentUser(req);
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -36,16 +40,20 @@ const requireAuth = async (req, res, next) => {
 
 const requireRole = (roles) => {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
     
-    if (!allowedRoles.includes(req.user.role)) {
+    // Check authentication first
+    if (!SessionHelpers.isAuthenticated(req)) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    // Check role
+    const user = SessionHelpers.getCurrentUser(req);
+    if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ message: 'Insufficient permissions' });
     }
-
+    
+    req.user = user;
     next();
   };
 };

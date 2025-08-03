@@ -1,6 +1,5 @@
 import express from 'express';
-import session from 'express-session';
-import connectPgSimple from 'connect-pg-simple';
+import { createSessionMiddleware } from './config/session.js';
 // DISABLED: WebSocket import removed - handled by new system
 // import { WebSocketServer } from 'ws';
 import path from 'path';
@@ -31,68 +30,51 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// CORS configuration - FIXED for session cookies
+// 🔥 BULLETPROOF CORS - Rebuilt for session cookies
 app.use((req, res, next) => {
-  // Use the exact origin instead of wildcard for credentials
   const origin = req.headers.origin;
-  if (origin) {
+  
+  // Allow specific origins in development/production
+  if (origin && (
+    origin.includes('replit.dev') || 
+    origin.includes('localhost') || 
+    origin.includes('127.0.0.1')
+  )) {
     res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
-  res.header('Access-Control-Allow-Credentials', 'true');
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Set-Cookie');
+  res.header('Access-Control-Expose-Headers', 'Set-Cookie');
   
   if (req.method === 'OPTIONS') {
-    return res.status(200).json({ status: 'ok' });
+    return res.status(200).end();
   }
   next();
 });
 
-// Body parsing middleware - MUST BE BEFORE SESSION
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Body parsing middleware
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Trust proxy for proper cookie handling - CRITICAL for Replit
-app.set('trust proxy', 1); // Trust first proxy to get correct protocol from X-Forwarded-Proto
+// 🔥 CRITICAL: Trust proxy for Replit HTTPS
+app.set('trust proxy', 1);
 
-// Session configuration
-const PgSession = connectPgSimple(session);
-
-// 🔥 CRITICAL SESSION FIX - Simplified for immediate functionality
-const sessionMiddleware = session({
-  store: new PgSession({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    tableName: 'session'
-  }),
-  secret: process.env.SESSION_SECRET || 'printeasy-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false, // Only save when there's data
-  name: 'connect.sid',
-  cookie: {
-    secure: false, // Force false for immediate functionality - will work in development
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24, // 1 day for testing
-    sameSite: 'lax',
-    path: '/'
-  },
-  rolling: false // Disable rolling for stability
-});
-
+// 🔥 NEW SESSION SYSTEM - Built from scratch
+const sessionMiddleware = createSessionMiddleware();
 app.use(sessionMiddleware);
 
-// Simplified session logging
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/auth')) {
-    console.log(`🔐 ${req.method} ${req.path} - Session ID: ${req.sessionID}`);
-    if (req.session?.user) {
-      console.log(`✅ Session has user: ${req.session.user.email}`);
-    } else {
-      console.log(`❌ No user in session`);
-    }
+// Session debugging (simplified)
+app.use('/api', (req, res, next) => {
+  if (req.path.includes('/auth/')) {
+    console.log(`🔐 ${req.method} ${req.path}`);
+    console.log(`📋 Session ID: ${req.sessionID}`);
+    console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
   }
   next();
 });
+
 
 // Request logging middleware
 app.use((req, res, next) => {

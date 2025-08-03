@@ -48,49 +48,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up global 401 handler
     setAuthLogoutHandler(handleGlobalLogout);
 
-    // 🔥 DELAY SESSION CHECK - Only verify after user tries to use the app
-    const delayedSessionCheck = async () => {
-      console.log('🔍 Auth Context: Checking for existing session...');
-      
-      // First check localStorage to see if we should verify
-      const savedUser = localStorage.getItem('user');
-      if (!savedUser) {
-        console.log('❌ No saved user, skipping session verification');
-        setIsSessionVerified(true);
-        setIsLoading(false);
-        return;
-      }
-      
+    // 🔥 SIMPLIFIED SESSION CHECK - Work with new session system
+    const checkSession = async () => {
       try {
+        console.log('🔍 Auth Context: Checking session...');
+        
         const response = await fetch('/api/auth/me', {
+          method: 'GET',
           credentials: 'include',
-          signal: AbortSignal.timeout(5000)
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          setIsSessionVerified(true);
-          console.log('✅ Auth Context: Session verified:', userData.role, userData.id);
+          console.log('✅ Auth Context: User loaded:', userData.role);
         } else {
           setUser(null);
           localStorage.removeItem('user');
-          setIsSessionVerified(true);
-          console.log('❌ Auth Context: Session expired');
+          console.log('❌ Auth Context: No active session');
         }
       } catch (error) {
+        console.error('❌ Auth Context: Session check error:', error);
         setUser(null);
         localStorage.removeItem('user');
-        setIsSessionVerified(true);
-        console.log('❌ Auth Context: Session check failed');
       } finally {
+        setIsSessionVerified(true);
         setIsLoading(false);
       }
     };
 
-    // Delay session check by 1 second to let everything load
-    setTimeout(delayedSessionCheck, 1000);
+    checkSession();
   }, []);
 
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
@@ -128,14 +119,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const userData = await response.json();
       
-      // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization
+      // 🔥 IMMEDIATE STATE UPDATE
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setIsSessionVerified(true);
-      console.log('✅ Auth Login: User authenticated', userData.role, userData.id);
-      
-      // Force a small delay to ensure auth state is synchronized before any API calls
-      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log('✅ Login Success:', userData.role, userData.email || userData.phone);
       
       // Save persistent user data for auto-fill
       const persistentData: Partial<PersistentUserData> = {};
@@ -213,14 +201,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const userData = await response.json();
       
-      // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization  
+      // 🔥 IMMEDIATE STATE UPDATE
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setIsSessionVerified(true);
-      console.log('✅ Auth Admin Login: User authenticated', userData.role, userData.id);
-      
-      // Force a small delay to ensure auth state is synchronized before any API calls
-      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log('✅ Admin Login Success:', userData.role);
       
       return userData;
     } catch (error) {

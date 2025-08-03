@@ -1,6 +1,7 @@
 import { User } from '../models/index.js';
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
+import { SessionHelpers } from '../config/session.js';
 
 class AuthController {
   // Phone login for customers
@@ -36,15 +37,13 @@ class AuthController {
         });
       }
 
-      // Set session
-      req.session.user = {
+      // Create session using helper
+      await SessionHelpers.createUserSession(req, {
         id: user.id,
         phone: user.phone,
         name: user.name || 'Customer',
         role: user.role
-      };
-      
-      await req.session.save();
+      });
 
       // Add needsNameUpdate flag for customers without names
       const userResponse = {
@@ -84,14 +83,12 @@ class AuthController {
           });
         }
         
-        req.session.user = {
+        await SessionHelpers.createUserSession(req, {
           id: adminUser.id,
-          email: adminUser.email || undefined,
+          email: adminUser.email,
           name: adminUser.name || 'Admin',
           role: adminUser.role
-        };
-        
-        await req.session.save();
+        });
         return res.json(adminUser);
       }
 
@@ -107,19 +104,13 @@ class AuthController {
         const isValidPassword = await user.validatePassword(password);
         
         if (isValidPassword) {
-          req.session.user = {
+          await SessionHelpers.createUserSession(req, {
             id: user.id,
-            email: user.email || undefined,
+            email: user.email,
             name: user.name || 'Shop Owner',
             role: user.role,
-            phone: user.phone || undefined
-          };
-          
-          console.log('🔐 Shop Owner Login - Setting session user:', req.session.user);
-          console.log('🔐 Shop Owner Login - Session ID:', req.sessionID);
-          
-          
-          await req.session.save();
+            phone: user.phone
+          });
           return res.json(user);
         }
       }
@@ -133,35 +124,39 @@ class AuthController {
 
   // Get current user
   static async getCurrentUser(req, res) {
-    if (!req.session?.user) {
-      return res.status(401).json({ message: 'Not authenticated' });
-    }
-    
     try {
-      // ALWAYS fetch current user data from database to ensure role is up-to-date
-      const currentUser = await User.findByPk(req.session.user.id);
+      // Check session first
+      const sessionUser = SessionHelpers.getCurrentUser(req);
+      if (!sessionUser) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
       
+      // Verify user still exists in database
+      const currentUser = await User.findByPk(sessionUser.id);
       if (!currentUser) {
+        await SessionHelpers.destroyUserSession(req);
         return res.status(401).json({ message: 'User not found' });
       }
       
-      // Update session if role changed (customer → shop_owner transition)
-      if (currentUser.role !== req.session.user.role) {
-        console.log(`🔄 User ${currentUser.id} role changed: ${req.session.user.role} → ${currentUser.role}`);
-        req.session.user = {
+      // Update session if role changed
+      if (currentUser.role !== sessionUser.role) {
+        console.log(`🔄 Role changed: ${sessionUser.role} → ${currentUser.role}`);
+        await SessionHelpers.createUserSession(req, {
           id: currentUser.id,
-          phone: currentUser.phone || undefined,
-          email: currentUser.email || undefined,
-          name: currentUser.name || (currentUser.role === 'customer' ? 'Customer' : 'Shop Owner'),
+          phone: currentUser.phone,
+          email: currentUser.email,
+          name: currentUser.name,
           role: currentUser.role
-        };
-        
-        await req.session.save();
+        });
       }
       
-      // Add needsNameUpdate flag
+      // Return user data with additional flags
       const userResponse = {
-        ...req.session.user,
+        id: currentUser.id,
+        phone: currentUser.phone,
+        email: currentUser.email,
+        name: currentUser.name,
+        role: currentUser.role,
         needsNameUpdate: currentUser.role === 'customer' && 
           (!currentUser.name || currentUser.name === 'Customer')
       };
@@ -175,12 +170,13 @@ class AuthController {
 
   // Logout
   static async logout(req, res) {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Could not log out' });
-      }
+    try {
+      await SessionHelpers.destroyUserSession(req);
       res.json({ message: 'Logged out successfully' });
-    });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ message: 'Could not log out' });
+    }
   }
 }
 
