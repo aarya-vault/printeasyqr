@@ -37,7 +37,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
     }
   });
 
-  // Fetch corresponding shop data if approved (admin only)
+  // 🔥 EMERGENCY DISABLE
   const { data: shopData } = useQuery({
     queryKey: ['/api/shops/owner', application?.applicantId],
     queryFn: async () => {
@@ -48,8 +48,7 @@ export const UnifiedShopDataManagement: React.FC<UnifiedShopDataProps> = ({
       if (!response.ok) return null;
       return response.json();
     },
-    enabled: !!application?.applicantId && isAdminView,
-    enabled: !!application?.applicantId && application?.status === 'approved'
+    enabled: false
   });
 
   // Update mutation with unified sync

@@ -72,10 +72,10 @@ export default function UnifiedChatSystem({
     }
   }, [initialOrderId, isOpen]);
 
-  // Get shop data for shop owners
+  // 🔥 EMERGENCY FIX: COMPLETELY DISABLE  
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id && effectiveUserRole === 'shop_owner' && isOpen,
+    enabled: false, // DISABLED TO STOP 401 FLOOD
   });
 
   // Fetch orders based on user role
@@ -83,7 +83,7 @@ export default function UnifiedChatSystem({
     queryKey: effectiveUserRole === 'shop_owner' 
       ? [`/api/orders/shop/${shopData?.shop?.id}`]
       : [`/api/orders/customer/${user?.id}`],
-    enabled: !!user?.id && isOpen && (effectiveUserRole !== 'shop_owner' || !!shopData?.shop?.id),
+    enabled: false, // DISABLED TO STOP 401 FLOOD
     refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
     select: (data) => {
       console.log('🔍 CHAT - Raw orders data received:', data?.length, 'orders');

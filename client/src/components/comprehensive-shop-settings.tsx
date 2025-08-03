@@ -90,10 +90,10 @@ export default function ComprehensiveShopSettings() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Get shop data
+  // 🔥 EMERGENCY DISABLE
   const { data: shopData, isLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id && user?.role === 'shop_owner',
+    enabled: false,
   });
 
   const shop = shopData?.shop;

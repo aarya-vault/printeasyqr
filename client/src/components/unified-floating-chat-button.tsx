@@ -14,18 +14,18 @@ export default function UnifiedFloatingChatButton() {
   const { user } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Get shop data for shop owners
+  // 🔥 EMERGENCY FIX: COMPLETELY DISABLE
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id && user?.role === 'shop_owner',
+    enabled: false, // DISABLED TO STOP 401 FLOOD
   });
 
-  // Calculate total unread messages
+  // Calculate total unread messages  
   const { data: orders = [] } = useQuery<Order[]>({
     queryKey: user?.role === 'shop_owner' 
       ? [`/api/orders/shop/${shopData?.shop?.id}`]
       : [`/api/orders/customer/${user?.id}`],
-    enabled: !!user?.id && (user?.role !== 'shop_owner' || !!shopData?.shop?.id),
+    enabled: false, // DISABLED TO STOP 401 FLOOD
     refetchInterval: 5000,
     select: (data) => {
       return data.filter(order => order.unreadMessages && order.unreadMessages > 0);

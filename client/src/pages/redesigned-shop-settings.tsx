@@ -45,10 +45,10 @@ export default function RedesignedShopSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('general');
 
-  // Fetch shop details
+  // 🔥 EMERGENCY DISABLE
   const { data: shop, isLoading } = useQuery({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id && user?.role === 'shop_owner'
+    enabled: false
   });
 
   const currentShop = shop && typeof shop === 'object' && 'shop' in shop ? (shop as any).shop : shop;

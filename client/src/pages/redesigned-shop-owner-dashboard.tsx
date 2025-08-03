@@ -84,19 +84,20 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // Optimized queries with better caching
+  // 🔥 EMERGENCY FIX: COMPLETELY DISABLE until session works
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    refetchInterval: 60000, // 60 seconds (reduced from 30s)
+    refetchInterval: 60000,
     refetchIntervalInBackground: false,
-    staleTime: 30000, // 30 seconds (increased from 10s)
-    gcTime: 300000, // 5 minutes cache
-    enabled: !!user?.id && user?.role === 'shop_owner',
-    retry: 2,
+    staleTime: 30000,
+    gcTime: 300000,
+    enabled: false, // DISABLED TO STOP 401 FLOOD
+    retry: 0,
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
+    enabled: false, // DISABLED TO STOP 401 FLOOD
     enabled: !!shopData?.shop?.id,
     refetchInterval: 20000, // 20 seconds (increased from 15s)
     refetchIntervalInBackground: false,
