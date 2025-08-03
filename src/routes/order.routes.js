@@ -1,8 +1,10 @@
-const router = require('express').Router();
-const OrderController = require('../controllers/order.controller');
-const { requireAuth } = require('../middleware/auth.middleware');
-const multer = require('multer');
-const path = require('path');
+import { Router } from 'express';
+import OrderController from '../controllers/order.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
+import multer from 'multer';
+import path from 'path';
+
+const router = Router();
 
 // Configure multer for file uploads
 const upload = multer({
@@ -26,4 +28,4 @@ router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatu
 // Anonymous order route (no auth required)
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
-module.exports = router;
+export default router;

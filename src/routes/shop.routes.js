@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const ShopController = require('../controllers/shop.controller');
-const { requireAuth, requireShopOwner, requireAdmin, requireShopOwnerOrAdmin } = require('../middleware/auth.middleware');
+import { Router } from 'express';
+import ShopController from '../controllers/shop.controller.js';
+import { requireAuth, requireShopOwner, requireAdmin, requireShopOwnerOrAdmin } from '../middleware/auth.middleware.js';
+
+const router = Router();
 
 // Public routes
 router.get('/shops', ShopController.getActiveShops);
@@ -13,4 +15,4 @@ router.get('/customer/:customerId/unlocked-shops', requireAuth, ShopController.g
 router.post('/unlock-shop/:shopSlug', requireAuth, ShopController.unlockShop);
 router.patch('/shops/:id/toggle-status', requireAuth, ShopController.toggleShopStatus);
 
-module.exports = router;
+export default router;

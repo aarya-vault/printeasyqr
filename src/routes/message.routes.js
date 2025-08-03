@@ -1,7 +1,9 @@
-const router = require('express').Router();
-const MessageController = require('../controllers/message.controller');
-const { requireAuth } = require('../middleware/auth.middleware');
-const multer = require('multer');
+import { Router } from 'express';
+import MessageController from '../controllers/message.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
+import multer from 'multer';
+
+const router = Router();
 
 // Configure multer for message attachments
 const upload = multer({
@@ -18,4 +20,4 @@ router.post('/messages', requireAuth, upload.array('files'), MessageController.s
 router.patch('/messages/mark-read', requireAuth, MessageController.markMessagesAsRead);
 router.get('/messages/unread-count', requireAuth, MessageController.getUnreadCount);
 
-module.exports = router;
+export default router;

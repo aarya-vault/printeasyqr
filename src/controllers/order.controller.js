@@ -1,7 +1,7 @@
-const { Order, Shop, User, Message, sequelize } = require('../models');
-const { Op } = require('sequelize');
-const fs = require('fs').promises;
-const path = require('path');
+import { Order, Shop, User, Message, sequelize } from '../models/index.js';
+import { Op } from 'sequelize';
+import fs from 'fs/promises';
+import path from 'path';
 
 class OrderController {
   // Get orders by shop
@@ -294,4 +294,4 @@ class OrderController {
   }
 }
 
-module.exports = OrderController;
+export default OrderController;

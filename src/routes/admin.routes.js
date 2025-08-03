@@ -1,8 +1,10 @@
-const router = require('express').Router();
-const AdminController = require('../controllers/admin.controller');
-const UserController = require('../controllers/user.controller');
-const ShopController = require('../controllers/shop.controller');
-const { requireAuth, requireAdmin } = require('../middleware/auth.middleware');
+import { Router } from 'express';
+import AdminController from '../controllers/admin.controller.js';
+import UserController from '../controllers/user.controller.js';
+import ShopController from '../controllers/shop.controller.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.middleware.js';
+
+const router = Router();
 
 // Admin statistics
 router.get('/stats', requireAuth, requireAdmin, AdminController.getPlatformStats);
@@ -21,4 +23,4 @@ router.put('/shops/:id', requireAuth, requireAdmin, ShopController.updateShop);
 router.patch('/shops/:id/deactivate', requireAuth, requireAdmin, ShopController.deactivateShop);
 router.patch('/shops/:id/activate', requireAuth, requireAdmin, ShopController.activateShop);
 
-module.exports = router;
+export default router;

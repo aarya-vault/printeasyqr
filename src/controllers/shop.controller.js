@@ -1,6 +1,6 @@
-const { Shop, User, Order, CustomerShopUnlock, ShopApplication } = require('../models');
-const { Op } = require('sequelize');
-const bcrypt = require('bcrypt');
+import { Shop, User, Order, CustomerShopUnlock, ShopApplication } from '../models/index.js';
+import { Op } from 'sequelize';
+import bcrypt from 'bcrypt';
 
 class ShopController {
   // Get shop by owner ID
@@ -245,4 +245,4 @@ class ShopController {
   }
 }
 
-module.exports = ShopController;
+export default ShopController;

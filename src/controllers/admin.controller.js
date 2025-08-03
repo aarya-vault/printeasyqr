@@ -1,5 +1,5 @@
-const { User, Shop, Order, ShopApplication, sequelize } = require('../models');
-const { Op } = require('sequelize');
+import { User, Shop, Order, ShopApplication, sequelize } from '../models/index.js';
+import { Op } from 'sequelize';
 
 class AdminController {
   // Get platform statistics
@@ -184,4 +184,4 @@ class AdminController {
   }
 }
 
-module.exports = AdminController;
+export default AdminController;

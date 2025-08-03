@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const ShopApplicationController = require('../controllers/shopApplication.controller');
-const { requireAuth, requireAdmin } = require('../middleware/auth.middleware');
+import { Router } from 'express';
+import ShopApplicationController from '../controllers/shopApplication.controller.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.middleware.js';
+
+const router = Router();
 
 // Public route for submitting applications
 router.post('/shop-applications', ShopApplicationController.createApplication);
@@ -10,4 +12,4 @@ router.get('/shop-applications', requireAuth, requireAdmin, ShopApplicationContr
 router.get('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.getApplication);
 router.patch('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.updateApplicationStatus);
 
-module.exports = router;
+export default router;

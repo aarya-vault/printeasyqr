@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/database.js';
 
 const Order = sequelize.define('Order', {
   id: {
@@ -107,4 +107,4 @@ const Order = sequelize.define('Order', {
   paranoid: false // We're using custom soft delete
 });
 
-module.exports = Order;
+export default Order;

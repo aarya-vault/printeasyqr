@@ -1,6 +1,6 @@
-const { ShopApplication, Shop, User, sequelize } = require('../models');
-const { Op } = require('sequelize');
-const bcrypt = require('bcrypt');
+import { ShopApplication, Shop, User, sequelize } from '../models/index.js';
+import { Op } from 'sequelize';
+import bcrypt from 'bcrypt';
 
 class ShopApplicationController {
   // Create shop application
@@ -179,4 +179,4 @@ class ShopApplicationController {
   }
 }
 
-module.exports = ShopApplicationController;
+export default ShopApplicationController;

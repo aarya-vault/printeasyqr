@@ -1,5 +1,5 @@
-const { Message, Order, User } = require('../models');
-const { Op } = require('sequelize');
+import { Message, Order, User } from '../models/index.js';
+import { Op } from 'sequelize';
 
 class MessageController {
   // Get messages by order
@@ -119,4 +119,4 @@ class MessageController {
   }
 }
 
-module.exports = MessageController;
+export default MessageController;

@@ -1,5 +1,5 @@
-const { User, Shop, Order, Message, sequelize } = require('./models');
-const bcrypt = require('bcrypt');
+import { User, Shop, Order, Message, sequelize } from './models/index.js';
+import bcrypt from 'bcrypt';
 
 const seedDatabase = async () => {
   try {
@@ -124,4 +124,4 @@ const seedDatabase = async () => {
   }
 };
 
-module.exports = seedDatabase;
+export default seedDatabase;

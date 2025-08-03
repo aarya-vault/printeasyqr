@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
 
 // Create Sequelize instance with connection string from environment
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
@@ -28,4 +28,4 @@ const testConnection = async () => {
   }
 };
 
-module.exports = { sequelize, testConnection };
+export { sequelize, testConnection };

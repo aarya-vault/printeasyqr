@@ -27,7 +27,7 @@ const requireShopOwner = requireRole('shop_owner');
 const requireAdmin = requireRole('admin');
 const requireShopOwnerOrAdmin = requireRole(['shop_owner', 'admin']);
 
-module.exports = {
+export {
   requireAuth,
   requireRole,
   requireCustomer,

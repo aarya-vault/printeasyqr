@@ -1,4 +1,4 @@
-const { User } = require('../models');
+import { User } from '../models/index.js';
 
 class UserController {
   // Update user
@@ -113,4 +113,4 @@ class UserController {
   }
 }
 
-module.exports = UserController;
+export default UserController;
