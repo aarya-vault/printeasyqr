@@ -47,7 +47,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
   const updateUser = useMutation({
     mutationFn: async (data: EditUserForm) => {
       const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(data),

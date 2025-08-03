@@ -15,6 +15,7 @@ declare module 'express-session' {
       phone?: string;
       name: string;
       role: string;
+      shopId?: number;
     };
   }
 }

@@ -10,6 +10,8 @@ declare global {
         role: string;
         phone?: string;
         email?: string;
+        name?: string;
+        shopId?: number;
       };
     }
   }

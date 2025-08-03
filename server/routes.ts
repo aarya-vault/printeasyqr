@@ -198,8 +198,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Register admin routes
-  app.use('/api/admin', adminRoutes);
+  // Register admin routes with authentication middleware
+  app.use('/api/admin', requireAuth, requireAdmin, adminRoutes);
 
   // Shop routes
   app.get('/api/shops/owner/:ownerId', async (req, res) => {
@@ -435,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/order/:orderId", requireAuth, async (req, res) => {
     try {
       const orderId = parseInt(req.params.orderId);
-      const messages = await storage.getMessagesByOrderId(orderId);
+      const messages = await storage.getMessagesByOrder(orderId);
       res.json(messages);
     } catch (error) {
       console.error('Get messages error:', error);
@@ -454,7 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Handle file uploads
       let fileData = null;
-      if (req.files && req.files.length > 0) {
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
         fileData = (req.files as Express.Multer.File[]).map(file => ({
           originalName: file.originalname,
           filename: file.filename,
@@ -541,7 +541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle file uploads
       let fileData = null;
-      if (req.files && req.files.length > 0) {
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
         fileData = (req.files as Express.Multer.File[]).map(file => ({
           originalName: file.originalname,
           filename: file.filename,
@@ -625,7 +625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.createNotification({
           userId: adminUser.id,
           title: "New Shop Application",
-          message: `New application from ${applicationData.shopName}`,
+          message: `New application from ${applicationData.internalShopName}`,
           type: "shop_application",
           relatedId: application.id
         });
@@ -657,37 +657,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create owner user account
         const ownerUser = await storage.createUser({
           email: application.email,
-          phone: application.contactNumber,
-          name: application.applicantName,
+          phone: application.phoneNumber,
+          name: application.ownerFullName,
           role: 'shop_owner',
-          password: 'changeme123' // Temporary password
+          // Temporary password - will be handled by storage
         });
         
         // Create shop
         const shop = await storage.createShop({
-          name: application.shopName,
+          name: application.internalShopName,
           slug: application.shopSlug,
           ownerId: ownerUser.id,
-          ownerName: application.applicantName,
+          ownerName: application.ownerFullName,
           ownerFullName: application.ownerFullName,
           publicOwnerName: application.publicOwnerName,
           email: application.email,
-          phone: application.shopPhone || application.contactNumber,
-          address: application.shopAddress,
+          phone: application.publicContactNumber || application.phoneNumber,
+          address: application.completeAddress || application.publicAddress,
           city: application.city,
           state: application.state,
-          pincode: application.pincode,
-          workingHours: application.workingHours,
-          printingServices: application.printingServices,
-          servicesOffered: application.servicesOffered,
-          description: application.additionalInfo,
+          pinCode: application.pinCode,
+          workingHours: application.workingHours as any,
+          printingServices: application.services,
+          servicesOffered: application.customServices,
+          description: '',
           isOnline: true,
           isApproved: true,
-          isAvailable24Hours: application.isAvailable24Hours || false
+          isAvailable24Hours: false // Default value
         });
         
-        // Update owner with shop ID
-        await storage.updateUser(ownerUser.id, { shopId: shop.id });
+        // Update owner with shop ID - NOT IN USER TABLE
+        // Shop owners find their shop via their ownerId in shops table
         
         // Send approval notification
         await storage.createNotification({
@@ -716,7 +716,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
       
-      const userNotifications = await storage.getNotificationsByUserId(userId);
+      const userNotifications = await storage.getNotificationsByUser(userId);
       res.json(userNotifications);
     } catch (error) {
       console.error('Get notifications error:', error);
@@ -797,7 +797,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get admin statistics
   app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const stats = await storage.getAdminStats();
+      const stats = await storage.getPlatformStats();
       res.json(stats);
     } catch (error) {
       console.error('Get admin stats error:', error);
@@ -819,7 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all shops (admin only)
   app.get("/api/admin/shops", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const allShops = await storage.getAllShopsForAdmin();
+      const allShops = await storage.getAllShops();
       res.json(allShops);
     } catch (error) {
       console.error('Get all shops error:', error);
@@ -830,7 +830,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all users (admin only)
   app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const allUsers = await storage.getAllUsers();
+      const { users } = await import('../shared/schema');
+      const allUsers = await db.select().from(users).orderBy(users.createdAt);
       res.json(allUsers);
     } catch (error) {
       console.error('Get all users error:', error);
