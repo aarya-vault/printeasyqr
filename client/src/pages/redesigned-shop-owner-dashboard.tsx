@@ -84,35 +84,28 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // ✅ FIXED: Better session validation and reduced retry
+  // 🔄 TESTING: Re-enabled with session sync fix
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    refetchInterval: false, // Disable automatic refetch to prevent 401 loops
-    refetchIntervalInBackground: false,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
     enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading && user?.email && user?.name && user?.name.trim() && user?.name !== 'Shop Owner'),
+    refetchInterval: false, // No auto-refresh to prevent issues
+    refetchIntervalInBackground: false,
+    staleTime: 600000, // 10 minutes
+    gcTime: 900000, // 15 minutes
     retry: (failureCount, error: any) => {
-      // Don't retry on 401 errors to prevent flooding
-      if (error?.status === 401) return false;
+      // Absolutely no retries on 401 to prevent flooding
+      if (error?.status === 401) {
+        console.log('🔒 401 detected - stopping retries');
+        return false;
+      }
       return failureCount < 1;
     },
-    retryDelay: 30000, // 30 seconds between retries
+    retryDelay: 60000, // 1 minute between retries if any
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-    enabled: !!shopData?.shop?.id && !!user?.id && user?.role === 'shop_owner' && !authLoading && !shopLoading,
-    refetchInterval: 30000, // 30 seconds to reduce server load
-    refetchIntervalInBackground: false,
-    staleTime: 20000, // 20 seconds
-    gcTime: 120000, // 2 minutes
-    retry: (failureCount, error: any) => {
-      // Don't retry on 401 errors
-      if (error?.status === 401) return false;
-      return failureCount < 1;
-    },
-    retryDelay: 30000,
+    enabled: false, // DISABLED TO STOP 401 FLOOD
   });
 
   // Calculate order statistics efficiently with real insights

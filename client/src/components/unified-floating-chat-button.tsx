@@ -14,16 +14,10 @@ export default function UnifiedFloatingChatButton() {
   const { user } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // 🔄 RE-ENABLED: With proper authentication guards
+  // 🚨 EMERGENCY DISABLE: Session sync issue
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: Boolean(user?.id && user?.role === 'shop_owner' && user?.email && user?.name && user?.name.trim() && user?.name !== 'Shop Owner'),
-    retry: (failureCount, error: any) => {
-      if (error?.status === 401) return false;
-      return failureCount < 1;
-    },
-    staleTime: 300000,
-    refetchInterval: false,
+    enabled: false, // DISABLED TO STOP 401 FLOOD
   });
 
   // Calculate total unread messages  
@@ -31,9 +25,7 @@ export default function UnifiedFloatingChatButton() {
     queryKey: user?.role === 'shop_owner' 
       ? [`/api/orders/shop/${shopData?.shop?.id}`]
       : [`/api/orders/customer/${user?.id}`],
-    enabled: user?.role === 'shop_owner' 
-      ? !!(shopData?.shop?.id && user?.id && user?.role === 'shop_owner')
-      : !!(user?.id && user?.role === 'customer'),
+    enabled: false, // DISABLED TO STOP 401 FLOOD
     refetchInterval: 30000,
     retry: (failureCount, error: any) => {
       if (error?.status === 401) return false;

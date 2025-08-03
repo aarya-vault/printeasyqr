@@ -113,8 +113,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const userData = await response.json();
+      
+      // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Force a small delay to ensure auth state is synchronized before any API calls
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Save persistent user data for auto-fill
       const persistentData: Partial<PersistentUserData> = {};
@@ -188,8 +193,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const userData = await response.json();
+      
+      // 🔥 CRITICAL FIX: Ensure immediate state update and synchronization  
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Force a small delay to ensure auth state is synchronized before any API calls
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       return userData;
     } catch (error) {
       console.error('Admin login error:', error);
