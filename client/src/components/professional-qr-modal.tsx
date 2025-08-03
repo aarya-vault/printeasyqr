@@ -3,7 +3,19 @@ import { X, Copy, Share2, Download, Camera, Upload, MessageCircle, Shield, FileC
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import QRCode from 'qrcode';
-import type { Shop } from '@shared/schema';
+// Local Shop interface
+interface Shop {
+  id: number;
+  name: string;
+  slug: string;
+  phone: string;
+  address: string;
+  city: string;
+  publicOwnerName?: string;
+  workingHours?: Record<string, { open: string; close: string; closed: boolean }>;
+  isOnline: boolean;
+  acceptsWalkinOrders?: boolean;
+}
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 
 interface ProfessionalQRModalProps {
@@ -63,8 +75,21 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         throw new Error(errorData.message || 'Server failed to generate QR code');
       }
 
-      // Get the image blob
-      const blob = await response.blob();
+      // Get the base64 image from JSON response
+      const data = await response.json();
+      if (!data.success || !data.image) {
+        throw new Error('Invalid response from server');
+      }
+      
+      // Convert base64 to blob
+      const base64Data = data.image;
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/png' });
       
       // Create download link
       const url = window.URL.createObjectURL(blob);

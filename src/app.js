@@ -19,6 +19,7 @@ import orderRoutes from './routes/order.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import shopApplicationRoutes from './routes/shopApplication.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import qrRoutes from './routes/qr.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -114,6 +115,7 @@ app.use('/api', shopRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', messageRoutes);
 app.use('/api', shopApplicationRoutes);
+app.use('/api', qrRoutes);
 app.use('/api/admin', adminRoutes);
 
 // File download route
