@@ -127,9 +127,6 @@ class ShopApplicationController {
       
       // If approved, create shop and owner account
       if (status === 'approved') {
-        // Create or update owner user account
-        const hashedPassword = await bcrypt.hash(application.password, 12);
-        
         // 🔥 PHONE CONFLICT RESOLUTION: Delete any existing customer with same phone
         const existingCustomer = await User.findOne({ 
           where: { 
@@ -148,21 +145,21 @@ class ShopApplicationController {
         });
         
         if (owner) {
-          // Update existing user to shop owner
+          // Update existing user to shop owner (let model handle password hashing)
           await owner.update({
             email: application.email,
             name: application.ownerFullName,
-            passwordHash: hashedPassword,
+            passwordHash: application.password, // Model will hash this automatically
             role: 'shop_owner',
             isActive: true
           }, { transaction });
         } else {
-          // Create new shop owner
+          // Create new shop owner (let model handle password hashing)
           owner = await User.create({
             phone: application.phoneNumber,
             email: application.email,
             name: application.ownerFullName,
-            passwordHash: hashedPassword,
+            passwordHash: application.password, // Model will hash this automatically
             role: 'shop_owner',
             isActive: true
           }, { transaction });
