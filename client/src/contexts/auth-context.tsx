@@ -33,9 +33,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing server-side session instead of localStorage
+    // 🔥 CRITICAL FIX: Check localStorage first to avoid null user state
     const checkSession = async () => {
       try {
+        // First check localStorage to maintain user state during session check
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            setUser(userData); // Set user immediately from localStorage
+          } catch (e) {
+            localStorage.removeItem('user');
+          }
+        }
+        
+        // Then verify with server (but don't reset user to null)
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
         });
@@ -43,12 +55,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
         } else {
-          // Clear localStorage if session is invalid
+          // Only clear user if we don't have valid localStorage data
+          if (!savedUser) {
+            setUser(null);
+          }
           localStorage.removeItem('user');
         }
       } catch (error) {
         console.error('Session check error:', error);
+        // Don't clear user state if localStorage has valid data
+        const savedUser = localStorage.getItem('user');
+        if (!savedUser) {
+          setUser(null);
+        }
         localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
