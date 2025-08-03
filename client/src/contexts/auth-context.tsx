@@ -163,7 +163,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const adminLogin = async (email: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/admin-login', {
+      const response = await fetch('/api/auth/email-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -175,10 +175,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error(error.message || 'Login failed');
       }
 
-      const data = await response.json();
-      setUser(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      return data.user;
+      const userData = await response.json();
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
     } catch (error) {
       console.error('Admin login error:', error);
       throw error;
