@@ -127,17 +127,33 @@ class ShopApplicationController {
       
       // If approved, create shop and owner account
       if (status === 'approved') {
-        // Create owner user account
+        // Create or update owner user account
         const hashedPassword = await bcrypt.hash(application.password, 12);
         
-        const owner = await User.create({
-          phone: application.phoneNumber,
-          email: application.email,
-          name: application.ownerFullName,
-          passwordHash: hashedPassword,
-          role: 'shop_owner',
-          isActive: true
-        }, { transaction });
+        let owner = await User.findOne({
+          where: { phone: application.phoneNumber }
+        });
+        
+        if (owner) {
+          // Update existing user to shop owner
+          await owner.update({
+            email: application.email,
+            name: application.ownerFullName,
+            passwordHash: hashedPassword,
+            role: 'shop_owner',
+            isActive: true
+          }, { transaction });
+        } else {
+          // Create new shop owner
+          owner = await User.create({
+            phone: application.phoneNumber,
+            email: application.email,
+            name: application.ownerFullName,
+            passwordHash: hashedPassword,
+            role: 'shop_owner',
+            isActive: true
+          }, { transaction });
+        }
         
         // Create shop
         const shop = await Shop.create({
