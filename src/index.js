@@ -9,8 +9,8 @@ const seedDatabase = require('./seed-data');
 // Create HTTP server
 const server = http.createServer(app);
 
-// Setup WebSocket
-app.setupWebSocket(server);
+// DISABLED: WebSocket setup now handled by new TypeScript system
+// app.setupWebSocket(server);
 
 // Start server
 const startServer = async () => {
@@ -24,25 +24,17 @@ const startServer = async () => {
     // Seed initial data
     await seedDatabase();
     
-    // Serve static files in production
-    if (process.env.NODE_ENV === 'production') {
-      const express = require('express');
-      const path = require('path');
-      app.use(express.static(path.join(__dirname, '..', 'dist')));
-      app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
-      });
-    }
+    // DISABLED: Static file serving now handled by new TypeScript system
+    // This was causing conflicts with the new routing system
+    // Production serving is now handled in server/index.ts with Vite integration
+    console.log('⚠️  Static file serving disabled - handled by new system');
     
-    // Start listening
-    const port = parseInt(process.env.PORT || '5000', 10);
-    server.listen({
-      port,
-      host: '0.0.0.0',
-      reusePort: true,
-    }, () => {
-      console.log(`Server running on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
-    });
+    // DISABLED: Server startup now handled by new TypeScript system
+    // This was creating multiple server instances and port conflicts
+    console.log('⚠️  Server startup disabled - handled by server/index.ts');
+    
+    // Return for integration purposes but don't start server
+    return;
 
     // Handle server errors
     server.on('error', (error) => {

@@ -1,7 +1,8 @@
 import express from 'express';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
-import { WebSocketServer } from 'ws';
+// DISABLED: WebSocket import removed - handled by new system
+// import { WebSocketServer } from 'ws';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -95,15 +96,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    version: '2.0.0'
-  });
-});
+// DISABLED: Health check now handled by new TypeScript system
+// This was causing duplicate route conflicts
+// Health endpoint is now in server/routes.ts
 
 // Register API routes
 // OLD ROUTES DISABLED - Using new TypeScript routing system
@@ -115,54 +110,16 @@ app.get('/api/health', (req, res) => {
 // app.use('/api', shopApplicationRoutes);
 // app.use('/api/admin', adminRoutes);
 
-// File download route
-app.get('/api/download/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(uploadDir, filename);
-  
-  if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.sendFile(path.resolve(filePath));
-  } else {
-    res.status(404).json({ message: 'File not found' });
-  }
-});
+// DISABLED: File download route now handled by new TypeScript system
+// This was causing duplicate route conflicts
+// Route is now handled in server/routes.ts
 
 // REMOVED: This catch-all was blocking new TypeScript routes
 // Unmatched API routes are now handled by the new system
 
-// WebSocket setup function
-app.setupWebSocket = (server) => {
-  const wss = new WebSocketServer({ server });
-  const wsConnections = new Map();
-
-  wss.on('connection', (ws, req) => {
-    console.log('New WebSocket connection');
-    
-    ws.on('message', (message) => {
-      try {
-        const data = JSON.parse(message);
-        
-        if (data.type === 'auth' && data.userId) {
-          wsConnections.set(data.userId, ws);
-          ws.userId = data.userId;
-          ws.send(JSON.stringify({ type: 'auth_success' }));
-        }
-      } catch (error) {
-        console.error('WebSocket message error:', error);
-      }
-    });
-
-    ws.on('close', () => {
-      if (ws.userId) {
-        wsConnections.delete(ws.userId);
-      }
-    });
-  });
-
-  // Make wsConnections available to the app
-  app.wsConnections = wsConnections;
-};
+// DISABLED: WebSocket setup now handled by new TypeScript system
+// This was causing WebSocket conflicts and is no longer needed
+// WebSocket functionality is now in server/routes.ts
 
 // Error handling middleware
 app.use((err, req, res, next) => {
