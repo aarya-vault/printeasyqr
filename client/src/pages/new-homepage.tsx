@@ -673,11 +673,10 @@ export default function NewHomepage() {
         <QRScanner
           isOpen={showQRScanner}
           onClose={() => setShowQRScanner(false)}
-          autoRedirect={true}
           onShopUnlocked={(shopId, shopName) => {
             toast({
               title: "Shop Unlocked! 🎉",
-              description: `Redirecting to ${shopName} order page...`
+              description: `You can now place orders at ${shopName}. Login to start ordering.`
             });
           }}
         />

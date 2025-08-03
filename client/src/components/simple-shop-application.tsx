@@ -133,8 +133,23 @@ export default function SimpleShopApplication() {
 
   const submitApplication = useMutation({
     mutationFn: async (data: ApplicationForm) => {
-      // Use the manually entered shop slug from the form
-      const shopSlug = data.shopSlug;
+      // Generate unique shop slug
+      const baseSlug = data.publicShopName.toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      
+      let shopSlug = baseSlug;
+      let counter = 1;
+      
+      // Check slug availability
+      while (true) {
+        const response = await fetch(`/api/shops/check-slug/${shopSlug}`);
+        const { available } = await response.json();
+        if (available) break;
+        shopSlug = `${baseSlug}-${counter}`;
+        counter++;
+      }
 
       const applicationData = {
         publicShopName: data.publicShopName,

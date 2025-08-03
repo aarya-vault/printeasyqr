@@ -12,7 +12,6 @@ import {
   AlertCircle, Package, ArrowRight, Store, User,
   Upload, Info
 } from 'lucide-react';
-import { formatToIndiaDateTime } from '@/lib/time-utils';
 
 interface OrderDetails {
   id: number;
@@ -53,7 +52,6 @@ export default function OrderConfirmation() {
   const { user, login } = useAuth();
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [countdown, setCountdown] = useState(10); // 10 seconds countdown
 
   useEffect(() => {
     setMounted(true);
@@ -66,16 +64,6 @@ export default function OrderConfirmation() {
   });
 
   const order = orderData?.order;
-
-  // Countdown timer for automatic redirect
-  useEffect(() => {
-    if (order && countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (order && countdown === 0) {
-      handleGoToDashboard();
-    }
-  }, [order, countdown]);
 
   const handleCallShop = () => {
     if (order?.shop.phone) {
@@ -226,27 +214,10 @@ export default function OrderConfirmation() {
               Order #{order.id} has been successfully placed with {order.shop.name}
             </p>
             {order.isUrgent && (
-              <Badge className="bg-[#FFBF00] text-black mb-4">
+              <Badge className="bg-[#FFBF00] text-black">
                 Priority Order
               </Badge>
             )}
-            
-            {/* Countdown Timer */}
-            <div className="mt-4 space-y-2">
-              <p className="text-sm text-gray-600">Redirecting you to dashboard in</p>
-              <div className="flex items-center justify-center gap-2">
-                <div className="bg-black text-[#FFBF00] font-bold text-2xl w-12 h-12 rounded-lg flex items-center justify-center animate-pulse">
-                  {countdown}
-                </div>
-                <span className="text-gray-600">seconds</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                <div 
-                  className="bg-[#FFBF00] h-2 rounded-full transition-all duration-1000"
-                  style={{ width: `${(10 - countdown) * 10}%` }}
-                />
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -262,7 +233,13 @@ export default function OrderConfirmation() {
                 <p className="text-gray-600 text-sm mb-3">{statusInfo.description}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Calendar className="w-4 h-4" />
-                  <span>Ordered {formatToIndiaDateTime(order.createdAt)}</span>
+                  <span>Ordered {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</span>
                 </div>
               </div>
             </div>

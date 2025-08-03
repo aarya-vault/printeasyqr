@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Shield, Users, Store, Package, TrendingUp, CheckCircle2, 
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
-  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3, Ban, Star
+  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3, Ban
 } from 'lucide-react';
 import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
@@ -908,236 +908,39 @@ export default function EnhancedAdminDashboard() {
                 <h2 className="text-2xl font-bold text-rich-black">Platform Analytics</h2>
                 <p className="text-medium-gray">View platform statistics and performance metrics</p>
               </div>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search analytics..."
+                    value={searchQueries.analytics}
+                    onChange={(e) => setSearchQueries(prev => ({ ...prev, analytics: e.target.value }))}
+                    className="pl-10 w-64"
+                  />
+                </div>
+              </div>
             </div>
             
-            {/* Platform Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="border-l-4 border-l-brand-yellow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-medium-gray mb-1">Total Revenue Potential</p>
-                      <p className="text-2xl font-bold text-rich-black">
-                        ₹{shops.reduce((total: number, shop: Shop) => total + (shop.totalOrders || 0) * 50, 0).toLocaleString('en-IN')}
-                      </p>
-                      <p className="text-xs text-success-green mt-1">Avg ₹50/order</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shops.filter((shop: Shop) => {
+                if (!searchQueries.analytics) return true;
+                const search = searchQueries.analytics.toLowerCase();
+                return shop.name?.toLowerCase().includes(search);
+              }).map((shop: Shop) => (
+                <Card key={shop.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{shop.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-sm text-medium-gray">Total Orders: {shop.totalOrders || 0}</p>
+                      <p className="text-sm text-medium-gray">Owner: {shop.ownerName}</p>
+                      <p className="text-sm text-medium-gray">City: {shop.city}</p>
                     </div>
-                    <DollarSign className="w-8 h-8 text-brand-yellow opacity-50" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-l-4 border-l-blue-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-medium-gray mb-1">Active Users</p>
-                      <p className="text-2xl font-bold text-rich-black">
-                        {users.filter((u: User) => u.isActive).length}
-                      </p>
-                      <p className="text-xs text-medium-gray mt-1">
-                        {users.filter((u: User) => u.role === 'customer').length} customers
-                      </p>
-                    </div>
-                    <UserCheck className="w-8 h-8 text-blue-500 opacity-50" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-l-4 border-l-green-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-medium-gray mb-1">Shop Performance</p>
-                      <p className="text-2xl font-bold text-rich-black">
-                        {Math.round(shops.reduce((total: number, shop: Shop) => total + (shop.totalOrders || 0), 0) / shops.length) || 0}
-                      </p>
-                      <p className="text-xs text-medium-gray mt-1">Avg orders/shop</p>
-                    </div>
-                    <TrendingUp className="w-8 h-8 text-green-500 opacity-50" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-l-4 border-l-purple-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-medium-gray mb-1">Platform Health</p>
-                      <p className="text-2xl font-bold text-rich-black">
-                        {Math.round((shops.filter((s: Shop) => s.isOnline).length / shops.length) * 100) || 0}%
-                      </p>
-                      <p className="text-xs text-medium-gray mt-1">Shops online</p>
-                    </div>
-                    <BarChart3 className="w-8 h-8 text-purple-500 opacity-50" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-
-            {/* Detailed Analytics Sections */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Top Performing Shops */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-brand-yellow" />
-                      Top Performing Shops
-                    </span>
-                    <Badge variant="outline">By Orders</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {shops
-                      .sort((a: Shop, b: Shop) => (b.totalOrders || 0) - (a.totalOrders || 0))
-                      .slice(0, 5)
-                      .map((shop: Shop, index: number) => (
-                        <div key={shop.id} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                              index === 0 ? 'bg-brand-yellow text-rich-black' :
-                              index === 1 ? 'bg-gray-300 text-gray-700' :
-                              index === 2 ? 'bg-orange-300 text-orange-800' :
-                              'bg-gray-100 text-gray-600'
-                            }`}>
-                              {index + 1}
-                            </div>
-                            <div>
-                              <p className="font-medium text-rich-black">{shop.name}</p>
-                              <p className="text-xs text-medium-gray">{shop.city}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-rich-black">{shop.totalOrders || 0}</p>
-                            <p className="text-xs text-medium-gray">orders</p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* User Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-brand-yellow" />
-                    User Distribution
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Users className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-rich-black">Customers</p>
-                          <p className="text-xs text-medium-gray">End users placing orders</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-rich-black">
-                          {users.filter((u: User) => u.role === 'customer').length}
-                        </p>
-                        <p className="text-xs text-medium-gray">
-                          {Math.round((users.filter((u: User) => u.role === 'customer').length / users.length) * 100)}%
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <Store className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-rich-black">Shop Owners</p>
-                          <p className="text-xs text-medium-gray">Business operators</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-rich-black">
-                          {users.filter((u: User) => u.role === 'shop_owner').length}
-                        </p>
-                        <p className="text-xs text-medium-gray">
-                          {Math.round((users.filter((u: User) => u.role === 'shop_owner').length / users.length) * 100)}%
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Shop Performance Grid */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Store className="w-5 h-5 text-brand-yellow" />
-                    All Shop Analytics
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {shops.length} Total Shops
-                    </Badge>
-                    <Badge className="bg-success-green text-white text-xs">
-                      {shops.filter((s: Shop) => s.isOnline).length} Online
-                    </Badge>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">Shop Name</th>
-                        <th className="text-left py-3 px-4">Location</th>
-                        <th className="text-center py-3 px-4">Status</th>
-                        <th className="text-center py-3 px-4">Orders</th>
-                        <th className="text-center py-3 px-4">Rating</th>
-                        <th className="text-right py-3 px-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {shops.map((shop: Shop) => (
-                        <tr key={shop.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium">{shop.name}</td>
-                          <td className="py-3 px-4 text-medium-gray">{shop.city}</td>
-                          <td className="py-3 px-4 text-center">
-                            <Badge variant={shop.isOnline ? 'default' : 'outline'} className="text-xs">
-                              {shop.isOnline ? 'Online' : 'Offline'}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-center font-semibold">{shop.totalOrders || 0}</td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="flex items-center justify-center gap-1">
-                              <Star className="w-4 h-4 text-brand-yellow fill-current" />
-                              {shop.rating || '0.0'}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setSelectedShopForManagement(shop)}
-                              className="text-brand-yellow hover:text-brand-yellow/80"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
 
