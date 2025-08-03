@@ -40,13 +40,14 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       
       console.log('Unlocking shop:', { customerId: user?.id, shopId, shopSlug });
       
-      const response = await fetch('/api/customer/unlock-shop', {
+      // Use the correct endpoint based on available identifier
+      const endpoint = shopSlug ? `/api/unlock-shop/${shopSlug}` : `/api/unlock-shop-by-id/${shopId}`;
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          customerId: user?.id, 
-          shopId,
-          shopSlug,
+          customerId: user?.id,
           qrScanLocation: 'dashboard_scanner'
         })
       });
@@ -62,21 +63,21 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       toast({
         title: 'Shop Unlocked! 🎉',
         description: autoRedirect 
-          ? `Redirecting to ${data.shopName} order page...`
-          : `You can now place orders at ${data.shopName}`
+          ? `Redirecting to ${data.shop?.name || 'shop'} order page...`
+          : `You can now place orders at ${data.shop?.name || 'this shop'}`
       });
       
       // Invalidate queries to refresh unlocked shops
       queryClient.invalidateQueries({ queryKey: ['/api/customer/unlocked-shops'] });
       queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       
-      onShopUnlocked?.(data.shopId, data.shopName);
+      onShopUnlocked?.(data.shop?.id, data.shop?.name);
       onClose();
       
       // Enhanced QR Scan Workflow: Auto-redirect to order page with prefilled data
-      if (autoRedirect && data.shopSlug) {
+      if (autoRedirect && data.shop?.slug) {
         setTimeout(() => {
-          navigate(`/shop/${data.shopSlug}?source=qr&prefill=true`);
+          navigate(`/shop/${data.shop.slug}?source=qr&prefill=true`);
         }, 1000); // Brief delay to show success message
       }
     },
@@ -170,14 +171,9 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       
       // Handle shop access based on user authentication
       if (user?.id) {
-        // Authenticated user - unlock the shop
-        if (isNaN(shopId)) {
-          // It's a shop slug
-          unlockShopMutation.mutate({ shopSlug: shopIdentifier });
-        } else {
-          // It's a numeric shop ID
-          unlockShopMutation.mutate({ shopId });
-        }
+        // Authenticated user - unlock the shop by slug (preferred method)
+        // Always use shop slug for consistency
+        unlockShopMutation.mutate({ shopSlug: shopIdentifier });
       } else {
         // Anonymous user - redirect to shop page
         const shopUrl = isNaN(shopId) ? `/shop/${shopIdentifier}` : `/shop/${shopIdentifier}`;

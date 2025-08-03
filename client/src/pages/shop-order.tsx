@@ -56,14 +56,14 @@ export default function ShopOrder() {
   const { getPersistentUserData } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
-  const { data: shopData, isLoading, error } = useQuery<{ shop: Shop }>({
+  const { data: shopData, isLoading, error } = useQuery<Shop>({
     queryKey: [`/api/shops/slug/${params?.slug}`],
     enabled: !!params?.slug,
     refetchInterval: 30000, // Refresh every 30 seconds for real-time shop status
     staleTime: 5000, // Consider data stale after 5 seconds
   });
 
-  const shop = shopData?.shop;
+  const shop = shopData;
 
   // Auto-fill from persistent data
   const persistentData = getPersistentUserData();
@@ -208,7 +208,7 @@ export default function ShopOrder() {
   if (isLoading) {
     return (
       <DashboardLoading 
-        title="Loading Shop Information..." 
+        title="Loading Information..." 
         subtitle="Getting shop details, working hours, and order settings"
       />
     );

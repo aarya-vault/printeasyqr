@@ -1,0 +1,21 @@
+{
+  "name": "printeasy-qr-microservice",
+  "version": "1.0.0",
+  "description": "PrintEasy QR Code Generation Microservice for Vercel",
+  "main": "api/generate-qr.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required for Vercel serverless functions'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0",
+    "puppeteer-core": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["qr", "puppeteer", "vercel", "microservice", "printeasy"],
+  "author": "PrintEasy",
+  "license": "MIT"
+}

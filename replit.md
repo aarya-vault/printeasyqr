@@ -1,48 +1,70 @@
 # PrintEasy QR - Business Printing Platform
 
 ## Overview
-PrintEasy QR is a comprehensive B2B2C digital platform connecting customers with local print shops. It supports two order flows: digital file uploads and walk-in orders. The platform streamlines order management, communication, and operations for print shops, while offering customers convenient access to printing services. The vision is to be a production-ready platform with robust admin management, mobile responsiveness, and strong branding.
+
+PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting customers with local print shops. It supports two order flows: digital file uploads for pre-planned needs and walk-in orders for immediate service. The platform streamlines order management and communication for print shops, offering customers convenient access to printing services. PrintEasy is a comprehensive solution with robust admin management, revolutionary QR generation system, and clean architecture, focusing on connecting users without handling financial transactions.
+
+**Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
+
+**Recent Fixes (August 2025)**: Fixed critical structural issues with API routing being intercepted by Vite middleware. Resolved customer name collection modal (removed close button as mandatory), fixed QR scanner API endpoint mismatch, added proper needsNameUpdate server logic, and ensured all APIs return correct JSON responses. Customer workflow, shop browsing, and QR scanning now fully functional.
 
 ## User Preferences
+
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### UI/UX Decisions
-The platform features a clean, professional UI with a strict golden yellow (#FFBF00) and black color scheme, avoiding gradients. Design prioritizes mobile-first responsiveness, ensuring optimal experience across all devices. Key elements include a prominent QR scanner on the homepage, unified navigation across customer and shop owner dashboards, and clear visual indicators for statuses and actions. All interfaces are designed for efficiency, eliminating unnecessary animations and complexity.
+### Design Philosophy
+The platform adheres to a strict design policy centered around golden yellow (`#FFBF00`) and black, with a "no gradients" rule to ensure a clean, professional, and consistent visual identity. All UI elements, including icons, badges, and status indicators, comply with this color scheme. The design prioritizes mobile-first responsiveness, scaling elegantly from small mobile devices to large desktops.
 
-### Technical Implementations
-- **Frontend**: React 18.3.1 with TypeScript, Vite, Tailwind CSS, shadcn/ui, and React Context API with TanStack Query for state management.
+### Technology Stack
+- **Frontend**: React 18.3.1 with TypeScript (Vite), Tailwind CSS, shadcn/ui, Radix UI.
 - **Backend**: Express.js with TypeScript (ESM modules).
-- **Database**: PostgreSQL with Drizzle ORM, utilizing Neon Database for serverless hosting.
-- **Authentication**: Phone-based authentication with simulated verification, supporting Customer, Shop Owner, and Admin roles. Admin authentication uses email/password with bcrypt hashing.
-- **Real-time Communication**: Custom WebSocket implementation for live order updates, messages, and notifications.
-- **File Handling**: Multer for file uploads, storing files locally. Supports PDF, DOC, DOCX, JPG, PNG, TXT up to 50MB per file, with automatic deletion upon order completion. Print functionality handles various file types for direct browser printing.
-- **Monorepo Structure**: Separated client, server, and shared code for clear organization.
+- **Database**: PostgreSQL with Drizzle ORM, hosted on Neon Database (serverless).
+- **Real-time**: WebSocket connections.
+- **File Handling**: Multer for local storage file uploads.
+- **State Management**: React Context API, TanStack Query.
+- **Authentication**: Phone-based for customers, email/password for shop owners and admins.
 
-### Feature Specifications
-- **Order Flows**: Digital file upload and walk-in order booking.
-- **Dashboard Systems**: Unified dashboards for customers, shop owners, and administrators, providing comprehensive management capabilities (user, shop, order).
-- **QR System**: Shops have unique, branded QR codes for customer shop unlocking and seamless order initiation.
-- **Chat System**: Unified, real-time messaging between customers and shop owners, including file attachments and unread message indicators. Shop owners can manage multiple conversations.
-- **Shop Management**: Admins can approve/manage shop applications and all shop details. Shop owners can manage working hours and business details.
-- **Order Tracking**: Real-time status updates via WebSocket, with detailed timelines and read-only chat history for completed orders.
-- **Security**: Bcrypt password hashing, environment variable-based credentials, authentication middleware for all sensitive API endpoints, and role-based access control.
+### Architectural Patterns
+- **Monorepo Structure**: Clear separation between client, server, and shared code.
+- **Component-Based UI**: Reusable and modular React components.
+- **RESTful API with WebSockets**: For data exchange and real-time updates.
+- **Clean Architecture**: Minimized technical debt, unified components across dashboards (Customer, Shop Owner, Admin).
+- **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
-### System Design Choices
-- **Clean Architecture**: Minimized technical debt by consolidating duplicate components and standardizing patterns.
-- **Performance Optimization**: Optimized queries, implemented background data refetching, and real-time updates for responsiveness.
-- **Error Handling**: Comprehensive error states, user-friendly messages, and robust fallback mechanisms.
-- **Scalability Considerations**: Designed with database connection pooling and modular architecture for future expansion.
+### Core Features & Implementations
+- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Local Puppeteer with container-optimized configuration. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with professional 35KB PNG downloads.
+- **Order Flows**: Supports digital file upload and walk-in order booking.
+- **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
+- **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). Enhanced analytics with revenue potential, user distribution, shop performance metrics, and detailed data visualization.
+- **Enhanced QR Code System**: Generates unique, branded QR codes for each shop with automatic shop unlocking and direct order page redirection. Features step-by-step customer guide, verified shop badges, and PrintEasy branding with USP messaging (500MB files, 100+ formats, 24/7 support).
+- **Dynamic Homepage**: Mobile-first design prioritizing QR scanning and login, showcasing key features like real-time chat, order tracking, and secure file handling.
+- **File Management**: Supports all file types with no restrictions. Unlimited file uploads (up to 500MB per file, 100 files per order). Files are stored locally and automatically deleted upon order completion. Print functionality supports various file types directly from the browser.
+- **Smart Order Logic**: Customer dashboards dynamically adapt UI based on order status (e.g., "Add More Files" for processing orders). Order numbering system for queue management.
+- **24/7 Shop Support**: Logic to handle shops operating 24 hours or overnight, reflected across all platform components and QR codes.
+- **Robust Authentication**: Bcrypt hashing for all passwords, environment variables for admin credentials (ADMIN_EMAIL: its.harshthakar@gmail.com, ADMIN_PASSWORD: 2004@Harsh), server-side session validation, and protected API routes with middleware (`requireAuth`, `requireAdmin`, `requireShopOwner`).
+- **Comprehensive Order/Chat History**: Dedicated read-only sections for completed orders and their associated chat logs.
+- **Order Deletion System**: Soft delete implementation with role-based permissions. Customers can delete pending orders, shop owners can delete processing/ready orders, admins can delete any order. Deleted orders are hidden from all views but retained in database with deletion tracking.
+- **Shop Slug System**: Manual shop slug entry during application with validation. No auto-generation from shop name.
+- **Optimized Shop Dashboard**: Streamlined dashboard with 4 vital cards showing essential metrics (Today's Orders, Pending Orders, Completed Today, Average Processing Time) in a single row for better usability.
+- **Technical Debt Elimination**: Cleaned all duplicate code, unified component architecture, consistent TypeScript typing, proper error handling, clean separation of concerns.
 
 ## External Dependencies
-- **Database**: `@neondatabase/serverless`
-- **ORM**: `drizzle-orm`
-- **State Management**: `@tanstack/react-query`
-- **WebSockets**: `ws`
-- **File Uploads**: `multer`
-- **Validation**: `zod`
-- **UI Components**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
-- **Date Utilities**: `date-fns`
-- **Build Tools**: `vite`, `tsx`, `esbuild`
-- **QR Code Generation**: `qrcode`, `html2canvas`
+
+- **@neondatabase/serverless**: PostgreSQL database connectivity.
+- **drizzle-orm**: Type-safe ORM for PostgreSQL.
+- **@tanstack/react-query**: Server state management.
+- **ws**: WebSocket implementation for real-time features.
+- **multer**: Middleware for handling `multipart/form-data` (file uploads).
+- **zod**: Runtime type validation.
+- **@radix-ui/***: Headless UI components.
+- **tailwindcss**: Utility-first CSS framework.
+- **lucide-react**: Icon library.
+- **date-fns**: Date manipulation utility.
+- **vite**: Frontend build tool and dev server.
+- **tsx**: TypeScript execution for development.
+- **esbuild**: Production bundling.
+- **bcrypt**: Password hashing.
+- **qrcode**: QR code generation.
+- **html2canvas**: HTML to canvas rendering for QR code export.

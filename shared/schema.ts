@@ -67,6 +67,7 @@ export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   customerId: integer("customer_id").notNull().references(() => users.id),
   shopId: integer("shop_id").notNull().references(() => shops.id),
+  orderNumber: integer("order_number").notNull().default(0), // Shop-specific order number for queue management
   type: text("type").notNull(), // 'upload' or 'walkin'
   title: text("title").notNull(),
   description: text("description"),
@@ -79,6 +80,8 @@ export const orders = pgTable("orders", {
   estimatedBudget: decimal("estimated_budget", { precision: 10, scale: 2 }),
   finalAmount: decimal("final_amount", { precision: 10, scale: 2 }),
   notes: text("notes"),
+  deletedBy: integer("deleted_by").references(() => users.id), // Track who deleted the order
+  deletedAt: timestamp("deleted_at"), // Track when order was deleted
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

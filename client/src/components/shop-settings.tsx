@@ -81,12 +81,12 @@ export default function ShopSettings() {
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch shop data
-  const { data: shops = [], isLoading } = useQuery({
+  const { data: shopResponse, isLoading } = useQuery({
     queryKey: ['/api/shops/owner', user?.id],
     enabled: !!user && user.role === 'shop_owner',
   });
 
-  const shop = shops[0]; // Assuming one shop per owner
+  const shop = (shopResponse as any)?.shop; // Extract shop from response
 
   const form = useForm<ShopSettingsForm>({
     resolver: zodResolver(shopSettingsSchema),

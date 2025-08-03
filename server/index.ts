@@ -114,12 +114,50 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
+  // Add health check endpoint for deployment monitoring
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0'
+    });
+  });
+
   const port = parseInt(process.env.PORT || '5000', 10);
+  
+  // Enhanced server startup with error handling
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`serving on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+
+  // Handle server startup errors
+  server.on('error', (error: any) => {
+    console.error('Server startup error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Deployment may need port configuration.`);
+    }
+    process.exit(1);
+  });
+
+  // Graceful shutdown handling for deployment
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed.');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    console.log('SIGINT received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed.');
+      process.exit(0);
+    });
   });
 })();

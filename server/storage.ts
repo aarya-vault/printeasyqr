@@ -6,7 +6,7 @@ import {
   type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql, ne } from "drizzle-orm";
+import { eq, desc, and, or, sql, ne, isNull } from "drizzle-orm";
 import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -38,7 +38,7 @@ export interface IStorage {
   getOrdersByShop(shopId: number): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: number, updates: Partial<Order>): Promise<Order | undefined>;
-  deleteOrder(id: number): Promise<boolean>;
+  deleteOrder(id: number, deletedBy?: number): Promise<boolean>;
   deleteOrderFiles(orderId: number): Promise<void>;
   
   // Message operations
@@ -95,8 +95,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || undefined;
+    try {
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+      return user || undefined;
+    } catch (error) {
+      console.error('Error fetching user by email:', error);
+      return undefined;
+    }
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
@@ -123,8 +132,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getShopByOwnerId(ownerId: number): Promise<Shop | undefined> {
-    const [shop] = await db.select().from(shops).where(eq(shops.ownerId, ownerId));
-    return shop || undefined;
+    try {
+      const [shop] = await db
+        .select()
+        .from(shops)
+        .where(eq(shops.ownerId, ownerId))
+        .limit(1);
+      return shop || undefined;
+    } catch (error) {
+      console.error('Error fetching shop by owner ID:', error);
+      return undefined;
+    }
   }
 
   async getShopByEmail(email: string): Promise<any> {
@@ -223,61 +241,97 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrder(id: number): Promise<Order | undefined> {
-    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    const [order] = await db.select().from(orders).where(
+      and(
+        eq(orders.id, id),
+        isNull(orders.deletedAt) // Exclude soft deleted orders
+      )
+    );
     return order || undefined;
   }
 
   async getOrdersByCustomer(customerId: number): Promise<Order[]> {
-    const orderList = await db
-      .select({
-        order: orders,
-        shop: {
-          id: shops.id,
-          name: shops.name,
-          phone: shops.phone,
-          publicContactNumber: shops.phone, // Using phone for now
-          publicAddress: shops.address,
-          city: shops.city,
-        }
-      })
-      .from(orders)
-      .leftJoin(shops, eq(orders.shopId, shops.id))
-      .where(eq(orders.customerId, customerId))
-      .orderBy(desc(orders.createdAt));
+    try {
+      const orderList = await db
+        .select({
+          order: orders,
+          shop: {
+            id: shops.id,
+            name: shops.name,
+            phone: shops.phone,
+            publicContactNumber: shops.phone, // Using phone for now
+            publicAddress: shops.address,
+            city: shops.city,
+          }
+        })
+        .from(orders)
+        .leftJoin(shops, eq(orders.shopId, shops.id))
+        .where(
+          and(
+            eq(orders.customerId, customerId),
+            isNull(orders.deletedAt) // Exclude soft deleted orders
+          )
+        )
+        .orderBy(desc(orders.createdAt))
+        .limit(50); // Limit for performance
 
-    return orderList.map(row => ({
-      ...row.order,
-      shop: row.shop
-    })) as Order[];
+      return orderList.map(row => ({
+        ...row.order,
+        shop: row.shop
+      })) as Order[];
+    } catch (error) {
+      console.error('Error fetching orders by customer:', error);
+      return [];
+    }
   }
 
   async getOrdersByShop(shopId: number): Promise<Order[]> {
-    const orderList = await db
-      .select({
-        order: orders,
-        customer: {
-          id: users.id,
-          name: users.name,
-          phone: users.phone,
-        }
-      })
-      .from(orders)
-      .leftJoin(users, eq(orders.customerId, users.id))
-      .where(eq(orders.shopId, shopId))
-      .orderBy(desc(orders.createdAt));
+    try {
+      const orderList = await db
+        .select({
+          order: orders,
+          customer: {
+            id: users.id,
+            name: users.name,
+            phone: users.phone,
+          }
+        })
+        .from(orders)
+        .leftJoin(users, eq(orders.customerId, users.id))
+        .where(
+          and(
+            eq(orders.shopId, shopId),
+            isNull(orders.deletedAt) // Exclude soft deleted orders
+          )
+        )
+        .orderBy(desc(orders.createdAt))
+        .limit(50); // Limit for performance
 
-    return orderList.map(row => ({
-      ...row.order,
-      customerName: row.customer?.name || '',
-      customerPhone: row.customer?.phone || '',
-    })) as Order[];
+      return orderList.map(row => ({
+        ...row.order,
+        customerName: row.customer?.name || '',
+        customerPhone: row.customer?.phone || '',
+      })) as Order[];
+    } catch (error) {
+      console.error('Error fetching orders by shop:', error);
+      return [];
+    }
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    // Get the next order number for this shop
+    const [lastOrder] = await db
+      .select({ maxOrderNumber: sql<number>`MAX(order_number)` })
+      .from(orders)
+      .where(eq(orders.shopId, insertOrder.shopId));
+    
+    const nextOrderNumber = (lastOrder?.maxOrderNumber || 0) + 1;
+    
     const [order] = await db
       .insert(orders)
       .values({
         ...insertOrder,
+        orderNumber: nextOrderNumber,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -432,13 +486,17 @@ export class DatabaseStorage implements IStorage {
     await db.delete(notifications).where(eq(notifications.id, id));
   }
 
-  async deleteOrder(id: number): Promise<boolean> {
+  async deleteOrder(id: number, deletedBy?: number): Promise<boolean> {
     try {
-      // First delete all related messages for this order
-      await db.delete(messages).where(eq(messages.orderId, id));
-      
-      // Then delete the order
-      const result = await db.delete(orders).where(eq(orders.id, id));
+      // Soft delete - mark as deleted instead of removing
+      const result = await db
+        .update(orders)
+        .set({
+          deletedBy: deletedBy,
+          deletedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(orders.id, id));
       return true;
     } catch (error) {
       console.error('Error deleting order:', error);
@@ -579,6 +637,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVisitedShopsByCustomer(customerId: number): Promise<any[]> {
+    // Get shops from both orders and unlocked shops for comprehensive view
     const result = await db
       .select({
         id: shops.id,
@@ -587,11 +646,19 @@ export class DatabaseStorage implements IStorage {
         city: shops.city,
         isOnline: shops.isOnline,
         phone: shops.phone,
+        address: shops.address,
+        rating: shops.rating,
+        status: shops.status,
+        isApproved: shops.isApproved
       })
-      .from(orders)
-      .innerJoin(shops, eq(orders.shopId, shops.id))
-      .where(eq(orders.customerId, customerId))
-      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone);
+      .from(customerShopUnlocks)
+      .innerJoin(shops, eq(customerShopUnlocks.shopId, shops.id))
+      .where(and(
+        eq(customerShopUnlocks.customerId, customerId),
+        eq(shops.status, 'active'),
+        eq(shops.isApproved, true)
+      ))
+      .groupBy(shops.id, shops.name, shops.slug, shops.city, shops.isOnline, shops.phone, shops.address, shops.rating, shops.status, shops.isApproved);
     
     return result;
   }

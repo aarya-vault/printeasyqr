@@ -15,6 +15,7 @@ import {
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { formatToIndiaTime, formatToIndiaDateTime, isToday } from '@/lib/time-utils';
 
 interface Message {
   id: number;
@@ -465,7 +466,7 @@ export default function UnifiedChatSystem({
                                 Order #{order.id}
                               </span>
                               <span className="text-xs text-gray-400">
-                                {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
+                                {formatToIndiaDateTime(order.createdAt)}
                               </span>
                             </div>
                           </div>
@@ -602,7 +603,7 @@ export default function UnifiedChatSystem({
                                   </span>
                                   <div className="flex items-center space-x-1">
                                     <span className="text-xs opacity-75">
-                                      {format(new Date(message.createdAt), 'HH:mm')}
+                                      {formatToIndiaTime(message.createdAt)}
                                     </span>
                                     {isOwnMessage && (
                                       <CheckCheck className={`w-3 h-3 ${
