@@ -806,12 +806,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get all shop applications (admin only)
   app.get("/api/admin/shop-applications", requireAuth, requireAdmin, async (req, res) => {
+    console.log("🔍 Admin shop applications route accessed");
     try {
       const applications = await storage.getAllShopApplications();
-      res.json(applications);
+      console.log("✅ Shop applications fetched:", applications?.length || 0, "results");
+      res.json(applications || []);
     } catch (error) {
-      console.error('Get shop applications error:', error);
-      res.status(500).json({ message: "Failed to fetch applications" });
+      console.error('❌ Get shop applications error:', error);
+      res.status(500).json({ message: "Failed to fetch applications", error: error.message });
     }
   });
 

@@ -97,14 +97,14 @@ app.use((req, res, next) => {
   const serverModule = require("../src/server.js");
   const { startSequelizeServer, app: sequelizeApp } = serverModule;
   
-  // Start with new Sequelize server
-  await startSequelizeServer(app);
-  
-  // Setup routes with WebSocket integration
+  // Setup new TypeScript routes FIRST to avoid conflicts
   const server = await registerRoutes(app);
   
-  // Disable the old Sequelize WebSocket setup to avoid conflicts
-  // sequelizeApp.setupWebSocket(server);
+  // Start Sequelize server AFTER new routes are registered
+  await startSequelizeServer(app);
+  
+  // Note: WebSocket is now handled by registerRoutes
+  // sequelizeApp.setupWebSocket(server); // Disabled to avoid conflicts
 
   // Old seed database is handled by Sequelize now
   // await seedDatabase();
