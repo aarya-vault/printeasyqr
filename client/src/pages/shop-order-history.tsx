@@ -60,10 +60,16 @@ export default function ShopOrderHistory() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
 
-  // 🔥 EMERGENCY DISABLE
+  // 🔄 RE-ENABLED: With proper authentication guards
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: false,
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && user?.email && user?.name && user?.name.trim() && user?.name !== 'Shop Owner'),
+    retry: (failureCount, error: any) => {
+      if (error?.status === 401) return false;
+      return failureCount < 1;
+    },
+    staleTime: 300000,
+    refetchInterval: false,
   });
 
   // Fetch completed orders

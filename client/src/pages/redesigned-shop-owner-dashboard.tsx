@@ -42,8 +42,8 @@ import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button
 import OrderDetailsModal from '@/components/order-details-modal';
 import { format } from 'date-fns';
 
-// Using the shared Shop type from schema
-import type { Shop } from '@shared/schema';
+// Using the shared Shop type from types
+import type { Shop } from '@shared/types';
 
 interface Order {
   id: number;
@@ -72,7 +72,7 @@ interface DashboardStats {
 }
 
 export default function RedesignedShopOwnerDashboard() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
@@ -84,26 +84,35 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // 🔥 EMERGENCY FIX: COMPLETELY DISABLE until session works
+  // ✅ FIXED: Better session validation and reduced retry
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    refetchInterval: 60000,
+    refetchInterval: false, // Disable automatic refetch to prevent 401 loops
     refetchIntervalInBackground: false,
-    staleTime: 30000,
-    gcTime: 300000,
-    enabled: false, // DISABLED TO STOP 401 FLOOD
-    retry: 0,
+    staleTime: 300000, // 5 minutes
+    gcTime: 600000, // 10 minutes
+    enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading && user?.email && user?.name && user?.name.trim() && user?.name !== 'Shop Owner'),
+    retry: (failureCount, error: any) => {
+      // Don't retry on 401 errors to prevent flooding
+      if (error?.status === 401) return false;
+      return failureCount < 1;
+    },
+    retryDelay: 30000, // 30 seconds between retries
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
-    enabled: false, // DISABLED TO STOP 401 FLOOD
-    enabled: !!shopData?.shop?.id,
-    refetchInterval: 20000, // 20 seconds (increased from 15s)
+    enabled: !!shopData?.shop?.id && !!user?.id && user?.role === 'shop_owner' && !authLoading && !shopLoading,
+    refetchInterval: 30000, // 30 seconds to reduce server load
     refetchIntervalInBackground: false,
-    staleTime: 10000, // 10 seconds (increased from 5s)
-    gcTime: 60000, // 1 minute cache
-    retry: 2,
+    staleTime: 20000, // 20 seconds
+    gcTime: 120000, // 2 minutes
+    retry: (failureCount, error: any) => {
+      // Don't retry on 401 errors
+      if (error?.status === 401) return false;
+      return failureCount < 1;
+    },
+    retryDelay: 30000,
   });
 
   // Calculate order statistics efficiently with real insights
