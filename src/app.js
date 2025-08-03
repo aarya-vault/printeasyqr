@@ -19,6 +19,7 @@ import orderRoutes from './routes/order.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import shopApplicationRoutes from './routes/shopApplication.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
 const app = express();
@@ -96,23 +97,37 @@ app.use((req, res, next) => {
   next();
 });
 
-// DISABLED: Health check now handled by new TypeScript system
-// This was causing duplicate route conflicts
-// Health endpoint is now in server/routes.ts
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
+  });
+});
 
-// Register API routes
-// OLD ROUTES DISABLED - Using new TypeScript routing system
-// app.use('/api', authRoutes);
-// app.use('/api', userRoutes);
-// app.use('/api', shopRoutes);
-// app.use('/api', orderRoutes);
-// app.use('/api', messageRoutes);
-// app.use('/api', shopApplicationRoutes);
-// app.use('/api/admin', adminRoutes);
+// Register API routes - SEQUELIZE SYSTEM ACTIVATED
+app.use('/api', authRoutes);
+app.use('/api', userRoutes);
+app.use('/api', shopRoutes);
+app.use('/api', orderRoutes);
+app.use('/api', messageRoutes);
+app.use('/api', shopApplicationRoutes);
+app.use('/api/admin', adminRoutes);
 
-// DISABLED: File download route now handled by new TypeScript system
-// This was causing duplicate route conflicts
-// Route is now handled in server/routes.ts
+// File download route
+app.get('/api/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '..', 'uploads', filename);
+  
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.sendFile(path.resolve(filePath));
+  } else {
+    res.status(404).json({ message: 'File not found' });
+  }
+});
 
 // REMOVED: This catch-all was blocking new TypeScript routes
 // Unmatched API routes are now handled by the new system

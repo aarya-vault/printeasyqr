@@ -24,6 +24,7 @@ router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrder
 router.get('/orders/:id', requireAuth, OrderController.getOrder);
 router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
+router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
 // Anonymous order route (no auth required)
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);

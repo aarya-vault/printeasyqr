@@ -2,6 +2,7 @@ import { Order, Shop, User, Message, sequelize } from '../models/index.js';
 import { Op } from 'sequelize';
 import fs from 'fs/promises';
 import path from 'path';
+import { sendToUser } from '../utils/websocket.js';
 
 class OrderController {
   // Get orders by shop
@@ -137,6 +138,13 @@ class OrderController {
           { model: User, as: 'customer' },
           { model: Shop, as: 'shop' }
         ]
+      });
+      
+      // Send real-time notification to customer
+      sendToUser(updatedOrder.customerId, {
+        type: 'order_update',
+        order: updatedOrder,
+        message: `Order status updated to ${status}`
       });
       
       res.json(updatedOrder);
@@ -290,6 +298,59 @@ class OrderController {
     } catch (error) {
       console.error('Get order error:', error);
       res.status(500).json({ message: 'Failed to get order' });
+    }
+  }
+
+  // Delete order (soft delete with role-based permissions)
+  static async deleteOrder(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const orderId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const userRole = req.user.role;
+      
+      // Get order to check permissions
+      const order = await Order.findByPk(orderId, {
+        include: [{ model: Shop, as: 'shop' }]
+      });
+      
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      
+      // Permission check based on role
+      let canDelete = false;
+      if (userRole === 'admin') {
+        // Admins can delete any order
+        canDelete = true;
+      } else if (userRole === 'customer' && order.customerId === userId) {
+        // Customers can only delete their own pending orders
+        canDelete = order.status === 'new' || order.status === 'pending';
+      } else if (userRole === 'shop_owner') {
+        // Shop owners can delete processing/ready orders from their shop
+        if (order.shop && order.shop.ownerId === userId) {
+          canDelete = order.status === 'processing' || order.status === 'ready';
+        }
+      }
+      
+      if (!canDelete) {
+        return res.status(403).json({ message: 'You do not have permission to delete this order' });
+      }
+      
+      // Perform soft delete
+      await order.update({
+        deletedBy: userId,
+        deletedAt: new Date()
+      }, { transaction });
+      
+      await transaction.commit();
+      
+      res.json({ success: true, message: 'Order deleted successfully' });
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Delete order error:', error);
+      res.status(500).json({ message: 'Failed to delete order' });
     }
   }
 }

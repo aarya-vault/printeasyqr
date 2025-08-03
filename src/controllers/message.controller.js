@@ -1,5 +1,6 @@
-import { Message, Order, User } from '../models/index.js';
+import { Message, Order, User, Shop } from '../models/index.js';
 import { Op } from 'sequelize';
+import { sendToUser } from '../utils/websocket.js';
 
 class MessageController {
   // Get messages by order
@@ -52,6 +53,23 @@ class MessageController {
       const messageWithSender = await Message.findByPk(message.id, {
         include: [{ model: User, as: 'sender' }]
       });
+      
+      // Send real-time notification to the other party
+      const order = await Order.findByPk(parseInt(orderId), {
+        include: [{ model: Shop, as: 'shop' }]
+      });
+      
+      if (order) {
+        const recipientId = parseInt(senderId) === order.customerId 
+          ? order.shop.ownerId 
+          : order.customerId;
+        
+        sendToUser(recipientId, {
+          type: 'new_message',
+          message: messageWithSender,
+          orderId: order.id
+        });
+      }
       
       res.json(messageWithSender);
     } catch (error) {
