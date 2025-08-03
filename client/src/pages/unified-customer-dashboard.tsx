@@ -107,7 +107,7 @@ export default function UnifiedCustomerDashboard() {
   // Update customer name mutation
   const updateNameMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await fetch(`/api/customers/${user?.id}`, {
+      const response = await fetch(`/api/users/${user?.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
