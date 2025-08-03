@@ -63,7 +63,7 @@ export default function ShopOrderHistory() {
   // Get shop data for shop owner
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id,
+    enabled: !!user?.id && user?.role === 'shop_owner',
   });
 
   // Fetch completed orders

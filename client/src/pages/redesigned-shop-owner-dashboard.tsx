@@ -91,7 +91,7 @@ export default function RedesignedShopOwnerDashboard() {
     refetchIntervalInBackground: false,
     staleTime: 30000, // 30 seconds (increased from 10s)
     gcTime: 300000, // 5 minutes cache
-    enabled: !!user?.id,
+    enabled: !!user?.id && user?.role === 'shop_owner',
     retry: 2,
   });
 

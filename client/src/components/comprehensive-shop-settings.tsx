@@ -93,7 +93,7 @@ export default function ComprehensiveShopSettings() {
   // Get shop data
   const { data: shopData, isLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id,
+    enabled: !!user?.id && user?.role === 'shop_owner',
   });
 
   const shop = shopData?.shop;

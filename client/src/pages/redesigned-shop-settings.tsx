@@ -48,7 +48,7 @@ export default function RedesignedShopSettings() {
   // Fetch shop details
   const { data: shop, isLoading } = useQuery({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    enabled: !!user?.id
+    enabled: !!user?.id && user?.role === 'shop_owner'
   });
 
   const currentShop = shop && typeof shop === 'object' && 'shop' in shop ? (shop as any).shop : shop;
