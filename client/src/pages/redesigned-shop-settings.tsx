@@ -51,7 +51,7 @@ export default function RedesignedShopSettings() {
     enabled: !!user?.id
   });
 
-  const currentShop = shop && typeof shop === 'object' && 'shop' in shop ? shop.shop : shop;
+  const currentShop = shop && typeof shop === 'object' && 'shop' in shop ? (shop as any).shop : shop;
 
   const [formData, setFormData] = useState({
     name: '',

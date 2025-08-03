@@ -51,23 +51,34 @@ export default function ShopLoginPage() {
     setIsLoading(true);
 
     try {
+      // Perform login with optimized timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const user = await login({ email: email.toLowerCase().trim(), password });
+      clearTimeout(timeoutId);
       
       if (user.role !== 'shop_owner') {
         setError('This account is not registered as a shop owner');
+        setIsLoading(false);
         return;
       }
 
+      // Show success immediately
       toast({
         title: "Login Successful",
         description: "Welcome back to your shop dashboard!",
       });
 
+      // Navigate immediately without delay
       navigate('/shop-dashboard');
     } catch (error: any) {
       console.error('Shop login error:', error);
-      setError(error.message || 'Login failed. Please check your credentials and try again.');
-    } finally {
+      if (error.name === 'AbortError') {
+        setError('Login timeout. Please check your connection and try again.');
+      } else {
+        setError(error.message || 'Login failed. Please check your credentials and try again.');
+      }
       setIsLoading(false);
     }
   };

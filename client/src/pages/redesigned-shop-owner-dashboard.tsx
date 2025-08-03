@@ -36,24 +36,14 @@ import {
   BarChart3,
   Activity
 } from 'lucide-react';
-import RedesignedShopQRModal from '@/components/redesigned-shop-qr-modal';
+import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import OrderDetailsModal from '@/components/order-details-modal';
 import { format } from 'date-fns';
 
-interface Shop {
-  id: number;
-  name: string;
-  slug: string;
-  phone: string;
-  address: string;
-  city: string;
-  publicContactNumber?: string;
-  workingHours: any;
-  acceptsWalkinOrders: boolean;
-  isOnline: boolean;
-}
+// Using the shared Shop type from schema
+import type { Shop } from '@shared/schema';
 
 interface Order {
   id: number;
@@ -94,21 +84,25 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // Enhanced performance with shorter refetch intervals and background updates
+  // Optimized queries with better caching
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
-    refetchInterval: 30000, // 30 seconds
-    refetchIntervalInBackground: true,
-    staleTime: 10000, // 10 seconds
+    refetchInterval: 60000, // 60 seconds (reduced from 30s)
+    refetchIntervalInBackground: false,
+    staleTime: 30000, // 30 seconds (increased from 10s)
+    gcTime: 300000, // 5 minutes cache
     enabled: !!user?.id,
+    retry: 2,
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: !!shopData?.shop?.id,
-    refetchInterval: 15000, // 15 seconds for faster updates
-    refetchIntervalInBackground: true,
-    staleTime: 5000, // 5 seconds for fresh data
+    refetchInterval: 20000, // 20 seconds (increased from 15s)
+    refetchIntervalInBackground: false,
+    staleTime: 10000, // 10 seconds (increased from 5s)
+    gcTime: 60000, // 1 minute cache
+    retry: 2,
   });
 
   // Calculate order statistics efficiently with real insights
@@ -536,7 +530,7 @@ export default function RedesignedShopOwnerDashboard() {
   if (shopLoading || ordersLoading) {
     return (
       <DashboardLoading 
-        title="Loading Shop Dashboard..." 
+        title="Loading Dashboard..." 
         subtitle="Fetching orders, chat messages, and shop data"
       />
     );
@@ -782,7 +776,7 @@ export default function RedesignedShopOwnerDashboard() {
 
       {/* Modals */}
       {showQRModal && shopData?.shop && (
-        <RedesignedShopQRModal
+        <ProfessionalQRModal
           shop={shopData.shop}
           onClose={() => setShowQRModal(false)}
         />

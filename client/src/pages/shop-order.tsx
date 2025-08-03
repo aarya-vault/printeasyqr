@@ -208,7 +208,7 @@ export default function ShopOrder() {
   if (isLoading) {
     return (
       <DashboardLoading 
-        title="Loading Shop Information..." 
+        title="Loading Information..." 
         subtitle="Getting shop details, working hours, and order settings"
       />
     );
