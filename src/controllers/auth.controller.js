@@ -12,6 +12,20 @@ class AuthController {
         return res.status(400).json({ message: 'Invalid phone number' });
       }
 
+      // 🔥 PHONE CONFLICT RESOLUTION: Block customer creation if shop owner exists
+      const existingShopOwner = await User.findOne({ 
+        where: { 
+          phone,
+          role: 'shop_owner'
+        }
+      });
+      
+      if (existingShopOwner) {
+        return res.status(400).json({ 
+          message: 'This phone number is registered as a shop owner. Please use email login or contact support.' 
+        });
+      }
+      
       // Find or create user
       let user = await User.findOne({ where: { phone } });
       

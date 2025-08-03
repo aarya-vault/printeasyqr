@@ -130,6 +130,19 @@ class ShopApplicationController {
         // Create or update owner user account
         const hashedPassword = await bcrypt.hash(application.password, 12);
         
+        // 🔥 PHONE CONFLICT RESOLUTION: Delete any existing customer with same phone
+        const existingCustomer = await User.findOne({ 
+          where: { 
+            phone: application.phoneNumber,
+            role: 'customer'
+          }
+        });
+        
+        if (existingCustomer) {
+          console.log(`🗑️ Deleting customer account ${existingCustomer.id} (${existingCustomer.phone}) - phone conflict with shop owner approval`);
+          await existingCustomer.destroy({ transaction });
+        }
+        
         let owner = await User.findOne({
           where: { phone: application.phoneNumber }
         });
