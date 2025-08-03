@@ -342,6 +342,554 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update order status (shop owner only)
+  app.patch("/api/orders/:id/status", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ message: "Status required" });
+      }
+
+      // Get order to check permissions
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if user has permission to update this order
+      const shop = await storage.getShop(existingOrder.shopId);
+      if (!shop || (shop.ownerId !== req.user!.id && req.user!.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const order = await storage.updateOrder(orderId, { status });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // AUTO FILE DELETION: If order is marked as completed, delete all associated files
+      if (status === 'completed') {
+        try {
+          // Always trigger deletion for completed orders - handles both order files and chat message files
+          await storage.deleteOrderFiles(orderId);
+          console.log(`[AUTO-CLEANUP] Files automatically deleted for completed order ${orderId} - memory space optimized`);
+        } catch (error) {
+          console.error(`[AUTO-CLEANUP] Error deleting files for order ${orderId}:`, error);
+          // Don't fail the order update if file deletion fails
+        }
+      }
+      
+      // Send status update notification
+      const customerWs = wsConnections.get(order.customerId);
+      if (customerWs && customerWs.readyState === WebSocket.OPEN) {
+        customerWs.send(JSON.stringify({
+          type: 'order_update',
+          order
+        }));
+      }
+      
+      await storage.createNotification({
+        userId: order.customerId,
+        title: "Order Status Updated",
+        message: `Your order "${order.title}" is now ${order.status}`,
+        type: "order_update",
+        relatedId: order.id
+      });
+      
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Toggle shop online/offline status
+  app.patch("/api/shops/:id/toggle-status", requireAuth, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      
+      // Get shop to check ownership
+      const shop = await storage.getShop(shopId);
+      if (!shop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      // Check if user owns this shop
+      if (shop.ownerId !== req.user!.id && req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Toggle status
+      const updatedShop = await storage.updateShop(shopId, { 
+        isOnline: !shop.isOnline 
+      });
+      
+      res.json(updatedShop);
+    } catch (error) {
+      console.error('Toggle shop status error:', error);
+      res.status(500).json({ message: "Failed to update shop status" });
+    }
+  });
+
+  // Get messages for an order
+  app.get("/api/messages/order/:orderId", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      const messages = await storage.getMessagesByOrderId(orderId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Get messages error:', error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Send a message
+  app.post("/api/messages", requireAuth, upload.array('files'), async (req, res) => {
+    try {
+      const { orderId, senderId, senderName, senderRole, content, messageType = 'text' } = req.body;
+      
+      if (!orderId || !senderId || !senderName) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Handle file uploads
+      let fileData = null;
+      if (req.files && req.files.length > 0) {
+        fileData = (req.files as Express.Multer.File[]).map(file => ({
+          originalName: file.originalname,
+          filename: file.filename,
+          size: file.size,
+          mimetype: file.mimetype
+        }));
+      }
+      
+      const message = await storage.createMessage({
+        orderId: parseInt(orderId),
+        senderId: parseInt(senderId),
+        senderName,
+        senderRole: senderRole || 'customer',
+        content: content || '',
+        files: fileData ? JSON.stringify(fileData) : null,
+        messageType: fileData ? 'file' : messageType
+      });
+      
+      // Send real-time notification
+      const order = await storage.getOrder(parseInt(orderId));
+      if (order) {
+        const recipientId = parseInt(senderId) === order.customerId ? order.shopId : order.customerId;
+        const recipientWs = wsConnections.get(recipientId);
+        
+        if (recipientWs && recipientWs.readyState === WebSocket.OPEN) {
+          recipientWs.send(JSON.stringify({
+            type: 'new_message',
+            message
+          }));
+        }
+      }
+      
+      res.json(message);
+    } catch (error) {
+      console.error('Send message error:', error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Mark messages as read
+  app.patch("/api/messages/mark-read", requireAuth, async (req, res) => {
+    try {
+      const { orderId } = req.body;
+      const userId = req.user!.id;
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "Order ID required" });
+      }
+      
+      // Mark all messages in the order as read for this user
+      await storage.markMessagesAsRead(parseInt(orderId), userId);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark messages as read error:', error);
+      res.status(500).json({ message: "Failed to mark messages as read" });
+    }
+  });
+
+  // Create anonymous order
+  app.post("/api/orders/anonymous", upload.array('files'), async (req, res) => {
+    try {
+      const { shopId, customerName, customerPhone, type, title, description, specifications, walkinTime } = req.body;
+      
+      // Validate required fields
+      if (!shopId || !customerName || !customerPhone || !type || !title) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      // Validate phone number
+      if (!/^[6-9][0-9]{9}$/.test(customerPhone)) {
+        return res.status(400).json({ message: "Invalid phone number" });
+      }
+
+      // Check if customer exists, create if not
+      let customer = await storage.getUserByPhone(customerPhone);
+      if (!customer) {
+        customer = await storage.createUser({
+          phone: customerPhone,
+          name: customerName,
+          role: 'customer'
+        });
+      }
+      
+      // Handle file uploads
+      let fileData = null;
+      if (req.files && req.files.length > 0) {
+        fileData = (req.files as Express.Multer.File[]).map(file => ({
+          originalName: file.originalname,
+          filename: file.filename,
+          size: file.size,
+          mimetype: file.mimetype
+        }));
+      }
+      
+      const orderData = {
+        customerId: customer.id,
+        shopId: parseInt(shopId),
+        type: type as 'upload' | 'walkin',
+        title,
+        description: description || '',
+        status: 'new',
+        files: fileData ? JSON.stringify(fileData) : null,
+        specifications: specifications ? JSON.stringify(specifications) : null,
+        walkinTime: walkinTime || null,
+        isUrgent: false
+      };
+      
+      const newOrder = await storage.createOrder(orderData);
+      
+      // Create notification for shop owner
+      const shop = await storage.getShop(parseInt(shopId));
+      if (shop) {
+        await storage.createNotification({
+          userId: shop.ownerId,
+          title: "New Order Received",
+          message: `New ${type} order from ${customerName}`,
+          type: "new_order",
+          relatedId: newOrder.id
+        });
+      }
+      
+      res.json(newOrder);
+    } catch (error) {
+      console.error('Create anonymous order error:', error);
+      res.status(500).json({ message: 'Failed to create order' });
+    }
+  });
+
+  // Check if shop slug is available
+  app.get('/api/shops/check-slug/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const shop = await storage.getShopBySlug(slug);
+      res.json({ available: !shop });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to check slug availability" });
+    }
+  });
+
+  // Create shop application
+  app.post("/api/shop-applications", async (req, res) => {
+    try {
+      const applicationData = insertShopApplicationSchema.parse(req.body);
+      
+      // Check if email or shop slug already exists
+      const existingApp = await db.select().from(shopApplications)
+        .where(or(
+          eq(shopApplications.email, applicationData.email),
+          eq(shopApplications.shopSlug, applicationData.shopSlug)
+        ))
+        .limit(1);
+      
+      if (existingApp.length > 0) {
+        if (existingApp[0].email === applicationData.email) {
+          return res.status(400).json({ message: "An application with this email already exists" });
+        }
+        if (existingApp[0].shopSlug === applicationData.shopSlug) {
+          return res.status(400).json({ message: "This shop URL is already taken. Please choose a different one." });
+        }
+      }
+      
+      const application = await storage.createShopApplication(applicationData);
+      
+      // Create notification for admin
+      const adminUser = await storage.getUserByEmail(process.env.ADMIN_EMAIL!);
+      if (adminUser) {
+        await storage.createNotification({
+          userId: adminUser.id,
+          title: "New Shop Application",
+          message: `New application from ${applicationData.shopName}`,
+          type: "shop_application",
+          relatedId: application.id
+        });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error('Create shop application error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid application data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to submit application" });
+    }
+  });
+
+  // Update shop application (admin only)
+  app.patch("/api/shop-applications/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+      
+      const application = await storage.updateShopApplication(applicationId, { status, adminNotes });
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // If approved, create shop and owner account
+      if (status === 'approved') {
+        // Create owner user account
+        const ownerUser = await storage.createUser({
+          email: application.email,
+          phone: application.contactNumber,
+          name: application.applicantName,
+          role: 'shop_owner',
+          password: 'changeme123' // Temporary password
+        });
+        
+        // Create shop
+        const shop = await storage.createShop({
+          name: application.shopName,
+          slug: application.shopSlug,
+          ownerId: ownerUser.id,
+          ownerName: application.applicantName,
+          ownerFullName: application.ownerFullName,
+          publicOwnerName: application.publicOwnerName,
+          email: application.email,
+          phone: application.shopPhone || application.contactNumber,
+          address: application.shopAddress,
+          city: application.city,
+          state: application.state,
+          pincode: application.pincode,
+          workingHours: application.workingHours,
+          printingServices: application.printingServices,
+          servicesOffered: application.servicesOffered,
+          description: application.additionalInfo,
+          isOnline: true,
+          isApproved: true,
+          isAvailable24Hours: application.isAvailable24Hours || false
+        });
+        
+        // Update owner with shop ID
+        await storage.updateUser(ownerUser.id, { shopId: shop.id });
+        
+        // Send approval notification
+        await storage.createNotification({
+          userId: ownerUser.id,
+          title: "Application Approved!",
+          message: "Your shop application has been approved. You can now start receiving orders.",
+          type: "application_status",
+          relatedId: application.id
+        });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error('Update shop application error:', error);
+      res.status(500).json({ message: "Failed to update application" });
+    }
+  });
+
+  // Get notifications for a user
+  app.get("/api/notifications/:userId", requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      // Check if user is accessing their own notifications
+      if (req.user!.id !== userId && req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const userNotifications = await storage.getNotificationsByUserId(userId);
+      res.json(userNotifications);
+    } catch (error) {
+      console.error('Get notifications error:', error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      await storage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark notification as read error:', error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  // Mark all notifications as read for a user
+  app.patch("/api/notifications/user/:userId/read-all", requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      // Check if user is marking their own notifications
+      if (req.user!.id !== userId && req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      await storage.markAllNotificationsAsRead(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark all notifications as read error:', error);
+      res.status(500).json({ message: "Failed to mark notifications as read" });
+    }
+  });
+
+  // Get shop settings
+  app.get('/api/shops/settings', requireAuth, requireShopOwner, async (req, res) => {
+    try {
+      const shopId = req.user!.shopId;
+      if (!shopId) {
+        return res.status(400).json({ message: "No shop associated with this user" });
+      }
+      
+      const shop = await storage.getShop(shopId);
+      if (!shop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      res.json(shop);
+    } catch (error) {
+      console.error('Get shop settings error:', error);
+      res.status(500).json({ message: "Failed to fetch shop settings" });
+    }
+  });
+
+  // Update shop settings
+  app.patch('/api/shops/settings', requireAuth, requireShopOwner, async (req, res) => {
+    try {
+      const shopId = req.user!.shopId;
+      if (!shopId) {
+        return res.status(400).json({ message: "No shop associated with this user" });
+      }
+      
+      const updatedShop = await storage.updateShop(shopId, req.body);
+      if (!updatedShop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      res.json(updatedShop);
+    } catch (error) {
+      console.error('Update shop settings error:', error);
+      res.status(500).json({ message: "Failed to update shop settings" });
+    }
+  });
+
+  // Get admin statistics
+  app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const stats = await storage.getAdminStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Get admin stats error:', error);
+      res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
+  // Get all shop applications (admin only)
+  app.get("/api/admin/shop-applications", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const applications = await storage.getAllShopApplications();
+      res.json(applications);
+    } catch (error) {
+      console.error('Get shop applications error:', error);
+      res.status(500).json({ message: "Failed to fetch applications" });
+    }
+  });
+
+  // Get all shops (admin only)
+  app.get("/api/admin/shops", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const allShops = await storage.getAllShopsForAdmin();
+      res.json(allShops);
+    } catch (error) {
+      console.error('Get all shops error:', error);
+      res.status(500).json({ message: "Failed to fetch shops" });
+    }
+  });
+
+  // Get all users (admin only)
+  app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      res.json(allUsers);
+    } catch (error) {
+      console.error('Get all users error:', error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Update shop (admin only)
+  app.patch('/api/admin/shops/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.id);
+      const updatedShop = await storage.updateShop(shopId, req.body);
+      
+      if (!updatedShop) {
+        return res.status(404).json({ message: "Shop not found" });
+      }
+      
+      res.json(updatedShop);
+    } catch (error) {
+      console.error('Update shop error:', error);
+      res.status(500).json({ message: "Failed to update shop" });
+    }
+  });
+
+  // Update user (admin only)
+  app.patch("/api/admin/users/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.updateUser(userId, req.body);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Update user error:', error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  // Toggle user status (admin only)
+  app.patch("/api/admin/users/:id/status", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      const user = await storage.updateUser(userId, { isActive });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Toggle user status error:', error);
+      res.status(500).json({ message: "Failed to update user status" });
+    }
+  });
+
   // Hybrid image generation endpoint - microservice with local fallback
   app.post('/api/generate-image', async (req, res) => {
     const { htmlContent, filename } = req.body;
