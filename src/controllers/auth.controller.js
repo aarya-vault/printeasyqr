@@ -116,14 +116,39 @@ class AuthController {
       return res.status(401).json({ message: 'Not authenticated' });
     }
     
-    // Add needsNameUpdate flag
-    const userResponse = {
-      ...req.session.user,
-      needsNameUpdate: req.session.user.role === 'customer' && 
-        (!req.session.user.name || req.session.user.name === 'Customer')
-    };
-    
-    res.json(userResponse);
+    try {
+      // ALWAYS fetch current user data from database to ensure role is up-to-date
+      const currentUser = await User.findByPk(req.session.user.id);
+      
+      if (!currentUser) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+      
+      // Update session if role changed (customer → shop_owner transition)
+      if (currentUser.role !== req.session.user.role) {
+        console.log(`🔄 User ${currentUser.id} role changed: ${req.session.user.role} → ${currentUser.role}`);
+        req.session.user = {
+          id: currentUser.id,
+          phone: currentUser.phone || undefined,
+          email: currentUser.email || undefined,
+          name: currentUser.name || (currentUser.role === 'customer' ? 'Customer' : 'Shop Owner'),
+          role: currentUser.role
+        };
+        await req.session.save();
+      }
+      
+      // Add needsNameUpdate flag
+      const userResponse = {
+        ...req.session.user,
+        needsNameUpdate: currentUser.role === 'customer' && 
+          (!currentUser.name || currentUser.name === 'Customer')
+      };
+      
+      res.json(userResponse);
+    } catch (error) {
+      console.error('getCurrentUser error:', error);
+      res.status(500).json({ message: 'Failed to get user data' });
+    }
   }
 
   // Logout
