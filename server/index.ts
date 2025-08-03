@@ -92,7 +92,7 @@ app.use((req, res, next) => {
 
 (async () => {
   // Use dynamic import for Sequelize server
-  const { startSequelizeServer } = await import("../src/server.js");
+  const { startSequelizeServer, app: sequelizeApp } = await import("../src/server.js");
   
   // Start with new Sequelize server
   await startSequelizeServer(app);
@@ -102,7 +102,6 @@ app.use((req, res, next) => {
   const server = createServer(app);
   
   // Setup WebSocket on the server
-  const { app: sequelizeApp } = await import('../src/server.js');
   sequelizeApp.setupWebSocket(server);
 
   // Old seed database is handled by Sequelize now
