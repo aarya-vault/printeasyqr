@@ -49,8 +49,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Trust proxy for proper cookie handling
-app.set('trust proxy', 1);
+// Trust proxy for proper cookie handling - CRITICAL for Replit
+app.set('trust proxy', true);
 
 // Session configuration
 const PgSession = connectPgSimple(session);
@@ -80,7 +80,21 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 
-// Session debugging removed - issue was fixed
+// Add response interceptor to log cookies
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/auth')) {
+    const originalJson = res.json;
+    res.json = function(data) {
+      console.log('🍪 Auth Response:');
+      console.log('  - Path:', req.path);
+      console.log('  - Session ID:', req.sessionID);
+      console.log('  - Session:', req.session);
+      console.log('  - Set-Cookie headers:', res.getHeaders()['set-cookie']);
+      return originalJson.call(this, data);
+    };
+  }
+  next();
+});
 
 // Request logging middleware
 app.use((req, res, next) => {
