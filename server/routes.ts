@@ -107,6 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: adminUser.name || 'Admin',
           role: adminUser.role
         };
+        await req.session.save();
         return res.json(adminUser);
       }
 

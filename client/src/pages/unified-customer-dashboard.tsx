@@ -122,6 +122,10 @@ export default function UnifiedCustomerDashboard() {
     },
     onSuccess: (data) => {
       updateUser({ ...user!, name: data.name });
+      // Invalidate all user-related queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
       setShowNameModal(false);
       toast({
         title: "Profile Updated",
