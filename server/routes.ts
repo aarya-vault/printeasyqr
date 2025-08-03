@@ -65,7 +65,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       await req.session.save();
 
-      res.json(user);
+      // Add needsNameUpdate flag for customers without names
+      const userResponse = {
+        ...user,
+        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
+      };
+      
+      res.json(userResponse);
     } catch (error) {
       console.error('Phone login error:', error);
       res.status(500).json({ message: 'Login failed' });
@@ -136,7 +142,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!req.session?.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
-    res.json(req.session.user);
+    
+    // Add needsNameUpdate flag for customers without names
+    const userResponse = {
+      ...req.session.user,
+      needsNameUpdate: req.session.user.role === 'customer' && (!req.session.user.name || req.session.user.name === 'Customer')
+    };
+    
+    res.json(userResponse);
   });
 
   // Logout route
@@ -159,8 +172,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      // Update session with new user data
+      if (req.session?.user?.id === userId) {
+        req.session.user = {
+          id: user.id,
+          email: user.email || undefined,
+          phone: user.phone || undefined,
+          name: user.name || 'User',
+          role: user.role
+        };
+      }
       
-      res.json(user);
+      // Add needsNameUpdate flag for customers without names
+      const userResponse = {
+        ...user,
+        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
+      };
+      
+      res.json(userResponse);
     } catch (error) {
       console.error('Update user error:', error);
       res.status(500).json({ message: 'Update failed' });
@@ -183,6 +213,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ shop });
     } catch (error) {
       console.error('Get shop error:', error);
+      res.status(500).json({ message: 'Failed to get shop' });
+    }
+  });
+
+  // Get shop by slug - CRITICAL MISSING ROUTE
+  app.get('/api/shops/slug/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const shop = await storage.getShopBySlug(slug);
+      
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      res.json(shop);
+    } catch (error) {
+      console.error('Get shop by slug error:', error);
       res.status(500).json({ message: 'Failed to get shop' });
     }
   });

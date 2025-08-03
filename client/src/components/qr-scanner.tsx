@@ -40,13 +40,14 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       
       console.log('Unlocking shop:', { customerId: user?.id, shopId, shopSlug });
       
-      const response = await fetch('/api/customer/unlock-shop', {
+      // Use the correct endpoint based on available identifier
+      const endpoint = shopSlug ? `/api/unlock-shop/${shopSlug}` : `/api/unlock-shop-by-id/${shopId}`;
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          customerId: user?.id, 
-          shopId,
-          shopSlug,
+          customerId: user?.id,
           qrScanLocation: 'dashboard_scanner'
         })
       });
@@ -170,14 +171,9 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       
       // Handle shop access based on user authentication
       if (user?.id) {
-        // Authenticated user - unlock the shop
-        if (isNaN(shopId)) {
-          // It's a shop slug
-          unlockShopMutation.mutate({ shopSlug: shopIdentifier });
-        } else {
-          // It's a numeric shop ID
-          unlockShopMutation.mutate({ shopId });
-        }
+        // Authenticated user - unlock the shop by slug (preferred method)
+        // Always use shop slug for consistency
+        unlockShopMutation.mutate({ shopSlug: shopIdentifier });
       } else {
         // Anonymous user - redirect to shop page
         const shopUrl = isNaN(shopId) ? `/shop/${shopIdentifier}` : `/shop/${shopIdentifier}`;
