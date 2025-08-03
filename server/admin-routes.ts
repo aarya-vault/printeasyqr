@@ -125,4 +125,100 @@ router.get('/shops', async (req, res) => {
   }
 });
 
+// Delete user (admin only)
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { users } = await import('../shared/schema');
+    
+    // Check if user exists
+    const [existingUser] = await db.select().from(users).where(eq(users.id, userId));
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Prevent admin from deleting themselves
+    if (req.user && req.user.id === userId) {
+      return res.status(400).json({ message: 'Cannot delete your own account' });
+    }
+    
+    // Delete the user
+    await db.delete(users).where(eq(users.id, userId));
+    
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Failed to delete user' });
+  }
+});
+
+// Update user (admin only) 
+router.patch('/users/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const updatedUser = await storage.updateUser(userId, req.body);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Failed to update user' });
+  }
+});
+
+// Toggle user status (admin only)
+router.patch('/users/:id/status', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { isActive } = req.body;
+    
+    const updatedUser = await storage.updateUser(userId, { isActive });
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Error toggling user status:', error);
+    res.status(500).json({ message: 'Failed to update user status' });
+  }
+});
+
+// Deactivate shop (admin only)
+router.patch('/shops/:id/deactivate', async (req, res) => {
+  try {
+    const shopId = parseInt(req.params.id);
+    const updatedShop = await storage.updateShop(shopId, { isApproved: false });
+    
+    if (!updatedShop) {
+      return res.status(404).json({ message: 'Shop not found' });
+    }
+    
+    res.json({ success: true, shop: updatedShop });
+  } catch (error) {
+    console.error('Error deactivating shop:', error);
+    res.status(500).json({ message: 'Failed to deactivate shop' });
+  }
+});
+
+// Activate shop (admin only)
+router.patch('/shops/:id/activate', async (req, res) => {
+  try {
+    const shopId = parseInt(req.params.id);
+    const updatedShop = await storage.updateShop(shopId, { isApproved: true });
+    
+    if (!updatedShop) {
+      return res.status(404).json({ message: 'Shop not found' });
+    }
+    
+    res.json({ success: true, shop: updatedShop });
+  } catch (error) {
+    console.error('Error activating shop:', error);
+    res.status(500).json({ message: 'Failed to activate shop' });
+  }
+});
+
 export default router;

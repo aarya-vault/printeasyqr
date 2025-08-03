@@ -109,9 +109,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+    // Remove any updatedAt from updates to avoid type conflicts
+    const { updatedAt, ...cleanUpdates } = updates as any;
+    
     const [updatedUser] = await db.update(users)
       .set({
-        ...updates,
+        ...cleanUpdates,
         updatedAt: new Date()
       })
       .where(eq(users.id, id))

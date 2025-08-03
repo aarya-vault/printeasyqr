@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
+    res.status(200).json({ status: 'ok' });
   } else {
     next();
   }
@@ -95,6 +95,16 @@ app.use((req, res, next) => {
   // Seed database on startup
   await seedDatabase();
 
+  // CRITICAL: Handle unmatched API routes BEFORE Vite setup
+  // This ensures API routes always return JSON, not HTML
+  app.use('/api/*', (req, res) => {
+    // If we reach here, the API route doesn't exist
+    res.status(404).json({ 
+      message: `API endpoint ${req.originalUrl} not found`,
+      error: 'Route not found' 
+    });
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
@@ -104,7 +114,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // 404 handler for unmatched routes (after Vite setup)
+  // 404 handler for non-API routes (after Vite setup)
   app.use(notFoundHandler);
   
   // Global error handler
