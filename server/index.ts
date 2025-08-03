@@ -13,7 +13,6 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
   // Load Sequelize app using CommonJS require
   const require = createRequire(import.meta.url);
   const sequelizeApp = require("../src/app.js").default;
-  const { setupWebSocket } = require("../src/utils/websocket.js");
   
   console.log('📦 Sequelize app loaded successfully');
   
@@ -21,9 +20,9 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
   const server = createServer(sequelizeApp);
   console.log('🌐 HTTP server created with Sequelize routes');
   
-  // Setup WebSocket for real-time features
-  setupWebSocket(server);
-  console.log('🔌 WebSocket server configured for real-time messaging');
+  // WebSocket setup temporarily disabled to resolve Vite HMR conflicts
+  // TODO: Implement WebSocket on a separate port if needed
+  console.log('🔌 WebSocket server setup skipped (avoiding Vite HMR conflicts)');
   
   // Setup Vite for development or static serving for production
   if (process.env.NODE_ENV === "development") {
