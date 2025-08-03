@@ -11,6 +11,7 @@ import path from "path";
 import fs from "fs";
 import { requireAuth, requireAdmin, requireShopOwner, requireShopOwnerOrAdmin } from "./middleware/auth";
 import adminRoutes from "./admin-routes";
+import { ApiResponse } from "./utils/response-helpers";
 
 // Configure multer for file uploads
 const uploadDir = "uploads";
@@ -53,7 +54,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       const { phone } = req.body;
       
       if (!phone || !/^[6-9][0-9]{9}$/.test(phone)) {
-        return res.status(400).json({ message: 'Invalid phone number' });
+        return ApiResponse.badRequest(res, 'Invalid phone number');
       }
 
       // Check if user exists
@@ -82,10 +83,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
       };
       
-      res.json(userResponse);
+      return ApiResponse.success(res, userResponse);
     } catch (error) {
       console.error('Phone login error:', error);
-      res.status(500).json({ message: 'Login failed' });
+      return ApiResponse.serverError(res, 'Login failed', error);
     }
   });
 
@@ -94,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       const { email, password } = req.body;
       
       if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password required' });
+        return ApiResponse.badRequest(res, 'Email and password required');
       }
 
       // Admin login special case with environment variables
@@ -119,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           role: adminUser.role
         };
         await req.session.save();
-        return res.json(adminUser);
+        return ApiResponse.success(res, adminUser);
       }
 
       // Shop owner login - optimized query
@@ -138,21 +139,21 @@ export async function registerRoutes(app: Express): Promise<void> {
             role: user.role,
             phone: user.phone || undefined
           };
-          return res.json(user);
+          return ApiResponse.success(res, user);
         }
       }
 
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return ApiResponse.unauthorized(res, 'Invalid credentials');
     } catch (error) {
       console.error('Email login error:', error);
-      res.status(500).json({ message: 'Login failed' });
+      return ApiResponse.serverError(res, 'Login failed', error);
     }
   });
 
   // Get current user route
   app.get('/api/auth/me', (req, res) => {
     if (!req.session?.user) {
-      return res.status(401).json({ message: 'Not authenticated' });
+      return ApiResponse.unauthorized(res, 'Not authenticated');
     }
     
     // Add needsNameUpdate flag for customers without names
@@ -161,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       needsNameUpdate: req.session.user.role === 'customer' && (!req.session.user.name || req.session.user.name === 'Customer')
     };
     
-    res.json(userResponse);
+    return ApiResponse.success(res, userResponse);
   });
 
   // Logout route
@@ -170,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (err) {
         return res.status(500).json({ message: 'Could not log out' });
       }
-      res.json({ message: 'Logged out successfully' });
+      ApiResponse.success(res, { message: 'Logged out successfully' });
     });
   });
 
@@ -182,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       const user = await storage.updateUser(userId, updates);
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return ApiResponse.notFound(res, 'User');
       }
 
       // Update session with new user data
@@ -202,10 +203,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
       };
       
-      res.json(userResponse);
+      return ApiResponse.success(res, userResponse);
     } catch (error) {
       console.error('Update user error:', error);
-      res.status(500).json({ message: 'Update failed' });
+      return ApiResponse.serverError(res, 'Update failed', error);
     }
   });
   
@@ -219,13 +220,13 @@ export async function registerRoutes(app: Express): Promise<void> {
       const shop = await storage.getShopByOwnerId(ownerId);
       
       if (!shop) {
-        return res.status(404).json({ message: 'Shop not found' });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
-      res.json({ shop });
+      return ApiResponse.success(res, { shop });
     } catch (error) {
       console.error('Get shop error:', error);
-      res.status(500).json({ message: 'Failed to get shop' });
+      return ApiResponse.serverError(res, 'Failed to get shop', error);
     }
   });
 
@@ -236,13 +237,13 @@ export async function registerRoutes(app: Express): Promise<void> {
       const shop = await storage.getShopBySlug(slug);
       
       if (!shop) {
-        return res.status(404).json({ message: 'Shop not found' });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
-      res.json(shop);
+      return ApiResponse.success(res, shop);
     } catch (error) {
       console.error('Get shop by slug error:', error);
-      res.status(500).json({ message: 'Failed to get shop' });
+      return ApiResponse.serverError(res, 'Failed to get shop', error);
     }
   });
 
@@ -250,10 +251,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.get('/api/shops', async (req, res) => {
     try {
       const shops = await storage.getActiveShops();
-      res.json(shops || []);
+      return ApiResponse.success(res, shops || []);
     } catch (error) {
       console.error('Get all shops error:', error);
-      res.status(500).json({ message: 'Failed to get shops' });
+      return ApiResponse.serverError(res, 'Failed to get shops', error);
     }
   });
 
@@ -262,10 +263,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const customerId = parseInt(req.params.customerId);
       const shops = await storage.getVisitedShopsByCustomer(customerId);
-      res.json(shops || []);
+      return ApiResponse.success(res, shops || []);
     } catch (error) {
       console.error('Get unlocked shops error:', error);
-      res.status(500).json({ message: 'Failed to get unlocked shops' });
+      return ApiResponse.serverError(res, 'Failed to get unlocked shops', error);
     }
   });
 
@@ -274,10 +275,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const shopId = parseInt(req.params.shopId);
       const orders = await storage.getOrdersByShop(shopId);
-      res.json(orders || []);
+      return ApiResponse.success(res, orders || []);
     } catch (error) {
       console.error('Get shop orders error:', error);
-      res.status(500).json({ message: 'Failed to get orders' });
+      return ApiResponse.serverError(res, 'Failed to get orders', error);
     }
   });
 
@@ -285,10 +286,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const customerId = parseInt(req.params.customerId);
       const orders = await storage.getOrdersByCustomer(customerId);
-      res.json(orders || []);
+      return ApiResponse.success(res, orders || []);
     } catch (error) {
       console.error('Get customer orders error:', error);
-      res.status(500).json({ message: 'Failed to get orders' });
+      return ApiResponse.serverError(res, 'Failed to get orders', error);
     }
   });
 
@@ -310,10 +311,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         })) : []
       });
       
-      res.json(newOrder);
+      return ApiResponse.success(res, newOrder);
     } catch (error) {
       console.error('Create order error:', error);
-      res.status(500).json({ message: 'Failed to create order' });
+      return ApiResponse.serverError(res, 'Failed to create order', error);
     }
   });
 
@@ -324,19 +325,19 @@ export async function registerRoutes(app: Express): Promise<void> {
       const { customerId } = req.body;
       
       if (!customerId) {
-        return res.status(400).json({ message: 'Customer ID required' });
+        return ApiResponse.badRequest(res, 'Customer ID required');
       }
       
       const shop = await storage.getShopBySlug(shopSlug);
       if (!shop) {
-        return res.status(404).json({ message: 'Shop not found' });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
       await storage.unlockShopForCustomer(parseInt(customerId), shop.id);
-      res.json({ success: true, shop });
+      return ApiResponse.success(res, { success: true, shop });
     } catch (error) {
       console.error('Unlock shop error:', error);
-      res.status(500).json({ message: 'Failed to unlock shop' });
+      return ApiResponse.serverError(res, 'Failed to unlock shop', error);
     }
   });
 
@@ -349,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.sendFile(path.resolve(filePath));
     } else {
-      res.status(404).json({ message: "File not found" });
+      return ApiResponse.notFound(res, 'File');
     }
   });
 
@@ -359,19 +360,19 @@ export async function registerRoutes(app: Express): Promise<void> {
       const orderId = parseInt(req.params.id);
       const { status } = req.body;
       if (!status) {
-        return res.status(400).json({ message: "Status required" });
+        return ApiResponse.badRequest(res, 'Status required');
       }
 
       // Get order to check permissions
       const existingOrder = await storage.getOrder(orderId);
       if (!existingOrder) {
-        return res.status(404).json({ message: "Order not found" });
+        return ApiResponse.notFound(res, 'Order');
       }
 
       // Check if user has permission to update this order
       const shop = await storage.getShop(existingOrder.shopId);
       if (!shop || (shop.ownerId !== req.user!.id && req.user!.role !== 'admin')) {
-        return res.status(403).json({ message: "Access denied" });
+        return ApiResponse.error(res, 'FORBIDDEN', 'Access denied', 403);
       }
       
       const order = await storage.updateOrder(orderId, { status });
@@ -408,9 +409,55 @@ export async function registerRoutes(app: Express): Promise<void> {
         relatedId: order.id
       });
       
-      res.json(order);
+      return ApiResponse.success(res, order);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      return ApiResponse.serverError(res, 'Internal server error', error);
+    }
+  });
+
+  // Delete order endpoint (soft delete)
+  app.delete("/api/orders/:id", requireAuth, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const userId = req.user!.id;
+      const userRole = req.user!.role;
+      
+      // Get order to check permissions
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return ApiResponse.notFound(res, 'Order');
+      }
+      
+      // Permission check based on role
+      let canDelete = false;
+      if (userRole === 'admin') {
+        // Admins can delete any order
+        canDelete = true;
+      } else if (userRole === 'customer' && order.customerId === userId) {
+        // Customers can only delete their own pending orders
+        canDelete = order.status === 'new' || order.status === 'pending';
+      } else if (userRole === 'shop_owner') {
+        // Shop owners can delete processing/ready orders from their shop
+        const shop = await storage.getShopByOwnerId(userId);
+        if (shop && shop.id === order.shopId) {
+          canDelete = order.status === 'processing' || order.status === 'ready';
+        }
+      }
+      
+      if (!canDelete) {
+        return ApiResponse.error(res, 'FORBIDDEN', 'You do not have permission to delete this order', 403);
+      }
+      
+      // Perform soft delete
+      const success = await storage.deleteOrder(orderId, userId);
+      if (!success) {
+        return ApiResponse.serverError(res, 'Failed to delete order');
+      }
+      
+      return ApiResponse.success(res, { success: true, message: 'Order deleted successfully' });
+    } catch (error) {
+      console.error('Delete order error:', error);
+      return ApiResponse.serverError(res, 'Failed to delete order', error);
     }
   });
 
@@ -422,12 +469,12 @@ export async function registerRoutes(app: Express): Promise<void> {
       // Get shop to check ownership
       const shop = await storage.getShop(shopId);
       if (!shop) {
-        return res.status(404).json({ message: "Shop not found" });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
       // Check if user owns this shop
       if (shop.ownerId !== req.user!.id && req.user!.role !== 'admin') {
-        return res.status(403).json({ message: "Access denied" });
+        return ApiResponse.error(res, 'FORBIDDEN', 'Access denied', 403);
       }
       
       // Toggle status
@@ -435,10 +482,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         isOnline: !shop.isOnline 
       });
       
-      res.json(updatedShop);
+      return ApiResponse.success(res, updatedShop);
     } catch (error) {
       console.error('Toggle shop status error:', error);
-      res.status(500).json({ message: "Failed to update shop status" });
+      return ApiResponse.serverError(res, 'Failed to update shop status', error);
     }
   });
 
@@ -447,10 +494,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const orderId = parseInt(req.params.orderId);
       const messages = await storage.getMessagesByOrder(orderId);
-      res.json(messages);
+      return ApiResponse.success(res, messages);
     } catch (error) {
       console.error('Get messages error:', error);
-      res.status(500).json({ message: "Failed to fetch messages" });
+      return ApiResponse.serverError(res, 'Failed to fetch messages', error);
     }
   });
 
@@ -460,7 +507,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       const { orderId, senderId, senderName, senderRole, content, messageType = 'text' } = req.body;
       
       if (!orderId || !senderId || !senderName) {
-        return res.status(400).json({ message: "Missing required fields" });
+        return ApiResponse.badRequest(res, 'Missing required fields');
       }
 
       // Handle file uploads
@@ -498,10 +545,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         }
       }
       
-      res.json(message);
+      return ApiResponse.success(res, message);
     } catch (error) {
       console.error('Send message error:', error);
-      res.status(500).json({ message: "Failed to send message" });
+      return ApiResponse.serverError(res, 'Failed to send message', error);
     }
   });
 
@@ -588,10 +635,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         });
       }
       
-      res.json(newOrder);
+      return ApiResponse.success(res, newOrder);
     } catch (error) {
       console.error('Create anonymous order error:', error);
-      res.status(500).json({ message: 'Failed to create order' });
+      return ApiResponse.serverError(res, 'Failed to create order', error);
     }
   });
 
@@ -600,9 +647,9 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const { slug } = req.params;
       const shop = await storage.getShopBySlug(slug);
-      res.json({ available: !shop });
+      return ApiResponse.success(res, { available: !shop });
     } catch (error) {
-      res.status(500).json({ message: "Failed to check slug availability" });
+      return ApiResponse.serverError(res, 'Failed to check slug availability', error);
     }
   });
 
@@ -621,10 +668,10 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       if (existingApp.length > 0) {
         if (existingApp[0].email === applicationData.email) {
-          return res.status(400).json({ message: "An application with this email already exists" });
+          return ApiResponse.badRequest(res, 'An application with this email already exists');
         }
         if (existingApp[0].shopSlug === applicationData.shopSlug) {
-          return res.status(400).json({ message: "This shop URL is already taken. Please choose a different one." });
+          return ApiResponse.badRequest(res, 'This shop URL is already taken. Please choose a different one.');
         }
       }
       
@@ -642,13 +689,13 @@ export async function registerRoutes(app: Express): Promise<void> {
         });
       }
       
-      res.json(application);
+      return ApiResponse.success(res, application);
     } catch (error) {
       console.error('Create shop application error:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid application data", errors: error.errors });
+        return ApiResponse.badRequest(res, 'Invalid application data', error.errors);
       }
-      res.status(500).json({ message: "Failed to submit application" });
+      return ApiResponse.serverError(res, 'Failed to submit application', error);
     }
   });
 
@@ -665,35 +712,48 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       // If approved, create shop and owner account
       if (status === 'approved') {
+        // Hash the password from application
+        const hashedPassword = await storage.hashPassword(application.password);
+        
         // Create owner user account
         const ownerUser = await storage.createUser({
           email: application.email,
           phone: application.phoneNumber,
           name: application.ownerFullName,
-          role: 'shop_owner',
-          // Temporary password - will be handled by storage
+          role: 'shop_owner'
+        });
+        
+        // Update user with password hash
+        await storage.updateUser(ownerUser.id, {
+          passwordHash: hashedPassword
         });
         
         // Create shop
         const shop = await storage.createShop({
-          name: application.internalShopName,
+          name: application.publicShopName,
           slug: application.shopSlug,
           ownerId: ownerUser.id,
+          internalName: application.internalShopName,
           ownerFullName: application.ownerFullName,
-          publicOwnerName: application.publicOwnerName,
+          publicOwnerName: application.publicOwnerName || application.ownerFullName,
           email: application.email,
+          ownerPhone: application.phoneNumber,
           phone: application.publicContactNumber || application.phoneNumber,
-          address: application.completeAddress || application.publicAddress,
+          address: application.publicAddress,
+          completeAddress: application.completeAddress || application.publicAddress,
           city: application.city,
           state: application.state,
           pinCode: application.pinCode,
           workingHours: application.workingHours as any,
           services: application.services as any,
-          // servicesOffered: application.customServices, // Property not in schema
-          // description: '', // Property not in schema
+          equipment: application.equipment as any || [],
+          yearsOfExperience: application.yearsOfExperience,
+          acceptsWalkinOrders: application.acceptsWalkinOrders || true,
           isOnline: true,
+          autoAvailability: true,
           isApproved: true,
-          // isAvailable24Hours: false // Property not in schema
+          status: 'active',
+          isPublic: true
         });
         
         // Update owner with shop ID - NOT IN USER TABLE
@@ -739,10 +799,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const notificationId = parseInt(req.params.id);
       await storage.markNotificationAsRead(notificationId);
-      res.json({ success: true });
+      return ApiResponse.success(res, { success: true });
     } catch (error) {
       console.error('Mark notification as read error:', error);
-      res.status(500).json({ message: "Failed to mark notification as read" });
+      return ApiResponse.serverError(res, 'Failed to mark notification as read', error);
     }
   });
 
@@ -753,14 +813,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       // Check if user is marking their own notifications
       if (req.user!.id !== userId && req.user!.role !== 'admin') {
-        return res.status(403).json({ message: "Access denied" });
+        return ApiResponse.error(res, 'FORBIDDEN', 'Access denied', 403);
       }
       
       await storage.markAllNotificationsAsRead(userId);
-      res.json({ success: true });
+      return ApiResponse.success(res, { success: true });
     } catch (error) {
       console.error('Mark all notifications as read error:', error);
-      res.status(500).json({ message: "Failed to mark notifications as read" });
+      return ApiResponse.serverError(res, 'Failed to mark notifications as read', error);
     }
   });
 
@@ -769,18 +829,18 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const shopId = req.user!.shopId;
       if (!shopId) {
-        return res.status(400).json({ message: "No shop associated with this user" });
+        return ApiResponse.badRequest(res, 'No shop associated with this user');
       }
       
       const shop = await storage.getShop(shopId);
       if (!shop) {
-        return res.status(404).json({ message: "Shop not found" });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
-      res.json(shop);
+      return ApiResponse.success(res, shop);
     } catch (error) {
       console.error('Get shop settings error:', error);
-      res.status(500).json({ message: "Failed to fetch shop settings" });
+      return ApiResponse.serverError(res, 'Failed to fetch shop settings', error);
     }
   });
 
@@ -789,18 +849,18 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const shopId = req.user!.shopId;
       if (!shopId) {
-        return res.status(400).json({ message: "No shop associated with this user" });
+        return ApiResponse.badRequest(res, 'No shop associated with this user');
       }
       
       const updatedShop = await storage.updateShop(shopId, req.body);
       if (!updatedShop) {
-        return res.status(404).json({ message: "Shop not found" });
+        return ApiResponse.notFound(res, 'Shop');
       }
       
-      res.json(updatedShop);
+      return ApiResponse.success(res, updatedShop);
     } catch (error) {
       console.error('Update shop settings error:', error);
-      res.status(500).json({ message: "Failed to update shop settings" });
+      return ApiResponse.serverError(res, 'Failed to update shop settings', error);
     }
   });
 
@@ -808,10 +868,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
     try {
       const stats = await storage.getPlatformStats();
-      res.json(stats);
+      return ApiResponse.success(res, stats);
     } catch (error) {
       console.error('Get admin stats error:', error);
-      res.status(500).json({ message: "Failed to fetch statistics" });
+      return ApiResponse.serverError(res, 'Failed to fetch statistics', error);
     }
   });
 
@@ -822,10 +882,10 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const applications = await storage.getAllShopApplications();
       console.log("✅ Shop applications fetched:", applications?.length || 0, "results");
-      res.json(applications || []);
+      return ApiResponse.success(res, applications || []);
     } catch (error) {
       console.error('❌ Get shop applications error:', error);
-      res.status(500).json({ message: "Failed to fetch applications", error: (error as Error).message });
+      return ApiResponse.serverError(res, 'Failed to fetch applications', error);
     }
   });
 

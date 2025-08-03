@@ -97,7 +97,10 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
         if (videoRef.current) {
-          initializeScanner();
+          initializeScanner().catch((error) => {
+            console.error('Failed to initialize QR scanner:', error);
+            setScanError('Unable to start camera. Please check permissions.');
+          });
         }
       }, 100);
       
@@ -106,7 +109,11 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
     
     return () => {
       if (qrScannerRef.current) {
-        qrScannerRef.current.destroy();
+        try {
+          qrScannerRef.current.destroy();
+        } catch (error) {
+          console.error('Error destroying QR scanner:', error);
+        }
         qrScannerRef.current = null;
       }
     };

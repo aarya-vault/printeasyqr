@@ -123,9 +123,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    const now = new Date();
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values({
+        ...insertUser,
+        createdAt: now,
+        updatedAt: now
+      })
       .returning();
     return user;
   }
@@ -202,11 +207,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createShop(insertShop: InsertShop): Promise<Shop> {
+    const now = new Date();
     const [shop] = await db
       .insert(shops)
       .values({
         ...insertShop,
-        status: (insertShop as any).status || 'active'
+        status: (insertShop as any).status || 'active',
+        createdAt: now,
+        updatedAt: now
       })
       .returning();
     return shop;
@@ -469,7 +477,10 @@ export class DatabaseStorage implements IStorage {
   async createNotification(notification: InsertNotification): Promise<Notification> {
     const [created] = await db
       .insert(notifications)
-      .values(notification)
+      .values({
+        ...notification,
+        createdAt: new Date()
+      })
       .returning();
     return created;
   }
@@ -851,7 +862,8 @@ export class DatabaseStorage implements IStorage {
     await db.insert(customerShopUnlocks).values({
       customerId,
       shopId,
-      qrScanLocation: qrScanLocation || 'unknown'
+      qrScanLocation: qrScanLocation || 'unknown',
+      unlockedAt: new Date()
     }).onConflictDoNothing();
 
     return { shopId, shopName: shop.name };

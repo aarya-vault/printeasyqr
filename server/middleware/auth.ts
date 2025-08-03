@@ -1,5 +1,6 @@
 // Authentication middleware for better security and organization
 import { Request, Response, NextFunction } from 'express';
+import { ApiResponse } from '../utils/response-helpers';
 
 // Extend Express Request type to include user
 declare global {
@@ -19,7 +20,7 @@ declare global {
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session?.user) {
-    return res.status(401).json({ message: 'Authentication required' });
+    return ApiResponse.unauthorized(res, 'Authentication required');
   }
 
   req.user = req.session.user;
@@ -29,13 +30,13 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 export const requireRole = (roles: string | string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
+      return ApiResponse.unauthorized(res, 'Authentication required');
     }
 
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
     
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Insufficient permissions' });
+      return ApiResponse.error(res, 'FORBIDDEN', 'Insufficient permissions', 403);
     }
 
     next();
