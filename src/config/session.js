@@ -30,14 +30,14 @@ export function createSessionMiddleware() {
     resave: false, // Don't save unchanged sessions
     saveUninitialized: false, // Don't save empty sessions
     
-    // Cookie configuration - production-ready for Replit proxy
+    // Cookie configuration - fixed domain for Replit dev environment
     cookie: {
       secure: true, // Secure cookies with trusted proxy
       httpOnly: true, // Prevent XSS attacks
       maxAge: 86400000, // 24 hours (direct value)
       sameSite: 'lax', // Modern secure default for same-origin
       path: '/', // Available on all paths
-      // domain: undefined - Don't set domain, let browser determine
+      domain: '.replit.dev', // FIXED: Use .replit.dev domain instead of .replit.com
     },
     
     // Enable session rolling for better UX
