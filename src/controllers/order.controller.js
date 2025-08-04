@@ -353,7 +353,8 @@ class OrderController {
         return res.status(404).json({ message: 'Order not found' });
       }
       
-      res.json(order);
+      const transformedOrder = OrderController.transformOrderData(order);
+      res.json({ order: transformedOrder });
     } catch (error) {
       console.error('Get order error:', error);
       res.status(500).json({ message: 'Failed to get order' });

@@ -22,6 +22,7 @@ const upload = multer({
 router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop);
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
 router.get('/orders/:id', requireAuth, OrderController.getOrder);
+router.get('/orders/:id/details', OrderController.getOrder); // Public endpoint for order confirmation
 router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
 router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
