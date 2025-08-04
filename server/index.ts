@@ -33,8 +33,16 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
     console.log('📁 Static file serving configured');
   }
 
-  // Add 404 handler for non-API routes
-  sequelizeApp.use(notFoundHandler);
+  // 🔥 CRITICAL FIX: Add catch-all for non-API routes ONLY
+  // This ensures API routes aren't intercepted by Vite middleware
+  sequelizeApp.use((req: any, res: any, next: any) => {
+    // If it's an API route that wasn't handled, show 404
+    if (req.url.startsWith('/api')) {
+      return notFoundHandler(req, res);
+    }
+    // For non-API routes, let Vite handle them (already done above)
+    next();
+  });
   
   // Add global error handler
   sequelizeApp.use(errorHandler);

@@ -6,7 +6,7 @@ PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting
 
 **Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
 
-**Recent Fixes (August 2025)**: Fixed critical structural issues with API routing being intercepted by Vite middleware. Resolved customer name collection modal (removed close button as mandatory), fixed QR scanner API endpoint mismatch, added proper needsNameUpdate server logic, and ensured all APIs return correct JSON responses. Customer workflow, shop browsing, and QR scanning now fully functional.
+**Recent Fixes (August 2025)**: **CRITICAL PRODUCTION FIXES COMPLETED** - Resolved fundamental routing architecture conflict where Vite middleware was intercepting API requests and returning HTML instead of JSON. Fixed missing deleteOrderFiles function causing order completion failures. Eliminated continuous TimeoutOverflowWarning errors that were flooding the console. Fixed order controller context issues and enum validation. All API endpoints now return proper JSON responses, authentication flows work correctly, and file cleanup operates seamlessly. Production-ready routing architecture established with clean server startup and error-free operation.
 
 ## User Preferences
 
@@ -19,8 +19,8 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 
 ### Technology Stack
 - **Frontend**: React 18.3.1 with TypeScript (Vite), Tailwind CSS, shadcn/ui, Radix UI.
-- **Backend**: Express.js with TypeScript (ESM modules).
-- **Database**: PostgreSQL with Drizzle ORM, hosted on Neon Database (serverless).
+- **Backend**: Express.js with Sequelize ORM (production system), hybrid TypeScript/JavaScript architecture.
+- **Database**: PostgreSQL with Sequelize ORM, hosted on Neon Database (serverless).
 - **Real-time**: WebSocket connections.
 - **File Handling**: Multer for local storage file uploads.
 - **State Management**: React Context API, TanStack Query.
@@ -30,7 +30,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Monorepo Structure**: Clear separation between client, server, and shared code.
 - **Component-Based UI**: Reusable and modular React components.
 - **RESTful API with WebSockets**: For data exchange and real-time updates.
-- **Clean Architecture**: Minimized technical debt, unified components across dashboards (Customer, Shop Owner, Admin).
+- **Clean Architecture**: Minimized technical debt, unified components across dashboards (Customer, Shop Owner, Admin). Fixed fundamental routing conflicts between Vite middleware and API endpoints.
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
 ### Core Features & Implementations

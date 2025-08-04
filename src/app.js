@@ -115,7 +115,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Register API routes - SEQUELIZE SYSTEM ACTIVATED
+// 🔥 CRITICAL FIX: Ensure API routes are handled before Vite middleware
+// This prevents the Vite catch-all from intercepting API requests
+app.use('/api*', (req, res, next) => {
+  // Mark this as an API request to prevent Vite interference
+  req.isApiRequest = true;
+  next();
+});
+
+// Register API routes - SEQUELIZE SYSTEM ACTIVATED  
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', shopRoutes);

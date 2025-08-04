@@ -179,7 +179,7 @@ class OrderController {
 
       // Auto delete files if order is completed
       if (status === 'completed') {
-        await this.deleteOrderFiles(orderId, transaction);
+        await OrderController.deleteOrderFiles(orderId, transaction);
       }
       
       await transaction.commit();
@@ -404,6 +404,37 @@ class OrderController {
       await transaction.rollback();
       console.error('Delete order error:', error);
       res.status(500).json({ message: 'Failed to delete order' });
+    }
+  }
+
+  // Delete order files from filesystem
+  static async deleteOrderFiles(orderId, transaction) {
+    try {
+      const order = await Order.findByPk(orderId, { transaction });
+      if (!order || !order.files) {
+        return;
+      }
+
+      // Delete each file from filesystem
+      const filesToDelete = Array.isArray(order.files) ? order.files : [];
+      
+      for (const file of filesToDelete) {
+        try {
+          const filePath = path.join(process.cwd(), 'uploads', file.filename || file.path);
+          await fs.unlink(filePath);
+          console.log(`Deleted file: ${filePath}`);
+        } catch (fileError) {
+          console.error(`Failed to delete file ${file.filename || file.path}:`, fileError.message);
+          // Continue with other files even if one fails
+        }
+      }
+
+      // Clear files from database record
+      await order.update({ files: [] }, { transaction });
+      console.log(`Cleared file references for order ${orderId}`);
+    } catch (error) {
+      console.error(`Error deleting files for order ${orderId}:`, error);
+      // Don't throw error - file cleanup failure shouldn't stop order completion
     }
   }
 }
