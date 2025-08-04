@@ -30,11 +30,11 @@ export function createSessionMiddleware() {
     resave: true, // Changed to true to force session save
     saveUninitialized: false,
     
-    // Cookie configuration - enhanced for all environments
+    // Cookie configuration - fixed for cross-origin credentials
     cookie: {
-      secure: isProduction && !isReplit, // Secure for production, but not on Replit HTTP
+      secure: isReplit || isProduction, // Secure for Replit HTTPS and production
       httpOnly: true, // Prevent XSS attacks
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours - direct calculation
+      maxAge: 86400000, // 24 hours (direct value)
       sameSite: isReplit ? 'none' : 'lax', // 'none' for Replit CORS, 'lax' for localhost
       path: '/', // Available on all paths
       domain: undefined // Let browser determine

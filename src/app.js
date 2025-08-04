@@ -30,38 +30,40 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 BULLETPROOF CORS - Rebuilt for universal session cookie support
+// 🔥 FIXED CORS - Specific origin for session cookie support
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const isReplit = process.env.REPLIT_DOMAIN !== undefined;
   
-  // Enhanced origin detection and credential handling
-  const allowedOrigins = [
-    'replit.dev', 'replit.co', 'replit.com',
-    'localhost', '127.0.0.1', '0.0.0.0'
-  ];
+  // Get the specific frontend URL for this Replit instance
+  let allowedOrigin = null;
   
-  const isAllowedOrigin = !origin || allowedOrigins.some(allowed => 
-    origin.includes(allowed)
-  );
-  
-  if (isAllowedOrigin) {
-    // Set origin header for cross-origin requests
-    if (origin) {
-      res.header('Access-Control-Allow-Origin', origin);
+  if (isReplit) {
+    // For Replit: Use the exact origin from the request if it's a replit domain
+    if (origin && (origin.includes('.replit.dev') || origin.includes('.replit.co'))) {
+      allowedOrigin = origin; // Use the exact Replit URL
     }
-    // ALWAYS set credentials to true for session support
+  } else {
+    // For local development
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      allowedOrigin = origin;
+    }
+  }
+  
+  // Set SPECIFIC origin for credentials support
+  if (allowedOrigin) {
+    res.header('Access-Control-Allow-Origin', allowedOrigin);
     res.header('Access-Control-Allow-Credentials', 'true');
   }
   
-  // Comprehensive headers for session support
+  // Essential headers for session support
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Set-Cookie, X-Requested-With');
   res.header('Access-Control-Expose-Headers', 'Set-Cookie, Authorization');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Max-Age', '86400'); // Cache for 24 hours
+    res.header('Access-Control-Max-Age', '86400');
     return res.status(200).end();
   }
   
