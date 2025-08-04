@@ -87,7 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
     setIsLoading(true);
     try {
-      let endpoint = '/api/auth/login';
+      let endpoint = '/api/auth/email-login'; // Default to email login
       let body: any = {};
 
       if (credentials.phone) {

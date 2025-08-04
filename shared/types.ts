@@ -114,12 +114,14 @@ export interface UpdateShopInput {
 // ======================== ORDER TYPES ========================
 
 export interface OrderFile {
-  name?: string;
-  originalName?: string;
-  filename?: string;
-  path?: string;
+  // Unified file naming for consistency
+  originalName: string;
+  filename: string;
+  path: string;
   size: number;
   mimetype: string;
+  // Legacy support
+  name?: string;
 }
 
 export interface Order extends Timestamps {
@@ -186,6 +188,7 @@ export interface UpdateOrderInput {
 export interface MessageFile {
   originalName: string;
   filename: string;
+  path?: string;
   size: number;
   mimetype: string;
 }

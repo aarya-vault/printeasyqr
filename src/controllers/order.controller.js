@@ -117,7 +117,8 @@ class OrderController {
       // Process file uploads
       const files = req.files && Array.isArray(req.files) 
         ? req.files.map((file) => ({
-            name: file.originalname,
+            originalName: file.originalname,
+            filename: file.filename,
             path: file.path,
             size: file.size,
             mimetype: file.mimetype
@@ -287,6 +288,7 @@ class OrderController {
         ? req.files.map(file => ({
             originalName: file.originalname,
             filename: file.filename,
+            path: file.path,
             size: file.size,
             mimetype: file.mimetype
           }))

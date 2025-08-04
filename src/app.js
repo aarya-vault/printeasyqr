@@ -30,17 +30,20 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 BULLETPROOF CORS - Rebuilt for session cookies
+// 🔥 BULLETPROOF CORS - Fixed for same-origin session cookies
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
-  // Allow specific origins in development/production
-  if (origin && (
+  // Always allow credentials for same-origin requests (no origin header)
+  // and for known development/production origins
+  if (!origin || (origin && (
     origin.includes('replit.dev') || 
     origin.includes('localhost') || 
     origin.includes('127.0.0.1')
-  )) {
-    res.header('Access-Control-Allow-Origin', origin);
+  ))) {
+    if (origin) {
+      res.header('Access-Control-Allow-Origin', origin);
+    }
     res.header('Access-Control-Allow-Credentials', 'true');
   }
   
