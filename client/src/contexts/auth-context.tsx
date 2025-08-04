@@ -119,6 +119,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const userData = await response.json();
       
+      // Store JWT token if provided
+      if (userData.token) {
+        localStorage.setItem('authToken', userData.token);
+        console.log('🔑 JWT Token stored');
+      }
+      
       // 🔥 IMMEDIATE STATE UPDATE
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -200,6 +206,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const userData = await response.json();
+      
+      // Store JWT token if provided
+      if (userData.token) {
+        localStorage.setItem('authToken', userData.token);
+        console.log('🔑 JWT Token stored for admin');
+      }
       
       // 🔥 IMMEDIATE STATE UPDATE
       setUser(userData);
