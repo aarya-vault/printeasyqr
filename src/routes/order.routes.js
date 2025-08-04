@@ -29,4 +29,8 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 // Anonymous order route (no auth required)
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
+// Frontend compatibility routes
+router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
+router.post('/orders/walkin', upload.array('files'), OrderController.createAnonymousOrder);
+
 export default router;
