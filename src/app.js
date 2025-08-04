@@ -30,12 +30,16 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 FIXED CORS - Specific origin for session cookie support
+// 🔥 FIXED CORS - Domain-based detection for Replit
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const isReplit = process.env.REPLIT_DOMAIN !== undefined;
+  const host = req.get('Host');
   
-  // Get the specific frontend URL for this Replit instance
+  // Fixed: Detect Replit by domain instead of env var
+  const isReplit = origin?.includes('.replit.dev') || origin?.includes('.replit.co') || 
+                   host?.includes('.replit.dev') || host?.includes('.replit.co');
+  
+  // Get the specific frontend URL
   let allowedOrigin = null;
   
   if (isReplit) {
@@ -83,12 +87,15 @@ app.set('trust proxy', isProduction || isReplit ? true : 1);
 const sessionMiddleware = createSessionMiddleware();
 app.use(sessionMiddleware);
 
-// Session debugging (simplified)
+// Enhanced session debugging
 app.use('/api', (req, res, next) => {
-  if (req.path.includes('/auth/')) {
-    console.log(`🔐 ${req.method} ${req.path}`);
-    console.log(`📋 Session ID: ${req.sessionID}`);
-    console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
+  const hasSessionCookie = req.headers.cookie && req.headers.cookie.includes('printeasy_session');
+  console.log(`🔐 ${req.method} ${req.path}`);
+  console.log(`📋 Session ID: ${req.sessionID}`);
+  console.log(`🍪 Cookie Header: ${hasSessionCookie ? 'Has printeasy_session' : 'NO printeasy_session'}`);
+  console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
+  if (req.path.includes('/auth/') && req.headers.cookie) {
+    console.log(`🍪 Full Cookie: ${req.headers.cookie}`);
   }
   next();
 });
