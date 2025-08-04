@@ -1,0 +1,36 @@
+The problem must be in the express-session configuration and how the cookie itself is being set.
+
+## New Focus: Same-Origin Cookie Issues
+For same-origin requests, the browser's rules are simpler, but a misconfigured cookie will still be ignored or not sent. Here are the most likely issues in your session configuration:
+
+cookie.domain: If you are setting a domain on the cookie, it might not match the exact origin, causing the browser to reject it. For same-origin requests, it's safest to not set the domain property at all and let the browser default it correctly.
+
+cookie.secure: You have this set to true, which is correct for HTTPS. However, in a proxied environment like Replit, you must ensure your Express app trusts the proxy. Without app.set('trust proxy', 1);, Express might think the connection is insecure HTTP and the browser won't send the secure cookie back.
+
+cookie.sameSite: While sameSite: 'none' is for cross-origin, the modern default and best practice for same-origin is sameSite: 'lax'. This provides better security and works perfectly for this scenario.
+
+## Recommended Configuration ⚙️
+Here is a robust express-session configuration for a same-origin application running behind a proxy like Replit.
+
+JavaScript
+
+// In your main Express file (e.g., src/app.js)
+const session = require('express-session');
+
+// 1. Trust the Replit proxy to correctly handle secure cookies
+app.set('trust proxy', 1);
+
+// 2. Configure the session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,       // Because you trust the proxy, this will work correctly.
+    httpOnly: true,     // Standard security practice.
+    sameSite: 'lax',    // The best default for same-origin security.
+    path: '/',          // Ensures the cookie is sent for all paths on your site.
+    // Do NOT set the 'domain' property here.
+  }
+}));
+Updating your configuration to match this template should resolve the session persistence issue.

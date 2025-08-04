@@ -69,24 +69,25 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// 🔥 CRITICAL: Enhanced proxy trust for all environments
-const isReplit = process.env.REPLIT_DOMAIN !== undefined;
-const isProduction = process.env.NODE_ENV === 'production';
-app.set('trust proxy', isProduction || isReplit ? true : 1);
+// 🔥 CRITICAL: Trust proxy for secure cookies on Replit
+app.set('trust proxy', 1);
 
 // 🔥 NEW SESSION SYSTEM - Built from scratch
 const sessionMiddleware = createSessionMiddleware();
 app.use(sessionMiddleware);
 
-// Enhanced session debugging
-app.use('/api', (req, res, next) => {
-  const hasSessionCookie = req.headers.cookie && req.headers.cookie.includes('printeasy_session');
-  console.log(`🔐 ${req.method} ${req.path}`);
-  console.log(`📋 Session ID: ${req.sessionID}`);
-  console.log(`🍪 Cookie Header: ${hasSessionCookie ? 'Has printeasy_session' : 'NO printeasy_session'}`);
-  console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
-  if (req.path.includes('/auth/') && req.headers.cookie) {
-    console.log(`🍪 Full Cookie: ${req.headers.cookie}`);
+// 🔍 CORS and Session Debug Middleware
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    console.log('--- 🔍 New Request ---');
+    console.log(`➡️  Request Origin: ${req.headers.origin || 'Same-origin'}`);
+    console.log(`⬅️  Access-Control-Allow-Origin: ${res.getHeader('Access-Control-Allow-Origin') || 'Not set'}`);
+    console.log(`🔑 Access-Control-Allow-Credentials: ${res.getHeader('Access-Control-Allow-Credentials') || 'Not set'}`);
+    console.log(`🍪 Cookie Header Received: ${req.headers.cookie ? 'Yes, cookie present' : 'No cookie received'}`);
+    console.log(`🔐 ${req.method} ${req.path}`);
+    console.log(`📋 Session ID: ${req.sessionID}`);
+    console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
+    console.log('--------------------');
   }
   next();
 });
