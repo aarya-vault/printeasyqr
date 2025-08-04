@@ -1,0 +1,22 @@
+2
+date-fns.js?v=4dbdecfe:2295 Uncaught RangeError: Invalid time value
+    at EnhancedCustomerOrderDetails (enhanced-customer-or…-details.tsx:366:38)
+chunk-RPCDYKBN.js?v=4dbdecfe:14032 The above error occurred in the <EnhancedCustomerOrderDetails> component:
+
+    at EnhancedCustomerOrderDetails (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.dev/src/components/enhanced-customer-order-details.tsx:48:56)
+    at UnifiedCustomerDashboard (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.dev/src/pages/unified-customer-dashboard.tsx:65:40)
+    at Route (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4dbdecfe:323:16)
+    at Switch (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4dbdecfe:379:17)
+    at Suspense
+    at Router
+    at Provider (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.…unner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=4dbdecfe:38:15)
+    at TooltipProvider (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=4dbdecfe:63:5)
+    at WebSocketProvider (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.dev/src/contexts/websocket-context.tsx:22:37)
+    at AuthProvider (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.dev/src/contexts/auth-context.tsx:21:32)
+    at QueryClientProvider (https://2774ded9-e309-485f-8b5f-f177225e8671-00-3b4tr3nnkvtyk.sisko.replit.…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4dbdecfe:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+chunk-RPCDYKBN.js?v=4dbdecfe:9129 Uncaught RangeError: Invalid time value
+    at EnhancedCustomerOrderDetails (enhanced-customer-or…-details.tsx:366:38)
