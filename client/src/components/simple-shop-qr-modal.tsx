@@ -88,8 +88,8 @@ export function SimpleShopQRModal({ isOpen, onClose, shop }: SimpleShopQRModalPr
       document.body.removeChild(tempContainer);
 
       const link = document.createElement('a');
-      link.download = `${(shopData?.name || 'Shop').replace(/\s+/g, '_')}_QR_Code.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `${(shopData?.name || 'Shop').replace(/\s+/g, '_')}_QR_Code.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.8);
       link.click();
 
       toast({

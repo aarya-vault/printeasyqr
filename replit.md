@@ -6,7 +6,7 @@ PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting
 
 **Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
 
-**Recent Fixes (August 2025)**: **CRITICAL PRODUCTION FIXES COMPLETED** - Resolved fundamental routing architecture conflict where Vite middleware was intercepting API requests and returning HTML instead of JSON. Fixed missing deleteOrderFiles function causing order completion failures. Eliminated continuous TimeoutOverflowWarning errors that were flooding the console. Fixed order controller context issues and enum validation. All API endpoints now return proper JSON responses, authentication flows work correctly, and file cleanup operates seamlessly. Production-ready routing architecture established with clean server startup and error-free operation.
+**Recent Fixes (August 2025)**: **CRITICAL PRODUCTION FIXES COMPLETED** - Resolved fundamental routing architecture conflict where Vite middleware was intercepting API requests and returning HTML instead of JSON. Fixed missing deleteOrderFiles function causing order completion failures. Eliminated continuous TimeoutOverflowWarning errors that were flooding the console. Fixed order controller context issues and enum validation. All API endpoints now return proper JSON responses, authentication flows work correctly, and file cleanup operates seamlessly. Production-ready routing architecture established with clean server startup and error-free operation. **QR OPTIMIZATION COMPLETED** - Changed all QR code downloads from PNG to JPG format (80% quality) to reduce server load and improve performance across all generation methods (Vercel serverless, local Puppeteer, html2canvas).
 
 ## User Preferences
 
@@ -34,7 +34,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
 ### Core Features & Implementations
-- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Local Puppeteer with container-optimized configuration. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with professional 35KB PNG downloads.
+- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Local Puppeteer with container-optimized configuration. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with optimized JPG downloads for reduced server load.
 - **Order Flows**: Supports digital file upload and walk-in order booking.
 - **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
 - **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). Enhanced analytics with revenue potential, user distribution, shop performance metrics, and detailed data visualization.

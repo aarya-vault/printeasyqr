@@ -66,7 +66,7 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         },
         body: JSON.stringify({
           htmlContent: renderedHtml,
-          filename: `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`
+          filename: `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.jpg`
         }),
       });
 
@@ -89,13 +89,13 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'image/png' });
+      const blob = new Blob([byteArray], { type: 'image/jpeg' });
       
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
+      link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.jpg`;
       
       // Trigger download
       document.body.appendChild(link);

@@ -5,7 +5,7 @@ class QRController {
   // Generate QR code with professional design
   static async generateQR(req, res) {
     try {
-      const { htmlContent, filename = 'PrintEasy_QR.png' } = req.body;
+      const { htmlContent, filename = 'PrintEasy_QR.jpg' } = req.body;
 
       if (!htmlContent) {
         return res.status(400).json({ message: 'htmlContent is required' });
@@ -85,7 +85,8 @@ class QRController {
         // Take screenshot of body
         const bodyHandle = await page.$('body');
         const screenshot = await bodyHandle.screenshot({
-          type: 'png',
+          type: 'jpeg',
+          quality: 80,
           omitBackground: false
         });
 

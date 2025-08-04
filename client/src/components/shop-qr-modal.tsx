@@ -52,8 +52,8 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
       });
 
       const link = document.createElement('a');
-      link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.png`;
-      link.href = canvas.toDataURL();
+      link.download = `PrintEasy_${shop.name.replace(/\s+/g, '_')}_QR.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.8);
       link.click();
 
       toast({

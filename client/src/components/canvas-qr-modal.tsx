@@ -250,8 +250,8 @@ export function CanvasQRModal({ isOpen, onClose, shop }: CanvasQRModalProps) {
 
     try {
       const link = document.createElement('a');
-      link.download = `${shopData.name.replace(/\s+/g, '_')}_QR_Code.png`;
-      link.href = canvasRef.current.toDataURL('image/png');
+      link.download = `${shopData.name.replace(/\s+/g, '_')}_QR_Code.jpg`;
+      link.href = canvasRef.current.toDataURL('image/jpeg', 0.8);
       link.click();
 
       toast({

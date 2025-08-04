@@ -91,8 +91,8 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
       });
 
       const link = document.createElement('a');
-      link.download = `PrintEasy_${(displayShop?.name || 'Shop').replace(/\s+/g, '_')}_QR.png`;
-      link.href = canvas.toDataURL('image/png', 1.0);
+      link.download = `PrintEasy_${(displayShop?.name || 'Shop').replace(/\s+/g, '_')}_QR.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.8);
       link.click();
     } catch (error) {
       console.error('Error generating QR code image:', error);
