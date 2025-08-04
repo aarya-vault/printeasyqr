@@ -103,10 +103,11 @@ export const setAuthLogoutHandler = (handler: () => void) => {
 };
 
 const handle401Error = () => {
-  console.log('🚨 Global 401 Handler: Session expired, clearing auth state');
-  // Clear local storage
+  console.log('🚨 Global 401 Handler: Auth token expired, clearing auth state');
+  // Clear all auth-related local storage
   localStorage.removeItem('user');
   localStorage.removeItem('persistentUserData');
+  localStorage.removeItem('authToken'); // Clear JWT token
   
   // Call auth logout handler if available
   if (authLogoutHandler) {

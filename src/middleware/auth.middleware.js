@@ -4,39 +4,34 @@ import { verifyToken } from '../config/auth-fix.js';
 
 const requireAuth = async (req, res, next) => {
   try {
-    let sessionUser = null;
+    let user = null;
     
-    // PRIORITY 1: Check session authentication first
-    if (req.session && req.session.user) {
-      sessionUser = req.session.user;
-      console.log('🔐 Auth via SESSION:', sessionUser.id, sessionUser.role);
-    }
-    
-    // PRIORITY 2: If no session, try JWT token
-    if (!sessionUser) {
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        const decoded = verifyToken(token);
-        if (decoded) {
-          sessionUser = decoded;
-          console.log('🔐 Auth via JWT:', sessionUser.id, sessionUser.role);
-        }
+    // PRIORITY 1: Check JWT token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+      if (decoded) {
+        user = decoded;
+        console.log('🔐 Auth via JWT:', user.id, user.role);
       }
     }
     
-    if (!sessionUser) {
-      console.log('❌ No authentication found - session or JWT');
+    // FALLBACK: Check session authentication (for backward compatibility)
+    if (!user && req.session && req.session.user) {
+      user = req.session.user;
+      console.log('🔐 Auth via SESSION (fallback):', user.id, user.role);
+    }
+    
+    if (!user) {
+      console.log('❌ No authentication found - JWT or session');
       return res.status(401).json({ message: 'Authentication required' });
     }
     
     // Verify user exists in database
-    const currentUser = await User.findByPk(sessionUser.id);
+    const currentUser = await User.findByPk(user.id);
     if (!currentUser) {
-      console.log('❌ User not found in database:', sessionUser.id);
-      if (req.session) {
-        await SessionHelpers.destroyUserSession(req);
-      }
+      console.log('❌ User not found in database:', user.id);
       return res.status(401).json({ message: 'User not found' });
     }
     
@@ -48,11 +43,6 @@ const requireAuth = async (req, res, next) => {
       name: currentUser.name,
       role: currentUser.role
     };
-    
-    // Refresh session if using session auth
-    if (req.session && req.session.user) {
-      SessionHelpers.refreshSession(req);
-    }
     
     next();
   } catch (error) {
@@ -66,19 +56,22 @@ const requireRole = (roles) => {
     try {
       const allowedRoles = Array.isArray(roles) ? roles : [roles];
       
-      // Check authentication first - try session then JWT
-      let user = SessionHelpers.getCurrentUser(req);
+      // Check authentication first - prioritize JWT then session
+      let user = null;
       
-      // If no session, try JWT token
-      if (!user) {
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const token = authHeader.substring(7);
-          const decoded = verifyToken(token);
-          if (decoded) {
-            user = decoded;
-          }
+      // PRIORITY 1: Try JWT token from Authorization header
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        const decoded = verifyToken(token);
+        if (decoded) {
+          user = decoded;
         }
+      }
+      
+      // FALLBACK: Try session
+      if (!user) {
+        user = SessionHelpers.getCurrentUser(req);
       }
       
       if (!user) {

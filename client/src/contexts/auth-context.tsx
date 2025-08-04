@@ -41,6 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsSessionVerified(false);
     localStorage.removeItem('user');
     localStorage.removeItem('persistentUserData');
+    localStorage.removeItem('authToken'); // Clear JWT token
     console.log('🚨 Global logout triggered by 401 error');
   };
 
@@ -48,16 +49,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up global 401 handler
     setAuthLogoutHandler(handleGlobalLogout);
 
-    // 🔥 SIMPLIFIED SESSION CHECK - Work with new session system
-    const checkSession = async () => {
+    // 🔥 JWT-FIRST AUTHENTICATION CHECK
+    const checkAuth = async () => {
       try {
-        console.log('🔍 Auth Context: Checking session...');
+        console.log('🔍 Auth Context: Checking JWT authentication...');
         
+        // Get JWT token from localStorage
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+          console.log('❌ Auth Context: No JWT token found');
+          setUser(null);
+          localStorage.removeItem('user');
+          setIsSessionVerified(true);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Verify token with server
         const response = await fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}` // Send JWT token
           }
         });
         
@@ -65,23 +80,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = await response.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          console.log('✅ Auth Context: User loaded:', userData.role);
+          console.log('✅ Auth Context: User loaded via JWT:', userData.role);
         } else {
+          // Token is invalid, clear everything
+          console.log('❌ Auth Context: JWT token invalid, clearing auth state');
           setUser(null);
           localStorage.removeItem('user');
-          console.log('❌ Auth Context: No active session');
+          localStorage.removeItem('authToken');
         }
       } catch (error) {
-        console.error('❌ Auth Context: Session check error:', error);
+        console.error('❌ Auth Context: Auth check error:', error);
         setUser(null);
         localStorage.removeItem('user');
+        localStorage.removeItem('authToken');
       } finally {
         setIsSessionVerified(true);
         setIsLoading(false);
       }
     };
 
-    checkSession();
+    checkAuth();
   }, []);
 
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
@@ -160,6 +178,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsSessionVerified(false);
       localStorage.removeItem('user');
       localStorage.removeItem('persistentUserData');
+      localStorage.removeItem('authToken'); // Clear JWT token
       console.log('✅ Auth Context: User logged out');
     }
   };

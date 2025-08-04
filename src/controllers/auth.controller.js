@@ -152,30 +152,8 @@ class AuthController {
   // Get current user
   static async getCurrentUser(req, res) {
     try {
-      // Check session first
-      const sessionUser = SessionHelpers.getCurrentUser(req);
-      if (!sessionUser) {
-        return res.status(401).json({ message: 'Not authenticated' });
-      }
-      
-      // Verify user still exists in database
-      const currentUser = await User.findByPk(sessionUser.id);
-      if (!currentUser) {
-        await SessionHelpers.destroyUserSession(req);
-        return res.status(401).json({ message: 'User not found' });
-      }
-      
-      // Update session if role changed
-      if (currentUser.role !== sessionUser.role) {
-        console.log(`🔄 Role changed: ${sessionUser.role} → ${currentUser.role}`);
-        await SessionHelpers.createUserSession(req, {
-          id: currentUser.id,
-          phone: currentUser.phone,
-          email: currentUser.email,
-          name: currentUser.name,
-          role: currentUser.role
-        });
-      }
+      // requireAuth middleware has already authenticated user and set req.user
+      const currentUser = req.user;
       
       // Return user data with additional flags
       const userResponse = {
