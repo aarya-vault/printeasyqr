@@ -27,9 +27,16 @@ export async function apiRequest(
     // 🔥 CRITICAL: Ensure proper URL for API calls
     const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
     
+    // Get JWT token if available
+    const authToken = localStorage.getItem('authToken');
+    const headers: any = data ? { "Content-Type": "application/json" } : {};
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
     const res = await fetch(fullUrl, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers,
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       signal: controller.signal,
@@ -64,7 +71,15 @@ export const getQueryFn: <T>(options: {
     const url = queryKey.join("/") as string;
     const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
     
+    // Get JWT token if available
+    const authToken = localStorage.getItem('authToken');
+    const headers: any = {};
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
     const res = await fetch(fullUrl, {
+      headers,
       credentials: "include",
     });
 

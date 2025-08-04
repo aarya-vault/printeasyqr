@@ -2,6 +2,7 @@ import { User } from '../models/index.js';
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
 import { SessionHelpers } from '../config/session.js';
+import { generateToken } from '../config/auth-fix.js';
 
 class AuthController {
   // Phone login for customers
@@ -45,10 +46,14 @@ class AuthController {
         role: user.role
       });
 
+      // Generate JWT token
+      const token = generateToken(user.toJSON());
+      
       // Add needsNameUpdate flag for customers without names
       const userResponse = {
         ...user.toJSON(),
-        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer')
+        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer'),
+        token // Include JWT token
       };
       
       res.json(userResponse);
@@ -89,7 +94,14 @@ class AuthController {
           name: adminUser.name || 'Admin',
           role: adminUser.role
         });
-        return res.json(adminUser);
+        
+        // Generate JWT token
+        const token = generateToken(adminUser.toJSON());
+        
+        return res.json({
+          ...adminUser.toJSON(),
+          token
+        });
       }
 
       // Shop owner login
@@ -111,7 +123,14 @@ class AuthController {
             role: user.role,
             phone: user.phone
           });
-          return res.json(user);
+          
+          // Generate JWT token
+          const token = generateToken(user.toJSON());
+          
+          return res.json({
+            ...user.toJSON(),
+            token
+          });
         }
       }
 

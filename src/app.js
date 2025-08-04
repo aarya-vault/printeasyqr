@@ -1,5 +1,5 @@
 import express from 'express';
-import { createSessionMiddleware } from './config/session.js';
+import { createWorkingSessionMiddleware, ensureCookiesMiddleware } from './config/auth-fix.js';
 // DISABLED: WebSocket import removed - handled by new system
 // import { WebSocketServer } from 'ws';
 import path from 'path';
@@ -19,6 +19,7 @@ import messageRoutes from './routes/message.routes.js';
 import shopApplicationRoutes from './routes/shopApplication.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import qrRoutes from './routes/qr.routes.js';
+import testRoutes from './routes/test.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -30,37 +31,24 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 FINAL CORS FIX - Explicit allowlist for Replit domains
+// FINAL CORS FIX - Ensure credentials work properly
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  // Get origin - use referer as fallback for same-origin requests
+  const origin = req.headers.origin || req.headers.referer;
   
-  // Simplified: Allow any .replit.dev/.replit.co origin + localhost
-  let allowedOrigin = null;
-  
-  if (origin) {
-    if (origin.includes('.replit.dev') || origin.includes('.replit.co')) {
-      allowedOrigin = origin; // Any Replit domain
-    } else if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      allowedOrigin = origin; // Local development
-    }
+  // For requests with origin header, set CORS
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
   
-  // ALWAYS set CORS headers for credentials - FIXED
-  if (allowedOrigin) {
-    res.header('Access-Control-Allow-Origin', allowedOrigin);
-  }
-  // CRITICAL FIX: Always set credentials header for session cookies
-  res.header('Access-Control-Allow-Credentials', 'true');
+  // ALWAYS set these headers
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
-  // Essential headers for session support
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Set-Cookie, X-Requested-With');
-  res.header('Access-Control-Expose-Headers', 'Set-Cookie, Authorization');
-  
-  // Handle preflight requests
+  // Handle OPTIONS
   if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Max-Age', '86400');
-    return res.status(200).end();
+    return res.sendStatus(200);
   }
   
   next();
@@ -70,12 +58,13 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// 🔥 CRITICAL: Trust proxy for secure cookies on Replit
-app.set('trust proxy', 1);
+// CRITICAL: Trust proxy for Replit environment
+app.set('trust proxy', true);
 
-// 🔥 NEW SESSION SYSTEM - Built from scratch
-const sessionMiddleware = createSessionMiddleware();
+// 🔥 WORKING AUTH SYSTEM - Session + JWT hybrid
+const sessionMiddleware = createWorkingSessionMiddleware();
 app.use(sessionMiddleware);
+app.use(ensureCookiesMiddleware());
 
 // 🔍 CORS and Session Debug Middleware
 app.use((req, res, next) => {
@@ -160,6 +149,7 @@ app.use('/api', messageRoutes);
 app.use('/api', shopApplicationRoutes);
 app.use('/api', qrRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/test', testRoutes);
 
 // File download route
 app.get('/api/download/:filename', (req, res) => {

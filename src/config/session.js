@@ -1,52 +1,46 @@
 import session from 'express-session';
 import MemoryStore from 'memorystore';
 
-// 🔥 BULLETPROOF SESSION CONFIGURATION - Rebuilt with MemoryStore to eliminate TimeoutOverflowWarning
+// 🔥 FINAL SESSION FIX - Working configuration for Replit
 export function createSessionMiddleware() {
-  console.log('🔧 Initializing bulletproof session configuration...');
+  console.log('🔧 Final session configuration...');
   
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isReplit = process.env.REPLIT_DOMAIN !== undefined;
-  
-  // Create MemoryStore instance with proper configuration
+  // Create MemoryStore instance
   const memoryStore = MemoryStore(session);
   
-  return session({
-    // MemoryStore - eliminates TimeoutOverflowWarning and provides reliable sessions
+  const sessionConfig = {
+    // MemoryStore configuration
     store: new memoryStore({
-      checkPeriod: 3600000, // 1 hour cleanup (direct value)
-      ttl: 86400000, // 24 hours TTL (direct value)
-      dispose: (key, sess) => {
-        console.log('🗑️ Session disposed:', key);
-      },
-      stale: false // Don't return stale sessions
+      checkPeriod: 86400000, // 24 hours
+      ttl: 86400000, // 24 hours
+      stale: false
     }),
     
-    // Session configuration - bulletproof settings
+    // Core session settings
     name: 'printeasy_session',
-    secret: process.env.SESSION_SECRET || 'printeasy-ultra-secure-key-2025-rebuilt',
+    secret: process.env.SESSION_SECRET || 'printeasy-secure-2025',
+    resave: false,
+    saveUninitialized: false,
     
-    // Session persistence - modern best practices
-    resave: false, // Don't save unchanged sessions
-    saveUninitialized: false, // Don't save empty sessions
-    
-    // Cookie configuration - FIXED: Force non-secure cookies for cross-origin
+    // Cookie configuration - CRITICAL SETTINGS
     cookie: {
-      secure: 'auto', // FIXED: Let express-session auto-detect based on connection
-      httpOnly: true, // Prevent XSS attacks
-      maxAge: 86400000, // 24 hours (direct value)
-      sameSite: 'none', // CRITICAL: Required for cross-origin cookies
-      path: '/', // Available on all paths
-      // FIXED: Remove domain restriction - let browser auto-detect for Replit subdomains
-      // domain: '.replit.dev', // Removed - causes issues with complex Replit subdomains
+      httpOnly: true,
+      maxAge: 86400000, // 24 hours
+      path: '/',
+      // CRITICAL: Must use 'none' for cross-origin in HTTPS
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
+      // CRITICAL: Must be true for sameSite=none
+      secure: true
     },
     
-    // Enable session rolling for better UX
-    rolling: true,
+    // Enable proxy trust for Replit
+    proxy: true,
     
-    // CRITICAL: Disable proxy trust to prevent automatic secure cookie setting
-    proxy: false
-  });
+    // Disable rolling
+    rolling: false
+  };
+  
+  return session(sessionConfig);
 }
 
 // 🔥 BULLETPROOF SESSION HELPERS - Rebuilt for 100% reliability

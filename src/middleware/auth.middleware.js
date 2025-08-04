@@ -1,14 +1,27 @@
 import { User } from '../models/index.js';
 import { SessionHelpers } from '../config/session.js';
+import { verifyToken } from '../config/auth-fix.js';
 
 const requireAuth = async (req, res, next) => {
   try {
-    // Check session authentication
-    if (!SessionHelpers.isAuthenticated(req)) {
-      return res.status(401).json({ message: 'Authentication required' });
+    // Check session authentication first
+    let sessionUser = SessionHelpers.getCurrentUser(req);
+    
+    // If no session, try JWT token
+    if (!sessionUser) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        const decoded = verifyToken(token);
+        if (decoded) {
+          sessionUser = decoded;
+        }
+      }
     }
     
-    const sessionUser = SessionHelpers.getCurrentUser(req);
+    if (!sessionUser) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
     
     // Verify user exists in database
     const currentUser = await User.findByPk(sessionUser.id);
@@ -42,13 +55,24 @@ const requireRole = (roles) => {
   return (req, res, next) => {
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
     
-    // Check authentication first
-    if (!SessionHelpers.isAuthenticated(req)) {
-      return res.status(401).json({ message: 'Authentication required' });
+    // Check authentication first - try session then JWT
+    let user = SessionHelpers.getCurrentUser(req);
+    
+    // If no session, try JWT token
+    if (!user) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        const decoded = verifyToken(token);
+        if (decoded) {
+          user = decoded;
+        }
+      }
     }
     
-    // Check role
-    const user = SessionHelpers.getCurrentUser(req);
+    if (!user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
     if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ message: 'Insufficient permissions' });
     }
