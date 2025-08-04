@@ -30,31 +30,22 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 FIXED CORS - Domain-based detection for Replit
+// 🔥 FINAL CORS FIX - Explicit allowlist for Replit domains
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const host = req.get('Host');
   
-  // Fixed: Detect Replit by domain instead of env var
-  const isReplit = origin?.includes('.replit.dev') || origin?.includes('.replit.co') || 
-                   host?.includes('.replit.dev') || host?.includes('.replit.co');
-  
-  // Get the specific frontend URL
+  // Simplified: Allow any .replit.dev/.replit.co origin + localhost
   let allowedOrigin = null;
   
-  if (isReplit) {
-    // For Replit: Use the exact origin from the request if it's a replit domain
-    if (origin && (origin.includes('.replit.dev') || origin.includes('.replit.co'))) {
-      allowedOrigin = origin; // Use the exact Replit URL
-    }
-  } else {
-    // For local development
-    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
-      allowedOrigin = origin;
+  if (origin) {
+    if (origin.includes('.replit.dev') || origin.includes('.replit.co')) {
+      allowedOrigin = origin; // Any Replit domain
+    } else if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      allowedOrigin = origin; // Local development
     }
   }
   
-  // Set SPECIFIC origin for credentials support
+  // ALWAYS set CORS headers for credentials
   if (allowedOrigin) {
     res.header('Access-Control-Allow-Origin', allowedOrigin);
     res.header('Access-Control-Allow-Credentials', 'true');

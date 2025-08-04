@@ -30,12 +30,12 @@ export function createSessionMiddleware() {
     resave: true, // Changed to true to force session save
     saveUninitialized: false,
     
-    // Cookie configuration - fixed for cross-origin credentials
+    // Cookie configuration - fixed for same-origin on Replit
     cookie: {
-      secure: isReplit || isProduction, // Secure for Replit HTTPS and production
+      secure: false, // No secure needed for same-origin requests
       httpOnly: true, // Prevent XSS attacks
       maxAge: 86400000, // 24 hours (direct value)
-      sameSite: isReplit ? 'none' : 'lax', // 'none' for Replit CORS, 'lax' for localhost
+      sameSite: 'lax', // 'lax' for same-origin requests
       path: '/', // Available on all paths
       domain: undefined // Let browser determine
     },
