@@ -1,5 +1,6 @@
 import express from 'express';
 import { createWorkingSessionMiddleware, ensureCookiesMiddleware } from './config/auth-fix.js';
+import { requireAuth } from './middleware/auth.middleware.js';
 // DISABLED: WebSocket import removed - handled by new system
 // import { WebSocketServer } from 'ws';
 import path from 'path';
@@ -156,8 +157,8 @@ app.use('/api', qrRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 
-// File download route
-app.get('/api/download/:filename', (req, res) => {
+// File download route - Protected with authentication
+app.get('/api/download/:filename', requireAuth, (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '..', 'uploads', filename);
   
