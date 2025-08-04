@@ -30,30 +30,41 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 🔥 BULLETPROOF CORS - Fixed for same-origin session cookies
+// 🔥 BULLETPROOF CORS - Rebuilt for universal session cookie support
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  const isReplit = process.env.REPLIT_DOMAIN !== undefined;
   
-  // Always allow credentials for same-origin requests (no origin header)
-  // and for known development/production origins
-  if (!origin || (origin && (
-    origin.includes('replit.dev') || 
-    origin.includes('localhost') || 
-    origin.includes('127.0.0.1')
-  ))) {
+  // Enhanced origin detection and credential handling
+  const allowedOrigins = [
+    'replit.dev', 'replit.co', 'replit.com',
+    'localhost', '127.0.0.1', '0.0.0.0'
+  ];
+  
+  const isAllowedOrigin = !origin || allowedOrigins.some(allowed => 
+    origin.includes(allowed)
+  );
+  
+  if (isAllowedOrigin) {
+    // Set origin header for cross-origin requests
     if (origin) {
       res.header('Access-Control-Allow-Origin', origin);
     }
+    // ALWAYS set credentials to true for session support
     res.header('Access-Control-Allow-Credentials', 'true');
   }
   
+  // Comprehensive headers for session support
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Set-Cookie');
-  res.header('Access-Control-Expose-Headers', 'Set-Cookie');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Set-Cookie, X-Requested-With');
+  res.header('Access-Control-Expose-Headers', 'Set-Cookie, Authorization');
   
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Max-Age', '86400'); // Cache for 24 hours
     return res.status(200).end();
   }
+  
   next();
 });
 
@@ -61,8 +72,10 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// 🔥 CRITICAL: Trust proxy for Replit HTTPS
-app.set('trust proxy', 1);
+// 🔥 CRITICAL: Enhanced proxy trust for all environments
+const isReplit = process.env.REPLIT_DOMAIN !== undefined;
+const isProduction = process.env.NODE_ENV === 'production';
+app.set('trust proxy', isProduction || isReplit ? true : 1);
 
 // 🔥 NEW SESSION SYSTEM - Built from scratch
 const sessionMiddleware = createSessionMiddleware();
