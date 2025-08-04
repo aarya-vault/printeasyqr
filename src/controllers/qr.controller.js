@@ -1,5 +1,6 @@
 import QRCode from 'qrcode';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 class QRController {
   // Generate QR code with professional design
@@ -11,24 +12,23 @@ class QRController {
         return res.status(400).json({ message: 'htmlContent is required' });
       }
 
-      // Launch Puppeteer with optimized settings for Netlify
+      // Launch Puppeteer-Core with @sparticuz/chromium for Netlify deployment
       const browser = await puppeteer.launch({
-        headless: true,
         args: [
+          ...chromium.args,
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process', 
+          '--single-process',
           '--disable-gpu',
           '--disable-web-security',
-          '--disable-features=VizDisplayCompositor',
           '--hide-scrollbars',
           '--mute-audio'
         ],
         defaultViewport: { width: 400, height: 800 },
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
         timeout: 30000
       });
 

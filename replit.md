@@ -34,7 +34,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
 ### Core Features & Implementations
-- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Local Puppeteer with container-optimized configuration. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with optimized JPG downloads for reduced server load.
+- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Puppeteer-core with @sparticuz/chromium for Netlify deployment. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with optimized JPG downloads for reduced server load.
 - **Order Flows**: Supports digital file upload and walk-in order booking.
 - **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
 - **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). Enhanced analytics with revenue potential, user distribution, shop performance metrics, and detailed data visualization.
