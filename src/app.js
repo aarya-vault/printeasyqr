@@ -45,11 +45,12 @@ app.use((req, res, next) => {
     }
   }
   
-  // ALWAYS set CORS headers for credentials
+  // ALWAYS set CORS headers for credentials - FIXED
   if (allowedOrigin) {
     res.header('Access-Control-Allow-Origin', allowedOrigin);
-    res.header('Access-Control-Allow-Credentials', 'true');
   }
+  // CRITICAL FIX: Always set credentials header for session cookies
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   // Essential headers for session support
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');

@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Access-Control-Allow-Headers: Content-Type, Authorization, Cookie, Set-Cookie, X-Requested-With
+Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+Access-Control-Expose-Headers: Set-Cookie, Authorization
+Content-Length: 194
+Content-Type: application/json; charset=utf-8
+Date: Mon, 04 Aug 2025 09:56:36 GMT
+Etag: W/"c2-aU/LdIxG0LaHYjRoijD++uM59aw"
+Replit-Cluster: sisko
+Set-Cookie: printeasy_session=s%3AqboLQ41x1hVhVbpQruUNXyizKwc5kx4m.e898hoVpsNKF6oSVZFCW79qvZ5d6G0R7gJeEPxiJMU4; Path=/; Expires=Tue, 05 Aug 2025 09:56:36 GMT; HttpOnly; Secure; SameSite=None
+X-Powered-By: Express
+X-Robots-Tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+X-Robots-Tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+

@@ -30,12 +30,12 @@ export function createSessionMiddleware() {
     resave: false, // Don't save unchanged sessions
     saveUninitialized: false, // Don't save empty sessions
     
-    // Cookie configuration - auto-detect domain for Replit environment
+    // Cookie configuration - FIXED: Force non-secure cookies for cross-origin
     cookie: {
-      secure: true, // Secure cookies with trusted proxy
+      secure: 'auto', // FIXED: Let express-session auto-detect based on connection
       httpOnly: true, // Prevent XSS attacks
       maxAge: 86400000, // 24 hours (direct value)
-      sameSite: 'lax', // Modern secure default for same-origin
+      sameSite: 'none', // CRITICAL: Required for cross-origin cookies
       path: '/', // Available on all paths
       // FIXED: Remove domain restriction - let browser auto-detect for Replit subdomains
       // domain: '.replit.dev', // Removed - causes issues with complex Replit subdomains
@@ -44,8 +44,8 @@ export function createSessionMiddleware() {
     // Enable session rolling for better UX
     rolling: true,
     
-    // Trust proxy for Replit and production
-    proxy: isProduction || isReplit
+    // CRITICAL: Disable proxy trust to prevent automatic secure cookie setting
+    proxy: false
   });
 }
 
