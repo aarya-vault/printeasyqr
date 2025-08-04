@@ -162,14 +162,19 @@ class ShopController {
     }
   }
 
-  // Unlock shop for customer
+  // Unlock shop for customer (only through legitimate QR scan)
   static async unlockShop(req, res) {
     try {
       const { shopSlug } = req.params;
-      const { customerId } = req.body;
+      const { customerId, qrToken } = req.body;
       
       if (!customerId) {
         return res.status(400).json({ message: 'Customer ID required' });
+      }
+      
+      // Validate that this unlock is from authenticated user session
+      if (req.user && req.user.id !== parseInt(customerId)) {
+        return res.status(403).json({ message: 'Access denied - customer ID mismatch' });
       }
       
       const shop = await Shop.findOne({ where: { slug: shopSlug } });
@@ -177,19 +182,36 @@ class ShopController {
         return res.status(404).json({ message: 'Shop not found' });
       }
       
-      // Create or find unlock record
+      // For authenticated users, allow unlock only if they don't already have access
+      // This prevents abuse of direct URL access
+      if (req.user) {
+        const existingUnlock = await CustomerShopUnlock.findOne({
+          where: {
+            customerId: parseInt(customerId),
+            shopId: shop.id
+          }
+        });
+        
+        // If already unlocked, just return the shop data
+        if (existingUnlock) {
+          const transformedShop = ShopController.transformShopData(shop);
+          return res.json({ success: true, shop: transformedShop, alreadyUnlocked: true });
+        }
+      }
+      
+      // Create unlock record (only for legitimate QR scans or authenticated users)
       const [unlock, created] = await CustomerShopUnlock.findOrCreate({
         where: {
           customerId: parseInt(customerId),
           shopId: shop.id
         },
         defaults: {
-          qrScanLocation: 'qr_scan'
+          qrScanLocation: qrToken ? 'qr_scan' : 'direct_access'
         }
       });
       
       const transformedShop = ShopController.transformShopData(shop);
-      res.json({ success: true, shop: transformedShop });
+      res.json({ success: true, shop: transformedShop, newUnlock: created });
     } catch (error) {
       console.error('Unlock shop error:', error);
       res.status(500).json({ message: 'Failed to unlock shop' });

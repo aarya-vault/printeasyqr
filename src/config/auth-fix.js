@@ -4,21 +4,21 @@ import MemoryStore from 'memorystore';
 
 export function createWorkingSessionMiddleware() {
   console.log('🔧 Creating WORKING session configuration...');
-  
+
   const memoryStore = MemoryStore(session);
-  
+
   return session({
     store: new memoryStore({
       checkPeriod: 86400000,
       ttl: 86400000,
       stale: false
     }),
-    
+
     name: 'printeasy_session',
     secret: process.env.SESSION_SECRET || 'printeasy-2025',
     resave: false,
     saveUninitialized: true, // CRITICAL: Must be true for initial cookie setting
-    
+
     cookie: {
       httpOnly: true,
       maxAge: 86400000,
@@ -27,7 +27,7 @@ export function createWorkingSessionMiddleware() {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
       secure: process.env.NODE_ENV === 'production' ? true : true
     },
-    
+
     // CRITICAL: Must trust proxy
     proxy: true
   });
@@ -41,7 +41,7 @@ export function ensureCookiesMiddleware() {
       // Force cookie to be sent
       req.session.touch();
     }
-    
+
     // Ensure CORS headers are always set
     const origin = req.headers.origin || req.headers.referer;
     if (origin) {
@@ -50,7 +50,7 @@ export function ensureCookiesMiddleware() {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     next();
   };
 }
@@ -62,11 +62,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'printeasy-jwt-secret-2025';
 
 export function generateToken(user) {
   return jwt.sign(
-    { 
-      id: user.id, 
-      email: user.email, 
+    {
+      id: user.id,
+      email: user.email,
       phone: user.phone,
-      role: user.role 
+      role: user.role
     },
     JWT_SECRET,
     { expiresIn: '24h' }
@@ -88,7 +88,7 @@ export function hybridAuthMiddleware(req, res, next) {
     req.user = req.session.user;
     return next();
   }
-  
+
   // Try JWT from Authorization header
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -99,7 +99,7 @@ export function hybridAuthMiddleware(req, res, next) {
       return next();
     }
   }
-  
+
   // No auth found
   res.status(401).json({ message: 'Authentication required' });
 }

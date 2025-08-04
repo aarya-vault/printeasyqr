@@ -4,10 +4,10 @@ import MemoryStore from 'memorystore';
 // 🔥 FINAL SESSION FIX - Working configuration for Replit
 export function createSessionMiddleware() {
   console.log('🔧 Final session configuration...');
-  
+
   // Create MemoryStore instance
   const memoryStore = MemoryStore(session);
-  
+
   const sessionConfig = {
     // MemoryStore configuration
     store: new memoryStore({
@@ -15,13 +15,13 @@ export function createSessionMiddleware() {
       ttl: 86400000, // 24 hours
       stale: false
     }),
-    
+
     // Core session settings
     name: 'printeasy_session',
     secret: process.env.SESSION_SECRET || 'printeasy-secure-2025',
     resave: true, // Force session save
     saveUninitialized: true, // Save new sessions
-    
+
     // Cookie configuration - FIXED FOR REPLIT
     cookie: {
       httpOnly: false, // Allow frontend access
@@ -30,14 +30,14 @@ export function createSessionMiddleware() {
       sameSite: 'lax', // More permissive for development
       secure: false // Allow HTTP in development
     },
-    
+
     // Enable proxy trust for Replit
     proxy: true,
-    
+
     // Enable rolling to extend session
     rolling: true
   };
-  
+
   return session(sessionConfig);
 }
 
@@ -54,11 +54,11 @@ export const SessionHelpers = {
         name: userData.name || null,
         role: userData.role
       };
-      
+
       // Add session metadata for debugging
       req.session.createdAt = new Date().toISOString();
       req.session.lastAccess = new Date().toISOString();
-      
+
       // Force session save with retry mechanism
       return new Promise((resolve, reject) => {
         const attemptSave = (attempt = 1) => {
@@ -85,7 +85,7 @@ export const SessionHelpers = {
       throw error;
     }
   },
-  
+
   // Destroy user session with cleanup
   destroyUserSession: async (req) => {
     try {
@@ -106,7 +106,7 @@ export const SessionHelpers = {
       throw error;
     }
   },
-  
+
   // Get current user from session with validation
   getCurrentUser: (req) => {
     try {
@@ -121,7 +121,7 @@ export const SessionHelpers = {
       return null;
     }
   },
-  
+
   // Check if user is authenticated with session validation
   isAuthenticated: (req) => {
     try {
@@ -131,7 +131,7 @@ export const SessionHelpers = {
       return false;
     }
   },
-  
+
   // Check user role with validation
   hasRole: (req, role) => {
     try {
@@ -141,7 +141,7 @@ export const SessionHelpers = {
       return false;
     }
   },
-  
+
   // New: Refresh session to prevent timeout
   refreshSession: (req) => {
     try {

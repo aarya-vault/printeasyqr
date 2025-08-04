@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
 
 interface Order {
   id: number;
@@ -283,13 +283,12 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   };
 
   const handleDownloadFile = (file: any) => {
-    const filePath = `/uploads/${file.filename || file}`;
-    const link = document.createElement('a');
-    link.href = filePath;
-    link.download = file.originalName || file.filename || 'file';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      downloadFile(file);
+      toast({ title: `${file.originalName || file.filename} downloaded` });
+    } catch (error) {
+      toast({ title: 'Error downloading file', variant: 'destructive' });
+    }
   };
 
   const handlePrintAll = async () => {
@@ -304,6 +303,21 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
       }
     } catch (error) {
       toast({ title: 'Error printing files', variant: 'destructive' });
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    try {
+      if (currentFiles.length > 0) {
+        toast({ title: `Downloading ${currentFiles.length} files...` });
+        await downloadAllFiles(currentFiles, (current, total) => {
+          if (current === total) {
+            toast({ title: `All ${total} files downloaded` });
+          }
+        });
+      }
+    } catch (error) {
+      toast({ title: 'Error downloading files', variant: 'destructive' });
     }
   };
 
@@ -538,6 +552,10 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                         <Button size="sm" variant="outline" onClick={handlePrintAll}>
                           <Printer className="w-4 h-4 mr-1" />
                           Print All
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleDownloadAll}>
+                          <Download className="w-4 h-4 mr-1" />
+                          Download All
                         </Button>
                       </div>
                     )}

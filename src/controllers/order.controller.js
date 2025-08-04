@@ -1,4 +1,4 @@
-import { Order, Shop, User, Message, sequelize } from '../models/index.js';
+import { Order, Shop, User, Message, CustomerShopUnlock, sequelize } from '../models/index.js';
 import { Op } from 'sequelize';
 import fs from 'fs/promises';
 import path from 'path';
@@ -134,6 +134,17 @@ class OrderController {
         description: instructions || '',
         files,
         status: 'new'
+      });
+      
+      // Auto-unlock shop for customer when order is placed
+      await CustomerShopUnlock.findOrCreate({
+        where: {
+          customerId: parseInt(customerId),
+          shopId: parseInt(shopId)
+        },
+        defaults: {
+          qrScanLocation: 'order_placement'
+        }
       });
       
       const orderWithDetails = await Order.findByPk(newOrder.id, {
