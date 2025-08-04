@@ -307,6 +307,50 @@ class ShopController {
       res.status(500).json({ message: 'Failed to check slug availability' });
     }
   }
+
+  // Get shop by ID
+  static async getShopById(req, res) {
+    try {
+      const shopId = parseInt(req.params.id);
+      
+      const shop = await Shop.findByPk(shopId, {
+        include: [{ model: User, as: 'owner' }]
+      });
+      
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json(transformedShop);
+    } catch (error) {
+      console.error('Get shop by ID error:', error);
+      res.status(500).json({ message: 'Failed to get shop' });
+    }
+  }
+
+  // Update shop settings
+  static async updateShopSettings(req, res) {
+    try {
+      const updateData = req.body;
+      const userId = req.user.id;
+      
+      // Find shop by owner ID
+      const shop = await Shop.findOne({ where: { ownerId: userId } });
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      // Update shop with provided data
+      await shop.update(updateData);
+      
+      const transformedShop = ShopController.transformShopData(shop);
+      res.json(transformedShop);
+    } catch (error) {
+      console.error('Update shop settings error:', error);
+      res.status(500).json({ message: 'Failed to update shop settings' });
+    }
+  }
 }
 
 export default ShopController;

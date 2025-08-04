@@ -9,6 +9,7 @@ const router = Router();
 // Admin statistics
 router.get('/stats', requireAuth, requireAdmin, AdminController.getPlatformStats);
 router.get('/revenue-analytics', requireAuth, requireAdmin, AdminController.getRevenueAnalytics);
+router.get('/shop-orders', requireAuth, requireAdmin, AdminController.getAllShopOrders);
 
 // User management
 router.get('/users', requireAuth, requireAdmin, UserController.getAllUsers);
