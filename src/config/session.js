@@ -13,8 +13,8 @@ export function createSessionMiddleware() {
       createTableIfMissing: true,
       // Critical: Disable automatic session cleanup to avoid issues
       disableTouch: false,
-      // Session cleanup every 24 hours
-      pruneSessionInterval: 24 * 60 * 60 * 1000,
+      // Session cleanup every 24 hours - Fixed timeout overflow
+      pruneSessionInterval: 86400000, // 24 hours in milliseconds (avoid overflow)
       // Log store errors for debugging
       errorLog: (...args) => {
         console.error('🚨 Session Store Error:', ...args);
@@ -34,7 +34,7 @@ export function createSessionMiddleware() {
       // Dynamic secure setting based on environment
       secure: false, // Start with false, will auto-detect
       httpOnly: true, // Prevent XSS
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours (fixed timeout issue)
+      maxAge: 86400000, // 24 hours in milliseconds (avoid overflow)
       sameSite: 'lax', // Allow same-site requests
       path: '/', // Available on all paths
       domain: undefined // Let browser determine

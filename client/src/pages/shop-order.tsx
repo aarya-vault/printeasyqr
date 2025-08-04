@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Store, Phone, MapPin, Clock, Upload, Users, 
-  FileText, AlertCircle, CheckCircle, X, Package, CheckCircle2
+  FileText, AlertCircle, CheckCircle, X, Package, CheckCircle2, Loader2, Send
 } from 'lucide-react';
 import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 import { useAuth } from '@/hooks/use-auth';
@@ -39,6 +39,14 @@ export default function ShopOrder() {
   const { toast } = useToast();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [orderType, setOrderType] = useState<'upload' | 'walkin'>('upload');
+  const [uploadProgress, setUploadProgress] = useState<{
+    progress: number;
+    currentFile: string;
+    filesProcessed: number;
+    totalFiles: number;
+    uploadSpeed: number;
+    estimatedTime: number;
+  } | null>(null);
   const { getPersistentUserData } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
@@ -118,17 +126,40 @@ export default function ShopOrder() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderForm) => {
+      const startTime = Date.now();
+      let totalBytes = 0;
+      
+      // Calculate total file size for progress tracking
+      selectedFiles.forEach(file => totalBytes += file.size);
+      
       const formData = new FormData();
       formData.append('shopId', shop!.id.toString());
-      formData.append('name', data.name);
-      formData.append('contactNumber', data.contactNumber);
-      formData.append('orderType', data.orderType);
-      formData.append('isUrgent', data.isUrgent.toString());
+      formData.append('customerName', data.name);
+      formData.append('customerPhone', data.contactNumber);
+      formData.append('type', data.orderType === 'upload' ? 'file_upload' : 'walkin');
+      formData.append('title', `Order from ${data.name}`);
       formData.append('description', data.description || '');
+      formData.append('specifications', data.isUrgent ? 'URGENT ORDER' : '');
       
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        selectedFiles.forEach(file => {
+        selectedFiles.forEach((file, index) => {
           formData.append('files', file);
+          
+          // Simulate progress tracking for large files
+          if (file.size > 10 * 1024 * 1024) { // Files > 10MB
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            const uploadSpeed = totalBytes / elapsedTime;
+            const estimatedTime = Math.max(0, (totalBytes - (index + 1) * file.size / selectedFiles.length) / uploadSpeed);
+            
+            setUploadProgress({
+              progress: ((index + 1) / selectedFiles.length) * 100,
+              currentFile: file.name,
+              filesProcessed: index + 1,
+              totalFiles: selectedFiles.length,
+              uploadSpeed,
+              estimatedTime
+            });
+          }
         });
       }
 
@@ -143,18 +174,23 @@ export default function ShopOrder() {
     onSuccess: (data) => {
       toast({
         title: 'Order Created Successfully!',
-        description: `Order #${data.order.id} has been placed`,
+        description: `Order #${data.orderNumber || data.id} has been placed`,
       });
       
-      // Navigate to order confirmation
-      navigate(`/order-confirmation/${data.order.id}`);
+      // Navigate to order confirmation  
+      navigate(`/order-confirmation/${data.id}`);
     },
     onError: () => {
+      setUploadProgress(null); // Clear progress on error
       toast({
         variant: 'destructive',
         title: 'Order Failed',
         description: 'Unable to create order. Please try again.',
       });
+    },
+    onSettled: () => {
+      // Clear progress when mutation is finished (success or error)
+      setTimeout(() => setUploadProgress(null), 1000);
     },
   });
 
@@ -434,16 +470,23 @@ export default function ShopOrder() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00]"
+                  className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00] transition-all duration-300"
                   disabled={createOrderMutation.isPending}
                 >
                   {createOrderMutation.isPending ? (
                     <>
-                      <Upload className="w-4 h-4 mr-2 animate-spin" />
-                      Creating Order...
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {uploadProgress ? (
+                        <span>Uploading... {Math.round(uploadProgress.progress)}%</span>
+                      ) : (
+                        <span>Creating Order...</span>
+                      )}
                     </>
                   ) : (
-                    'Submit Order'
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit Order
+                    </>
                   )}
                 </Button>
               </form>
