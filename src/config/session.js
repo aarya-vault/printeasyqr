@@ -19,25 +19,23 @@ export function createSessionMiddleware() {
     // Core session settings
     name: 'printeasy_session',
     secret: process.env.SESSION_SECRET || 'printeasy-secure-2025',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Force session save
+    saveUninitialized: true, // Save new sessions
     
-    // Cookie configuration - CRITICAL SETTINGS
+    // Cookie configuration - FIXED FOR REPLIT
     cookie: {
-      httpOnly: true,
+      httpOnly: false, // Allow frontend access
       maxAge: 86400000, // 24 hours
       path: '/',
-      // CRITICAL: Must use 'none' for cross-origin in HTTPS
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
-      // CRITICAL: Must be true for sameSite=none
-      secure: true
+      sameSite: 'lax', // More permissive for development
+      secure: false // Allow HTTP in development
     },
     
     // Enable proxy trust for Replit
     proxy: true,
     
-    // Disable rolling
-    rolling: false
+    // Enable rolling to extend session
+    rolling: true
   };
   
   return session(sessionConfig);

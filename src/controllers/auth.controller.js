@@ -38,13 +38,16 @@ class AuthController {
         });
       }
 
-      // Create session using helper
-      await SessionHelpers.createUserSession(req, {
+      // Create session with more robust data
+      const sessionData = {
         id: user.id,
         phone: user.phone,
         name: user.name || 'Customer',
-        role: user.role
-      });
+        role: user.role,
+        email: user.email || null
+      };
+      
+      await SessionHelpers.createUserSession(req, sessionData);
 
       // Generate JWT token
       const token = generateToken(user.toJSON());
@@ -88,12 +91,15 @@ class AuthController {
           });
         }
         
-        await SessionHelpers.createUserSession(req, {
+        const sessionData = {
           id: adminUser.id,
           email: adminUser.email,
           name: adminUser.name || 'Admin',
-          role: adminUser.role
-        });
+          role: adminUser.role,
+          phone: adminUser.phone || null
+        };
+        
+        await SessionHelpers.createUserSession(req, sessionData);
         
         // Generate JWT token
         const token = generateToken(adminUser.toJSON());
@@ -116,13 +122,15 @@ class AuthController {
         const isValidPassword = await user.validatePassword(password);
         
         if (isValidPassword) {
-          await SessionHelpers.createUserSession(req, {
+          const sessionData = {
             id: user.id,
             email: user.email,
             name: user.name || 'Shop Owner',
             role: user.role,
-            phone: user.phone
-          });
+            phone: user.phone || null
+          };
+          
+          await SessionHelpers.createUserSession(req, sessionData);
           
           // Generate JWT token
           const token = generateToken(user.toJSON());

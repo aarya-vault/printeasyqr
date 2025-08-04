@@ -33,18 +33,23 @@ if (!fs.existsSync(uploadDir)) {
 
 // FINAL CORS FIX - Ensure credentials work properly
 app.use((req, res, next) => {
-  // Get origin - use referer as fallback for same-origin requests
-  const origin = req.headers.origin || req.headers.referer;
+  // Get origin
+  const origin = req.headers.origin;
   
-  // For requests with origin header, set CORS
-  if (req.headers.origin) {
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // Set CORS headers for all requests
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    // For same-origin requests, allow the request
+    const host = req.get('host');
+    if (host) {
+      res.setHeader('Access-Control-Allow-Origin', `https://${host}`);
+    }
   }
   
-  // ALWAYS set these headers
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
   
   // Handle OPTIONS
   if (req.method === 'OPTIONS') {
