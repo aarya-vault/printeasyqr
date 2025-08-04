@@ -89,6 +89,16 @@ app.use((req, res, next) => {
     console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
     console.log('--------------------');
   }
+  
+  // Capture Set-Cookie header in response
+  const originalSetHeader = res.setHeader;
+  res.setHeader = function(name, value) {
+    if (name.toLowerCase() === 'set-cookie' && req.path.startsWith('/api/')) {
+      console.log(`🍪 SET-COOKIE HEADER BEING SENT: ${value}`);
+    }
+    return originalSetHeader.call(this, name, value);
+  };
+  
   next();
 });
 
