@@ -4,10 +4,15 @@ import { verifyToken } from '../config/auth-fix.js';
 
 const requireAuth = async (req, res, next) => {
   try {
-    // Check session authentication first
-    let sessionUser = SessionHelpers.getCurrentUser(req);
+    let sessionUser = null;
     
-    // If no session, try JWT token
+    // PRIORITY 1: Check session authentication first
+    if (req.session && req.session.user) {
+      sessionUser = req.session.user;
+      console.log('🔐 Auth via SESSION:', sessionUser.id, sessionUser.role);
+    }
+    
+    // PRIORITY 2: If no session, try JWT token
     if (!sessionUser) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -15,18 +20,23 @@ const requireAuth = async (req, res, next) => {
         const decoded = verifyToken(token);
         if (decoded) {
           sessionUser = decoded;
+          console.log('🔐 Auth via JWT:', sessionUser.id, sessionUser.role);
         }
       }
     }
     
     if (!sessionUser) {
+      console.log('❌ No authentication found - session or JWT');
       return res.status(401).json({ message: 'Authentication required' });
     }
     
     // Verify user exists in database
     const currentUser = await User.findByPk(sessionUser.id);
     if (!currentUser) {
-      await SessionHelpers.destroyUserSession(req);
+      console.log('❌ User not found in database:', sessionUser.id);
+      if (req.session) {
+        await SessionHelpers.destroyUserSession(req);
+      }
       return res.status(401).json({ message: 'User not found' });
     }
     
@@ -38,6 +48,11 @@ const requireAuth = async (req, res, next) => {
       name: currentUser.name,
       role: currentUser.role
     };
+    
+    // Refresh session if using session auth
+    if (req.session && req.session.user) {
+      SessionHelpers.refreshSession(req);
+    }
     
     next();
   } catch (error) {

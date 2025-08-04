@@ -16,20 +16,21 @@ export function createWorkingSessionMiddleware() {
 
     name: 'printeasy_session',
     secret: process.env.SESSION_SECRET || 'printeasy-2025',
-    resave: false,
+    resave: true, // CRITICAL: Force session save
     saveUninitialized: true, // CRITICAL: Must be true for initial cookie setting
 
     cookie: {
-      httpOnly: true,
+      httpOnly: false, // CRITICAL: Allow frontend access
       maxAge: 86400000,
       path: '/',
-      // CRITICAL: For cross-origin requests with credentials
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'none',
-      secure: process.env.NODE_ENV === 'production' ? true : true
+      // CRITICAL: Use lax for Replit environment
+      sameSite: 'lax',
+      secure: false // CRITICAL: Must be false for HTTP development
     },
 
     // CRITICAL: Must trust proxy
-    proxy: true
+    proxy: true,
+    rolling: true // Extend session on each request
   });
 }
 
