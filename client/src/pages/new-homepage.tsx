@@ -295,9 +295,7 @@ export default function NewHomepage() {
                     Start Printing Journey
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                  <div className="text-sm text-gray-500">
-                    Demo: 7434052121
-                  </div>
+                  
                 </div>
               </div>
             </div>
