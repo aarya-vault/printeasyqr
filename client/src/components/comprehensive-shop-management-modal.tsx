@@ -101,19 +101,10 @@ export default function ComprehensiveShopManagementModal({
 
   const updateShop = useMutation({
     mutationFn: async (data: ShopEditForm & { workingHours: any }) => {
-      const response = await fetch(`/api/admin/shops/${shop.id}`, {
+      return await apiRequest(`/api/admin/shops/${shop.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update shop');
-      }
-
-      return response.json();
     },
     onSuccess: () => {
       toast({

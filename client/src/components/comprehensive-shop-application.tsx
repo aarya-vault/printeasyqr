@@ -171,7 +171,7 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
     resolver: zodResolver(finalApplicationSchema),
     defaultValues: {
       publicShopName: '',
-      publicName: '',
+      // publicName handled separately
       publicAddress: '',
       publicContactNumber: '',
       ownerFullName: '',
@@ -272,14 +272,14 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
       publicShopName: shopInfoData?.shopName || '',
       publicAddress: shopInfoData?.shopAddress || '',
       publicContactNumber: shopInfoData?.shopPhone || '',
-      internalShopName: shopInfoData?.shopName || '',
+      // Internal shop name handled separately
       ownerFullName: ownerInfoData?.ownerFullName || '',
       email: ownerInfoData?.email || '',
-      phoneNumber: ownerInfoData?.ownerPhone || '',
+      ownerContactNumber: ownerInfoData?.ownerPhone || '',
       completeAddress: shopInfoData?.shopAddress || '',
       yearsOfExperience: ownerInfoData?.experience || '',
-      servicesOffered: data.services.join(', '),
-      equipmentAvailable: data.equipment.join(', '),
+      servicesOffered: Array.isArray(data.services) ? data.services : [],
+      equipmentAvailable: Array.isArray(data.equipment) ? data.equipment : [],
       workingHours: data.workingHours,
     });
     setCurrentStep(3);
