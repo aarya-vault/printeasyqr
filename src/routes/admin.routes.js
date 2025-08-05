@@ -2,6 +2,7 @@ import { Router } from 'express';
 import AdminController from '../controllers/admin.controller.js';
 import UserController from '../controllers/user.controller.js';
 import ShopController from '../controllers/shop.controller.js';
+import ShopApplicationController from '../controllers/shopApplication.controller.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -23,5 +24,9 @@ router.get('/shops/:id/complete', requireAuth, requireAdmin, AdminController.get
 router.put('/shops/:id', requireAuth, requireAdmin, ShopController.updateShop);
 router.patch('/shops/:id/deactivate', requireAuth, requireAdmin, ShopController.deactivateShop);
 router.patch('/shops/:id/activate', requireAuth, requireAdmin, ShopController.activateShop);
+
+// Shop Application management
+router.get('/shop-applications', requireAuth, requireAdmin, ShopApplicationController.getAllApplications);
+router.patch('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.updateApplicationStatus);
 
 export default router;
