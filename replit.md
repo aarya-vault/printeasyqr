@@ -6,7 +6,7 @@ PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting
 
 **Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
 
-**Recent Fixes (August 2025)**: **COMPLETE AUTHENTICATION SYSTEM REBUILD** - Implemented JWT-first authentication system eliminating all session/cookie compatibility issues with Replit environment. Replaced problematic cookie-based sessions with stateless JWT tokens sent via Authorization headers. Updated all API endpoints with proper authentication middleware, fixed file download security, and established production-ready auth flow. **NETLIFY DEPLOYMENT READY** - Created comprehensive deployment configuration with netlify.toml, serverless functions, and environment variable setup. Added security headers, CORS optimization, and database connection pooling for serverless environment. **COMPLETE DOCUMENTATION** - Created comprehensive API documentation, project documentation, and deployment guide covering all endpoints, authentication flows, database schema, and deployment procedures.
+**Recent Fixes (August 2025)**: **PURE JWT AUTHENTICATION REFACTOR COMPLETED** - Eliminated all session/cookie-based authentication in favor of stateless JWT tokens. Removed express-session, memorystore, and all cookie dependencies. Updated all authentication middleware to pure JWT validation via Authorization headers. Cleaned up Drizzle ORM remnants (drizzle-kit, drizzle-orm, drizzle-zod) establishing Sequelize as the single database ORM. **ARCHITECTURE SIMPLIFICATION** - Removed hybrid authentication complexity, streamlined API middleware, and eliminated all technical debt from unused dependencies. **PRODUCTION READY** - Pure JWT + Sequelize architecture with comprehensive admin dashboard, QR generation system, and enterprise-grade scalability.
 
 ## User Preferences
 
@@ -24,7 +24,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Real-time**: WebSocket connections.
 - **File Handling**: Multer for local storage file uploads.
 - **State Management**: React Context API, TanStack Query.
-- **Authentication**: Phone-based for customers, email/password for shop owners and admins.
+- **Authentication**: Pure JWT tokens (24h expiry). Phone-based for customers, email/password for shop owners and admins.
 
 ### Architectural Patterns
 - **Monorepo Structure**: Clear separation between client, server, and shared code.
@@ -43,7 +43,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **File Management**: Supports all file types with no restrictions. Unlimited file uploads (up to 500MB per file, 100 files per order). Files are stored locally and automatically deleted upon order completion. Print functionality supports various file types directly from the browser.
 - **Smart Order Logic**: Customer dashboards dynamically adapt UI based on order status (e.g., "Add More Files" for processing orders). Order numbering system for queue management.
 - **24/7 Shop Support**: Logic to handle shops operating 24 hours or overnight, reflected across all platform components and QR codes.
-- **Robust Authentication**: Bcrypt hashing for all passwords, environment variables for admin credentials (ADMIN_EMAIL: its.harshthakar@gmail.com, ADMIN_PASSWORD: 2004@Harsh), server-side session validation, and protected API routes with middleware (`requireAuth`, `requireAdmin`, `requireShopOwner`).
+- **Pure JWT Authentication**: Bcrypt hashing for all passwords, stateless JWT tokens (24h expiry), environment variables for admin credentials (ADMIN_EMAIL: its.harshthakar@gmail.com, ADMIN_PASSWORD: 2004@Harsh), and protected API routes with JWT middleware (`requireAuth`, `requireAdmin`, `requireShopOwner`).
 - **Comprehensive Order/Chat History**: Dedicated read-only sections for completed orders and their associated chat logs.
 - **Order Deletion System**: Soft delete implementation with role-based permissions. Customers can delete pending orders, shop owners can delete processing/ready orders, admins can delete any order. Deleted orders are hidden from all views but retained in database with deletion tracking.
 - **Shop Slug System**: Manual shop slug entry during application with validation. No auto-generation from shop name.
@@ -52,8 +52,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 
 ## External Dependencies
 
-- **@neondatabase/serverless**: PostgreSQL database connectivity.
-- **drizzle-orm**: Type-safe ORM for PostgreSQL.
+- **sequelize**: Production PostgreSQL ORM with association management.
 - **@tanstack/react-query**: Server state management.
 - **ws**: WebSocket implementation for real-time features.
 - **multer**: Middleware for handling `multipart/form-data` (file uploads).

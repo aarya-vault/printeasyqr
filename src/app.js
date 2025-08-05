@@ -1,5 +1,4 @@
 import express from 'express';
-import { createWorkingSessionMiddleware, ensureCookiesMiddleware } from './config/auth-fix.js';
 import { requireAuth } from './middleware/auth.middleware.js';
 // DISABLED: WebSocket import removed - handled by new system
 // import { WebSocketServer } from 'ws';
@@ -67,34 +66,15 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // CRITICAL: Trust proxy for Replit environment
 app.set('trust proxy', true);
 
-// 🔥 WORKING AUTH SYSTEM - Session + JWT hybrid
-const sessionMiddleware = createWorkingSessionMiddleware();
-app.use(sessionMiddleware);
-app.use(ensureCookiesMiddleware());
-
-// 🔍 CORS and Session Debug Middleware
+// 🔍 Request Debug Middleware (Pure JWT)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    console.log('--- 🔍 New Request ---');
+    console.log('--- 🔍 JWT Request ---');
     console.log(`➡️  Request Origin: ${req.headers.origin || 'Same-origin'}`);
-    console.log(`⬅️  Access-Control-Allow-Origin: ${res.getHeader('Access-Control-Allow-Origin') || 'Not set'}`);
-    console.log(`🔑 Access-Control-Allow-Credentials: ${res.getHeader('Access-Control-Allow-Credentials') || 'Not set'}`);
-    console.log(`🍪 Cookie Header Received: ${req.headers.cookie ? 'Yes, cookie present' : 'No cookie received'}`);
     console.log(`🔐 ${req.method} ${req.path}`);
-    console.log(`📋 Session ID: ${req.sessionID}`);
-    console.log(`👤 User: ${req.session?.user ? req.session.user.email || req.session.user.phone : 'None'}`);
+    console.log(`🎫 JWT Token: ${req.headers.authorization ? 'Present' : 'Missing'}`);
     console.log('--------------------');
   }
-  
-  // Capture Set-Cookie header in response
-  const originalSetHeader = res.setHeader;
-  res.setHeader = function(name, value) {
-    if (name.toLowerCase() === 'set-cookie' && req.path.startsWith('/api/')) {
-      console.log(`🍪 SET-COOKIE HEADER BEING SENT: ${value}`);
-    }
-    return originalSetHeader.call(this, name, value);
-  };
-  
   next();
 });
 

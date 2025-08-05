@@ -1,8 +1,7 @@
 import { User } from '../models/index.js';
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
-import { SessionHelpers } from '../config/session.js';
-import { generateToken } from '../config/auth-fix.js';
+import { generateToken } from '../config/jwt-auth.js';
 
 class AuthController {
   // Phone login for customers
@@ -38,18 +37,7 @@ class AuthController {
         });
       }
 
-      // Create session with more robust data
-      const sessionData = {
-        id: user.id,
-        phone: user.phone,
-        name: user.name || 'Customer',
-        role: user.role,
-        email: user.email || null
-      };
-      
-      await SessionHelpers.createUserSession(req, sessionData);
-
-      // Generate JWT token
+      // Generate JWT token (no session creation)
       const token = generateToken(user.toJSON());
       
       // Add needsNameUpdate flag for customers without names
@@ -91,17 +79,7 @@ class AuthController {
           });
         }
         
-        const sessionData = {
-          id: adminUser.id,
-          email: adminUser.email,
-          name: adminUser.name || 'Admin',
-          role: adminUser.role,
-          phone: adminUser.phone || null
-        };
-        
-        await SessionHelpers.createUserSession(req, sessionData);
-        
-        // Generate JWT token
+        // Generate JWT token (no session creation)
         const token = generateToken(adminUser.toJSON());
         
         return res.json({
@@ -122,17 +100,7 @@ class AuthController {
         const isValidPassword = await user.validatePassword(password);
         
         if (isValidPassword) {
-          const sessionData = {
-            id: user.id,
-            email: user.email,
-            name: user.name || 'Shop Owner',
-            role: user.role,
-            phone: user.phone || null
-          };
-          
-          await SessionHelpers.createUserSession(req, sessionData);
-          
-          // Generate JWT token
+          // Generate JWT token (no session creation)
           const token = generateToken(user.toJSON());
           
           return res.json({
@@ -149,10 +117,10 @@ class AuthController {
     }
   }
 
-  // Get current user
+  // Get current user from JWT
   static async getCurrentUser(req, res) {
     try {
-      // requireAuth middleware has already authenticated user and set req.user
+      // requireAuth middleware has already authenticated user via JWT and set req.user
       const currentUser = req.user;
       
       // Return user data with additional flags
@@ -162,6 +130,7 @@ class AuthController {
         email: currentUser.email,
         name: currentUser.name,
         role: currentUser.role,
+        isActive: currentUser.isActive,
         needsNameUpdate: currentUser.role === 'customer' && 
           (!currentUser.name || currentUser.name === 'Customer')
       };
@@ -173,14 +142,18 @@ class AuthController {
     }
   }
 
-  // Logout
+  // Logout - purely client-side with JWT
   static async logout(req, res) {
     try {
-      await SessionHelpers.destroyUserSession(req);
-      res.json({ message: 'Logged out successfully' });
+      // With JWT, logout is handled client-side by removing the token
+      // Server just acknowledges the logout request
+      res.json({ 
+        message: 'Logged out successfully',
+        note: 'Please remove the JWT token from client storage'
+      });
     } catch (error) {
       console.error('Logout error:', error);
-      res.status(500).json({ message: 'Could not log out' });
+      res.status(500).json({ message: 'Logout failed' });
     }
   }
 }

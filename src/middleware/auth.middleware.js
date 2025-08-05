@@ -1,47 +1,40 @@
 import { User } from '../models/index.js';
-import { SessionHelpers } from '../config/session.js';
-import { verifyToken } from '../config/auth-fix.js';
+import { verifyToken } from '../config/jwt-auth.js';
 
 const requireAuth = async (req, res, next) => {
   try {
-    let user = null;
-    
-    // PRIORITY 1: Check JWT token from Authorization header
+    // Extract JWT token from Authorization header
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
-      if (decoded) {
-        user = decoded;
-        console.log('🔐 Auth via JWT:', user.id, user.role);
-      }
-    }
-    
-    // FALLBACK: Check session authentication (for backward compatibility)
-    if (!user && req.session && req.session.user) {
-      user = req.session.user;
-      console.log('🔐 Auth via SESSION (fallback):', user.id, user.role);
-    }
-    
-    if (!user) {
-      console.log('❌ No authentication found - JWT or session');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('❌ No JWT token found in Authorization header');
       return res.status(401).json({ message: 'Authentication required' });
     }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
     
-    // Verify user exists in database
-    const currentUser = await User.findByPk(user.id);
-    if (!currentUser) {
-      console.log('❌ User not found in database:', user.id);
-      return res.status(401).json({ message: 'User not found' });
+    if (!decoded) {
+      console.log('❌ Invalid or expired JWT token');
+      return res.status(401).json({ message: 'Invalid or expired token' });
     }
     
-    // Set user directly from database
+    console.log('🔐 JWT Authentication successful:', decoded.id, decoded.role);
+    
+    // Verify user exists in database
+    const currentUser = await User.findByPk(decoded.id);
+    if (!currentUser || !currentUser.isActive) {
+      console.log('❌ User not found or inactive:', decoded.id);
+      return res.status(401).json({ message: 'User not found or inactive' });
+    }
+    
+    // Set user data from database
     req.user = {
       id: currentUser.id,
       phone: currentUser.phone,
       email: currentUser.email,
       name: currentUser.name,
-      role: currentUser.role
+      role: currentUser.role,
+      isActive: currentUser.isActive
     };
     
     next();
@@ -56,35 +49,27 @@ const requireRole = (roles) => {
     try {
       const allowedRoles = Array.isArray(roles) ? roles : [roles];
       
-      // Check authentication first - prioritize JWT then session
-      let user = null;
-      
-      // PRIORITY 1: Try JWT token from Authorization header
+      // Extract JWT token from Authorization header
       const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        const decoded = verifyToken(token);
-        if (decoded) {
-          user = decoded;
-        }
-      }
-      
-      // FALLBACK: Try session
-      if (!user) {
-        user = SessionHelpers.getCurrentUser(req);
-      }
-      
-      if (!user) {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+      
+      if (!decoded) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
       }
       
       // Verify user exists in database
-      const currentUser = await User.findByPk(user.id);
-      if (!currentUser) {
-        return res.status(401).json({ message: 'User not found' });
+      const currentUser = await User.findByPk(decoded.id);
+      if (!currentUser || !currentUser.isActive) {
+        return res.status(401).json({ message: 'User not found or inactive' });
       }
       
       if (!allowedRoles.includes(currentUser.role)) {
+        console.log(`❌ Access denied: ${currentUser.role} not in ${allowedRoles}`);
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
       
@@ -93,7 +78,8 @@ const requireRole = (roles) => {
         phone: currentUser.phone,
         email: currentUser.email,
         name: currentUser.name,
-        role: currentUser.role
+        role: currentUser.role,
+        isActive: currentUser.isActive
       };
       
       next();
