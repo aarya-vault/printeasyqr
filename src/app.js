@@ -150,6 +150,46 @@ app.get('/api/download/:filename', requireAuth, (req, res) => {
   }
 });
 
+// 🔥 CRITICAL FIX: File serving route for viewing files (not downloading)
+// This allows frontend to display uploaded files in chat, order details, etc.
+// Note: Browser img tags can't send auth headers, so we use a more permissive approach
+app.get('/uploads/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '..', 'uploads', filename);
+  
+  // Basic security check - ensure file exists and path is safe
+  if (!filename || filename.includes('..') || filename.includes('/')) {
+    return res.status(400).json({ message: 'Invalid file path' });
+  }
+  
+  if (fs.existsSync(filePath)) {
+    // Set appropriate headers for file viewing
+    const ext = path.extname(filename).toLowerCase();
+    let contentType = 'application/octet-stream';
+    
+    // Set proper MIME types for common file types
+    if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.gif') contentType = 'image/gif';
+    else if (ext === '.txt') contentType = 'text/plain';
+    else if (ext === '.doc') contentType = 'application/msword';
+    else if (ext === '.docx') contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    else if (ext === '.xlsx') contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    else if (ext === '.pptx') contentType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'private, max-age=3600'); // Cache for 1 hour
+    res.setHeader('X-Content-Type-Options', 'nosniff'); // Security header
+    
+    console.log(`📁 Serving file: ${filename} (${contentType})`);
+    res.sendFile(path.resolve(filePath));
+  } else {
+    console.log(`❌ File not found: ${filename}`);
+    res.status(404).json({ message: 'File not found' });
+  }
+});
+
 // REMOVED: This catch-all was blocking new TypeScript routes
 // Unmatched API routes are now handled by the new system
 
