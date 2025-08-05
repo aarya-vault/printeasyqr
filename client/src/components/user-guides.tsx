@@ -262,21 +262,43 @@ export default function UserGuides({ isOpen, onClose, guideType = 'general' }: U
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-rich-black">
-            <div className="bg-brand-yellow p-2 rounded-lg">
-              <Package className="w-5 h-5 text-rich-black" />
+      <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col w-[95vw] sm:w-full">
+        <DialogHeader className="pb-3 sm:pb-4">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold text-rich-black">
+            <div className="bg-brand-yellow p-1.5 sm:p-2 rounded-lg">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-rich-black" />
             </div>
-            PrintEasy User Guide
+            <span className="truncate">PrintEasy User Guide</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex gap-4">
-          {/* Guide Navigation */}
-          <div className="w-64 border-r pr-4 flex-shrink-0">
-            <h3 className="font-semibold text-sm text-gray-700 mb-3">Choose Guide Topic</h3>
-            <div className="space-y-2">
+        <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-3 sm:gap-4">
+          {/* Guide Navigation - Mobile: Horizontal scroll, Desktop: Sidebar */}
+          <div className="lg:w-64 lg:border-r lg:pr-4 lg:flex-shrink-0">
+            <h3 className="font-semibold text-sm text-gray-700 mb-2 sm:mb-3 hidden lg:block">Choose Guide Topic</h3>
+            
+            {/* Mobile Navigation - Horizontal Scroll */}
+            <div className="lg:hidden">
+              <div className="flex overflow-x-auto gap-2 pb-2 mb-4 scrollbar-hide mobile-scroll">
+                {guideOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => setCurrentGuide(option.key)}
+                    className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all ${
+                      currentGuide === option.key
+                        ? 'bg-brand-yellow text-rich-black font-medium'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {option.icon}
+                    <span className="text-xs whitespace-nowrap">{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop Navigation - Vertical List */}
+            <div className="hidden lg:block space-y-2">
               {guideOptions.map((option) => (
                 <button
                   key={option.key}
@@ -296,31 +318,33 @@ export default function UserGuides({ isOpen, onClose, guideType = 'general' }: U
           </div>
 
           {/* Guide Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-rich-black mb-2">
+          <div className="flex-1 overflow-y-auto px-1 sm:px-0 mobile-scroll">
+            <div className="mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-rich-black mb-1 sm:mb-2">
                 {currentGuideData.title}
               </h2>
-              <p className="text-gray-600 text-lg">{currentGuideData.subtitle}</p>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{currentGuideData.subtitle}</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {currentGuideData.sections.map((section, index) => (
                 <Card key={index} className="border-l-4 border-l-brand-yellow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-3 text-lg">
-                      <div className="bg-brand-yellow/10 p-2 rounded-lg">
-                        {section.icon}
+                  <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg">
+                      <div className="bg-brand-yellow/10 p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                        {React.cloneElement(section.icon, { 
+                          className: "w-4 h-4 sm:w-6 sm:h-6 text-brand-yellow" 
+                        })}
                       </div>
-                      {section.title}
+                      <span className="leading-tight">{section.title}</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
+                  <CardContent className="p-3 sm:p-6 pt-0">
+                    <div className="space-y-2 sm:space-y-3">
                       {section.content.map((item, itemIndex) => (
-                        <div key={itemIndex} className="flex items-start gap-3">
-                          <ArrowRight className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
-                          <p className="text-gray-700 text-sm leading-relaxed">{item}</p>
+                        <div key={itemIndex} className="flex items-start gap-2 sm:gap-3">
+                          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
+                          <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">{item}</p>
                         </div>
                       ))}
                     </div>
@@ -330,23 +354,23 @@ export default function UserGuides({ isOpen, onClose, guideType = 'general' }: U
             </div>
 
             {/* Quick Action Buttons */}
-            <div className="mt-8 pt-6 border-t">
-              <h3 className="font-semibold text-gray-700 mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t">
+              <h3 className="font-semibold text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base">Quick Actions</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <Button
                   variant="outline"
-                  className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                  className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs sm:text-sm h-9 sm:h-10"
                   onClick={() => setCurrentGuide('qrScanning')}
                 >
-                  <QrCode className="w-4 h-4 mr-2" />
+                  <QrCode className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   QR Scanner Help
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                  className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs sm:text-sm h-9 sm:h-10"
                   onClick={() => setCurrentGuide('chatHelp')}
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   Chat Guide
                 </Button>
               </div>
@@ -355,12 +379,15 @@ export default function UserGuides({ isOpen, onClose, guideType = 'general' }: U
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-600">
+        <div className="pt-3 sm:pt-4 border-t bg-gray-50 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between">
+            <p className="text-xs text-gray-600 text-center sm:text-left">
               Need more help? Contact support: <span className="font-medium">support@printeasy.com</span>
             </p>
-            <Button onClick={onClose} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+            <Button 
+              onClick={onClose} 
+              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-sm h-9 sm:h-10 w-full sm:w-auto"
+            >
               Got it!
             </Button>
           </div>

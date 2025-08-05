@@ -72,6 +72,22 @@
   .btn-primary {
     @apply bg-brand-yellow text-rich-black hover:bg-yellow-400 font-medium px-4 py-2 rounded-lg transition-colors;
   }
+
+  /* Hide scrollbar utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile-optimized scroll behavior */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
   
   .btn-secondary {
     @apply bg-rich-black text-white hover:bg-gray-800 font-medium px-4 py-2 rounded-lg transition-colors;
