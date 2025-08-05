@@ -187,10 +187,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!user) return;
 
     try {
+      // Get JWT token for authentication
+      const authToken = localStorage.getItem('authToken');
+      
       const response = await fetch(`/api/users/${user.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}` // Add JWT token
         },
         body: JSON.stringify(updates),
         credentials: 'include'
@@ -201,8 +205,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       const updatedUser = await response.json();
+      
+      // Update the user state and localStorage with fresh data
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Also update persistent data if name was changed
+      if (updates.name) {
+        const persistentData = getPersistentUserData() || {};
+        savePersistentUserData({ ...persistentData, name: updates.name });
+      }
+      
+      console.log('✅ User updated successfully:', updatedUser.name);
     } catch (error) {
       console.error('Update user error:', error);
       throw error;
