@@ -162,8 +162,10 @@ export default function UnifiedCustomerDashboard() {
 
   const unlockedShopIds = unlockedShopsData?.unlockedShopIds || [];
 
-  // Filter to show only active orders (not completed) in dashboard
-  const activeOrders = allOrders.filter(order => order.status !== 'completed');
+  // Filter to show only active orders (not completed/cancelled/deleted) in dashboard
+  const activeOrders = allOrders.filter(order => 
+    order.status !== 'completed' && !order.deletedAt
+  );
 
   // Recent orders (all orders, not just active)
   const recentOrders = [...allOrders]
@@ -392,152 +394,150 @@ export default function UnifiedCustomerDashboard() {
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-base sm:text-lg font-bold text-rich-black">Your Print Status</h2>
-                    <p className="text-xs text-gray-600 mt-0.5">Track and manage your orders</p>
+                    <p className="text-xs text-gray-600 mt-0.5">Active orders and available shops</p>
                   </div>
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 flex items-center gap-2">
                     <div className="bg-brand-yellow/20 px-2 py-1 rounded-full">
                       <span className="text-xs font-medium text-rich-black">
-                        {orderStats.active} Active
+                        {unlockedShopIds.length} Shops
                       </span>
                     </div>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-7"
+                      onClick={() => setShowAllShops(true)}
+                    >
+                      <Store className="w-3 h-3 mr-1" />
+                      View All
+                    </Button>
                   </div>
                 </div>
 
-                {/* Current Order Card - Mobile Optimized - CLICKABLE */}
-                {recentOrders[0] && (
-                  <div 
-                    className={`bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow ${
-                      recentOrders[0].deletedAt ? 'opacity-60 border-red-200 bg-red-50/30' : ''
-                    }`}
-                    onClick={() => setSelectedOrderForDetails(recentOrders[0])}
-                  >
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
-                          {recentOrders[0].status === 'ready' ? (
-                            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
-                          ) : recentOrders[0].status === 'processing' ? (
-                            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
-                          ) : (
-                            <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
-                          )}
+                {/* Active Orders Section */}
+                {activeOrders.length > 0 ? (
+                  <div className="space-y-3 mb-4">
+                    {activeOrders.map((order) => (
+                      <div 
+                        key={order.id}
+                        className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => setSelectedOrderForDetails(order)}
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
+                              {order.status === 'ready' ? (
+                                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                              ) : order.status === 'processing' ? (
+                                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
+                              ) : (
+                                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1 mb-1.5 flex-wrap">
+                              <Badge className={`${getStatusColor(order.status)} font-medium text-xs`}>
+                                {getStatusIcon(order.status)}
+                                <span className="ml-1 capitalize">{order.status}</span>
+                              </Badge>
+                              {order.isUrgent && (
+                                <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                              )}
+                            </div>
+                            <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{order.title}</h3>
+                            <p className="text-xs text-gray-600 mb-1">
+                              at {order.shop?.name || 'Print Shop'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Ordered {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 mb-1.5 flex-wrap">
-                          {recentOrders[0].deletedAt ? (
-                            <Badge variant="destructive" className="text-xs font-medium">
+                        
+                        {/* Mobile Action Buttons */}
+                        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            size="sm"
+                            className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
+                            onClick={() => setSelectedOrderForDetails(order)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            Details
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
+                            onClick={() => setSelectedOrderForChat(order.id)}
+                          >
+                            <MessageCircle className="w-3 h-3 mr-1" />
+                            {order.status === 'completed' ? 'Chat History' : 'Chat'}
+                          </Button>
+                          
+                          {/* Delete Button - Only for customers before processing */}
+                          {canDeleteOrder(order, user?.role || '', user?.id || 0).canDelete && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-200 text-red-600 hover:bg-red-50 text-xs h-8 sm:h-9"
+                              onClick={() => deleteOrderMutation.mutate(order.id)}
+                              disabled={deleteOrderMutation.isPending}
+                            >
                               <X className="w-3 h-3 mr-1" />
-                              Deleted
-                            </Badge>
-                          ) : (
-                            <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium text-xs`}>
-                              {getStatusIcon(recentOrders[0].status)}
-                              <span className="ml-1 capitalize">{recentOrders[0].status}</span>
-                            </Badge>
-                          )}
-                          {recentOrders[0].isUrgent && (
-                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                              Delete
+                            </Button>
                           )}
                         </div>
-                        <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{recentOrders[0].title}</h3>
-                        <p className="text-xs text-gray-600 mb-1">
-                          at {recentOrders[0].shop?.name || 'Print Shop'}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Ordered {format(new Date(recentOrders[0].createdAt), 'MMM dd, HH:mm')}
-                        </p>
                       </div>
-                    </div>
-                    
-                    {/* Mobile Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="sm"
-                        className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
-                        onClick={() => setSelectedOrderForDetails(recentOrders[0])}
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        Details
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
-                        onClick={() => setSelectedOrderForChat(recentOrders[0].id)}
-                      >
-                        <MessageCircle className="w-3 h-3 mr-1" />
-                        {recentOrders[0].status === 'completed' ? 'Chat History' : 'Chat'}
-                      </Button>
-                      
-                      {/* Delete Button - Only for customers before processing */}
-                      {canDeleteOrder(recentOrders[0], user?.role || '', user?.id || 0).canDelete && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs h-8 sm:h-9"
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
-                              deleteOrderMutation.mutate(recentOrders[0].id);
-                            }
-                          }}
-                          disabled={deleteOrderMutation.isPending}
-                        >
-                          <X className="w-3 h-3 mr-1" />
-                          {deleteOrderMutation.isPending ? 'Cancelling...' : 'Cancel Order'}
-                        </Button>
-                      )}
-                      
-                      {recentOrders[0].shop?.phone && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`tel:${recentOrders[0].shop?.phone}`)}
-                          className="col-span-2 sm:col-span-1 text-xs h-8 sm:h-9"
-                        >
-                          <Phone className="w-3 h-3 mr-1" />
-                          Call Shop
-                        </Button>
-                      )}
-                    </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-4 text-center mb-4">
+                    <Package className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">No active orders</p>
+                    <p className="text-xs text-gray-500">Start by scanning a shop QR code or browsing available shops</p>
                   </div>
                 )}
 
-                {/* Enhanced Smart Actions Based on Order Status */}
-                {recentOrders[0] && recentOrders[0].status === 'processing' && (
-                  // Processing Order - Show Add Files Button 
-                  <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-                    <Button 
-                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
-                      onClick={() => setSelectedOrderForDetails(recentOrders[0])}
-                    >
-                      <Upload className="w-4 h-4" />
-                      Add More Files to Order
-                    </Button>
-                  </div>
-                )}
-
-                {recentOrders[0] && recentOrders[0].status === 'ready' && (
-                  // Ready Order - Show Pickup Available
+                {/* Enhanced Smart Actions Based on Active Orders */}
+                {activeOrders.some(order => order.status === 'processing') && (
                   <div className="mt-3">
                     <Button 
                       className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium text-sm sm:text-base shadow-sm"
-                      onClick={() => setSelectedOrderForDetails(recentOrders[0])}
+                      onClick={() => {
+                        const processingOrder = activeOrders.find(order => order.status === 'processing');
+                        if (processingOrder) setSelectedOrderForDetails(processingOrder);
+                      }}
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      Pickup Available - View Details
+                      <Upload className="w-4 h-4" />
+                      Add More Files to Processing Orders
                     </Button>
                   </div>
                 )}
 
-                {recentOrders[0] && recentOrders[0].status === 'completed' && (
-                  // Completed Order - Show New Order Options (No Add Files)
-                  <div className="grid grid-cols-2 gap-2 mt-3">
+                {activeOrders.some(order => order.status === 'ready') && (
+                  <div className="mt-3">
                     <Button 
-                      variant="outline"
-                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
-                      onClick={() => setShowUploadOrder(true)}
+                      className="w-full h-10 sm:h-12 flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 font-medium text-sm sm:text-base shadow-sm"
+                      onClick={() => {
+                        const readyOrder = activeOrders.find(order => order.status === 'ready');
+                        if (readyOrder) setSelectedOrderForDetails(readyOrder);
+                      }}
                     >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Orders Ready for Pickup!
+                    </Button>
+                  </div>
+                )}
+
+                {/* Quick Action Buttons */}
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <Button 
+                    variant="outline"
+                    className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
+                    onClick={() => setShowUploadOrder(true)}
+                  >
                       <Upload className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                       <span className="text-gray-600">New Upload</span>
                     </Button>
@@ -550,8 +550,8 @@ export default function UnifiedCustomerDashboard() {
                       <span className="text-gray-600">Walk-in Order</span>
                     </Button>
                   </div>
-                )}
 
+                {/* Status-based Messages */}
                 {recentOrders[0] && recentOrders[0].status === 'new' && (
                   // New Order - Show Status Message
                   <div className="mt-3">
