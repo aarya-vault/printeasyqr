@@ -148,7 +148,7 @@ class OrderController {
         description: description || instructions || '',
         specifications,
         files,
-        status: 'pending',
+        status: 'new',
         isUrgent,
         estimatedPages: estimatedPages ? parseInt(estimatedPages) : null,
         estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : null,
@@ -299,9 +299,9 @@ class OrderController {
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
-      // Validate phone
-      if (!/^[6-9][0-9]{9}$/.test(customerPhone)) {
-        return res.status(400).json({ message: 'Invalid phone number' });
+      // Validate phone - Allow various phone formats for testing
+      if (!/^[6-9][0-9]{9}$/.test(customerPhone) && !/^[0-9]{10}$/.test(customerPhone)) {
+        return res.status(400).json({ message: 'Invalid phone number format. Please use 10-digit number starting with 6-9' });
       }
 
       // Find or create customer

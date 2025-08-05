@@ -32,8 +32,11 @@ const Order = sequelize.define('Order', {
     field: 'order_number'
   },
   type: {
-    type: DataTypes.ENUM('upload', 'walkin'),
-    allowNull: false
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isIn: [['digital', 'upload', 'walkin', 'file_upload']]
+    }
   },
   title: {
     type: DataTypes.STRING,
@@ -57,9 +60,12 @@ const Order = sequelize.define('Order', {
     field: 'walkin_time'
   },
   status: {
-    type: DataTypes.ENUM('new', 'processing', 'ready', 'completed'),
+    type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'new'
+    defaultValue: 'new',
+    validate: {
+      isIn: [['new', 'pending', 'processing', 'ready', 'completed', 'cancelled']]
+    }
   },
   isUrgent: {
     type: DataTypes.BOOLEAN,

@@ -104,7 +104,9 @@ async function testEndpoint(category, name, method, endpoint, data = null, token
   testResults.categories[category].total++;
   
   const result = await makeRequest(method, endpoint, data, token);
-  const passed = result.success && result.status === expectedStatus && (!validate || validate(result.data));
+  const statusMatches = result.status === expectedStatus;
+  const validationPasses = !validate || validate(result.data);
+  const passed = statusMatches && validationPasses;
   
   const testCase = {
     name,
@@ -125,10 +127,17 @@ async function testEndpoint(category, name, method, endpoint, data = null, token
     testResults.failed++;
     testResults.categories[category].failed++;
     
+    let errorMsg = result.error;
+    if (!statusMatches) {
+      errorMsg = `Status mismatch: expected ${expectedStatus}, got ${result.status}`;
+    } else if (!validationPasses) {
+      errorMsg = `Validation failed`;
+    }
+    
     testResults.errors.push({
       category,
       test: name,
-      error: result.error || `Status mismatch: expected ${expectedStatus}, got ${result.status}`,
+      error: errorMsg,
       response: result.data,
       status: result.status
     });
@@ -178,9 +187,10 @@ async function runComprehensiveTests() {
     (data) => data && data.token && data.user
   );
   
-  if (adminLogin.success) {
+  if (adminLogin.success && adminLogin.data && adminLogin.data.token) {
     tokens.admin = adminLogin.data.token;
     testData.adminUser = adminLogin.data.user;
+    console.log('✅ Admin token acquired');
   }
 
   // Test customer phone login with existing user
@@ -191,12 +201,14 @@ async function runComprehensiveTests() {
     '/api/auth/phone-login',
     { phone: '9876543211', password: 'test123' },
     null,
-    200
+    200,
+    (data) => data && data.token && data.user
   );
   
-  if (existingCustomer.success && existingCustomer.data.token) {
+  if (existingCustomer.success && existingCustomer.data && existingCustomer.data.token) {
     tokens.customer = existingCustomer.data.token;
     testData.customerUser = existingCustomer.data.user;
+    console.log('✅ Customer token acquired');
   }
 
   // Test verify authentication
