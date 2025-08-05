@@ -578,24 +578,8 @@ export default function UnifiedCustomerDashboard() {
                   </div>
                 )}
 
-                {/* Quick Action Buttons */}
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  <Button 
-                    variant="outline"
-                    className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
-                    onClick={() => setShowUploadOrder(true)}
-                  >
-                      <Upload className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
-                      <span className="text-gray-600">New Upload</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="h-10 sm:h-12 flex-col gap-1 border-gray-200 hover:border-brand-yellow hover:bg-brand-yellow/5 text-xs sm:text-sm"
-                      onClick={() => setShowWalkinOrder(true)}
-                    >
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
-                      <span className="text-gray-600">Walk-in Order</span>
-                    </Button>
+                {/* Quick Action Buttons - Walk-in Order button removed */}
+                <div className="grid grid-cols-1 gap-2 mt-3">
                   </div>
 
                 {/* Status-based Messages */}
