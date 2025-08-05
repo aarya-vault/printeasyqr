@@ -184,12 +184,12 @@ async function runComprehensiveTests() {
     { email: 'its.harshthakar@gmail.com', password: '2004@Harsh' },
     null,
     200,
-    (data) => data && data.token && data.user
+    (data) => data && data.token && data.id
   );
   
   if (adminLogin.success && adminLogin.data && adminLogin.data.token) {
     tokens.admin = adminLogin.data.token;
-    testData.adminUser = adminLogin.data.user;
+    testData.adminUser = adminLogin.data;
     console.log('✅ Admin token acquired');
   }
 
@@ -202,12 +202,12 @@ async function runComprehensiveTests() {
     { phone: '9876543211', password: 'test123' },
     null,
     200,
-    (data) => data && data.token && data.user
+    (data) => data && data.token && data.id
   );
   
   if (existingCustomer.success && existingCustomer.data && existingCustomer.data.token) {
     tokens.customer = existingCustomer.data.token;
-    testData.customerUser = existingCustomer.data.user;
+    testData.customerUser = existingCustomer.data;
     console.log('✅ Customer token acquired');
   }
 
