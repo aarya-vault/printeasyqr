@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLocation, Link } from 'wouter';
 import { 
   ArrowLeft, Search, MapPin, Clock, Star, Users, Upload,
-  Home, Package, ShoppingCart, User, Phone, Eye, Lock, Unlock
+  Home, Package, ShoppingCart, User, Phone, Eye, Lock, Unlock, Store, Printer
 } from 'lucide-react';
 import LoadingScreen from '@/components/loading-screen';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
