@@ -139,24 +139,53 @@ class MessageController {
   static async getUnreadCount(req, res) {
     try {
       const userId = req.user.id;
+      const userRole = req.user.role;
       
-      const count = await Message.count({
-        where: {
-          senderId: { [Op.ne]: userId },
-          isRead: false
-        },
-        include: [{
-          model: Order,
-          as: 'order',
-          where: {
-            [Op.or]: [
-              { customerId: userId },
-              { '$order.shop.ownerId$': userId }
-            ]
-          },
-          include: [{ model: Shop, as: 'shop' }]
-        }]
-      });
+      let whereCondition = {
+        senderId: { [Op.ne]: userId },
+        isRead: false
+      };
+      
+      // For customers: count unread messages in their orders
+      if (userRole === 'customer') {
+        const customerOrders = await Order.findAll({
+          where: { customerId: userId },
+          attributes: ['id']
+        });
+        
+        const orderIds = customerOrders.map(order => order.id);
+        if (orderIds.length > 0) {
+          whereCondition.orderId = { [Op.in]: orderIds };
+        } else {
+          return res.json({ unreadCount: 0 });
+        }
+      }
+      // For shop owners: count unread messages in their shop's orders
+      else if (userRole === 'shop_owner') {
+        const ownerShops = await Shop.findAll({
+          where: { ownerId: userId },
+          attributes: ['id']
+        });
+        
+        if (ownerShops.length === 0) {
+          return res.json({ unreadCount: 0 });
+        }
+        
+        const shopIds = ownerShops.map(shop => shop.id);
+        const shopOrders = await Order.findAll({
+          where: { shopId: { [Op.in]: shopIds } },
+          attributes: ['id']
+        });
+        
+        const orderIds = shopOrders.map(order => order.id);
+        if (orderIds.length > 0) {
+          whereCondition.orderId = { [Op.in]: orderIds };
+        } else {
+          return res.json({ unreadCount: 0 });
+        }
+      }
+      
+      const count = await Message.count({ where: whereCondition });
       
       res.json({ unreadCount: count });
     } catch (error) {

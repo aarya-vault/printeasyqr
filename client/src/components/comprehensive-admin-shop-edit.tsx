@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import {
   Store,
   User,
@@ -82,13 +83,8 @@ export default function ComprehensiveAdminShopEdit({
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/admin/shops/${shop.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingShop),
-      });
-
-      if (!response.ok) throw new Error('Failed to update shop');
+      // Use PUT method as defined in the backend route
+      const response = await apiRequest('PUT', `/api/admin/shops/${shop.id}`, editingShop);
 
       // Comprehensive query invalidation for real-time synchronization across all platform components
       await queryClient.invalidateQueries({ queryKey: ['/api/shops'] });

@@ -269,9 +269,16 @@ async function testSendMessage() {
 async function testUnreadMessageCount() {
   console.log(`\n${colors.blue}=== TESTING UNREAD MESSAGE COUNT ===${colors.reset}`);
   
-  // Skip this test for now due to complex query issues
-  console.log(`${colors.yellow}⚠️  Skipping unread count test - known issue with complex query${colors.reset}`);
-  return true;
+  const result = await apiRequest('GET', `/api/messages/unread-count`, null, testData.shopOwnerToken);
+  
+  if (result.ok && typeof result.data.unreadCount === 'number') {
+    console.log(`${colors.green}✓ Unread count retrieved: ${result.data.unreadCount}${colors.reset}`);
+    return true;
+  } else {
+    console.log(`${colors.red}✗ Failed to get unread count: ${result.data?.message || result.error}${colors.reset}`);
+    console.log('Response:', result);
+    return false;
+  }
 }
 
 async function testOrderStatusUpdate() {
