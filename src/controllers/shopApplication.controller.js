@@ -127,21 +127,10 @@ class ShopApplicationController {
       
       // If approved, create shop and owner account
       if (status === 'approved') {
-        // 🔥 PHONE CONFLICT RESOLUTION: Delete any existing customer with same phone
-        const existingCustomer = await User.findOne({ 
-          where: { 
-            phone: application.phoneNumber,
-            role: 'customer'
-          }
-        });
-        
-        if (existingCustomer) {
-          console.log(`🗑️ Deleting customer account ${existingCustomer.id} (${existingCustomer.phone}) - phone conflict with shop owner approval`);
-          await existingCustomer.destroy({ transaction });
-        }
-        
+        // 🔥 PHONE CONFLICT RESOLUTION: Check for existing user with same phone
         let owner = await User.findOne({
-          where: { phone: application.phoneNumber }
+          where: { phone: application.phoneNumber },
+          transaction
         });
         
         if (owner) {
