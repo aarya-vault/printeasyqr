@@ -173,9 +173,20 @@ export default function RedesignedShopOwnerDashboard() {
 
   const updateOrderStatus = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: number; status: string }) => {
+      // Get JWT token for authentication
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+      
       const response = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}` // Add JWT token
+        },
+        credentials: 'include',
         body: JSON.stringify({ status }),
       });
       if (!response.ok) throw new Error('Failed to update status');
@@ -233,9 +244,21 @@ export default function RedesignedShopOwnerDashboard() {
       if (!shopData?.shop?.id) {
         throw new Error('Shop ID not found');
       }
+      
+      // Get JWT token for authentication
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+      
       const response = await fetch(`/api/shops/${shopData.shop.id}/toggle-status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}` // Add JWT token
+        },
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to update shop status');
       return response.json();
