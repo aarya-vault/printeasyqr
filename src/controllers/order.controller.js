@@ -53,14 +53,13 @@ class OrderController {
     };
   }
 
-  // Get orders by shop
+  // Get orders by shop - includes deleted orders for history
   static async getOrdersByShop(req, res) {
     try {
       const shopId = parseInt(req.params.shopId);
       const orders = await Order.findAll({
         where: { 
-          shopId,
-          deletedAt: null
+          shopId
         },
         include: [
           { model: User, as: 'customer' },
@@ -77,14 +76,13 @@ class OrderController {
     }
   }
 
-  // Get orders by customer
+  // Get orders by customer - includes deleted orders for history  
   static async getOrdersByCustomer(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
       const orders = await Order.findAll({
         where: { 
-          customerId,
-          deletedAt: null
+          customerId
         },
         include: [
           { model: Shop, as: 'shop' },

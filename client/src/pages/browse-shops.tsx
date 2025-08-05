@@ -161,7 +161,7 @@ export default function BrowseShops() {
     return (
       shop.name.toLowerCase().includes(search) ||
       shop.address.toLowerCase().includes(search) ||
-      shop.servicesOffered.some(service => 
+      (shop.servicesOffered || shop.services || []).some(service => 
         service.toLowerCase().includes(search)
       )
     );
