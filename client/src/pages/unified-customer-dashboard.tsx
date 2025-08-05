@@ -40,6 +40,7 @@ export default function UnifiedCustomerDashboard() {
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
   const [showAllShops, setShowAllShops] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   
   // Customer Name Modal for data consistency
   const [showNameModal, setShowNameModal] = useState(false);
@@ -52,6 +53,17 @@ export default function UnifiedCustomerDashboard() {
   // Shop details states
   const [selectedShopForDetails, setSelectedShopForDetails] = useState<any>(null);
   const [showShopDetails, setShowShopDetails] = useState(false);
+
+  // Fetch unlocked shops for the customer
+  const { data: unlockedShopsData, isLoading: unlockedShopsLoading } = useQuery({
+    queryKey: [`/api/customer/${user?.id}/unlocked-shops`],
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  const unlockedShops = unlockedShopsData?.unlockedShops || [];
+  const unlockedShopIds = unlockedShopsData?.unlockedShopIds || [];
 
   // Handle shop card click to show details
   const handleShopClick = (shop: any) => {
@@ -601,42 +613,99 @@ export default function UnifiedCustomerDashboard() {
       
       {/* Main Content Container */}
       <main className="px-3 sm:px-6 py-4">
-        {/* Recent Active Orders */}
+        {/* Unlocked Shops */}
         <Card className="mb-8">
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-rich-black">Active Orders</h2>
-              <Link href="/customer-orders">
-                <Button variant="link" className="text-brand-yellow hover:underline">
-                  View All Orders
-                </Button>
-              </Link>
+              <h2 className="text-xl font-semibold text-rich-black">Your Shops</h2>
+              <Button 
+                variant="link" 
+                className="text-brand-yellow hover:underline"
+                onClick={() => setShowAllShops(true)}
+              >
+                Browse All Shops
+              </Button>
             </div>
             
-            {ordersLoading ? (
+            {unlockedShopsLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="h-32 bg-gray-200 rounded-lg animate-pulse"></div>
                 ))}
               </div>
-            ) : activeOrders.length === 0 ? (
+            ) : unlockedShops?.length === 0 ? (
               <div className="text-center py-8">
-                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No active orders. Place your first order!</p>
+                <Store className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">No shops unlocked yet. Scan QR codes to access shops!</p>
+                <Button 
+                  className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                  onClick={() => setShowQRScanner(true)}
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  Scan QR Code
+                </Button>
               </div>
             ) : (
               <div className="space-y-4">
-                {activeOrders.slice(0, 3).map((order) => (
-                  <UnifiedOrderCard
-                    key={order.id}
-                    order={order}
-                    userRole="customer"
-                    userId={user?.id}
-                    onChatClick={(orderId) => setSelectedOrderForChat(orderId)}
-                    onCallClick={(phone) => window.open(`tel:${phone}`)}
-                    onViewDetails={(order) => setSelectedOrderForDetails(order as any)}
-                  />
+                {unlockedShops?.slice(0, 3).map((shop: any) => (
+                  <Card key={shop.id} className="border border-brand-yellow/20 hover:border-brand-yellow/40 transition-colors cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-rich-black truncate">{shop.name}</h3>
+                            <Badge className="bg-brand-yellow text-rich-black text-xs">
+                              ✅ Unlocked
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-1 mb-3">
+                            <p className="text-sm text-gray-600 truncate">
+                              📍 {shop.address || shop.city}
+                            </p>
+                            {shop.phone && (
+                              <p className="text-sm text-gray-600">
+                                📞 {shop.phone}
+                              </p>
+                            )}
+                            {shop.services && shop.services.length > 0 && (
+                              <p className="text-xs text-gray-500 truncate">
+                                🛠️ {shop.services.slice(0, 3).join(', ')}
+                                {shop.services.length > 3 && ` +${shop.services.length - 3} more`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="ml-3 flex gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                            onClick={() => {
+                              // Navigate to shop page
+                              window.location.href = `/shop/${shop.slug}`;
+                            }}
+                          >
+                            <Printer className="w-3 h-3 mr-1" />
+                            Order
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
+                
+                {unlockedShops && unlockedShops.length > 3 && (
+                  <div className="text-center pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowAllShops(true)}
+                      className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                    >
+                      View All {unlockedShops.length} Unlocked Shops
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -888,6 +957,17 @@ export default function UnifiedCustomerDashboard() {
 
       {/* User Guides */}
       <UserGuidesComponent />
+
+      {/* QR Scanner */}
+      <QRScanner
+        isOpen={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onShopUnlocked={(shopId, shopName) => {
+          // Invalidate unlocked shops query to refresh the list
+          queryClient.invalidateQueries({ queryKey: [`/api/customer/${user?.id}/unlocked-shops`] });
+        }}
+        autoRedirect={true}
+      />
 
       {/* Customer Name Modal for Data Consistency */}
       <Dialog open={showNameModal} onOpenChange={() => {}}>

@@ -155,7 +155,6 @@ class ShopController {
       });
       
       // Get shops where customer has placed orders (auto-unlock)
-      const { Order } = require('../models');
       const ordersWithShops = await Order.findAll({
         where: { customerId },
         include: [{
@@ -193,8 +192,14 @@ class ShopController {
         }
       }
       
+      // Return both shop IDs and full shop data
       const unlockedShopIds = unlocks.map(unlock => unlock.shop.id);
-      res.json({ unlockedShopIds });
+      const unlockedShops = unlocks.map(unlock => ShopController.transformShopData(unlock.shop));
+      
+      res.json({ 
+        unlockedShopIds,
+        unlockedShops 
+      });
     } catch (error) {
       console.error('Get unlocked shops error:', error);
       res.status(500).json({ message: 'Failed to get unlocked shops' });
