@@ -62,8 +62,8 @@ export default function UnifiedCustomerDashboard() {
     refetchOnWindowFocus: false,
   });
 
-  const unlockedShops = unlockedShopsData?.unlockedShops || [];
-  const unlockedShopIds = unlockedShopsData?.unlockedShopIds || [];
+  const unlockedShops = (unlockedShopsData as any)?.unlockedShops || [];
+  const unlockedShopIds = (unlockedShopsData as any)?.unlockedShopIds || [];
 
   // Handle shop card click to show details
   const handleShopClick = (shop: any) => {
@@ -166,13 +166,13 @@ export default function UnifiedCustomerDashboard() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Fetch unlocked shops for this customer
-  const { data: unlockedShopsData } = useQuery<{ unlockedShopIds: number[] }>({
+  // Additional fetch for unlocked shop IDs 
+  const { data: additionalUnlockedData } = useQuery<{ unlockedShopIds: number[] }>({
     queryKey: [`/api/customer/${user?.id}/unlocked-shops`],
     enabled: !!user?.id,
   });
 
-  const unlockedShopIds = unlockedShopsData?.unlockedShopIds || [];
+  const additionalUnlockedShopIds = additionalUnlockedData?.unlockedShopIds || [];
 
   // Filter to show only active orders (not completed/cancelled/deleted) in dashboard
   const activeOrders = allOrders.filter(order => 
@@ -185,11 +185,11 @@ export default function UnifiedCustomerDashboard() {
     .slice(0, 5);
 
   // Previously visited shops (shops where customer has placed orders)
-  const visitedShops = [...new Map(
+  const visitedShops = Array.from(new Map(
     allOrders
       .filter(order => order.shop && order.shop.id)
-      .map(order => [order.shop.id, order.shop])
-  ).values()];
+      .map(order => [order.shop!.id, order.shop])
+  ).values());
 
   // Calculate order statistics
   const orderStats = {
