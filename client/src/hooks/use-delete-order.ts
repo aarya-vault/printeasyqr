@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api-client';
 
 interface DeleteOrderResponse {
   message: string;
@@ -12,20 +13,7 @@ export const useDeleteOrder = () => {
 
   return useMutation({
     mutationFn: async (orderId: number): Promise<DeleteOrderResponse> => {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to delete order');
-      }
-
-      return response.json();
+      return await apiClient.delete(`/api/orders/${orderId}`);
     },
     onSuccess: (data) => {
       // Invalidate all order-related queries to refresh data

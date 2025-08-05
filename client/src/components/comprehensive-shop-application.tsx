@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -205,8 +206,7 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
       
       // Check slug availability
       while (true) {
-        const response = await fetch(`/api/shops/check-slug/${shopSlug}`);
-        const { available } = await response.json();
+        const { available } = await apiClient.get(`/api/shops/check-slug/${shopSlug}`);
         if (available) break;
         shopSlug = `${baseSlug}-${counter}`;
         counter++;
@@ -236,18 +236,7 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
         shopSlug,
       };
 
-      const response = await fetch('/api/shop-applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(applicationData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to submit application');
-      }
-
-      return response.json();
+      return await apiClient.post('/api/shop-applications', applicationData);
     },
     onSuccess: () => {
       toast({

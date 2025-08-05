@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, Ban, RotateCcw, Trash2, ShieldX } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface Shop {
   id: number;
@@ -29,24 +30,13 @@ export default function ShopManagementDropdown({ shop, onUpdate }: ShopManagemen
   const handleShopAction = async (action: 'deactivate' | 'activate' | 'ban' | 'delete') => {
     setIsLoading(true);
     try {
-      let response;
+      let data;
       
       if (action === 'delete') {
-        response = await fetch(`/api/admin/shops/${shop.id}`, {
-          method: 'DELETE',
-        });
+        data = await apiClient.delete(`/api/admin/shops/${shop.id}`);
       } else {
-        response = await fetch(`/api/admin/shops/${shop.id}/${action}`, {
-          method: 'PATCH',
-        });
+        data = await apiClient.patch(`/api/admin/shops/${shop.id}/${action}`);
       }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${action} shop`);
-      }
-
-      const data = await response.json();
       
       toast({
         title: 'Success',

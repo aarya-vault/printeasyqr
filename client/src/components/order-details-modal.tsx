@@ -13,6 +13,7 @@ import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { apiClient } from '@/lib/api-client';
 
 interface Order {
   id: number;
@@ -49,13 +50,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   // Update order mutation
   const updateOrderMutation = useMutation({
     mutationFn: async (updates: any) => {
-      const response = await fetch(`/api/orders/${order.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
-      if (!response.ok) throw new Error('Failed to update order');
-      return response.json();
+      return await apiClient.patch(`/api/orders/${order.id}`, updates);
     },
     onSuccess: () => {
       toast({ title: 'Order updated successfully' });

@@ -11,6 +11,7 @@ import {
   Bell, BellOff, Package, MessageSquare, AlertCircle, 
   CheckCircle, Info, ArrowLeft, Trash2, Check
 } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface Notification {
   id: number;
@@ -37,11 +38,7 @@ export default function ShopNotifications() {
   // Mark notification as read
   const markAsRead = useMutation({
     mutationFn: async (notificationId: number) => {
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PATCH',
-      });
-      if (!response.ok) throw new Error('Failed to mark as read');
-      return response.json();
+      return await apiClient.patch(`/api/notifications/${notificationId}/read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
@@ -51,11 +48,7 @@ export default function ShopNotifications() {
   // Delete notification
   const deleteNotification = useMutation({
     mutationFn: async (notificationId: number) => {
-      const response = await fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete notification');
-      return response.json();
+      return await apiClient.delete(`/api/notifications/${notificationId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
@@ -65,11 +58,7 @@ export default function ShopNotifications() {
   // Mark all as read
   const markAllAsRead = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/notifications/user/${user?.id}/read-all`, {
-        method: 'PATCH',
-      });
-      if (!response.ok) throw new Error('Failed to mark all as read');
-      return response.json();
+      return await apiClient.patch(`/api/notifications/user/${user?.id}/read-all`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });

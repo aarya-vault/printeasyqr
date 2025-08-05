@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
+import { apiClient } from '@/lib/api-client';
 
 interface QRScannerProps {
   isOpen: boolean;
@@ -43,39 +44,28 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
       // Use the correct endpoint based on available identifier
       const endpoint = shopSlug ? `/api/unlock-shop/${shopSlug}` : `/api/unlock-shop-by-id/${shopId}`;
       
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          customerId: user?.id,
-          qrScanLocation: 'dashboard_scanner'
-        })
+      return await apiClient.post(endpoint, { 
+        customerId: user?.id,
+        qrScanLocation: 'dashboard_scanner'
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to unlock shop');
-      }
-      
-      return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: 'Shop Unlocked! 🎉',
         description: autoRedirect 
-          ? `Redirecting to ${data.shop?.name || 'shop'} order page...`
-          : `You can now place orders at ${data.shop?.name || 'this shop'}`
+          ? `Redirecting to ${data?.shop?.name || 'shop'} order page...`
+          : `You can now place orders at ${data?.shop?.name || 'this shop'}`
       });
       
       // Invalidate queries to refresh unlocked shops
       queryClient.invalidateQueries({ queryKey: ['/api/customer/unlocked-shops'] });
       queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       
-      onShopUnlocked?.(data.shop?.id, data.shop?.name);
+      onShopUnlocked?.(data?.shop?.id, data?.shop?.name);
       onClose();
       
       // Enhanced QR Scan Workflow: Auto-redirect to order page with prefilled data
-      if (autoRedirect && data.shop?.slug) {
+      if (autoRedirect && data?.shop?.slug) {
         setTimeout(() => {
           navigate(`/shop/${data.shop.slug}?source=qr&prefill=true`);
         }, 1000); // Brief delay to show success message

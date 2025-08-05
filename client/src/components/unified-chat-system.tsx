@@ -156,9 +156,17 @@ export default function UnifiedChatSystem({
         });
       }
 
+      // Get JWT token for authentication
+      const authToken = localStorage.getItem('authToken');
+      const headers: any = {};
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch('/api/messages', {
         method: 'POST',
         body: formData,
+        headers,
         credentials: 'include'
       });
       
