@@ -154,40 +154,48 @@ class ShopController {
         }]
       });
       
-      // Get shops where customer has placed orders (auto-unlock)
+      // Get unique shop IDs where customer has placed orders (for auto-unlock)
       const ordersWithShops = await Order.findAll({
         where: { customerId },
+        attributes: ['shopId'],
         include: [{
           model: Shop,
           as: 'shop',
           where: {
             isApproved: true,
             status: 'active'
-          }
-        }],
-        group: ['shop.id']
+          },
+          required: true
+        }]
       });
       
+      // Get unique shop IDs from orders
+      const uniqueShopIds = [...new Set(ordersWithShops.map(order => order.shopId))];
+      
       // Auto-unlock shops where customer has orders but no explicit unlock record
-      for (const order of ordersWithShops) {
-        const existingUnlock = unlocks.find(unlock => unlock.shop.id === order.shop.id);
-        if (!existingUnlock && order.shop) {
+      for (const shopId of uniqueShopIds) {
+        const existingUnlock = unlocks.find(unlock => unlock.shop.id === shopId);
+        if (!existingUnlock) {
           try {
-            await CustomerShopUnlock.findOrCreate({
-              where: {
-                customerId: customerId,
-                shopId: order.shop.id
-              },
-              defaults: {
-                qrScanLocation: 'auto_unlock_previous_order'
-              }
-            });
-            // Add to response
-            unlocks.push({
-              shop: order.shop
-            });
+            // Get the shop data
+            const shop = ordersWithShops.find(order => order.shopId === shopId)?.shop;
+            if (shop) {
+              await CustomerShopUnlock.findOrCreate({
+                where: {
+                  customerId: customerId,
+                  shopId: shopId
+                },
+                defaults: {
+                  qrScanLocation: 'auto_unlock_previous_order'
+                }
+              });
+              // Add to response
+              unlocks.push({
+                shop: shop
+              });
+            }
           } catch (autoUnlockError) {
-            console.log('Auto-unlock failed for shop:', order.shop.id, autoUnlockError);
+            console.log('Auto-unlock failed for shop:', shopId, autoUnlockError);
           }
         }
       }
