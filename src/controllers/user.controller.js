@@ -32,17 +32,6 @@ class UserController {
       }
 
       await user.update(updates);
-
-      // Update session if updating current user
-      if (req.session?.user?.id === userId) {
-        req.session.user = {
-          id: user.id,
-          email: user.email || undefined,
-          phone: user.phone || undefined,
-          name: user.name || 'User',
-          role: user.role
-        };
-      }
       
       // Transform user data for consistent response
       const transformedUser = UserController.transformUserData(user);

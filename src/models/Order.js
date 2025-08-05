@@ -52,7 +52,7 @@ const Order = sequelize.define('Order', {
     allowNull: true
   },
   walkinTime: {
-    type: DataTypes.STRING,
+    type: DataTypes.DATE,
     allowNull: true,
     field: 'walkin_time'
   },
