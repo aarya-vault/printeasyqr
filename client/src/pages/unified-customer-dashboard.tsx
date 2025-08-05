@@ -550,45 +550,7 @@ export default function UnifiedCustomerDashboard() {
                   </div>
                 )}
 
-                {/* Previously Visited Shops Section - REPLACES Active Orders */}
-                {visitedShops.length > 0 && (
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-medium text-rich-black">Previously Visited Shops</h3>
-                      <span className="text-xs text-gray-500">{visitedShops.length} shops</span>
-                    </div>
-                    <div className="space-y-2">
-                      {visitedShops.slice(0, 3).map((shop) => (
-                        <div 
-                          key={shop.id}
-                          className="bg-white rounded-lg p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => setLocation(`/shop/${shop.slug}`)}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                              <Store className="w-4 h-4 text-rich-black" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm text-rich-black truncate">{shop.name}</h4>
-                              <p className="text-xs text-gray-500 truncate">{shop.address}</p>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                          </div>
-                        </div>
-                      ))}
-                      {visitedShops.length > 3 && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="w-full text-xs text-brand-yellow hover:bg-brand-yellow/10"
-                          onClick={() => setShowAllShops(true)}
-                        >
-                          View All {visitedShops.length} Visited Shops
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
+                
 
                 {/* Quick Action Buttons - Walk-in Order button removed */}
                 <div className="grid grid-cols-1 gap-2 mt-3">
