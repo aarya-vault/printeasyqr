@@ -1,485 +1,752 @@
-/**
- * PrintEasy Comprehensive End-to-End Testing Script
- * 
- * This script tests all major functionality including:
- * - Shop application and details modification
- * - Order placement with large files (50MB)
- * - Order status changes and deletions
- * - Chat functionality with file uploads
- * - File cleanup verification
- * - Shop deletion and admin analytics
- */
+import fs from 'fs/promises';
 
-const fs = require('fs');
-const path = require('path');
-const FormData = require('form-data');
+// Base configuration
+const BASE_URL = 'http://localhost:5000';
+const TEST_RESULTS_FILE = 'comprehensive-test-results.json';
 
-class PrintEasyTester {
-  constructor(baseUrl = 'http://localhost:5000') {
-    this.baseUrl = baseUrl;
-    this.cookies = {
-      admin: '',
-      shopOwner: '',
-      customer: ''
-    };
-    this.testData = {
-      shopApplication: null,
-      createdShop: null,
-      createdOrder: null,
-      uploadedFiles: []
-    };
+// Test results storage
+const testResults = {
+  timestamp: new Date().toISOString(),
+  totalTests: 0,
+  passed: 0,
+  failed: 0,
+  categories: {},
+  errors: [],
+  warnings: []
+};
+
+// Colors for console output
+const colors = {
+  reset: '\x1b[0m',
+  bright: '\x1b[1m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m'
+};
+
+// Helper functions
+async function makeRequest(method, endpoint, data = null, token = null) {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Utility Methods
-  async makeRequest(endpoint, options = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    const defaultOptions = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': options.cookie || ''
-      }
-    };
+  const config = {
+    method,
+    headers
+  };
 
-    const requestOptions = { ...defaultOptions, ...options };
+  if (data && method !== 'GET') {
+    config.body = JSON.stringify(data);
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    let responseData = null;
     
-    try {
-      const response = await fetch(url, requestOptions);
-      const data = await response.json();
-      
-      console.log(`🌐 ${options.method || 'GET'} ${endpoint} - Status: ${response.status}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${data.message || 'Request failed'}`);
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        console.error('Failed to parse JSON response');
       }
-      
-      return { data, response };
-    } catch (error) {
-      console.error(`❌ Request failed: ${endpoint}`, error.message);
-      throw error;
+    } else {
+      responseData = await response.text();
     }
-  }
-
-  async login(credentials, role) {
-    console.log(`\n🔐 Logging in as ${role}...`);
     
-    const { data, response } = await this.makeRequest('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials)
+    return { 
+      success: response.ok, 
+      data: responseData, 
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries())
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.message,
+      status: 0,
+      headers: {}
+    };
+  }
+}
+
+function logTest(name, passed, status, expected, details = null) {
+  const statusIcon = passed ? `${colors.green}✅${colors.reset}` : `${colors.red}❌${colors.reset}`;
+  const statusText = passed ? `${colors.green}PASSED${colors.reset}` : `${colors.red}FAILED${colors.reset}`;
+  
+  console.log(`\n${statusIcon} ${name}`);
+  console.log(`   Status: ${status} ${expected ? `(Expected: ${expected})` : ''} - ${statusText}`);
+  
+  if (!passed && details) {
+    console.log(`   ${colors.yellow}Details: ${JSON.stringify(details, null, 2)}${colors.reset}`);
+  }
+}
+
+async function testEndpoint(category, name, method, endpoint, data = null, token = null, expectedStatus = 200, validate = null) {
+  testResults.totalTests++;
+  
+  if (!testResults.categories[category]) {
+    testResults.categories[category] = {
+      total: 0,
+      passed: 0,
+      failed: 0,
+      tests: []
+    };
+  }
+  
+  testResults.categories[category].total++;
+  
+  const result = await makeRequest(method, endpoint, data, token);
+  const passed = result.success && result.status === expectedStatus && (!validate || validate(result.data));
+  
+  const testCase = {
+    name,
+    method,
+    endpoint,
+    expectedStatus,
+    actualStatus: result.status,
+    passed,
+    response: result.data,
+    error: result.error || null,
+    timestamp: new Date().toISOString()
+  };
+
+  if (passed) {
+    testResults.passed++;
+    testResults.categories[category].passed++;
+  } else {
+    testResults.failed++;
+    testResults.categories[category].failed++;
+    
+    testResults.errors.push({
+      category,
+      test: name,
+      error: result.error || `Status mismatch: expected ${expectedStatus}, got ${result.status}`,
+      response: result.data,
+      status: result.status
     });
+  }
+  
+  testResults.categories[category].tests.push(testCase);
+  logTest(name, passed, result.status, expectedStatus, result.error || result.data);
+  
+  return result;
+}
 
-    // Extract cookies from response
-    const setCookie = response.headers.get('set-cookie');
-    if (setCookie) {
-      this.cookies[role] = setCookie;
+// Main test runner
+async function runComprehensiveTests() {
+  console.log(`${colors.bright}${colors.cyan}🚀 PrintEasy Comprehensive API Test Suite${colors.reset}`);
+  console.log(`${colors.cyan}${'='.repeat(60)}${colors.reset}\n`);
+  console.log(`Testing against: ${BASE_URL}`);
+  console.log(`Started at: ${new Date().toLocaleString()}\n`);
+
+  // Storage for test data
+  let tokens = {
+    admin: null,
+    customer: null,
+    shopOwner: null
+  };
+  
+  let testData = {
+    adminUser: null,
+    customerUser: null,
+    shopOwner: null,
+    shop: null,
+    order: null,
+    application: null
+  };
+
+  // ========== 1. AUTHENTICATION TESTS ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 1. AUTHENTICATION ENDPOINTS ===${colors.reset}`);
+  
+  // Test admin login
+  const adminLogin = await testEndpoint(
+    'Authentication',
+    'Admin Email Login',
+    'POST',
+    '/api/auth/email-login',
+    { email: 'its.harshthakar@gmail.com', password: '2004@Harsh' },
+    null,
+    200,
+    (data) => data && data.token && data.user
+  );
+  
+  if (adminLogin.success) {
+    tokens.admin = adminLogin.data.token;
+    testData.adminUser = adminLogin.data.user;
+  }
+
+  // Test customer phone login with existing user
+  const existingCustomer = await testEndpoint(
+    'Authentication',
+    'Customer Phone Login (Existing User ID:2)',
+    'POST',
+    '/api/auth/phone-login',
+    { phone: '9876543211', password: 'test123' },
+    null,
+    200
+  );
+  
+  if (existingCustomer.success && existingCustomer.data.token) {
+    tokens.customer = existingCustomer.data.token;
+    testData.customerUser = existingCustomer.data.user;
+  }
+
+  // Test verify authentication
+  await testEndpoint(
+    'Authentication',
+    'Verify Auth - Admin',
+    'GET',
+    '/api/auth/me',
+    null,
+    tokens.admin,
+    200,
+    (data) => data && data.role === 'admin'
+  );
+
+  await testEndpoint(
+    'Authentication',
+    'Verify Auth - No Token',
+    'GET',
+    '/api/auth/me',
+    null,
+    null,
+    401
+  );
+
+  await testEndpoint(
+    'Authentication',
+    'Invalid Login - Wrong Password',
+    'POST',
+    '/api/auth/email-login',
+    { email: 'its.harshthakar@gmail.com', password: 'wrongpassword' },
+    null,
+    401
+  );
+
+  // ========== 2. ADMIN ENDPOINTS ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 2. ADMIN ENDPOINTS ===${colors.reset}`);
+
+  await testEndpoint(
+    'Admin',
+    'Get Platform Stats',
+    'GET',
+    '/api/admin/stats',
+    null,
+    tokens.admin,
+    200,
+    (data) => data && typeof data.totalUsers === 'number'
+  );
+
+  await testEndpoint(
+    'Admin',
+    'Platform Stats - Unauthorized (Customer)',
+    'GET',
+    '/api/admin/stats',
+    null,
+    tokens.customer,
+    403
+  );
+
+  const usersResponse = await testEndpoint(
+    'Admin',
+    'Get All Users',
+    'GET',
+    '/api/admin/users',
+    null,
+    tokens.admin,
+    200,
+    (data) => Array.isArray(data)
+  );
+
+  const shopsResponse = await testEndpoint(
+    'Admin',
+    'Get All Shops',
+    'GET',
+    '/api/admin/shops',
+    null,
+    tokens.admin,
+    200,
+    (data) => Array.isArray(data)
+  );
+
+  if (shopsResponse.success && shopsResponse.data.length > 0) {
+    testData.shop = shopsResponse.data[0];
+  }
+
+  const applicationsResponse = await testEndpoint(
+    'Admin',
+    'Get Shop Applications',
+    'GET',
+    '/api/admin/shop-applications',
+    null,
+    tokens.admin,
+    200,
+    (data) => Array.isArray(data)
+  );
+
+  if (applicationsResponse.success && applicationsResponse.data.length > 0) {
+    testData.application = applicationsResponse.data[0];
+  }
+
+  // Test shop complete details
+  if (testData.shop) {
+    await testEndpoint(
+      'Admin',
+      'Get Shop Complete Details',
+      'GET',
+      `/api/admin/shops/${testData.shop.id}/complete`,
+      null,
+      tokens.admin,
+      200
+    );
+  }
+
+  // ========== 3. USER MANAGEMENT ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 3. USER MANAGEMENT ===${colors.reset}`);
+
+  if (testData.customerUser) {
+    await testEndpoint(
+      'User',
+      'Get User by ID',
+      'GET',
+      `/api/users/${testData.customerUser.id}`,
+      null,
+      tokens.customer,
+      200
+    );
+
+    await testEndpoint(
+      'User',
+      'Update User Profile',
+      'PATCH',
+      `/api/users/${testData.customerUser.id}`,
+      { name: 'Updated Test Customer' },
+      tokens.customer,
+      200
+    );
+
+    // Admin user operations
+    if (tokens.admin) {
+      await testEndpoint(
+        'Admin',
+        'Admin Update User',
+        'PATCH',
+        `/api/admin/users/${testData.customerUser.id}`,
+        { name: 'Admin Updated Name' },
+        tokens.admin,
+        200
+      );
+
+      await testEndpoint(
+        'Admin',
+        'Toggle User Status',
+        'PATCH',
+        `/api/admin/users/${testData.customerUser.id}/status`,
+        { isActive: false },
+        tokens.admin,
+        200
+      );
+
+      // Reactivate user
+      await testEndpoint(
+        'Admin',
+        'Reactivate User',
+        'PATCH',
+        `/api/admin/users/${testData.customerUser.id}/status`,
+        { isActive: true },
+        tokens.admin,
+        200
+      );
     }
-
-    console.log(`✅ Successfully logged in as ${role}`);
-    return data;
   }
 
-  // Create large test file (50MB)
-  createLargeTestFile(filename, sizeGB = 0.05) {
-    const filePath = path.join(__dirname, filename);
-    const sizeBytes = sizeGB * 1024 * 1024 * 1024; // Convert GB to bytes
-    
-    console.log(`📁 Creating ${sizeGB}GB test file: ${filename}...`);
-    
-    const buffer = Buffer.alloc(sizeBytes, 'A'); // Fill with 'A' characters
-    fs.writeFileSync(filePath, buffer);
-    
-    console.log(`✅ Created ${filename} (${(sizeBytes / (1024 * 1024)).toFixed(2)}MB)`);
-    return filePath;
+  // ========== 4. SHOP OPERATIONS ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 4. SHOP OPERATIONS ===${colors.reset}`);
+
+  await testEndpoint(
+    'Shop',
+    'Get Active Shops (Public)',
+    'GET',
+    '/api/shops',
+    null,
+    null,
+    200,
+    (data) => Array.isArray(data)
+  );
+
+  if (testData.shop) {
+    await testEndpoint(
+      'Shop',
+      'Get Shop by Slug',
+      'GET',
+      `/api/shops/slug/${testData.shop.slug}`,
+      null,
+      null,
+      200
+    );
+
+    await testEndpoint(
+      'Shop',
+      'Check Slug Availability',
+      'GET',
+      `/api/shops/check-slug/new-test-shop`,
+      null,
+      null,
+      200
+    );
+
+    // Shop owner operations
+    if (testData.shop.ownerId) {
+      // Try to get shop owner token
+      const shopOwnerLogin = await testEndpoint(
+        'Authentication',
+        'Shop Owner Login',
+        'POST',
+        '/api/auth/phone-login',
+        { phone: testData.shop.ownerPhone || testData.shop.phone, password: 'shop123' },
+        null,
+        200
+      );
+      
+      if (shopOwnerLogin.success) {
+        tokens.shopOwner = shopOwnerLogin.data.token;
+        testData.shopOwner = shopOwnerLogin.data.user;
+      }
+    }
   }
 
-  // Test Shop Application Process
-  async testShopApplication() {
-    console.log('\n🏪 TESTING SHOP APPLICATION PROCESS');
-    console.log('=' .repeat(50));
+  // ========== 5. SHOP APPLICATION FLOW ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 5. SHOP APPLICATION FLOW ===${colors.reset}`);
 
-    // 1. Create shop application
-    const applicationData = {
-      shopName: 'Test Print Shop E2E',
-      slug: `test-shop-${Date.now()}`,
-      ownerName: 'Test Owner',
-      email: 'testowner@example.com',
-      phone: '9876543210',
-      address: '123 Test Street',
+  const newApplication = await testEndpoint(
+    'Shop Application',
+    'Submit New Application',
+    'POST',
+    '/api/shop-applications',
+    {
+      publicShopName: 'Test Shop ' + Date.now(),
+      shopSlug: 'test-shop-' + Date.now(),
+      ownerFullName: 'New Test Owner',
+      publicOwnerName: 'Test Owner',
+      publicAddress: '456 Test Avenue',
+      publicContactNumber: '7777777777',
+      internalShopName: 'Internal Test Shop',
+      email: `test${Date.now()}@example.com`,
+      phoneNumber: '7777777777',
+      password: 'testshop123',
+      completeAddress: '456 Test Avenue, Test City, Test State 123456',
       city: 'Test City',
+      state: 'Test State',
       pinCode: '123456',
-      services: ['Printing', 'Binding', 'Scanning'],
-      equipment: ['Laser Printer', 'Scanner'],
-      yearsOfExperience: 5,
+      services: ['printing', 'scanning', 'binding'],
+      customServices: [],
+      equipment: ['laser printer', 'scanner'],
+      customEquipment: [],
+      yearsOfExperience: '5-10',
       workingHours: {
         monday: { open: '09:00', close: '18:00', closed: false },
         tuesday: { open: '09:00', close: '18:00', closed: false },
         wednesday: { open: '09:00', close: '18:00', closed: false },
-        thursday: { open: '09:00', close: '18:00', closed: false },  
+        thursday: { open: '09:00', close: '18:00', closed: false },
         friday: { open: '09:00', close: '18:00', closed: false },
         saturday: { open: '10:00', close: '16:00', closed: false },
-        sunday: { open: '10:00', close: '16:00', closed: true }
+        sunday: { open: '00:00', close: '00:00', closed: true }
       },
       acceptsWalkinOrders: true
-    };
+    },
+    null,
+    200
+  );
 
-    const { data: application } = await this.makeRequest('/api/shops/apply', {
-      method: 'POST',
-      body: JSON.stringify(applicationData)
-    });
-
-    this.testData.shopApplication = application;
-    console.log(`✅ Shop application created with ID: ${application.id}`);
-
-    // 2. Login as admin to approve
-    await this.login({
-      email: 'its.harshthakar@gmail.com',
-      password: '2004@Harsh'
-    }, 'admin');
-
-    // 3. Approve shop application
-    await this.makeRequest(`/api/admin/shops/${application.id}/approve`, {
-      method: 'PATCH',
-      cookie: this.cookies.admin
-    });
-
-    console.log(`✅ Shop application approved`);
-
-    // 4. Get approved shop details
-    const { data: approvedShop } = await this.makeRequest(`/api/shops/${application.id}`, {
-      cookie: this.cookies.admin
-    });
-
-    this.testData.createdShop = approvedShop;
-    console.log(`✅ Shop created successfully: ${approvedShop.name}`);
-
-    return approvedShop;
-  }
-
-  // Test Order Creation with Large Files
-  async testOrderCreationWithLargeFiles() {
-    console.log('\n📦 TESTING ORDER CREATION WITH LARGE FILES');
-    console.log('=' .repeat(50));
-
-    // Create large test file (50MB)
-    const testFile = this.createLargeTestFile('test-large-file.pdf', 0.05);
-
-    // Create order with large file
-    const formData = new FormData();
-    formData.append('shopId', this.testData.createdShop.id);
-    formData.append('customerName', 'Test Customer');
-    formData.append('customerPhone', '9123456789');
-    formData.append('type', 'file_upload');
-    formData.append('title', 'Large File Print Order');
-    formData.append('description', 'Testing 50MB file upload and processing');
-    formData.append('files', fs.createReadStream(testFile));
-
-    console.log('⬆️ Uploading 50MB file and creating order...');
-    const startTime = Date.now();
-
-    try {
-      const response = await fetch(`${this.baseUrl}/api/orders/anonymous`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const orderData = await response.json();
-      const uploadTime = (Date.now() - startTime) / 1000;
-
-      if (response.ok) {
-        this.testData.createdOrder = orderData;
-        console.log(`✅ Order created successfully in ${uploadTime.toFixed(2)}s`);
-        console.log(`📋 Order ID: ${orderData.id}, Order Number: ${orderData.orderNumber}`);
-        console.log(`📁 Files uploaded: ${orderData.files?.length || 0}`);
-        
-        // Store file info for cleanup verification
-        this.testData.uploadedFiles = orderData.files || [];
-      } else {
-        throw new Error(`Order creation failed: ${orderData.message}`);
-      }
-    } catch (error) {
-      console.error('❌ Large file upload failed:', error.message);
-      throw error;
-    } finally {
-      // Clean up local test file
-      if (fs.existsSync(testFile)) {
-        fs.unlinkSync(testFile);
-        console.log('🗑️ Local test file cleaned up');
-      }
-    }
-
-    return this.testData.createdOrder;
-  }
-
-  // Test Order Status Changes
-  async testOrderStatusChanges() {
-    console.log('\n🔄 TESTING ORDER STATUS CHANGES');
-    console.log('=' .repeat(50));
-
-    // Login as shop owner
-    await this.login({
-      email: 'testowner@example.com',
-      password: 'password123'
-    }, 'shopOwner');
-
-    const orderId = this.testData.createdOrder.id;
-    const statusFlow = ['processing', 'ready', 'completed'];
-
-    for (const status of statusFlow) {
-      console.log(`📋 Updating order ${orderId} to ${status}...`);
-      
-      await this.makeRequest(`/api/orders/${orderId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-        cookie: this.cookies.shopOwner
-      });
-
-      console.log(`✅ Order status updated to: ${status}`);
-      
-      // Small delay between status changes
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    return true;
-  }
-
-  // Test Chat Functionality
-  async testChatFunctionality() {
-    console.log('\n💬 TESTING CHAT FUNCTIONALITY');
-    console.log('=' .repeat(50));
-
-    const orderId = this.testData.createdOrder.id;
-
-    // Create small test file for chat
-    const chatFile = path.join(__dirname, 'chat-test-file.txt');
-    fs.writeFileSync(chatFile, 'This is a test file for chat functionality.');
-
-    // Send message with file attachment
-    const formData = new FormData();
-    formData.append('message', 'Here are additional specifications for the print job.');
-    formData.append('senderId', this.testData.createdOrder.customerId);
-    formData.append('files', fs.createReadStream(chatFile));
-
-    try {
-      const response = await fetch(`${this.baseUrl}/api/orders/${orderId}/messages`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const messageData = await response.json();
-      
-      if (response.ok) {
-        console.log('✅ Chat message sent with file attachment');
-        console.log(`💬 Message ID: ${messageData.id}`);
-        console.log(`📎 Files attached: ${messageData.files?.length || 0}`);
-      } else {
-        throw new Error(`Chat message failed: ${messageData.message}`);
-      }
-    } catch (error) {
-      console.error('❌ Chat functionality test failed:', error.message);
-      throw error;
-    } finally {
-      // Clean up chat test file
-      if (fs.existsSync(chatFile)) {
-        fs.unlinkSync(chatFile);
-      }
-    }
-
-    return true;
-  }
-
-  // Test File Cleanup After Order Completion
-  async testFileCleanup() {
-    console.log('\n🗑️ TESTING FILE CLEANUP AFTER ORDER COMPLETION');
-    console.log('=' .repeat(50));
-
-    const uploadedFiles = this.testData.uploadedFiles;
-    console.log(`📁 Checking cleanup of ${uploadedFiles.length} uploaded files...`);
-
-    let cleanedUpFiles = 0;
-    for (const file of uploadedFiles) {
-      const filePath = path.join(process.cwd(), 'uploads', file.filename || file.path);
-      
-      if (!fs.existsSync(filePath)) {
-        cleanedUpFiles++;
-        console.log(`✅ File cleaned up: ${file.originalName || file.name}`);
-      } else {
-        console.log(`❌ File still exists: ${file.originalName || file.name}`);
-      }
-    }
-
-    const cleanupSuccess = cleanedUpFiles === uploadedFiles.length;
-    console.log(`🎯 File cleanup result: ${cleanedUpFiles}/${uploadedFiles.length} files cleaned`);
+  if (newApplication.success && newApplication.data.id) {
+    const newAppId = newApplication.data.id;
     
-    if (cleanupSuccess) {
-      console.log('✅ All files cleaned up successfully');
-    } else {
-      console.log('⚠️ Some files were not cleaned up properly');
+    // Admin operations on application
+    if (tokens.admin) {
+      await testEndpoint(
+        'Admin',
+        'Get Application Details',
+        'GET',
+        `/api/shop-applications/${newAppId}`,
+        null,
+        tokens.admin,
+        200
+      );
+
+      await testEndpoint(
+        'Admin',
+        'Reject Application',
+        'PATCH',
+        `/api/shop-applications/${newAppId}`,
+        { status: 'rejected', adminNotes: 'Test rejection' },
+        tokens.admin,
+        200
+      );
     }
-
-    return cleanupSuccess;
   }
 
-  // Test Order Deletion
-  async testOrderDeletion() {
-    console.log('\n🗑️ TESTING ORDER DELETION');
-    console.log('=' .repeat(50));
+  // ========== 6. ORDER MANAGEMENT ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 6. ORDER MANAGEMENT ===${colors.reset}`);
 
-    const orderId = this.testData.createdOrder.id;
-
-    // Test deletion by admin
-    console.log(`🗑️ Deleting order ${orderId} as admin...`);
-    
-    await this.makeRequest(`/api/orders/${orderId}`, {
-      method: 'DELETE',
-      cookie: this.cookies.admin
-    });
-
-    console.log('✅ Order deleted successfully by admin');
-
-    // Verify order is soft-deleted
-    try {
-      await this.makeRequest(`/api/orders/${orderId}`, {
-        cookie: this.cookies.admin
-      });
-      console.log('⚠️ Order still accessible (might be soft-deleted)');
-    } catch (error) {
-      console.log('✅ Order no longer accessible');
-    }
-
-    return true;
-  }
-
-  // Test Shop Deletion
-  async testShopDeletion() {
-    console.log('\n🏪 TESTING SHOP DELETION');
-    console.log('=' .repeat(50));
-
-    const shopId = this.testData.createdShop.id;
-
-    console.log(`🗑️ Deleting shop ${shopId} as admin...`);
-    
-    await this.makeRequest(`/api/admin/shops/${shopId}`, {
-      method: 'DELETE',
-      cookie: this.cookies.admin
-    });
-
-    console.log('✅ Shop deleted successfully');
-
-    return true;
-  }
-
-  // Test Admin Dashboard Analytics
-  async testAdminAnalytics() {
-    console.log('\n📊 TESTING ADMIN DASHBOARD ANALYTICS');
-    console.log('=' .repeat(50));
-
-    // Get analytics data
-    const { data: analytics } = await this.makeRequest('/api/admin/analytics', {
-      cookie: this.cookies.admin
-    });
-
-    console.log('📊 Analytics Data:');
-    console.log(`👥 Total Users: ${analytics.totalUsers || 0}`);
-    console.log(`🏪 Total Shops: ${analytics.totalShops || 0}`);
-    console.log(`📦 Total Orders: ${analytics.totalOrders || 0}`);
-    console.log(`💰 Revenue Potential: $${analytics.revenuePotential || 0}`);
-    console.log(`📈 Orders This Month: ${analytics.ordersThisMonth || 0}`);
-    console.log(`🔢 Average Orders per Shop: ${analytics.avgOrdersPerShop || 0}`);
-
-    // Verify analytics are logical
-    const analyticsValid = (
-      typeof analytics.totalUsers === 'number' &&
-      typeof analytics.totalShops === 'number' &&
-      typeof analytics.totalOrders === 'number'
+  if (testData.shop && tokens.customer) {
+    // Create a new order
+    const newOrder = await testEndpoint(
+      'Order',
+      'Create Digital Order',
+      'POST',
+      '/api/orders',
+      {
+        shopId: testData.shop.id,
+        type: 'digital',
+        title: 'Test Print Job',
+        description: 'Test order for comprehensive testing',
+        specifications: 'A4, Color, 20 pages',
+        estimatedPages: 20,
+        isUrgent: false
+      },
+      tokens.customer,
+      200
     );
 
-    if (analyticsValid) {
-      console.log('✅ Analytics data is valid and logical');
-    } else {
-      console.log('❌ Analytics data appears invalid');
-    }
+    if (newOrder.success && newOrder.data.id) {
+      testData.order = newOrder.data;
+      
+      // Get order details
+      await testEndpoint(
+        'Order',
+        'Get Order Details',
+        'GET',
+        `/api/orders/${testData.order.id}`,
+        null,
+        tokens.customer,
+        200
+      );
 
-    return analyticsValid;
+      // Get customer orders
+      await testEndpoint(
+        'Order',
+        'Get Customer Orders',
+        'GET',
+        `/api/orders/customer/${testData.customerUser.id}`,
+        null,
+        tokens.customer,
+        200
+      );
+
+      // Shop owner operations
+      if (tokens.shopOwner) {
+        await testEndpoint(
+          'Order',
+          'Get Shop Orders',
+          'GET',
+          `/api/orders/shop/${testData.shop.id}`,
+          null,
+          tokens.shopOwner,
+          200
+        );
+
+        await testEndpoint(
+          'Order',
+          'Update Order Status',
+          'PATCH',
+          `/api/orders/${testData.order.id}/status`,
+          { status: 'processing' },
+          tokens.shopOwner,
+          200
+        );
+      }
+    }
   }
 
-  // Run All Tests
-  async runAllTests() {
-    console.log('\n🚀 STARTING COMPREHENSIVE PRINTEASY E2E TESTING');
-    console.log('=' .repeat(60));
-    
-    const testResults = {};
-    const startTime = Date.now();
+  // Anonymous order
+  await testEndpoint(
+    'Order',
+    'Create Anonymous Order',
+    'POST',
+    '/api/orders/anonymous',
+    {
+      shopId: testData.shop?.id || 1,
+      type: 'walkin',
+      title: 'Walk-in Print',
+      description: 'Anonymous walk-in order',
+      customerPhone: '5555555555',
+      customerName: 'Walk-in Customer'
+    },
+    null,
+    200
+  );
 
-    try {
-      // Test 1: Shop Application
-      testResults.shopApplication = await this.testShopApplication();
-      
-      // Test 2: Large File Order Creation
-      testResults.largeFileOrder = await this.testOrderCreationWithLargeFiles();
-      
-      // Test 3: Order Status Changes
-      testResults.statusChanges = await this.testOrderStatusChanges();
-      
-      // Test 4: Chat Functionality
-      testResults.chatFunctionality = await this.testChatFunctionality();
-      
-      // Test 5: File Cleanup
-      testResults.fileCleanup = await this.testFileCleanup();
-      
-      // Test 6: Order Deletion
-      testResults.orderDeletion = await this.testOrderDeletion();
-      
-      // Test 7: Admin Analytics
-      testResults.adminAnalytics = await this.testAdminAnalytics();
-      
-      // Test 8: Shop Deletion
-      testResults.shopDeletion = await this.testShopDeletion();
+  // ========== 7. MESSAGING SYSTEM ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 7. MESSAGING SYSTEM ===${colors.reset}`);
 
-      const totalTime = (Date.now() - startTime) / 1000;
+  if (testData.order && tokens.customer) {
+    // Send message
+    const sendMessage = await testEndpoint(
+      'Message',
+      'Send Message',
+      'POST',
+      '/api/messages',
+      {
+        orderId: testData.order.id,
+        message: 'Test message from customer'
+      },
+      tokens.customer,
+      200
+    );
 
-      console.log('\n🎉 COMPREHENSIVE TESTING COMPLETED');
-      console.log('=' .repeat(60));
-      console.log(`⏱️ Total test time: ${totalTime.toFixed(2)} seconds`);
-      console.log('\n📋 Test Results Summary:');
-      
-      let passedTests = 0;
-      const totalTests = Object.keys(testResults).length;
-      
-      for (const [testName, result] of Object.entries(testResults)) {
-        const status = result ? '✅ PASSED' : '❌ FAILED';
-        console.log(`${status} ${testName}`);
-        if (result) passedTests++;
-      }
-      
-      console.log(`\n🎯 Overall Result: ${passedTests}/${totalTests} tests passed`);
-      
-      if (passedTests === totalTests) {
-        console.log('🎉 ALL TESTS PASSED! PrintEasy is working perfectly!');
-      } else {
-        console.log('⚠️ Some tests failed. Please review the results above.');
-      }
+    // Get messages
+    await testEndpoint(
+      'Message',
+      'Get Order Messages',
+      'GET',
+      `/api/messages/order/${testData.order.id}`,
+      null,
+      tokens.customer,
+      200
+    );
 
-    } catch (error) {
-      console.error('\n💥 TESTING FAILED WITH ERROR:', error.message);
-      console.log('\n📋 Partial Results:', testResults);
-    }
+    // Get unread count
+    await testEndpoint(
+      'Message',
+      'Get Unread Message Count',
+      'GET',
+      '/api/messages/unread-count',
+      null,
+      tokens.customer,
+      200
+    );
 
-    return testResults;
+    // Mark messages as read
+    await testEndpoint(
+      'Message',
+      'Mark Messages as Read',
+      'PATCH',
+      '/api/messages/mark-read',
+      { orderId: testData.order.id },
+      tokens.customer,
+      200
+    );
   }
-}
 
-// Export for use in other files or run directly
-if (require.main === module) {
-  const tester = new PrintEasyTester();
-  tester.runAllTests()
-    .then(results => {
-      console.log('\n✅ Testing script completed successfully');
-      process.exit(0);
-    })
-    .catch(error => {
-      console.error('\n❌ Testing script failed:', error);
-      process.exit(1);
+  // ========== 8. ERROR HANDLING TESTS ==========
+  console.log(`\n${colors.bright}${colors.blue}=== 8. ERROR HANDLING TESTS ===${colors.reset}`);
+
+  await testEndpoint(
+    'Error Handling',
+    'Invalid Endpoint',
+    'GET',
+    '/api/invalid-endpoint',
+    null,
+    null,
+    404
+  );
+
+  await testEndpoint(
+    'Error Handling',
+    'Missing Auth Token',
+    'GET',
+    '/api/admin/users',
+    null,
+    null,
+    401
+  );
+
+  await testEndpoint(
+    'Error Handling',
+    'Invalid Phone Format',
+    'POST',
+    '/api/auth/phone-login',
+    { phone: '123', password: 'test' },
+    null,
+    400
+  );
+
+  await testEndpoint(
+    'Error Handling',
+    'Missing Required Fields',
+    'POST',
+    '/api/orders',
+    { shopId: 1 }, // Missing required fields
+    tokens.customer,
+    400
+  );
+
+  await testEndpoint(
+    'Error Handling',
+    'Invalid Shop ID',
+    'GET',
+    '/api/shops/slug/non-existent-shop',
+    null,
+    null,
+    404
+  );
+
+  // ========== 9. GENERATE SUMMARY ==========
+  console.log(`\n${colors.bright}${colors.cyan}${'='.repeat(60)}${colors.reset}`);
+  console.log(`${colors.bright}${colors.cyan}=== TEST SUMMARY ===${colors.reset}\n`);
+  
+  console.log(`Total Tests: ${testResults.totalTests}`);
+  console.log(`${colors.green}Passed: ${testResults.passed} (${((testResults.passed/testResults.totalTests)*100).toFixed(1)}%)${colors.reset}`);
+  console.log(`${colors.red}Failed: ${testResults.failed} (${((testResults.failed/testResults.totalTests)*100).toFixed(1)}%)${colors.reset}\n`);
+
+  // Category breakdown
+  console.log(`${colors.bright}Category Breakdown:${colors.reset}`);
+  for (const [category, stats] of Object.entries(testResults.categories)) {
+    const passRate = ((stats.passed/stats.total)*100).toFixed(1);
+    const color = passRate >= 80 ? colors.green : passRate >= 50 ? colors.yellow : colors.red;
+    console.log(`  ${category}: ${stats.passed}/${stats.total} passed ${color}(${passRate}%)${colors.reset}`);
+  }
+
+  // Failed tests details
+  if (testResults.errors.length > 0) {
+    console.log(`\n${colors.bright}${colors.red}=== FAILED TESTS DETAILS ===${colors.reset}`);
+    testResults.errors.forEach((error, index) => {
+      console.log(`\n${colors.red}${index + 1}. [${error.category}] ${error.test}${colors.reset}`);
+      console.log(`   Status: ${error.status}`);
+      console.log(`   Error: ${error.error}`);
+      if (error.response) {
+        console.log(`   Response: ${JSON.stringify(error.response, null, 2)}`);
+      }
     });
+  }
+
+  // Warnings and recommendations
+  console.log(`\n${colors.bright}${colors.yellow}=== RECOMMENDATIONS ===${colors.reset}`);
+  
+  if (testResults.failed > 0) {
+    console.log(`${colors.yellow}⚠️  ${testResults.failed} tests failed. Review the error details above.${colors.reset}`);
+  }
+  
+  // Check specific issues
+  const authCategory = testResults.categories['Authentication'];
+  if (authCategory && authCategory.failed > 0) {
+    console.log(`${colors.yellow}⚠️  Authentication issues detected. Check JWT implementation.${colors.reset}`);
+  }
+  
+  const adminCategory = testResults.categories['Admin'];
+  if (adminCategory && adminCategory.failed > 0) {
+    console.log(`${colors.yellow}⚠️  Admin endpoint issues detected. Check role-based access control.${colors.reset}`);
+  }
+
+  // Save detailed results
+  await fs.writeFile(
+    TEST_RESULTS_FILE,
+    JSON.stringify(testResults, null, 2)
+  );
+  console.log(`\n📄 Detailed results saved to ${TEST_RESULTS_FILE}`);
+  console.log(`\nCompleted at: ${new Date().toLocaleString()}`);
 }
 
-module.exports = PrintEasyTester;
+// Run the comprehensive test suite
+runComprehensiveTests().catch(error => {
+  console.error(`${colors.red}Fatal error in test suite:${colors.reset}`, error);
+  process.exit(1);
+});

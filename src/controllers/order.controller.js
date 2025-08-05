@@ -104,7 +104,9 @@ class OrderController {
   // Create order
   static async createOrder(req, res) {
     try {
-      const { shopId, customerId, orderType, instructions } = req.body;
+      const { shopId, orderType, instructions } = req.body;
+      // Get customer ID from authenticated user (JWT sets req.user)
+      const customerId = req.user.id;
       
       // Get next order number for the shop
       const lastOrder = await Order.findOne({
@@ -125,15 +127,32 @@ class OrderController {
           }))
         : [];
       
+      // Extract additional order details from request body
+      const {
+        type = 'digital',
+        title,
+        description,
+        specifications,
+        estimatedPages,
+        isUrgent = false,
+        estimatedBudget,
+        notes
+      } = req.body;
+
       const newOrder = await Order.create({
         shopId: parseInt(shopId),
         customerId: parseInt(customerId),
         orderNumber,
-        type: orderType || 'upload',
-        title: `Order #${orderNumber}`,
-        description: instructions || '',
+        type,
+        title: title || `Order #${orderNumber}`,
+        description: description || instructions || '',
+        specifications,
         files,
-        status: 'new'
+        status: 'pending',
+        isUrgent,
+        estimatedPages: estimatedPages ? parseInt(estimatedPages) : null,
+        estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : null,
+        notes
       });
       
       // Auto-unlock shop for customer when order is placed
