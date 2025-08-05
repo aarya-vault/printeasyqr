@@ -184,24 +184,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const updateUser = async (updates: Partial<User>): Promise<void> => {
-    if (!user) return;
+    if (!user) {
+      console.error('❌ UpdateUser: No user found');
+      return;
+    }
 
     try {
       // Get JWT token for authentication
       const authToken = localStorage.getItem('authToken');
+      console.log('🔍 UpdateUser: Token check -', authToken ? 'Present' : 'Missing');
+      
+      if (!authToken) {
+        console.error('❌ UpdateUser: No JWT token found in localStorage');
+        throw new Error('No authentication token found');
+      }
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      };
+      
+      console.log('🔍 UpdateUser: Making request to', `/api/users/${user.id}`);
+      console.log('🔍 UpdateUser: Headers -', Object.keys(headers));
+      console.log('🔍 UpdateUser: Updates -', updates);
       
       const response = await fetch(`/api/users/${user.id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}` // Add JWT token
-        },
+        headers,
         body: JSON.stringify(updates),
         credentials: 'include'
       });
 
+      console.log('🔍 UpdateUser: Response status -', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to update user');
+        const errorText = await response.text();
+        console.error('❌ UpdateUser: Request failed -', response.status, errorText);
+        throw new Error(`Failed to update user: ${response.status} ${errorText}`);
       }
 
       const updatedUser = await response.json();
@@ -218,7 +237,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       console.log('✅ User updated successfully:', updatedUser.name);
     } catch (error) {
-      console.error('Update user error:', error);
+      console.error('❌ Update user error:', error);
       throw error;
     }
   };
