@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { User, Shop, ShopApplication, PlatformStats, SearchQueries } from '@shared/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,60 +67,32 @@ export default function EnhancedAdminDashboard() {
   const [userFilter, setUserFilter] = useState<'all' | 'customer' | 'shop_owner'>('all');
 
   // Fetch platform statistics
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats = {}, isLoading: statsLoading } = useQuery<PlatformStats>({
     queryKey: ['/api/admin/stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/stats', {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch stats');
-      return response.json();
-    },
     enabled: !!user && user.role === 'admin',
     retry: 3,
     retryDelay: 1000
   });
 
   // Fetch shop applications
-  const { data: applications = [], isLoading: applicationsLoading } = useQuery({
+  const { data: applications = [], isLoading: applicationsLoading } = useQuery<ShopApplication[]>({
     queryKey: ['/api/admin/shop-applications'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/shop-applications', {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch applications');
-      return response.json();
-    },
     enabled: !!user && user.role === 'admin',
     retry: 3,
     retryDelay: 1000
   });
 
   // Fetch all users
-  const { data: users = [], isLoading: usersLoading } = useQuery({
+  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/admin/users'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/users', {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch users');
-      return response.json();
-    },
     enabled: !!user && user.role === 'admin',
     retry: 3,
     retryDelay: 1000
   });
 
   // Fetch all shops
-  const { data: shops = [], isLoading: shopsLoading } = useQuery({
+  const { data: shops = [], isLoading: shopsLoading } = useQuery<Shop[]>({
     queryKey: ['/api/admin/shops'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/shops', {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch shops');
-      return response.json();
-    },
     enabled: !!user && user.role === 'admin',
     retry: 3,
     retryDelay: 1000
@@ -128,13 +101,10 @@ export default function EnhancedAdminDashboard() {
   // Update shop application mutation
   const updateApplicationMutation = useMutation({
     mutationFn: async ({ id, status, notes }: { id: number; status: string; notes?: string }) => {
-      const response = await fetch(`/api/shop-applications/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, adminNotes: notes }),
-        credentials: 'include'
+      const response = await apiRequest('PATCH', `/api/shop-applications/${id}`, {
+        status,
+        adminNotes: notes
       });
-      if (!response.ok) throw new Error('Failed to update application');
       return response.json();
     },
     onSuccess: () => {
