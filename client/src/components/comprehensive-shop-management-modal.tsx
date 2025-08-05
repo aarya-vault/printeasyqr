@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -61,13 +62,6 @@ export default function ComprehensiveShopManagementModal({
   // Fetch complete shop details with all data
   const { data: completeShop, isLoading } = useQuery({
     queryKey: [`/api/admin/shops/${shop.id}/complete`],
-    queryFn: async () => {
-      const response = await fetch(`/api/admin/shops/${shop.id}/complete`, {
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to fetch shop details');
-      return response.json();
-    },
     enabled: !!shop.id,
   });
 

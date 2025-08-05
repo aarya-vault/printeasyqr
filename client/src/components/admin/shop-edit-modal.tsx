@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { X, Save } from "lucide-react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from "@/lib/queryClient";
 
 interface Shop {
   id: number;
@@ -46,17 +47,7 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
 
   const updateShopMutation = useMutation({
     mutationFn: async (updates: any) => {
-      const response = await fetch(`/api/admin/shops/${shop.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update shop');
-      }
-      
+      const response = await apiRequest('PUT', `/api/admin/shops/${shop.id}`, updates);
       return response.json();
     },
     onSuccess: () => {

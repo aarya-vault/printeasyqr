@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -46,18 +47,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const updateUser = useMutation({
     mutationFn: async (data: EditUserForm) => {
-      const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update user');
-      }
-
+      const response = await apiRequest('PATCH', `/api/admin/users/${user.id}`, data);
       return response.json();
     },
     onSuccess: () => {
@@ -79,16 +69,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const deleteUser = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to delete user');
-      }
-
+      const response = await apiRequest('DELETE', `/api/admin/users/${user.id}`);
       return response.json();
     },
     onSuccess: () => {
@@ -110,18 +91,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const toggleUserStatus = useMutation({
     mutationFn: async (isActive: boolean) => {
-      const response = await fetch(`/api/admin/users/${user.id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ isActive }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update user status');
-      }
-
+      const response = await apiRequest('PATCH', `/api/admin/users/${user.id}/status`, { isActive });
       return response.json();
     },
     onSuccess: (data, isActive) => {
