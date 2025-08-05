@@ -21,12 +21,21 @@ interface Shop {
   slug: string;
   address: string;
   phone: string;
-  publicName: string;
-  publicContactNumber: string;
-  isOpen: boolean;
-  workingHours: any;
-  servicesOffered: string[];
-  equipmentAvailable: string[];
+  publicName?: string;
+  publicAddress?: string;
+  publicContactNumber?: string;
+  isOpen?: boolean;
+  isOnline?: boolean;
+  workingHours?: Record<string, {
+    open?: string;
+    close?: string;
+    closed?: boolean;
+    is24Hours?: boolean;
+  }>;
+  servicesOffered?: string[];
+  equipmentAvailable?: string[];
+  services?: string[];
+  equipment?: string[];
 }
 
 export default function BrowseShops() {
@@ -63,7 +72,10 @@ export default function BrowseShops() {
 
   // Enhanced shop availability calculation
   const calculateShopAvailability = (shop: Shop) => {
-    if (!shop.workingHours) return { isOpen: true, status: '24/7 Open' };
+    // Handle shops with no working hours data
+    if (!shop.workingHours || typeof shop.workingHours !== 'object') {
+      return { isOpen: shop.isOnline !== false, status: 'Hours not available' };
+    }
     
     const now = new Date();
     const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
@@ -74,8 +86,25 @@ export default function BrowseShops() {
       return { isOpen: false, status: 'Closed Today' };
     }
     
-    const openTime = parseInt(daySchedule.open.split(':')[0]) * 60 + parseInt(daySchedule.open.split(':')[1]);
-    const closeTime = parseInt(daySchedule.close.split(':')[0]) * 60 + parseInt(daySchedule.close.split(':')[1]);
+    // Check for 24/7 operation
+    if (daySchedule.is24Hours) {
+      return { isOpen: true, status: 'Open 24 Hours' };
+    }
+    
+    // Ensure open and close times exist
+    if (!daySchedule.open || !daySchedule.close) {
+      return { isOpen: false, status: 'Hours not available' };
+    }
+    
+    const openTimeParts = daySchedule.open.split(':');
+    const closeTimeParts = daySchedule.close.split(':');
+    
+    if (openTimeParts.length !== 2 || closeTimeParts.length !== 2) {
+      return { isOpen: false, status: 'Invalid hours format' };
+    }
+    
+    const openTime = parseInt(openTimeParts[0]) * 60 + parseInt(openTimeParts[1]);
+    const closeTime = parseInt(closeTimeParts[0]) * 60 + parseInt(closeTimeParts[1]);
     
     // Handle 24/7 shops (open equals close time)
     if (openTime === closeTime) {
