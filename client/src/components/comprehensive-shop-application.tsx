@@ -35,15 +35,15 @@ const ownerInfoSchema = z.object({
 
 const servicesSchema = z.object({
   services: z.array(z.string()).min(1, 'Select at least one service'),
-  equipment: z.array(z.string()).min(1, 'Select at least one equipment'),
+  equipment: z.array(z.string()).optional(), // Made optional
   workingHours: z.object({
-    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
   }),
 });
 
@@ -68,18 +68,18 @@ const finalApplicationSchema = z.object({
   yearsOfExperience: z.string().min(1, 'Years of experience is required'),
   servicesOffered: z.array(z.string()).min(1, 'Select at least one service'), // Changed to array for checkboxes
   customServices: z.string().optional(), // Custom services input
-  equipmentAvailable: z.array(z.string()).min(1, 'Select at least one equipment'), // Changed to array for checkboxes
+  equipmentAvailable: z.array(z.string()).optional(), // Made optional
   customEquipment: z.string().optional(), // Custom equipment input
   
-  // Working Hours
+  // Working Hours with 24/7 support
   workingHours: z.object({
-    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
+    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean() }),
   }),
   
   // Settings
@@ -105,13 +105,13 @@ const equipmentOptions = [
 ];
 
 const defaultWorkingHours = {
-  monday: { open: '09:00', close: '18:00', closed: false },
-  tuesday: { open: '09:00', close: '18:00', closed: false },
-  wednesday: { open: '09:00', close: '18:00', closed: false },
-  thursday: { open: '09:00', close: '18:00', closed: false },
-  friday: { open: '09:00', close: '18:00', closed: false },
-  saturday: { open: '09:00', close: '18:00', closed: false },
-  sunday: { open: '10:00', close: '16:00', closed: true },
+  monday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  tuesday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  wednesday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  thursday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  friday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  saturday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
+  sunday: { open: '10:00', close: '16:00', closed: true, is24Hours: false },
 };
 
 interface ComprehensiveShopApplicationProps {
@@ -230,7 +230,7 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
         equipment: servicesData?.equipment || [],
         yearsOfExperience: data.yearsOfExperience,
         servicesOffered: data.servicesOffered.concat(data.customServices ? [data.customServices] : []),
-        equipmentAvailable: data.equipmentAvailable.concat(data.customEquipment ? [data.customEquipment] : []),
+        equipmentAvailable: (data.equipmentAvailable || []).concat(data.customEquipment ? [data.customEquipment] : []),
         workingHours: data.workingHours,
         acceptsWalkinOrders: data.acceptsWalkinOrders,
         shopSlug,
@@ -299,7 +299,7 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
 
   const addCustomEquipment = () => {
     if (customEquipment.trim()) {
-      const currentEquipment = servicesForm.getValues('equipment');
+      const currentEquipment = servicesForm.getValues('equipment') || [];
       servicesForm.setValue('equipment', [...currentEquipment, customEquipment.trim()]);
       setCustomEquipment('');
     }
@@ -648,19 +648,19 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
                       <FormItem>
                         <FormLabel className="flex items-center space-x-2">
                           <span>Equipment Available</span>
-                          <span className="text-red-500">*</span>
-                          <span className="text-sm text-medium-gray">(Select all that apply)</span>
+                          <span className="text-sm text-medium-gray">(Optional - Select all that apply)</span>
                         </FormLabel>
                         <div className="grid grid-cols-3 gap-3">
                           {equipmentOptions.map((equipment) => (
                             <div key={equipment} className="flex items-center space-x-2">
                               <Checkbox
-                                checked={field.value.includes(equipment)}
+                                checked={field.value?.includes(equipment) || false}
                                 onCheckedChange={(checked) => {
+                                  const currentValue = field.value || [];
                                   if (checked) {
-                                    field.onChange([...field.value, equipment]);
+                                    field.onChange([...currentValue, equipment]);
                                   } else {
-                                    field.onChange(field.value.filter(e => e !== equipment));
+                                    field.onChange(currentValue.filter(e => e !== equipment));
                                   }
                                 }}
                               />
@@ -707,39 +707,68 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
                                 onCheckedChange={(checked) => {
                                   field.onChange({
                                     ...field.value,
-                                    [day]: { ...hours, closed: !checked }
+                                    [day]: { ...hours, closed: !checked, is24Hours: checked ? hours.is24Hours : false }
                                   });
                                 }}
                                 className="data-[state=checked]:bg-brand-yellow"
                               />
-                              <span className="text-sm">
+                              <span className="text-sm w-12">
                                 {hours.closed ? 'Closed' : 'Open'}
                               </span>
                               {!hours.closed && (
                                 <>
-                                  <Input
-                                    type="time"
-                                    value={hours.open}
-                                    onChange={(e) => {
-                                      field.onChange({
-                                        ...field.value,
-                                        [day]: { ...hours, open: e.target.value }
-                                      });
-                                    }}
-                                    className="w-24"
-                                  />
-                                  <span className="text-medium-gray">to</span>
-                                  <Input
-                                    type="time"
-                                    value={hours.close}
-                                    onChange={(e) => {
-                                      field.onChange({
-                                        ...field.value,
-                                        [day]: { ...hours, close: e.target.value }
-                                      });
-                                    }}
-                                    className="w-24"
-                                  />
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      checked={hours.is24Hours}
+                                      onCheckedChange={(checked) => {
+                                        field.onChange({
+                                          ...field.value,
+                                          [day]: { 
+                                            ...hours, 
+                                            is24Hours: checked,
+                                            open: checked ? '00:00' : hours.open,
+                                            close: checked ? '23:59' : hours.close
+                                          }
+                                        });
+                                      }}
+                                      className="data-[state=checked]:bg-green-500"
+                                    />
+                                    <span className="text-sm font-medium text-green-600">
+                                      24/7
+                                    </span>
+                                  </div>
+                                  {!hours.is24Hours && (
+                                    <>
+                                      <Input
+                                        type="time"
+                                        value={hours.open}
+                                        onChange={(e) => {
+                                          field.onChange({
+                                            ...field.value,
+                                            [day]: { ...hours, open: e.target.value }
+                                          });
+                                        }}
+                                        className="w-24"
+                                      />
+                                      <span className="text-medium-gray">to</span>
+                                      <Input
+                                        type="time"
+                                        value={hours.close}
+                                        onChange={(e) => {
+                                          field.onChange({
+                                            ...field.value,
+                                            [day]: { ...hours, close: e.target.value }
+                                          });
+                                        }}
+                                        className="w-24"
+                                      />
+                                    </>
+                                  )}
+                                  {hours.is24Hours && (
+                                    <span className="text-sm font-bold text-green-600 px-3 py-1 bg-green-50 rounded-full">
+                                      Open 24 Hours
+                                    </span>
+                                  )}
                                 </>
                               )}
                             </div>

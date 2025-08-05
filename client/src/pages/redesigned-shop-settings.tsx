@@ -62,7 +62,7 @@ export default function RedesignedShopSettings() {
     phone: '',
     email: '',
     services: [] as string[],
-    workingHours: {} as Record<string, { open: string; close: string; closed: boolean }>,
+    workingHours: {} as Record<string, { open: string; close: string; closed: boolean; is24Hours: boolean }>,
     isOnline: true,
     acceptsWalkinOrders: true,
     notifications: {
@@ -97,13 +97,7 @@ export default function RedesignedShopSettings() {
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/shops/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (!response.ok) throw new Error('Failed to save settings');
-      return response.json();
+      return await apiClient.patch('/api/shops/settings', formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
@@ -134,9 +128,9 @@ export default function RedesignedShopSettings() {
     }));
   };
 
-  const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed', value: string | boolean) => {
+  const updateWorkingHours = (day: string, field: string, value: any) => {
     const dayKey = day.toLowerCase();
-    const currentDayHours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+    const currentDayHours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
     
     setFormData(prev => ({
       ...prev,
@@ -336,7 +330,7 @@ export default function RedesignedShopSettings() {
                   <CardContent className="p-8 space-y-4">
                     {DAYS.map((day) => {
                       const dayKey = day.toLowerCase();
-                      const hours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+                      const hours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
                       
                       return (
                         <div key={day} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
@@ -355,21 +349,44 @@ export default function RedesignedShopSettings() {
                             </div>
                             
                             {!hours.closed && (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="time"
-                                  value={hours.open}
-                                  onChange={(e) => updateWorkingHours(day, 'open', e.target.value)}
-                                  className="w-32"
-                                />
-                                <span className="text-gray-500 font-medium">to</span>
-                                <Input
-                                  type="time"
-                                  value={hours.close}
-                                  onChange={(e) => updateWorkingHours(day, 'close', e.target.value)}
-                                  className="w-32"
-                                />
-                              </div>
+                              <>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={hours.is24Hours}
+                                    onCheckedChange={(checked) => {
+                                      updateWorkingHours(day, 'is24Hours', checked);
+                                      if (checked) {
+                                        updateWorkingHours(day, 'open', '00:00');
+                                        updateWorkingHours(day, 'close', '23:59');
+                                      }
+                                    }}
+                                    className="data-[state=checked]:bg-green-500"
+                                  />
+                                  <span className="text-sm font-medium text-green-600">24/7</span>
+                                </div>
+                                
+                                {hours.is24Hours ? (
+                                  <Badge className="bg-green-500 text-white font-bold">
+                                    Open 24 Hours
+                                  </Badge>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="time"
+                                      value={hours.open}
+                                      onChange={(e) => updateWorkingHours(day, 'open', e.target.value)}
+                                      className="w-32"
+                                    />
+                                    <span className="text-gray-500 font-medium">to</span>
+                                    <Input
+                                      type="time"
+                                      value={hours.close}
+                                      onChange={(e) => updateWorkingHours(day, 'close', e.target.value)}
+                                      className="w-32"
+                                    />
+                                  </div>
+                                )}
+                              </>
                             )}
                             
                             {hours.closed && (

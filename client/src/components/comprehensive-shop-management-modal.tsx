@@ -410,49 +410,75 @@ export default function ComprehensiveShopManagementModal({
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {DAYS_OF_WEEK.map((day) => (
-                        <div key={day} className="flex items-center space-x-4 p-4 border rounded-lg">
-                          <div className="w-24 font-medium capitalize">
-                            {day}
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              checked={!workingHours[day]?.closed}
-                              onCheckedChange={(checked) => 
-                                handleWorkingHoursChange(day, 'closed', !checked)
-                              }
-                            />
-                            <span className="text-sm">
-                              {workingHours[day]?.closed ? 'Closed' : 'Open'}
-                            </span>
-                          </div>
+                      {DAYS_OF_WEEK.map((day) => {
+                        const hours = workingHours[day] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
+                        
+                        return (
+                          <div key={day} className="flex items-center space-x-4 p-4 border rounded-lg">
+                            <div className="w-24 font-medium capitalize">
+                              {day}
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                checked={!hours.closed}
+                                onCheckedChange={(checked) => 
+                                  handleWorkingHoursChange(day, 'closed', !checked)
+                                }
+                                className="data-[state=checked]:bg-brand-yellow"
+                              />
+                              <span className="text-sm w-12">
+                                {hours.closed ? 'Closed' : 'Open'}
+                              </span>
+                            </div>
 
-                          {!workingHours[day]?.closed && (
-                            <>
-                              <div className="flex items-center space-x-2">
-                                <Input
-                                  type="time"
-                                  value={workingHours[day]?.open || '09:00'}
-                                  onChange={(e) => 
-                                    handleWorkingHoursChange(day, 'open', e.target.value)
-                                  }
-                                  className="w-32"
-                                />
-                                <span>to</span>
-                                <Input
-                                  type="time"
-                                  value={workingHours[day]?.close || '18:00'}
-                                  onChange={(e) => 
-                                    handleWorkingHoursChange(day, 'close', e.target.value)
-                                  }
-                                  className="w-32"
-                                />
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
+                            {!hours.closed && (
+                              <>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={hours.is24Hours || false}
+                                    onCheckedChange={(checked) => {
+                                      handleWorkingHoursChange(day, 'is24Hours', checked);
+                                      if (checked) {
+                                        handleWorkingHoursChange(day, 'open', '00:00');
+                                        handleWorkingHoursChange(day, 'close', '23:59');
+                                      }
+                                    }}
+                                    className="data-[state=checked]:bg-green-500"
+                                  />
+                                  <span className="text-sm font-medium text-green-600">24/7</span>
+                                </div>
+                                
+                                {hours.is24Hours ? (
+                                  <Badge className="bg-green-500 text-white font-bold">
+                                    Open 24 Hours
+                                  </Badge>
+                                ) : (
+                                  <div className="flex items-center space-x-2">
+                                    <Input
+                                      type="time"
+                                      value={hours.open}
+                                      onChange={(e) => 
+                                        handleWorkingHoursChange(day, 'open', e.target.value)
+                                      }
+                                      className="w-32"
+                                    />
+                                    <span className="text-gray-500">to</span>
+                                    <Input
+                                      type="time"
+                                      value={hours.close}
+                                      onChange={(e) => 
+                                        handleWorkingHoursChange(day, 'close', e.target.value)
+                                      }
+                                      className="w-32"
+                                    />
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </CardContent>
                   </Card>
                 </TabsContent>
