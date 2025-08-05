@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, User as UserIcon, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap
+  Home, ShoppingCart, User as UserIcon, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap, ChevronRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -171,6 +171,13 @@ export default function UnifiedCustomerDashboard() {
   const recentOrders = [...allOrders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
+
+  // Previously visited shops (shops where customer has placed orders)
+  const visitedShops = [...new Map(
+    allOrders
+      .filter(order => order.shop && order.shop.id)
+      .map(order => [order.shop.id, order.shop])
+  ).values()];
 
   // Calculate order statistics
   const orderStats = {
@@ -526,8 +533,48 @@ export default function UnifiedCustomerDashboard() {
                       }}
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      Orders Ready for Pickup!
+                      Ready for Pickup - View Details
                     </Button>
+                  </div>
+                )}
+
+                {/* Previously Visited Shops Section - REPLACES Active Orders */}
+                {visitedShops.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-rich-black">Previously Visited Shops</h3>
+                      <span className="text-xs text-gray-500">{visitedShops.length} shops</span>
+                    </div>
+                    <div className="space-y-2">
+                      {visitedShops.slice(0, 3).map((shop) => (
+                        <div 
+                          key={shop.id}
+                          className="bg-white rounded-lg p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => setLocation(`/shop/${shop.slug}`)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
+                              <Store className="w-4 h-4 text-rich-black" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm text-rich-black truncate">{shop.name}</h4>
+                              <p className="text-xs text-gray-500 truncate">{shop.address}</p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                          </div>
+                        </div>
+                      ))}
+                      {visitedShops.length > 3 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="w-full text-xs text-brand-yellow hover:bg-brand-yellow/10"
+                          onClick={() => setShowAllShops(true)}
+                        >
+                          View All {visitedShops.length} Visited Shops
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
 

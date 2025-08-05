@@ -136,11 +136,12 @@ class ShopController {
     }
   }
 
-  // Get unlocked shops for customer
+  // Get unlocked shops for customer - AUTO-UNLOCK shops with previous orders
   static async getUnlockedShops(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
       
+      // First, get explicit unlocks
       const unlocks = await CustomerShopUnlock.findAll({
         where: { customerId },
         include: [{
@@ -153,9 +154,47 @@ class ShopController {
         }]
       });
       
-      const shops = unlocks.map(unlock => unlock.shop);
-      const transformedShops = shops.map(shop => ShopController.transformShopData(shop));
-      res.json(transformedShops);
+      // Get shops where customer has placed orders (auto-unlock)
+      const { Order } = require('../models');
+      const ordersWithShops = await Order.findAll({
+        where: { customerId },
+        include: [{
+          model: Shop,
+          as: 'shop',
+          where: {
+            isApproved: true,
+            status: 'active'
+          }
+        }],
+        group: ['shop.id']
+      });
+      
+      // Auto-unlock shops where customer has orders but no explicit unlock record
+      for (const order of ordersWithShops) {
+        const existingUnlock = unlocks.find(unlock => unlock.shop.id === order.shop.id);
+        if (!existingUnlock && order.shop) {
+          try {
+            await CustomerShopUnlock.findOrCreate({
+              where: {
+                customerId: customerId,
+                shopId: order.shop.id
+              },
+              defaults: {
+                qrScanLocation: 'auto_unlock_previous_order'
+              }
+            });
+            // Add to response
+            unlocks.push({
+              shop: order.shop
+            });
+          } catch (autoUnlockError) {
+            console.log('Auto-unlock failed for shop:', order.shop.id, autoUnlockError);
+          }
+        }
+      }
+      
+      const unlockedShopIds = unlocks.map(unlock => unlock.shop.id);
+      res.json({ unlockedShopIds });
     } catch (error) {
       console.error('Get unlocked shops error:', error);
       res.status(500).json({ message: 'Failed to get unlocked shops' });

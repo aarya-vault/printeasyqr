@@ -3,7 +3,8 @@ import QrScanner from 'qr-scanner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { X, Camera, QrCode, CheckCircle, AlertCircle, Printer } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { X, Camera, QrCode, CheckCircle, AlertCircle, Printer, Upload, Image } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +29,8 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
   const [isScanning, setIsScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [lastScanResult, setLastScanResult] = useState<string | null>(null);
+  const [scanMode, setScanMode] = useState<'camera' | 'upload'>('camera');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // No authentication check needed - anonymous users can scan QR codes too
 
@@ -202,6 +205,40 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
     }
   };
 
+  // Handle image upload for QR scanning
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setScanError(null);
+      
+      // Use QrScanner to scan from image file
+      const result = await QrScanner.scanImage(file, {
+        returnDetailedScanResult: true,
+      });
+      
+      if (result && result.data) {
+        handleScanSuccess(result.data);
+      } else {
+        throw new Error('No QR code found in the image');
+      }
+    } catch (error: any) {
+      console.error('Image QR scan error:', error);
+      setScanError('No QR code found in this image. Please try another image or use camera scanning.');
+      toast({
+        title: 'Scan Failed',
+        description: 'No QR code found in the uploaded image',
+        variant: 'destructive'
+      });
+    }
+    
+    // Clear the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleClose = () => {
     if (qrScannerRef.current) {
       qrScannerRef.current.destroy();
@@ -285,6 +322,36 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
                 : "Point your camera at a PrintEasy shop QR code to visit the shop page and place orders instantly."
               }
             </p>
+          </div>
+
+          {/* Image Upload Alternative */}
+          <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-200 flex-shrink-0">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Image className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+              </div>
+              <h4 className="font-semibold text-xs sm:text-sm text-rich-black">Can't use camera?</h4>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed mb-3">
+              Upload an image containing a QR code instead
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              size="sm"
+              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+              disabled={unlockShopMutation.isPending}
+            >
+              <Upload className="w-3 h-3 mr-2" />
+              Upload QR Image
+            </Button>
           </div>
 
           {/* Status Messages */}
