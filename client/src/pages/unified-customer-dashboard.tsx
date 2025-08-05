@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useLocation, Link } from 'wouter';
 import { 
   Upload, MapPin, FileText, Bell, LogOut, Printer, Package, Clock, CheckCircle2, MessageCircle, Eye, 
-  Home, ShoppingCart, User as UserIcon, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap, ChevronRight
+  Home, ShoppingCart, User as UserIcon, ArrowRight, Phone, Star, Store, QrCode, Lock, Unlock, X, HelpCircle, Zap, ChevronRight, Users
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -64,12 +64,6 @@ export default function UnifiedCustomerDashboard() {
 
   const unlockedShops = (unlockedShopsData as any)?.unlockedShops || [];
   const unlockedShopIds = (unlockedShopsData as any)?.unlockedShopIds || [];
-
-  // Handle shop card click to show details
-  const handleShopClick = (shop: any) => {
-    setSelectedShopForDetails(shop);
-    setShowShopDetails(true);
-  };
 
   // Handle shop order click from detailed modal
   const handleShopOrderClick = (shopSlug: string) => {
@@ -222,6 +216,11 @@ export default function UnifiedCustomerDashboard() {
   const handleLogout = () => {
     logout();
     setLocation('/');
+  };
+
+  const handleShopClick = (shop: any) => {
+    setSelectedShopForDetails(shop);
+    setShowShopDetails(true);
   };
 
   // Chat and order details handlers
@@ -595,50 +594,96 @@ export default function UnifiedCustomerDashboard() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {unlockedShops?.slice(0, 3).map((shop: any) => (
-                  <Card key={shop.id} className="border border-brand-yellow/20 hover:border-brand-yellow/40 transition-colors cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
+                  <Card 
+                    key={shop.id} 
+                    className="group border-2 border-brand-yellow/30 hover:border-brand-yellow hover:shadow-lg transition-all duration-300 cursor-pointer bg-gradient-to-br from-white to-brand-yellow/5"
+                    onClick={() => handleShopClick(shop)}
+                  >
+                    <CardContent className="p-4 sm:p-5">
+                      {/* Shop Header */}
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-rich-black truncate">{shop.name}</h3>
-                            <Badge className="bg-brand-yellow text-rich-black text-xs">
-                              ✅ Unlocked
-                            </Badge>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center flex-shrink-0">
+                              <Store className="w-5 h-5 text-rich-black" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-rich-black text-base sm:text-lg truncate">{shop.name}</h3>
+                              <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 text-xs">
+                                <Unlock className="w-3 h-3 mr-1" />
+                                Unlocked
+                              </Badge>
+                            </div>
                           </div>
-                          
-                          <div className="space-y-1 mb-3">
-                            <p className="text-sm text-gray-600 truncate">
-                              📍 {shop.address || shop.city}
-                            </p>
-                            {shop.phone && (
-                              <p className="text-sm text-gray-600">
-                                📞 {shop.phone}
-                              </p>
-                            )}
-                            {shop.services && shop.services.length > 0 && (
-                              <p className="text-xs text-gray-500 truncate">
-                                🛠️ {shop.services.slice(0, 3).join(', ')}
-                                {shop.services.length > 3 && ` +${shop.services.length - 3} more`}
-                              </p>
-                            )}
-                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Shop Details */}
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-start gap-2 text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 text-brand-yellow mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-2">{shop.address || shop.city || 'Location not specified'}</span>
                         </div>
                         
-                        <div className="ml-3 flex gap-2">
-                          <Button
-                            size="sm"
-                            className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                            onClick={() => {
-                              // Navigate to shop page
-                              window.location.href = `/shop/${shop.slug}`;
-                            }}
-                          >
-                            <Printer className="w-3 h-3 mr-1" />
-                            Order
-                          </Button>
-                        </div>
+                        {shop.phone && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4 text-brand-yellow flex-shrink-0" />
+                            <span>{shop.phone}</span>
+                          </div>
+                        )}
+                        
+                        {/* Services with better styling */}
+                        {shop.services && shop.services.length > 0 && (
+                          <div className="pt-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Printer className="w-4 h-4 text-brand-yellow" />
+                              <span className="text-xs font-medium text-gray-700">Services Available</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {shop.services.slice(0, 3).map((service: string, index: number) => (
+                                <Badge 
+                                  key={index} 
+                                  variant="outline" 
+                                  className="text-xs border-gray-300 bg-white"
+                                >
+                                  {service}
+                                </Badge>
+                              ))}
+                              {shop.services.length > 3 && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs border-gray-300 bg-gray-50"
+                                >
+                                  +{shop.services.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium group-hover:shadow-md transition-all"
+                          onClick={() => {
+                            setLocation(`/shop/${shop.slug}`);
+                          }}
+                        >
+                          <Upload className="w-4 h-4 mr-1.5" />
+                          Place Order
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                          onClick={() => handleShopClick(shop)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

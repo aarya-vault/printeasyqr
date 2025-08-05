@@ -167,6 +167,16 @@ export default function BrowseShops() {
     );
   });
 
+  // Sort shops - unlocked shops first
+  const sortedShops = [...filteredShops].sort((a, b) => {
+    const aUnlocked = isShopUnlocked(a.id);
+    const bUnlocked = isShopUnlocked(b.id);
+    
+    if (aUnlocked && !bUnlocked) return -1;
+    if (!aUnlocked && bUnlocked) return 1;
+    return 0;
+  });
+
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -218,67 +228,119 @@ export default function BrowseShops() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {filteredShops.map((shop) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sortedShops.map((shop) => {
               const availability = calculateShopAvailability(shop);
               const isUnlocked = isShopUnlocked(shop.id);
               
               return (
                 <Card 
                   key={shop.id} 
-                  className={`bg-white hover:shadow-md transition-all cursor-pointer ${
-                    isUnlocked ? 'border-brand-yellow/50' : 'border-gray-200'
+                  className={`transition-all cursor-pointer ${
+                    isUnlocked 
+                      ? 'border-2 border-brand-yellow/50 hover:border-brand-yellow bg-gradient-to-br from-white to-brand-yellow/5 hover:shadow-lg' 
+                      : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 opacity-75'
                   }`}
                   onClick={() => handleShopClick(shop)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 sm:p-5">
+                    {/* Shop Header */}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-rich-black text-lg">{shop.name}</h3>
-                          {isUnlocked ? (
-                            <Unlock className="w-4 h-4 text-brand-yellow" />
-                          ) : (
-                            <Lock className="w-4 h-4 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="flex items-center text-gray-500 text-sm mt-1">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {shop.address || shop.publicAddress || 'Address not available'}
-                        </div>
-                        <div className="flex items-center text-gray-500 text-sm mt-1">
-                          <Phone className="w-4 h-4 mr-1" />
-                          {shop.publicContactNumber || shop.phone}
+                        <div className="flex items-center gap-3 mb-2">
+                          {/* Shop Icon */}
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            isUnlocked ? 'bg-brand-yellow' : 'bg-gray-300'
+                          }`}>
+                            <Store className={`w-6 h-6 ${isUnlocked ? 'text-rich-black' : 'text-gray-600'}`} />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className={`font-bold text-lg ${isUnlocked ? 'text-rich-black' : 'text-gray-700'}`}>
+                                {shop.name}
+                              </h3>
+                              {isUnlocked ? (
+                                <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30">
+                                  <Unlock className="w-3 h-3 mr-1" />
+                                  Unlocked
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="bg-gray-200 text-gray-600">
+                                  <Lock className="w-3 h-3 mr-1" />
+                                  Locked
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            {/* Availability Badge */}
+                            <div className="mt-1">
+                              <Badge 
+                                className={`text-xs ${
+                                  availability.isOpen 
+                                    ? 'bg-green-100 text-green-800 border-green-200' 
+                                    : 'bg-red-100 text-red-800 border-red-200'
+                                }`}
+                              >
+                                <Clock className="w-3 h-3 mr-1" />
+                                {availability.status}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge 
-                          className={availability.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
-                        >
-                          <Clock className="w-3 h-3 mr-1" />
-                          {availability.status}
-                        </Badge>
-                        {!isUnlocked && (
-                          <Badge variant="secondary" className="text-xs">
-                            Scan QR to unlock
-                          </Badge>
-                        )}
+                    </div>
+
+                    {/* Shop Details */}
+                    <div className="space-y-2 mb-3">
+                      <div className="flex items-start gap-2">
+                        <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
+                        <span className={`text-sm line-clamp-2 ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
+                          {shop.address || shop.publicAddress || 'Address not available'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Phone className={`w-4 h-4 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
+                        <span className={`text-sm ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
+                          {shop.publicContactNumber || shop.phone}
+                        </span>
                       </div>
                     </div>
 
                     {/* Services */}
-                    {shop.servicesOffered && shop.servicesOffered.length > 0 && (
-                      <div className="mb-3">
-                        <p className="text-xs text-gray-500 mb-1">Services:</p>
+                    {(shop.servicesOffered || shop.services) && (shop.servicesOffered || shop.services).length > 0 && (
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Printer className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
+                          <span className={`text-xs font-medium ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
+                            Services Available
+                          </span>
+                        </div>
                         <div className="flex flex-wrap gap-1">
-                          {shop.servicesOffered.slice(0, 3).map((service, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                          {(shop.servicesOffered || shop.services || []).slice(0, 3).map((service, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="outline" 
+                              className={`text-xs ${
+                                isUnlocked 
+                                  ? 'border-gray-300 bg-white' 
+                                  : 'border-gray-200 bg-gray-100 text-gray-500'
+                              }`}
+                            >
                               {service}
                             </Badge>
                           ))}
-                          {shop.servicesOffered.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{shop.servicesOffered.length - 3} more
+                          {(shop.servicesOffered || shop.services || []).length > 3 && (
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs ${
+                                isUnlocked 
+                                  ? 'border-gray-300 bg-gray-50' 
+                                  : 'border-gray-200 bg-gray-100 text-gray-500'
+                              }`}
+                            >
+                              +{(shop.servicesOffered || shop.services).length - 3} more
                             </Badge>
                           )}
                         </div>
@@ -286,34 +348,24 @@ export default function BrowseShops() {
                     )}
 
                     {/* Action Buttons */}
-                    <div className="grid grid-cols-3 gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleShopClick(shop)}
-                        className="text-xs"
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        View
-                      </Button>
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       {isUnlocked ? (
                         <>
                           <Button
                             size="sm"
-                            className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
+                            className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium"
                             onClick={() => handleOrderClick(shop, 'upload')}
                           >
-                            <Upload className="w-3 h-3 mr-1" />
-                            Upload
+                            <Upload className="w-4 h-4 mr-1.5" />
+                            Place Order
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleOrderClick(shop, 'walkin')}
-                            className="text-xs"
+                            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
+                            onClick={() => handleShopClick(shop)}
                           >
-                            <Users className="w-3 h-3 mr-1" />
-                            Walk-in
+                            <Eye className="w-4 h-4" />
                           </Button>
                         </>
                       ) : (
@@ -322,19 +374,18 @@ export default function BrowseShops() {
                             size="sm"
                             variant="outline"
                             disabled
-                            className="text-xs opacity-50"
+                            className="flex-1 opacity-50"
                           >
                             <Lock className="w-3 h-3 mr-1" />
-                            Scan QR
+                            Scan QR to Unlock
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            disabled
-                            className="text-xs opacity-50"
+                            className="opacity-70"
+                            onClick={() => handleShopClick(shop)}
                           >
-                            <Lock className="w-3 h-3 mr-1" />
-                            Scan QR
+                            <Eye className="w-4 h-4" />
                           </Button>
                         </>
                       )}
