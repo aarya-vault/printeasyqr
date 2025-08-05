@@ -417,15 +417,6 @@ export default function UnifiedCustomerDashboard() {
                   </div>
                   <div className="flex-shrink-0 flex items-center gap-2">
                     
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-7"
-                      onClick={() => setShowAllShops(true)}
-                    >
-                      <Store className="w-3 h-3 mr-1" />
-                      View All
-                    </Button>
                   </div>
                 </div>
 
