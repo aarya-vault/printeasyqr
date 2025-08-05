@@ -47,7 +47,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const updateUser = useMutation({
     mutationFn: async (data: EditUserForm) => {
-      const response = await apiRequest('PATCH', `/api/admin/users/${user.id}`, data);
+      const response = await apiRequest(`/api/admin/users/${user.id}`, 'PATCH', data);
       return response.json();
     },
     onSuccess: () => {
@@ -69,7 +69,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const deleteUser = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('DELETE', `/api/admin/users/${user.id}`);
+      const response = await apiRequest(`/api/admin/users/${user.id}`, 'DELETE');
       return response.json();
     },
     onSuccess: () => {
@@ -91,7 +91,7 @@ export default function AdminUserEditModal({ user, onClose, onSave }: AdminUserE
 
   const toggleUserStatus = useMutation({
     mutationFn: async (isActive: boolean) => {
-      const response = await apiRequest('PATCH', `/api/admin/users/${user.id}/status`, { isActive });
+      const response = await apiRequest(`/api/admin/users/${user.id}/status`, 'PATCH', { isActive });
       return response.json();
     },
     onSuccess: (data, isActive) => {

@@ -96,7 +96,7 @@ export default function ShopApplicationEditModal({
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const response = await apiRequest('PUT', `/api/admin/shop-applications/${application.id}`, editingApplication);
+      const response = await apiRequest(`/api/admin/shop-applications/${application.id}`, 'PUT', editingApplication);
 
       // Comprehensive query invalidation for real-time synchronization
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });

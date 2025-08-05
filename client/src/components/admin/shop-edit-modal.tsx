@@ -47,7 +47,7 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
 
   const updateShopMutation = useMutation({
     mutationFn: async (updates: any) => {
-      const response = await apiRequest('PUT', `/api/admin/shops/${shop.id}`, updates);
+      const response = await apiRequest(`/api/admin/shops/${shop.id}`, 'PUT', updates);
       return response.json();
     },
     onSuccess: () => {

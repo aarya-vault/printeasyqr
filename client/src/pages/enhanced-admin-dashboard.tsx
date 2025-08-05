@@ -102,7 +102,7 @@ export default function EnhancedAdminDashboard() {
   // Update shop application mutation
   const updateApplicationMutation = useMutation({
     mutationFn: async ({ id, status, notes }: { id: number; status: string; notes?: string }) => {
-      const response = await apiRequest('PATCH', `/api/shop-applications/${id}`, {
+      const response = await apiRequest(`/api/shop-applications/${id}`, 'PATCH', {
         status,
         adminNotes: notes
       });

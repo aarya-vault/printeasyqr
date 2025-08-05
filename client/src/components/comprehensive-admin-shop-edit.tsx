@@ -84,7 +84,7 @@ export default function ComprehensiveAdminShopEdit({
     setIsLoading(true);
     try {
       // Use PUT method as defined in the backend route
-      const response = await apiRequest('PUT', `/api/admin/shops/${shop.id}`, editingShop);
+      const response = await apiRequest(`/api/admin/shops/${shop.id}`, 'PUT', editingShop);
 
       // Comprehensive query invalidation for real-time synchronization across all platform components
       await queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
