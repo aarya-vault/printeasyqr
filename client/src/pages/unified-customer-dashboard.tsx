@@ -83,15 +83,26 @@ export default function UnifiedCustomerDashboard() {
   // Update customer name mutation
   const updateNameMutation = useMutation({
     mutationFn: async (name: string) => {
+      // Get JWT token for authentication
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        throw new Error('No authentication token found');
+      }
+      
       const response = await fetch(`/api/users/${user?.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}` // Add JWT token
+        },
         credentials: 'include',
         body: JSON.stringify({ name: name.trim() })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update name');
+        const errorText = await response.text();
+        throw new Error(`Failed to update name: ${response.status} ${errorText}`);
       }
       
       return response.json();
