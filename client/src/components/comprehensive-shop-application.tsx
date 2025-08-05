@@ -50,9 +50,9 @@ const servicesSchema = z.object({
 const finalApplicationSchema = z.object({
   // Public Information
   publicShopName: z.string().min(1, 'Public shop name is required'),
-  publicName: z.string().min(1, 'Public name is required'), // Renamed from publicOwnerName - mandatory for customer chat display
+  publicOwnerName: z.string().optional(), // Keep the original field name
   publicAddress: z.string().min(1, 'Public address is required'),
-  publicContactNumber: z.string().min(1, 'Public contact number is required'), // Made mandatory for customer calls
+  publicContactNumber: z.string().optional(),
   
   // Contact Details - Internal information and login credentials
   ownerFullName: z.string().min(1, 'Owner full name is required'),
@@ -1061,39 +1061,66 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
                                   onCheckedChange={(checked) => {
                                     field.onChange({
                                       ...field.value,
-                                      [day]: { ...hours, closed: !checked }
+                                      [day]: { ...hours, closed: !checked, is24Hours: checked ? hours.is24Hours : false }
                                     });
                                   }}
                                   className="data-[state=checked]:bg-brand-yellow"
                                 />
-                                <span className="text-sm w-16">
+                                <span className="text-sm w-12">
                                   {hours.closed ? 'Closed' : 'Open'}
                                 </span>
                                 {!hours.closed && (
                                   <>
-                                    <Input
-                                      type="time"
-                                      value={hours.open}
-                                      onChange={(e) => {
-                                        field.onChange({
-                                          ...field.value,
-                                          [day]: { ...hours, open: e.target.value }
-                                        });
-                                      }}
-                                      className="w-24"
-                                    />
-                                    <span className="text-medium-gray">to</span>
-                                    <Input
-                                      type="time"
-                                      value={hours.close}
-                                      onChange={(e) => {
-                                        field.onChange({
-                                          ...field.value,
-                                          [day]: { ...hours, close: e.target.value }
-                                        });
-                                      }}
-                                      className="w-24"
-                                    />
+                                    <div className="flex items-center space-x-2">
+                                      <Switch
+                                        checked={hours.is24Hours || false}
+                                        onCheckedChange={(checked) => {
+                                          field.onChange({
+                                            ...field.value,
+                                            [day]: { 
+                                              ...hours, 
+                                              is24Hours: checked,
+                                              open: checked ? '00:00' : hours.open,
+                                              close: checked ? '23:59' : hours.close
+                                            }
+                                          });
+                                        }}
+                                        className="data-[state=checked]:bg-green-500"
+                                      />
+                                      <span className="text-sm font-medium text-green-600">24/7</span>
+                                    </div>
+                                    
+                                    {hours.is24Hours ? (
+                                      <span className="text-sm font-bold text-green-600 px-3 py-1 bg-green-50 rounded-full">
+                                        Open 24 Hours
+                                      </span>
+                                    ) : (
+                                      <>
+                                        <Input
+                                          type="time"
+                                          value={hours.open}
+                                          onChange={(e) => {
+                                            field.onChange({
+                                              ...field.value,
+                                              [day]: { ...hours, open: e.target.value }
+                                            });
+                                          }}
+                                          className="w-24"
+                                        />
+                                        <span className="text-medium-gray">to</span>
+                                        <Input
+                                          type="time"
+                                          value={hours.close}
+                                          onChange={(e) => {
+                                            field.onChange({
+                                              ...field.value,
+                                              [day]: { ...hours, close: e.target.value }
+                                            });
+                                          }}
+                                          className="w-24"
+                                        />
+                                      </>
+                                    )}
                                   </>
                                 )}
                               </div>

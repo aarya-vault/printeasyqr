@@ -18,6 +18,7 @@ import {
   Store, Settings, Clock, MapPin, Phone, Mail, User, Shield, 
   Save, X, AlertTriangle, Eye, EyeOff, RefreshCw
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const shopEditSchema = z.object({
   name: z.string().min(1, 'Shop name is required'),
