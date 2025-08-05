@@ -102,6 +102,9 @@ export default function UnifiedOrderCard({
   const StatusIcon = statusInfo.icon;
   const deleteOrderMutation = useDeleteOrder();
 
+  // Check if order is deleted
+  const isDeleted = !!(order.deletedAt);
+
   const displayName = userRole === 'customer' 
     ? order.shop?.name || order.shopName || 'Unknown Shop'
     : order.customer?.name || order.customerName || 'Customer';
@@ -112,7 +115,9 @@ export default function UnifiedOrderCard({
 
   return (
     <Card 
-      className="w-full hover:shadow-md transition-shadow cursor-pointer" 
+      className={`w-full hover:shadow-md transition-shadow cursor-pointer ${
+        isDeleted ? 'opacity-60 border-red-200 bg-red-50/30' : ''
+      }`}
       onClick={() => onViewDetails?.(order)}
     >
       <CardContent className="p-4">
@@ -134,10 +139,17 @@ export default function UnifiedOrderCard({
           </div>
           
           <div className="flex items-center gap-2">
-            <Badge className={`text-xs ${statusInfo.bgColor} ${statusInfo.textColor}`}>
-              <StatusIcon className="w-3 h-3 mr-1" />
-              {statusInfo.label}
-            </Badge>
+            {isDeleted ? (
+              <Badge variant="destructive" className="text-xs">
+                <X className="w-3 h-3 mr-1" />
+                Deleted
+              </Badge>
+            ) : (
+              <Badge className={`text-xs ${statusInfo.bgColor} ${statusInfo.textColor}`}>
+                <StatusIcon className="w-3 h-3 mr-1" />
+                {statusInfo.label}
+              </Badge>
+            )}
             {order.unreadCount && order.unreadCount > 0 && (
               <Badge variant="destructive" className="text-xs min-w-[20px] h-5">
                 {order.unreadCount}
@@ -165,8 +177,19 @@ export default function UnifiedOrderCard({
           )}
         </div>
 
+        {isDeleted && (
+          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+            <span className="font-medium">Order Deleted</span>
+            {order.deletedAt && (
+              <span className="ml-2">
+                on {format(new Date(order.deletedAt), 'MMM dd, yyyy')}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Actions */}
-        {showActions && (
+        {showActions && !isDeleted && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="outline"

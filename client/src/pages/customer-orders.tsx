@@ -36,6 +36,8 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   isUrgent: boolean;
+  deletedAt?: string;
+  deletedBy?: number;
   shop?: {
     id: number;
     name: string;

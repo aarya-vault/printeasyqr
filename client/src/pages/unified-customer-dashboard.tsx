@@ -406,7 +406,9 @@ export default function UnifiedCustomerDashboard() {
                 {/* Current Order Card - Mobile Optimized - CLICKABLE */}
                 {recentOrders[0] && (
                   <div 
-                    className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                    className={`bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow ${
+                      recentOrders[0].deletedAt ? 'opacity-60 border-red-200 bg-red-50/30' : ''
+                    }`}
                     onClick={() => setSelectedOrderForDetails(recentOrders[0])}
                   >
                     <div className="flex items-start gap-3 mb-3">
@@ -423,10 +425,17 @@ export default function UnifiedCustomerDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 mb-1.5 flex-wrap">
-                          <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium text-xs`}>
-                            {getStatusIcon(recentOrders[0].status)}
-                            <span className="ml-1 capitalize">{recentOrders[0].status}</span>
-                          </Badge>
+                          {recentOrders[0].deletedAt ? (
+                            <Badge variant="destructive" className="text-xs font-medium">
+                              <X className="w-3 h-3 mr-1" />
+                              Deleted
+                            </Badge>
+                          ) : (
+                            <Badge className={`${getStatusColor(recentOrders[0].status)} font-medium text-xs`}>
+                              {getStatusIcon(recentOrders[0].status)}
+                              <span className="ml-1 capitalize">{recentOrders[0].status}</span>
+                            </Badge>
+                          )}
                           {recentOrders[0].isUrgent && (
                             <Badge variant="destructive" className="text-xs">Urgent</Badge>
                           )}
