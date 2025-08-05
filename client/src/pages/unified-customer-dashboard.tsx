@@ -416,11 +416,7 @@ export default function UnifiedCustomerDashboard() {
                     <p className="text-xs text-gray-600 mt-0.5">Active orders and available shops</p>
                   </div>
                   <div className="flex-shrink-0 flex items-center gap-2">
-                    <div className="bg-brand-yellow/20 px-2 py-1 rounded-full">
-                      <span className="text-xs font-medium text-rich-black">
-                        {unlockedShopIds.length} Shops
-                      </span>
-                    </div>
+                    
                     <Button 
                       size="sm"
                       variant="outline"
