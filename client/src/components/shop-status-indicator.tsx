@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Clock, CheckCircle } from 'lucide-react';
+import { isShopCurrentlyOpen, canPlaceWalkinOrder } from '@/utils/shop-timing';
 
 interface ShopStatusIndicatorProps {
   shop: {
@@ -12,35 +13,35 @@ interface ShopStatusIndicatorProps {
 }
 
 export default function ShopStatusIndicator({ shop, showWalkinStatus = false }: ShopStatusIndicatorProps) {
-  // Calculate if shop is open based on current time and working hours (including 24/7 support)
-  const isShopOpen = () => {
-    if (!shop || !shop.isOnline) return false;
-    
-    // If no working hours defined, assume 24/7 operation
-    if (!shop.workingHours) return true;
-    
-    const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.toTimeString().slice(0, 5);
-    const todayHours = shop.workingHours[currentDay];
+  // Real-time updates for shop status
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute for real-time status checking
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
 
-    // If day is marked as closed, shop is closed
-    if (!todayHours || todayHours.closed) return false;
-    
-    // Handle 24/7 operation - if open time equals close time (00:00 = 00:00 or same times)
-    if (todayHours.open === todayHours.close) return true;
-    
-    // Handle overnight operations (e.g., 22:00 to 06:00)
-    if (todayHours.open > todayHours.close) {
-      return currentTime >= todayHours.open || currentTime <= todayHours.close;
+    return () => clearInterval(timer);
+  }, []);
+
+  // Use centralized timing utility for consistent shop availability checking
+  const shopOpen = shop ? isShopCurrentlyOpen(shop) : false;
+  const canPlaceWalkin = shop ? canPlaceWalkinOrder(shop) : false;
+
+  // Debug shop status in console
+  useEffect(() => {
+    if (shop) {
+      console.log('🔍 SHOP STATUS INDICATOR - Status check:', {
+        name: shop.name || 'Unknown Shop',
+        isOnline: shop.isOnline,
+        shopOpen,
+        canPlaceWalkin,
+        workingHours: shop.workingHours,
+        currentTime: currentTime.toLocaleTimeString()
+      });
     }
-    
-    // Normal day operation
-    return currentTime >= todayHours.open && currentTime <= todayHours.close;
-  };
-
-  const shopOpen = isShopOpen();
-  const canPlaceWalkinOrder = shop.acceptsWalkinOrders && shopOpen;
+  }, [shop, shopOpen, canPlaceWalkin, currentTime]);
 
   return (
     <div className="flex items-center gap-2">
@@ -71,12 +72,12 @@ export default function ShopStatusIndicator({ shop, showWalkinStatus = false }: 
         <Badge 
           variant="outline" 
           className={`text-xs ${
-            canPlaceWalkinOrder 
+            canPlaceWalkin 
               ? 'border-brand-yellow/50 text-brand-yellow bg-brand-yellow/10' 
               : 'border-gray-300 text-gray-500'
           }`}
         >
-          Walk-in {canPlaceWalkinOrder ? 'Available' : 'Closed'}
+          Walk-in {canPlaceWalkin ? 'Available' : 'Closed'}
         </Badge>
       )}
     </div>

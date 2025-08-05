@@ -21,6 +21,7 @@ import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
+import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -81,37 +82,40 @@ export default function ShopOrder() {
     }
   }, [persistentData, form]);
 
-  // Calculate if shop is open and accepting orders with 24/7 support
-  const isShopOpen = () => {
-    if (!shop || !shop.isOnline) return false;
-    
-    // If no working hours defined, assume 24/7 operation
-    if (!shop.workingHours) return true;
-    
-    const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.toTimeString().slice(0, 5);
-    const todayHours = shop.workingHours[currentDay];
+  // Real-time shop status tracking with live updates
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute for real-time status checking
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
 
-    // If day is marked as closed, shop is closed
-    if (!todayHours || todayHours.closed) return false;
-    
-    // Handle 24/7 operation - if open time equals close time
-    if (todayHours.open === todayHours.close) return true;
-    
-    // Handle overnight operations (e.g., 22:00 to 06:00)
-    if (todayHours.open > todayHours.close) {
-      return currentTime >= todayHours.open || currentTime <= todayHours.close;
+    return () => clearInterval(timer);
+  }, []);
+
+  // Use centralized timing utility for consistent shop availability checking
+  const isShopOpen = (): boolean => {
+    return shop ? isShopCurrentlyOpen(shop) : false;
+  };
+
+  // Check if walk-in orders are available using centralized utility
+  const canPlaceWalkinOrderCheck = (): boolean => {
+    return shop ? canPlaceWalkinOrderUtil(shop) : false;
+  };
+
+  // Add debugging for shop status
+  useEffect(() => {
+    if (shop) {
+      console.log('🔍 SHOP ORDER PAGE - Shop data received:', {
+        name: shop.name,
+        isOnline: shop.isOnline,
+        workingHours: shop.workingHours,
+        acceptsWalkinOrders: shop.acceptsWalkinOrders,
+        currentTime: currentTime.toLocaleTimeString()
+      });
     }
-    
-    // Normal day operation
-    return currentTime >= todayHours.open && currentTime <= todayHours.close;
-  };
-
-  // Check if walk-in orders are available
-  const canPlaceWalkinOrder = () => {
-    return shop && shop.acceptsWalkinOrders && isShopOpen();
-  };
+  }, [shop, currentTime]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -206,7 +210,7 @@ export default function ShopOrder() {
     }
 
     // Check walk-in order availability
-    if (orderType === 'walkin' && !canPlaceWalkinOrder()) {
+    if (orderType === 'walkin' && !canPlaceWalkinOrderCheck()) {
       toast({
         variant: 'destructive',
         title: 'Walk-in Orders Unavailable',
@@ -370,7 +374,7 @@ export default function ShopOrder() {
                           <Upload className="w-4 h-4 mr-2" />
                           Upload Files
                         </TabsTrigger>
-                        <TabsTrigger value="walkin" disabled={!canPlaceWalkinOrder()}>
+                        <TabsTrigger value="walkin" disabled={!canPlaceWalkinOrderCheck()}>
                           <Users className="w-4 h-4 mr-2" />
                           Walk-in Order {!shopOpen && '(Closed)'}
                         </TabsTrigger>
