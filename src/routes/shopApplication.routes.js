@@ -11,5 +11,6 @@ router.post('/shop-applications', ShopApplicationController.createApplication);
 router.get('/shop-applications', requireAuth, requireAdmin, ShopApplicationController.getAllApplications);
 router.get('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.getApplication);
 router.patch('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.updateApplicationStatus);
+router.put('/shop-applications/:id', requireAuth, requireAdmin, ShopApplicationController.updateApplication);
 
 export default router;

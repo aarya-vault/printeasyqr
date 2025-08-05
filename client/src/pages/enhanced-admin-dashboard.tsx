@@ -21,6 +21,7 @@ import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
 import AdminUserEditModal from "@/components/admin-user-edit-modal";
 import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-management-modal";
+import ShopApplicationEditModal from "@/components/shop-application-edit-modal";
 
 
 
@@ -1119,6 +1120,18 @@ export default function EnhancedAdminDashboard() {
           onUpdate={() => {
             setSelectedShopForManagement(null);
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+          }}
+        />
+      )}
+
+      {/* Shop Application Edit Modal */}
+      {editingApplication && (
+        <ShopApplicationEditModal
+          application={editingApplication}
+          onClose={() => setEditingApplication(null)}
+          onUpdate={() => {
+            setEditingApplication(null);
+            queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
           }}
         />
       )}

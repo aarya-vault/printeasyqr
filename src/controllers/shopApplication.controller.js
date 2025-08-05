@@ -217,6 +217,78 @@ class ShopApplicationController {
       res.status(500).json({ message: 'Failed to get application' });
     }
   }
+
+  // Update entire application (admin)
+  static async updateApplication(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const applicationId = parseInt(req.params.id);
+      const updatedData = req.body;
+      
+      const application = await ShopApplication.findByPk(applicationId, { transaction });
+      
+      if (!application) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Application not found' });
+      }
+
+      // Check if email or slug conflicts with other applications (excluding current one)
+      if (updatedData.email !== application.email || updatedData.shopSlug !== application.shopSlug) {
+        const existingApp = await ShopApplication.findOne({
+          where: {
+            id: { [Op.ne]: applicationId },
+            [Op.or]: [
+              { email: updatedData.email },
+              { shopSlug: updatedData.shopSlug }
+            ]
+          },
+          transaction
+        });
+        
+        if (existingApp) {
+          await transaction.rollback();
+          if (existingApp.email === updatedData.email) {
+            return res.status(400).json({ message: 'An application with this email already exists' });
+          }
+          if (existingApp.shopSlug === updatedData.shopSlug) {
+            return res.status(400).json({ message: 'This shop URL is already taken. Please choose a different one.' });
+          }
+        }
+
+        // Check if shop slug is already in use by an existing shop
+        const existingShop = await Shop.findOne({
+          where: { slug: updatedData.shopSlug },
+          transaction
+        });
+        
+        if (existingShop) {
+          await transaction.rollback();
+          return res.status(400).json({ message: 'This shop URL is already taken by an existing shop.' });
+        }
+      }
+      
+      // Update the application
+      await application.update(updatedData, { transaction });
+      
+      await transaction.commit();
+      
+      // Fetch updated application with associations
+      const updatedApplication = await ShopApplication.findByPk(applicationId, {
+        include: [{ model: User, as: 'applicant' }]
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Application updated successfully',
+        application: updatedApplication
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Update application error:', error);
+      res.status(500).json({ message: 'Failed to update application' });
+    }
+  }
 }
 
 export default ShopApplicationController;

@@ -1,0 +1,529 @@
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import {
+  Store,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Settings,
+  Save,
+  X
+} from 'lucide-react';
+
+interface ShopApplication {
+  id: number;
+  publicShopName: string;
+  shopSlug: string;
+  ownerFullName: string;
+  publicOwnerName?: string;
+  publicAddress: string;
+  publicContactNumber: string;
+  internalShopName: string;
+  email: string;
+  phoneNumber: string;
+  completeAddress: string;
+  city: string;
+  state: string;
+  pinCode: string;
+  services: string[];
+  customServices?: string[];
+  equipment: string[];
+  customEquipment?: string[];
+  yearsOfExperience: string;
+  workingHours: {
+    monday: { open: string; close: string; closed?: boolean };
+    tuesday: { open: string; close: string; closed?: boolean };
+    wednesday: { open: string; close: string; closed?: boolean };
+    thursday: { open: string; close: string; closed?: boolean };
+    friday: { open: string; close: string; closed?: boolean };
+    saturday: { open: string; close: string; closed?: boolean };
+    sunday: { open: string; close: string; closed?: boolean };
+  };
+  acceptsWalkinOrders: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ShopApplicationEditModalProps {
+  application: ShopApplication;
+  onClose: () => void;
+  onUpdate: () => void;
+}
+
+const dayNames = [
+  { key: 'monday', label: 'Monday' },
+  { key: 'tuesday', label: 'Tuesday' },
+  { key: 'wednesday', label: 'Wednesday' },
+  { key: 'thursday', label: 'Thursday' },
+  { key: 'friday', label: 'Friday' },
+  { key: 'saturday', label: 'Saturday' },
+  { key: 'sunday', label: 'Sunday' }
+];
+
+const availableServices = [
+  'printing', 'scanning', 'binding', 'lamination', 'photocopying',
+  'digital printing', 'large format printing', 'business cards',
+  'banners', 'posters', 'brochures', 'flyers'
+];
+
+const availableEquipment = [
+  'laser printer', 'inkjet printer', 'scanner', 'laminator',
+  'binding machine', 'plotter', 'cutting machine', 'photocopier'
+];
+
+export default function ShopApplicationEditModal({ 
+  application, 
+  onClose, 
+  onUpdate 
+}: ShopApplicationEditModalProps) {
+  const [editingApplication, setEditingApplication] = useState<ShopApplication>(application);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('PUT', `/api/admin/shop-applications/${application.id}`, editingApplication);
+
+      // Comprehensive query invalidation for real-time synchronization
+      await queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      await queryClient.invalidateQueries({ queryKey: [`/api/admin/shop-applications/${application.id}`] });
+      
+      toast({
+        title: 'Application Updated',
+        description: 'Shop application has been updated successfully',
+      });
+
+      onUpdate();
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save application changes',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed', value: string | boolean) => {
+    const dayKey = day.toLowerCase() as keyof typeof editingApplication.workingHours;
+    const currentDayHours = editingApplication.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+    
+    setEditingApplication({
+      ...editingApplication,
+      workingHours: {
+        ...editingApplication.workingHours,
+        [dayKey]: {
+          ...currentDayHours,
+          [field]: value,
+        },
+      },
+    });
+  };
+
+  const toggleService = (service: string) => {
+    const services = editingApplication.services.includes(service)
+      ? editingApplication.services.filter(s => s !== service)
+      : [...editingApplication.services, service];
+    
+    setEditingApplication({ ...editingApplication, services });
+  };
+
+  const toggleEquipment = (equipment: string) => {
+    const equipmentList = editingApplication.equipment.includes(equipment)
+      ? editingApplication.equipment.filter(e => e !== equipment)
+      : [...editingApplication.equipment, equipment];
+    
+    setEditingApplication({ ...editingApplication, equipment: equipmentList });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Store className="w-6 h-6 text-brand-yellow" />
+            <h2 className="text-2xl font-bold text-rich-black">Edit Application: {application.publicShopName}</h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading}
+              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="bg-white border-rich-black text-rich-black hover:bg-gray-50"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div className="p-6">
+            <Tabs defaultValue="basic" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                <TabsTrigger value="contact">Contact</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="hours">Hours</TabsTrigger>
+              </TabsList>
+
+              {/* Basic Information Tab */}
+              <TabsContent value="basic" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Store className="w-5 h-5 text-brand-yellow" />
+                      <span>Shop Information</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          Public Shop Name *
+                        </label>
+                        <Input
+                          value={editingApplication.publicShopName}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            publicShopName: e.target.value
+                          })}
+                          placeholder="The name customers will see"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          Shop Slug *
+                        </label>
+                        <Input
+                          value={editingApplication.shopSlug}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            shopSlug: e.target.value
+                          })}
+                          placeholder="shop-url-slug"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        Internal Shop Name
+                      </label>
+                      <Input
+                        value={editingApplication.internalShopName}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          internalShopName: e.target.value
+                        })}
+                        placeholder="Internal reference name"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          Owner Full Name *
+                        </label>
+                        <Input
+                          value={editingApplication.ownerFullName}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            ownerFullName: e.target.value
+                          })}
+                          placeholder="Full legal name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          Public Owner Name
+                        </label>
+                        <Input
+                          value={editingApplication.publicOwnerName || ''}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            publicOwnerName: e.target.value
+                          })}
+                          placeholder="Name shown to customers"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        Years of Experience
+                      </label>
+                      <Input
+                        value={editingApplication.yearsOfExperience}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          yearsOfExperience: e.target.value
+                        })}
+                        placeholder="e.g., 5+, 10+"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Contact Information Tab */}
+              <TabsContent value="contact" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <User className="w-5 h-5 text-brand-yellow" />
+                      <span>Contact Information</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          <Mail className="w-4 h-4 inline mr-1" />
+                          Email Address *
+                        </label>
+                        <Input
+                          type="email"
+                          value={editingApplication.email}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            email: e.target.value
+                          })}
+                          placeholder="owner@shopname.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          <Phone className="w-4 h-4 inline mr-1" />
+                          Phone Number *
+                        </label>
+                        <Input
+                          value={editingApplication.phoneNumber}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            phoneNumber: e.target.value
+                          })}
+                          placeholder="10-digit phone number"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        Public Contact Number
+                      </label>
+                      <Input
+                        value={editingApplication.publicContactNumber}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          publicContactNumber: e.target.value
+                        })}
+                        placeholder="Number shown to customers"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        Public Address *
+                      </label>
+                      <Input
+                        value={editingApplication.publicAddress}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          publicAddress: e.target.value
+                        })}
+                        placeholder="Address shown to customers"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        Complete Address
+                      </label>
+                      <Textarea
+                        value={editingApplication.completeAddress}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          completeAddress: e.target.value
+                        })}
+                        placeholder="Full address with details"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          City *
+                        </label>
+                        <Input
+                          value={editingApplication.city}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            city: e.target.value
+                          })}
+                          placeholder="City name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          State *
+                        </label>
+                        <Input
+                          value={editingApplication.state}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            state: e.target.value
+                          })}
+                          placeholder="State"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          Pin Code *
+                        </label>
+                        <Input
+                          value={editingApplication.pinCode}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            pinCode: e.target.value
+                          })}
+                          placeholder="6-digit PIN"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Services Tab */}
+              <TabsContent value="services" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Services Offered</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableServices.map((service) => (
+                        <label key={service} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingApplication.services.includes(service)}
+                            onChange={() => toggleService(service)}
+                            className="rounded"
+                          />
+                          <span className="text-sm capitalize">{service}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Equipment Available</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableEquipment.map((equipment) => (
+                        <label key={equipment} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingApplication.equipment.includes(equipment)}
+                            onChange={() => toggleEquipment(equipment)}
+                            className="rounded"
+                          />
+                          <span className="text-sm capitalize">{equipment}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Order Preferences</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={editingApplication.acceptsWalkinOrders}
+                        onCheckedChange={(checked) => setEditingApplication({
+                          ...editingApplication,
+                          acceptsWalkinOrders: checked
+                        })}
+                      />
+                      <label className="text-sm font-medium">Accept Walk-in Orders</label>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Working Hours Tab */}
+              <TabsContent value="hours" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Clock className="w-5 h-5 text-brand-yellow" />
+                      <span>Working Hours</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {dayNames.map((day) => {
+                      const dayHours = editingApplication.workingHours[day.key as keyof typeof editingApplication.workingHours] || { open: '09:00', close: '18:00', closed: false };
+                      return (
+                        <div key={day.key} className="flex items-center space-x-4 p-3 border rounded-lg">
+                          <div className="w-20 font-medium">{day.label}</div>
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={!dayHours.closed}
+                              onCheckedChange={(checked) => updateWorkingHours(day.key, 'closed', !checked)}
+                            />
+                            <span className="text-sm">{dayHours.closed ? 'Closed' : 'Open'}</span>
+                          </div>
+                          {!dayHours.closed && (
+                            <>
+                              <Input
+                                type="time"
+                                value={dayHours.open}
+                                onChange={(e) => updateWorkingHours(day.key, 'open', e.target.value)}
+                                className="w-32"
+                              />
+                              <span>to</span>
+                              <Input
+                                type="time"
+                                value={dayHours.close}
+                                onChange={(e) => updateWorkingHours(day.key, 'close', e.target.value)}
+                                className="w-32"
+                              />
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
