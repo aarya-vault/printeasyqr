@@ -101,10 +101,7 @@ export default function ComprehensiveShopManagementModal({
 
   const updateShop = useMutation({
     mutationFn: async (data: ShopEditForm & { workingHours: any }) => {
-      return await apiRequest(`/api/admin/shops/${shop.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest(`/api/admin/shops/${shop.id}`, 'PUT', data);
     },
     onSuccess: () => {
       toast({
