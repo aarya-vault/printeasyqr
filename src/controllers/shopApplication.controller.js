@@ -75,25 +75,38 @@ class ShopApplicationController {
         order: [['createdAt', 'DESC']]
       });
       
-      // Transform data to match frontend expectations
+      // Transform data to match frontend expectations with complete field mapping
       const transformedApplications = applications.map(app => ({
         id: app.id,
+        // Public Information
         shopName: app.publicShopName,
+        publicShopName: app.publicShopName,
+        publicOwnerName: app.publicOwnerName,
+        publicAddress: app.publicAddress,
+        publicContactNumber: app.publicContactNumber,
         shopSlug: app.shopSlug,
+        // Internal Information
+        internalShopName: app.internalShopName,
+        ownerFullName: app.ownerFullName,
         applicantName: app.ownerFullName,
         email: app.email,
         phoneNumber: app.phoneNumber,
+        completeAddress: app.completeAddress,
+        // Location
         city: app.city,
         state: app.state,
         pinCode: app.pinCode,
-        services: app.services,
-        customServices: app.customServices,
-        equipment: app.equipment,
-        customEquipment: app.customEquipment,
+        // Business Information
+        services: app.services || [],
+        customServices: app.customServices || [],
+        equipment: app.equipment || [],
+        customEquipment: app.customEquipment || [],
         yearsOfExperience: app.yearsOfExperience,
         formationYear: app.formationYear,
+        // Working Hours and Settings
         workingHours: app.workingHours,
         acceptsWalkinOrders: app.acceptsWalkinOrders,
+        // Admin
         status: app.status,
         adminNotes: app.adminNotes,
         createdAt: app.createdAt,

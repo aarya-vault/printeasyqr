@@ -454,7 +454,7 @@ export default function EnhancedAdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium text-rich-black">Public Shop Name</label>
-                            <p className="text-medium-gray">{selectedApplication.publicShopName}</p>
+                            <p className="text-medium-gray">{selectedApplication.shopName || selectedApplication.publicShopName || 'Not provided'}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-rich-black">Public Owner Name</label>
@@ -468,13 +468,13 @@ export default function EnhancedAdminDashboard() {
                           </div>
                           <div>
                             <label className="text-sm font-medium text-rich-black">Public Contact</label>
-                            <p className="text-medium-gray">{selectedApplication.publicContactNumber}</p>
+                            <p className="text-medium-gray">{selectedApplication.phoneNumber}</p>
                           </div>
                         </div>
                         
                         <div className="mt-4">
                           <label className="text-sm font-medium text-rich-black">Public Address</label>
-                          <p className="text-medium-gray">{selectedApplication.publicAddress}</p>
+                          <p className="text-medium-gray">{selectedApplication.completeAddress || 'Not provided'}</p>
                         </div>
                       </div>
 
@@ -484,11 +484,11 @@ export default function EnhancedAdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium text-rich-black">Internal Shop Name</label>
-                            <p className="text-medium-gray">{selectedApplication.internalShopName}</p>
+                            <p className="text-medium-gray">{selectedApplication.shopName || selectedApplication.internalShopName || 'Not provided'}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-rich-black">Owner Full Name</label>
-                            <p className="text-medium-gray">{selectedApplication.ownerFullName}</p>
+                            <p className="text-medium-gray">{selectedApplication.ownerFullName || selectedApplication.applicantName || 'Not provided'}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-rich-black">Email Address</label>
@@ -502,7 +502,7 @@ export default function EnhancedAdminDashboard() {
                         
                         <div className="mt-4">
                           <label className="text-sm font-medium text-rich-black">Complete Address</label>
-                          <p className="text-medium-gray">{selectedApplication.completeAddress}</p>
+                          <p className="text-medium-gray">{selectedApplication.completeAddress || 'Not provided'}</p>
                         </div>
                       </div>
 
@@ -531,7 +531,7 @@ export default function EnhancedAdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
                             <label className="text-sm font-medium text-rich-black">Formation Year</label>
-                            <p className="text-medium-gray">{selectedApplication.formationYear || 'Not provided'}</p>
+                            <p className="text-medium-gray">{selectedApplication.formationYear || new Date().getFullYear() - parseInt(selectedApplication.yearsOfExperience || '0') || 'Not provided'}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium text-rich-black">Years of Experience</label>
@@ -542,11 +542,22 @@ export default function EnhancedAdminDashboard() {
                         <div className="mb-4">
                           <label className="text-sm font-medium text-rich-black">Services Offered</label>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {selectedApplication.services.map((service, index) => (
-                              <Badge key={index} variant="secondary" className="bg-brand-yellow/10 text-rich-black">
-                                {service}
-                              </Badge>
-                            ))}
+                            {selectedApplication.services && selectedApplication.services.length > 0 ? (
+                              selectedApplication.services.map((service, index) => (
+                                <Badge key={`service-${index}`} variant="secondary" className="bg-brand-yellow/10 text-rich-black">
+                                  {service}
+                                </Badge>
+                              ))
+                            ) : (
+                              <p className="text-gray-500 text-sm">No services specified</p>
+                            )}
+                            {selectedApplication.customServices && selectedApplication.customServices.length > 0 && (
+                              selectedApplication.customServices.map((service, index) => (
+                                <Badge key={`custom-service-${index}`} variant="secondary" className="bg-blue-50 text-blue-700 border border-blue-200">
+                                  {service} (Custom)
+                                </Badge>
+                              ))
+                            )}
                           </div>
                         </div>
 
@@ -555,12 +566,19 @@ export default function EnhancedAdminDashboard() {
                           <div className="flex flex-wrap gap-2 mt-2">
                             {selectedApplication.equipment && selectedApplication.equipment.length > 0 ? (
                               selectedApplication.equipment.map((equipment, index) => (
-                                <Badge key={index} variant="outline" className="border-brand-yellow text-rich-black">
+                                <Badge key={`equipment-${index}`} variant="outline" className="border-brand-yellow text-rich-black">
                                   {equipment}
                                 </Badge>
                               ))
                             ) : (
                               <p className="text-gray-500 text-sm">No equipment specified</p>
+                            )}
+                            {selectedApplication.customEquipment && selectedApplication.customEquipment.length > 0 && (
+                              selectedApplication.customEquipment.map((equipment, index) => (
+                                <Badge key={`custom-equipment-${index}`} variant="outline" className="border-green-400 text-green-700 bg-green-50">
+                                  {equipment} (Custom)
+                                </Badge>
+                              ))
                             )}
                           </div>
                         </div>
@@ -573,13 +591,13 @@ export default function EnhancedAdminDashboard() {
                           {Object.entries(selectedApplication.workingHours || {}).map(([day, hours]) => (
                             <div key={day} className="border rounded-lg p-3 bg-gray-50">
                               <h5 className="font-medium text-rich-black capitalize mb-2">{day}</h5>
-                              {hours.closed ? (
+                              {hours?.closed ? (
                                 <Badge variant="secondary" className="text-xs">Closed</Badge>
-                              ) : hours.is24Hours ? (
+                              ) : hours?.is24Hours || (hours?.open === '00:00' && hours?.close === '23:59') ? (
                                 <Badge className="bg-brand-yellow text-rich-black text-xs">24/7</Badge>
                               ) : (
                                 <p className="text-sm text-medium-gray">
-                                  {hours.open} - {hours.close}
+                                  {hours?.open || '00:00'} - {hours?.close || '00:00'}
                                 </p>
                               )}
                             </div>
