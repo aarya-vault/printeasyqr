@@ -31,7 +31,7 @@ export default function PhoneInput({
       value={value}
       onChange={handleChange}
       placeholder={placeholder}
-      className={className}
+      className="flex h-10 rounded-md border border-input px-3 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-full text-lg py-3 bg-[transparent]"
       required={required}
       disabled={disabled}
       maxLength={10}
