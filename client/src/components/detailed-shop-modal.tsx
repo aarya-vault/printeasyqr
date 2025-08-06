@@ -22,18 +22,47 @@ interface Shop {
   state: string;
   phone: string;
   pinCode?: string;
+  // Public information
   publicOwnerName?: string;
   publicContactNumber?: string;
+  publicAddress?: string;
+  completeAddress?: string;
+  // Business details with aliases
   services?: string[];
   equipment?: string[];
+  servicesOffered?: string[];
+  equipmentAvailable?: string[];
+  // Experience
   yearsOfExperience?: string;
   formationYear?: number;
-  workingHours?: any;
+  ownerFullName?: string;
+  email?: string;
+  ownerPhone?: string;
+  // Working hours
+  workingHours?: Record<string, {
+    open?: string;
+    close?: string;
+    closed?: boolean;
+    is24Hours?: boolean;
+  }>;
+  // Status
   acceptsWalkinOrders: boolean;
   isOnline: boolean;
+  isOpen?: boolean;
+  // Statistics
   totalOrders?: number;
   rating?: number;
+  // Timestamps
   createdAt?: string;
+  updatedAt?: string;
+  // Owner information
+  owner?: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+    role: string;
+  };
 }
 
 interface DetailedShopModalProps {

@@ -25,29 +25,48 @@ interface Shop {
   state: string;
   phone: string;
   pinCode?: string;
+  // Public information
   publicName?: string;
+  publicOwnerName?: string;
   publicAddress?: string;
   publicContactNumber?: string;
+  // Status and availability
   isOpen?: boolean;
   isOnline?: boolean;
   acceptsWalkinOrders?: boolean;
+  // Working hours
   workingHours?: Record<string, {
     open?: string;
     close?: string;
     closed?: boolean;
     is24Hours?: boolean;
   }>;
+  // Business details with aliases
   servicesOffered?: string[];
   equipmentAvailable?: string[];
   services?: string[];
   equipment?: string[];
+  // Experience and details
   yearsOfExperience?: string;
   formationYear?: number;
+  ownerFullName?: string;
+  completeAddress?: string;
+  email?: string;
+  ownerPhone?: string;
+  // Statistics
   totalOrders?: number;
   rating?: number;
-  publicOwnerName?: string;
-  email?: string;
+  // Timestamps
   createdAt?: string;
+  updatedAt?: string;
+  // Owner information
+  owner?: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+    role: string;
+  };
 }
 
 export default function CustomerBrowseShops() {

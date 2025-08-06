@@ -27,22 +27,30 @@ class ShopController {
       email: shopData.email,
       ownerPhone: shopData.ownerPhone,
       completeAddress: shopData.completeAddress,
-      // Business Details
-      services: shopData.services,
-      equipment: shopData.equipment,
+      // Business Details - Ensure arrays for frontend
+      services: Array.isArray(shopData.services) ? shopData.services : [],
+      equipment: Array.isArray(shopData.equipment) ? shopData.equipment : [],
+      servicesOffered: Array.isArray(shopData.services) ? shopData.services : [], // Alias
+      equipmentAvailable: Array.isArray(shopData.equipment) ? shopData.equipment : [], // Alias
       yearsOfExperience: shopData.yearsOfExperience,
+      formationYear: shopData.formationYear,
       // Working Hours and Availability
-      workingHours: shopData.workingHours,
-      acceptsWalkinOrders: shopData.acceptsWalkinOrders,
-      isOnline: shopData.isOnline,
+      workingHours: shopData.workingHours || {},
+      acceptsWalkinOrders: Boolean(shopData.acceptsWalkinOrders),
+      isOnline: Boolean(shopData.isOnline),
+      isOpen: Boolean(shopData.isOnline), // Alias for frontend
       autoAvailability: shopData.autoAvailability,
       // Admin and Status
       isApproved: shopData.isApproved,
       isPublic: shopData.isPublic,
       status: shopData.status,
       qrCode: shopData.qrCode,
-      rating: shopData.rating,
-      totalOrders: shopData.totalOrders,
+      rating: shopData.rating ? parseFloat(shopData.rating) : 0,
+      totalOrders: shopData.totalOrders || 0,
+      // Frontend compatibility aliases
+      publicName: shopData.publicOwnerName,
+      publicAddress: shopData.completeAddress || shopData.address,
+      publicContactNumber: shopData.phone,
       // Timestamps
       createdAt: shopData.createdAt,
       updatedAt: shopData.updatedAt,
