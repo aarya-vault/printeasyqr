@@ -18,7 +18,8 @@ import {
   Clock,
   Settings,
   Save,
-  X
+  X,
+  Plus
 } from 'lucide-react';
 
 interface ShopApplication {
@@ -91,6 +92,8 @@ export default function ShopApplicationEditModal({
 }: ShopApplicationEditModalProps) {
   const [editingApplication, setEditingApplication] = useState<ShopApplication>(application);
   const [isLoading, setIsLoading] = useState(false);
+  const [customServiceInput, setCustomServiceInput] = useState('');
+  const [customEquipmentInput, setCustomEquipmentInput] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

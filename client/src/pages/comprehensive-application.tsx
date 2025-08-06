@@ -14,7 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, ArrowRight, Store, User, Mail, Phone, MapPin, 
-  Clock, Briefcase, Settings, CheckCircle, Loader2
+  Clock, Briefcase, Settings, CheckCircle, Loader2, Plus, X
 } from 'lucide-react';
 
 // Form validation schema
@@ -40,7 +40,9 @@ const applicationSchema = z.object({
   
   // Business Details
   services: z.array(z.string()).min(1, 'At least one service is required'),
+  customServices: z.array(z.string()).max(10, 'Maximum 10 custom services allowed').optional().default([]),
   equipment: z.array(z.string()).optional().default([]), // Equipment is now optional
+  customEquipment: z.array(z.string()).max(10, 'Maximum 10 custom equipment allowed').optional().default([]),
   yearsOfExperience: z.string().min(1, 'Experience is required'),
   
   // Working Hours
@@ -83,6 +85,8 @@ const equipment = [
 export default function ComprehensiveApplicationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [customServiceInput, setCustomServiceInput] = useState('');
+  const [customEquipmentInput, setCustomEquipmentInput] = useState('');
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -103,7 +107,9 @@ export default function ComprehensiveApplicationPage() {
       state: '',
       pinCode: '',
       services: [],
+      customServices: [],
       equipment: [],
+      customEquipment: [],
       yearsOfExperience: '',
       workingHours: {
         monday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
@@ -175,6 +181,36 @@ export default function ComprehensiveApplicationPage() {
       ? currentEquipment.filter(e => e !== equip)
       : [...currentEquipment, equip];
     form.setValue('equipment', updatedEquipment);
+  };
+
+  const addCustomService = () => {
+    if (customServiceInput.trim() && form.getValues('customServices')?.length < 10) {
+      const currentCustomServices = form.getValues('customServices') || [];
+      if (!currentCustomServices.includes(customServiceInput.trim())) {
+        form.setValue('customServices', [...currentCustomServices, customServiceInput.trim()]);
+        setCustomServiceInput('');
+      }
+    }
+  };
+
+  const removeCustomService = (service: string) => {
+    const currentCustomServices = form.getValues('customServices') || [];
+    form.setValue('customServices', currentCustomServices.filter(s => s !== service));
+  };
+
+  const addCustomEquipment = () => {
+    if (customEquipmentInput.trim() && form.getValues('customEquipment')?.length < 10) {
+      const currentCustomEquipment = form.getValues('customEquipment') || [];
+      if (!currentCustomEquipment.includes(customEquipmentInput.trim())) {
+        form.setValue('customEquipment', [...currentCustomEquipment, customEquipmentInput.trim()]);
+        setCustomEquipmentInput('');
+      }
+    }
+  };
+
+  const removeCustomEquipment = (equipment: string) => {
+    const currentCustomEquipment = form.getValues('customEquipment') || [];
+    form.setValue('customEquipment', currentCustomEquipment.filter(e => e !== equipment));
   };
 
   const renderStepContent = () => {
@@ -447,6 +483,43 @@ export default function ComprehensiveApplicationPage() {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Custom Services Section */}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        placeholder="Add custom service (max 10)"
+                        value={customServiceInput}
+                        onChange={(e) => setCustomServiceInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomService())}
+                        disabled={form.watch('customServices')?.length >= 10}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={addCustomService}
+                        disabled={!customServiceInput.trim() || form.watch('customServices')?.length >= 10}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {form.watch('customServices')?.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {form.watch('customServices')?.map((service: string) => (
+                          <Badge key={service} variant="secondary" className="flex items-center gap-1">
+                            {service}
+                            <X
+                              className="h-3 w-3 cursor-pointer"
+                              onClick={() => removeCustomService(service)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Custom services added: {form.watch('customServices')?.length || 0}/10
+                    </p>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -469,6 +542,43 @@ export default function ComprehensiveApplicationPage() {
                         <label htmlFor={equip} className="text-sm">{equip}</label>
                       </div>
                     ))}
+                  </div>
+                  
+                  {/* Custom Equipment Section */}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        placeholder="Add custom equipment (max 10)"
+                        value={customEquipmentInput}
+                        onChange={(e) => setCustomEquipmentInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomEquipment())}
+                        disabled={form.watch('customEquipment')?.length >= 10}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={addCustomEquipment}
+                        disabled={!customEquipmentInput.trim() || form.watch('customEquipment')?.length >= 10}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {form.watch('customEquipment')?.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {form.watch('customEquipment')?.map((equipment: string) => (
+                          <Badge key={equipment} variant="secondary" className="flex items-center gap-1">
+                            {equipment}
+                            <X
+                              className="h-3 w-3 cursor-pointer"
+                              onClick={() => removeCustomEquipment(equipment)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Custom equipment added: {form.watch('customEquipment')?.length || 0}/10
+                    </p>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -596,8 +706,8 @@ export default function ComprehensiveApplicationPage() {
                 <p><strong>Email:</strong> {form.watch('email')}</p>
                 <p><strong>City:</strong> {form.watch('city')}, {form.watch('state')}</p>
                 <p><strong>Experience:</strong> {form.watch('yearsOfExperience')}</p>
-                <p><strong>Services:</strong> {form.watch('services').length} selected</p>
-                <p><strong>Equipment:</strong> {form.watch('equipment')?.length || 0} selected (Optional)</p>
+                <p><strong>Services:</strong> {form.watch('services').length} selected + {form.watch('customServices')?.length || 0} custom</p>
+                <p><strong>Equipment:</strong> {form.watch('equipment')?.length || 0} selected + {form.watch('customEquipment')?.length || 0} custom</p>
                 <p><strong>Walk-in Orders:</strong> {form.watch('acceptsWalkinOrders') ? 'Yes' : 'No'}</p>
               </div>
             </div>
