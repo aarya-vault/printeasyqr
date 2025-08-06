@@ -104,8 +104,8 @@ export default function ShopSettings() {
         slug: shop.slug
       });
       
-      setFormData({
-        name: shop.name || '',
+      const newFormData = {
+        name: shop.name || shop.publicOwnerName || '',
         description: shop.description || shop.completeAddress || '',
         address: shop.address || shop.completeAddress || '',
         phone: shop.phone || shop.ownerPhone || '',
@@ -120,7 +120,10 @@ export default function ShopSettings() {
           statusUpdates: true,
           customerMessages: true
         }
-      });
+      };
+      
+      console.log('🚀 SETTINGS - Setting form data:', newFormData);
+      setFormData(newFormData);
     }
   }, [shop]);
 

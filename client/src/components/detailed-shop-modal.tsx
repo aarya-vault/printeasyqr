@@ -151,7 +151,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full mx-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-xl">
             <Store className="w-6 h-6 text-brand-yellow" />
@@ -170,7 +170,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-2 sm:px-0">
           {/* Left Column - Basic Information */}
           <div className="space-y-4">
             {/* Contact Information */}
@@ -284,7 +284,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
             </Card>
 
             {/* Services & Equipment */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
               {/* Services Offered */}
               {((shop.services && shop.services.length > 0) || (shop.servicesOffered && shop.servicesOffered.length > 0)) && (
                 <Card>
@@ -339,40 +339,6 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                 </Card>
               )}
             </div>
-
-            {/* Equipment Available */}
-            {((shop.equipment && shop.equipment.length > 0) || (shop.equipmentAvailable && shop.equipmentAvailable.length > 0)) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-brand-yellow" />
-                    Equipment Available
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 gap-3">
-                    {(shop.equipment || shop.equipmentAvailable || []).map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                          <Package className="w-4 h-4 text-black" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{item}</p>
-                          <p className="text-sm text-gray-600">Professional grade equipment</p>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {(!shop.equipment || shop.equipment.length === 0) && (!shop.equipmentAvailable || shop.equipmentAvailable.length === 0) && (
-                      <div className="text-center py-4 text-gray-500">
-                        <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">Equipment information not specified</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
             
             {/* Shop Details */}
             <Card>

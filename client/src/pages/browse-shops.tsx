@@ -207,7 +207,7 @@ export default function AnonymousVisitorBrowseShops() {
           /* Shops Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredShops.map((shop: Shop) => (
-              <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer">
+              <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer" onClick={() => handleShopClick(shop)}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -279,14 +279,20 @@ export default function AnonymousVisitorBrowseShops() {
                   {/* Action Buttons */}
                   <div className="space-y-2">
                     <Button
-                      onClick={() => handleStartOrdering(shop)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartOrdering(shop);
+                      }}
                       className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
                     >
                       <Printer className="w-4 h-4 mr-2" />
                       Login to Print
                     </Button>
                     <Button
-                      onClick={() => handleShopClick(shop)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShopClick(shop);
+                      }}
                       variant="outline"
                       className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
                     >
