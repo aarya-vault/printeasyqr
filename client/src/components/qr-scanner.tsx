@@ -308,6 +308,25 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
             </div>
           </div>
 
+          {/* Upload Button - Simple and Themed */}
+          <div className="flex justify-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-4 py-2 rounded-lg font-medium text-sm shadow-md"
+              disabled={unlockShopMutation.isPending}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload
+            </Button>
+          </div>
+
           {/* Instructions - Beautiful Card */}
           <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-200 flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
@@ -322,36 +341,6 @@ export default function QRScanner({ isOpen, onClose, onShopUnlocked, autoRedirec
                 : "Point your camera at a PrintEasy shop QR code to visit the shop page and place orders instantly."
               }
             </p>
-          </div>
-
-          {/* Image Upload Alternative */}
-          <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-200 flex-shrink-0">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Image className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-              </div>
-              <h4 className="font-semibold text-xs sm:text-sm text-rich-black">Can't use camera?</h4>
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed mb-3">
-              Upload an image containing a QR code instead
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="outline"
-              size="sm"
-              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-              disabled={unlockShopMutation.isPending}
-            >
-              <Upload className="w-3 h-3 mr-2" />
-              Upload QR Image
-            </Button>
           </div>
 
           {/* Status Messages */}
