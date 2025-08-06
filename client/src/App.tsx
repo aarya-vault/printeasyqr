@@ -18,6 +18,7 @@ const CustomerAccount = lazy(() => import("@/pages/customer-account"));
 const CustomerOrders = lazy(() => import("@/pages/customer-orders"));
 const CustomerVisitedShops = lazy(() => import("@/pages/customer-visited-shops"));
 const BrowseShops = lazy(() => import("@/pages/browse-shops"));
+const CustomerBrowseShops = lazy(() => import("@/pages/customer-browse-shops"));
 const RedesignedShopOwnerDashboard = lazy(() => import("@/pages/redesigned-shop-owner-dashboard"));
 const ShopOrderHistory = lazy(() => import("@/pages/shop-order-history"));
 const ShopOrderDetails = lazy(() => import("@/pages/shop-order-details"));
@@ -29,7 +30,8 @@ const ShopOrder = lazy(() => import("@/pages/shop-order"));
 const OrderConfirmation = lazy(() => import("@/pages/order-confirmation"));
 const ShopNotifications = lazy(() => import("@/pages/shop-notifications"));
 const ShopLoginPage = lazy(() => import("@/pages/shop-login"));
-const ShopOwnerAnalytics = lazy(() => import("@/pages/shop-owner-analytics"));
+const PincodeTestPage = lazy(() => import("@/pages/pincode-test"));
+// ShopOwnerAnalytics removed - analytics now integrated into dashboard
 
 
 function Router() {
@@ -44,6 +46,7 @@ function Router() {
         <Route path="/customer-orders" component={CustomerOrders} />
         <Route path="/customer-visited-shops" component={CustomerVisitedShops} />
         <Route path="/browse-shops" component={BrowseShops} />
+        <Route path="/customer-browse-shops" component={CustomerBrowseShops} />
         <Route path="/shop-dashboard" component={RedesignedShopOwnerDashboard} />
         <Route path="/shop-order-history" component={ShopOrderHistory} />
 
@@ -56,7 +59,8 @@ function Router() {
         <Route path="/shop/:slug" component={ShopOrder} />
         <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
         <Route path="/shop-notifications" component={ShopNotifications} />
-        <Route path="/shop-analytics" component={ShopOwnerAnalytics} />
+        <Route path="/pincode-test" component={PincodeTestPage} />
+        {/* /shop-analytics route removed - analytics integrated into dashboard */}
 
         <Route component={NotFound} />
       </Switch>

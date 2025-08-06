@@ -32,10 +32,10 @@ export default function BottomNavigation({ className = '' }: BottomNavigationPro
     },
     // QR Scanner will be in the middle as a special button
     {
-      path: '/browse-shops',
+      path: '/customer-browse-shops',
       icon: Store,
       label: 'Shops',
-      isActive: location === '/browse-shops' || location.includes('/shop/')
+      isActive: location === '/customer-browse-shops' || location === '/browse-shops' || location.includes('/shop/')
     },
     {
       path: '/customer-account',
