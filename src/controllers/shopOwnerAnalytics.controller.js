@@ -6,6 +6,7 @@ import Order from '../models/Order.js';
 // Get comprehensive analytics for a specific shop
 export const getShopAnalytics = async (req, res) => {
   try {
+    console.log('🔍 ANALYTICS - Starting analytics request', req.params, req.userId);
     const { shopId } = req.params;
     const userId = req.userId;
 
@@ -24,7 +25,26 @@ export const getShopAnalytics = async (req, res) => {
       ]
     });
 
+    console.log('🔍 ANALYTICS - Shop found:', shop ? 'YES' : 'NO');
+    
+    // Get all orders for this shop
+    console.log('🔍 ANALYTICS - Fetching orders for shop:', shopId);
+    const allOrders = await Order.findAll({
+      where: { shopId },
+      include: [
+        {
+          model: User,
+          as: 'customer',
+          attributes: ['id', 'name', 'phone']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    
+    console.log('🔍 ANALYTICS - Orders found:', allOrders.length);
+
     if (!shop) {
+      console.log('🔍 ANALYTICS - Shop not found or unauthorized');
       return res.status(404).json({ message: 'Shop not found or unauthorized' });
     }
 
@@ -37,19 +57,6 @@ export const getShopAnalytics = async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-    // Get all orders for this shop
-    const allOrders = await Order.findAll({
-      where: { shopId },
-      include: [
-        {
-          model: User,
-          as: 'customer',
-          attributes: ['id', 'name', 'phone']
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
 
     // Calculate basic metrics
     const totalOrders = allOrders.length;
@@ -179,11 +186,11 @@ export const getShopAnalytics = async (req, res) => {
       },
       summary: {
         totalOrders,
-        totalRevenue,
+        totalRevenue: Math.round(totalRevenue * 100) / 100, // Round to 2 decimal places
         uniqueCustomers,
         completionRate,
         repeatCustomerRate,
-        avgOrderValue,
+        avgOrderValue: Math.round(avgOrderValue * 100) / 100, // Round to 2 decimal places
         avgCompletionTime: avgCompletionTime.toString()
       },
       orderStats,
@@ -207,6 +214,12 @@ export const getShopAnalytics = async (req, res) => {
       },
       repeatCustomers: repeatCustomers.slice(0, 20) // Limit to top 20
     };
+
+    console.log('🔍 ANALYTICS - Sending analytics response:', {
+      shopName: analytics.shop.name,
+      totalOrders: analytics.summary.totalOrders,
+      revenue: analytics.summary.totalRevenue
+    });
 
     res.json(analytics);
 

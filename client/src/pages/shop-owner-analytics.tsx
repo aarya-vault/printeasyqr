@@ -73,7 +73,7 @@ export default function ShopOwnerAnalytics() {
   const { user } = useAuth();
   
   // Get current shop for this user
-  const { data: userShops } = useQuery({
+  const { data: userShops, isLoading: shopsLoading } = useQuery({
     queryKey: [`/api/shops/owner/${user?.id}`],
     enabled: !!user?.id && user?.role === 'shop_owner'
   });
@@ -81,11 +81,14 @@ export default function ShopOwnerAnalytics() {
   const currentShop = Array.isArray(userShops) && userShops.length > 0 ? userShops[0] : null;
 
   // Get shop analytics
-  const { data: analytics, isLoading, error } = useQuery<ShopAnalytics>({
+  const { data: analytics, isLoading: analyticsLoading, error } = useQuery<ShopAnalytics>({
     queryKey: [`/api/shop-owner/shop/${currentShop?.id}/analytics`],
     enabled: !!currentShop?.id,
-    retry: 2
+    retry: 3,
+    retryDelay: 1000
   });
+
+  const isLoading = shopsLoading || analyticsLoading;
 
   // Get customer insights
   const { data: customerInsights, isLoading: insightsLoading } = useQuery({
@@ -93,41 +96,51 @@ export default function ShopOwnerAnalytics() {
     enabled: !!currentShop?.id
   });
 
+  // Enhanced loading state with better UX
   if (isLoading || !analytics) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading shop analytics...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="w-12 h-12 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <p className="text-lg font-semibold text-rich-black mb-2">Loading Analytics</p>
+          <p className="text-gray-600 text-sm">
+            {!currentShop ? 'Finding your shop...' : 'Processing business metrics...'}
+          </p>
+          <div className="mt-4 text-xs text-gray-500 space-y-1">
+            <p>• Calculating order statistics</p>
+            <p>• Analyzing customer data</p>
+            <p>• Preparing performance insights</p>
+          </div>
         </div>
       </div>
     );
   }
 
   if (error) {
+    console.error('🔍 ANALYTICS - Frontend error:', error);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 font-semibold mb-2">Failed to load analytics</p>
-          <p className="text-gray-600 text-sm mb-4">There was an error loading your shop analytics. This might be due to:</p>
+          <Activity className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 font-semibold mb-2">Analytics Temporarily Unavailable</p>
+          <p className="text-gray-600 text-sm mb-4">Your shop analytics are currently being processed. This is normal for:</p>
           <ul className="text-xs text-gray-500 text-left mb-4 space-y-1">
-            <li>• No orders in your shop yet</li>
-            <li>• Network connectivity issues</li>
-            <li>• Server maintenance</li>
+            <li>• New shops setting up analytics</li>
+            <li>• System updates and maintenance</li>
+            <li>• High traffic periods</li>
           </ul>
           <div className="flex gap-2 justify-center">
             <Button 
               onClick={() => window.location.reload()} 
               className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
             >
-              Refresh Page
+              Try Again
             </Button>
             <Button 
-              onClick={() => navigate('/shop-dashboard')} 
+              onClick={() => window.history.back()} 
               variant="outline"
             >
-              Back to Dashboard
+              Go Back
             </Button>
           </div>
         </div>
