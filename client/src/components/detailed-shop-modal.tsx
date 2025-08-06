@@ -83,22 +83,37 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
     return experience > 0 ? `${experience} years` : 'New';
   };
 
-  // Format working hours for display
-  const formatWorkingHours = (): string[] => {
-    if (!shop.workingHours) return ["24/7 Open"];
+  // Format working hours for detailed display
+  const formatDetailedWorkingHours = () => {
+    if (!shop.workingHours) return [{ day: "Every Day", schedule: "24/7 Open", is24Hours: true, status: "open" }];
     
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
     return days.map((day, index) => {
       const hours = shop.workingHours[day];
       if (!hours || hours.closed) {
-        return `${dayNames[index]}: Closed`;
+        return {
+          day: dayNames[index],
+          schedule: "Closed",
+          is24Hours: false,
+          status: "closed"
+        };
       }
-      if (hours.open === hours.close) {
-        return `${dayNames[index]}: 24/7`;
+      if (hours.is24Hours || hours.open === hours.close) {
+        return {
+          day: dayNames[index],
+          schedule: "24/7 Open",
+          is24Hours: true,
+          status: "24hours"
+        };
       }
-      return `${dayNames[index]}: ${hours.open} - ${hours.close}`;
+      return {
+        day: dayNames[index],
+        schedule: `${hours.open} - ${hours.close}`,
+        is24Hours: false,
+        status: "open"
+      };
     });
   };
 
@@ -227,7 +242,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
 
           {/* Right Column - Services and Hours */}
           <div className="space-y-4">
-            {/* Working Hours */}
+            {/* Detailed Working Hours */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -237,10 +252,24 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {formatWorkingHours().map((schedule: string, index: number) => (
-                    <div key={index} className="flex justify-between items-center py-1">
-                      <span className="text-sm font-medium">{schedule.split(':')[0]}:</span>
-                      <span className="text-sm text-gray-600">{schedule.split(':').slice(1).join(':').trim()}</span>
+                  {formatDetailedWorkingHours().map((dayInfo, index) => (
+                    <div key={index} className="flex justify-between items-center py-2 px-3 rounded-lg bg-gray-50">
+                      <span className="text-sm font-medium text-gray-700">{dayInfo.day}</span>
+                      <div className="flex items-center gap-2">
+                        {dayInfo.status === "24hours" ? (
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            <Clock className="w-3 h-3 mr-1" />
+                            24/7 Open
+                          </Badge>
+                        ) : dayInfo.status === "closed" ? (
+                          <Badge variant="secondary">
+                            <X className="w-3 h-3 mr-1" />
+                            Closed
+                          </Badge>
+                        ) : (
+                          <span className="text-sm text-gray-600 font-medium">{dayInfo.schedule}</span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -270,7 +299,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
             )}
 
             {/* Equipment Available */}
-            {shop.equipment && shop.equipment.length > 0 && (
+            {((shop.equipment && shop.equipment.length > 0) || (shop.equipmentAvailable && shop.equipmentAvailable.length > 0)) && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -279,17 +308,77 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
-                    {shop.equipment.map((item, index) => (
-                      <Badge key={index} variant="outline" className="justify-start">
-                        <Package className="w-3 h-3 mr-1" />
-                        {item}
-                      </Badge>
+                  <div className="grid grid-cols-1 gap-3">
+                    {(shop.equipment || shop.equipmentAvailable || []).map((item, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
+                          <Package className="w-4 h-4 text-black" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{item}</p>
+                          <p className="text-sm text-gray-600">Professional grade equipment</p>
+                        </div>
+                      </div>
                     ))}
+                    
+                    {(!shop.equipment || shop.equipment.length === 0) && (!shop.equipmentAvailable || shop.equipmentAvailable.length === 0) && (
+                      <div className="text-center py-4 text-gray-500">
+                        <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Equipment information not specified</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             )}
+            
+            {/* Shop Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Building className="w-5 h-5 text-brand-yellow" />
+                  Shop Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {shop.completeAddress && (
+                  <div>
+                    <p className="font-medium text-gray-900 mb-1">Complete Address</p>
+                    <p className="text-sm text-gray-600">{shop.completeAddress}</p>
+                  </div>
+                )}
+                
+                {shop.email && (
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-gray-500" />
+                    <div>
+                      <p className="font-medium text-gray-900">Email</p>
+                      <p className="text-sm text-gray-600">{shop.email}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {shop.ownerFullName && shop.ownerFullName !== shop.publicOwnerName && (
+                  <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <div>
+                      <p className="font-medium text-gray-900">Owner Full Name</p>
+                      <p className="text-sm text-gray-600">{shop.ownerFullName}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {shop.formationYear && (
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <div>
+                      <p className="font-medium text-gray-900">Established</p>
+                      <p className="text-sm text-gray-600">{shop.formationYear}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
