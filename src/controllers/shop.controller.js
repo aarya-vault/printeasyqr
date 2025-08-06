@@ -69,17 +69,29 @@ class ShopController {
   static async getShopByOwnerId(req, res) {
     try {
       const ownerId = parseInt(req.params.ownerId);
+      console.log('🔍 Getting shop for owner ID:', ownerId);
+      
       const shop = await Shop.findOne({
         where: { ownerId },
         include: [{ model: User, as: 'owner' }]
       });
       
       if (!shop) {
+        console.log('❌ Shop not found for owner:', ownerId);
         return res.status(404).json({ message: 'Shop not found' });
       }
       
+      console.log('✅ Shop found:', { 
+        id: shop.id, 
+        name: shop.name, 
+        services: shop.services,
+        equipment: shop.equipment 
+      });
+      
       const transformedShop = ShopController.transformShopData(shop);
-      res.json({ shop: transformedShop });
+      
+      // Return the shop data directly (not nested in "shop" property)
+      res.json(transformedShop);
     } catch (error) {
       console.error('Get shop error:', error);
       res.status(500).json({ message: 'Failed to get shop' });

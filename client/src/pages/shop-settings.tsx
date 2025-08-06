@@ -45,13 +45,25 @@ export default function ShopSettings() {
   const [loading, setLoading] = useState(false);
 
   // Fetch shop details
-  const { data: shop, isLoading } = useQuery({
+  const { data: shop, isLoading, error } = useQuery({
     queryKey: [`/api/shops/owner/${user?.id}`],
     queryFn: async () => {
       if (!user?.id) return null;
-      const response = await fetch(`/api/shops/owner/${user.id}`);
-      if (!response.ok) throw new Error('Failed to fetch shop details');
-      return response.json();
+      console.log('🔍 Fetching shop details for user:', user.id);
+      const response = await fetch(`/api/shops/owner/${user.id}`, {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        console.error('Failed to fetch shop details:', response.status);
+        throw new Error('Failed to fetch shop details');
+      }
+      const data = await response.json();
+      console.log('✅ Shop data received:', data);
+      return data;
     },
     enabled: !!user?.id
   });
@@ -112,7 +124,11 @@ export default function ShopSettings() {
       console.log('🔍 Sending shop settings update:', formData);
       const response = await fetch('/api/shops/settings', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+        },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
       if (!response.ok) {

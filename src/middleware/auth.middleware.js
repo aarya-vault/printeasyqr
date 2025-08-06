@@ -41,7 +41,13 @@ const requireAuth = async (req, res, next) => {
       });
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const decoded = verifyToken(token);
+    let decoded;
+    try {
+      decoded = verifyToken(token);
+    } catch (error) {
+      console.log('❌ JWT decode failed:', error.message);
+      decoded = null;
+    }
     
     if (!decoded) {
       console.log('❌ JWT decode failed, checking if this is a session token...');
