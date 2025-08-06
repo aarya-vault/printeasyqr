@@ -621,7 +621,7 @@ export default function ComprehensiveApplicationPage() {
                         // Auto-fetch city and state when PIN code is complete
                         if (formatted.length === 6) {
                           try {
-                            const response = await fetch(`/api/pincode/location/${formatted}`);
+                            const response = await fetch(`/api/pincode/lookup/${formatted}`);
                             const result = await response.json();
                             
                             if (result.success && result.data) {

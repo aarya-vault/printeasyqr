@@ -87,12 +87,7 @@ export default function ShopAnalyticsView({ shops }: ShopAnalyticsViewProps) {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-xl">{shop.name}</CardTitle>
-                    <p className="text-sm text-medium-gray mt-1">
-                      {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
-                        ? `${shop.city}, ${shop.state}`
-                        : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
-                      }
-                    </p>
+                    <p className="text-sm text-medium-gray mt-1">{shop.city}, {shop.state}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className={`w-2 h-2 rounded-full ${shop.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></div>

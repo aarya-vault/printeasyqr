@@ -16,9 +16,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { 
   Store, User, Settings, CheckCircle, ArrowLeft, ArrowRight, 
-  Plus, Clock, Phone, Mail, MapPin, Briefcase, Loader2
+  Plus, Clock, Phone, Mail, MapPin, Briefcase
 } from 'lucide-react';
-import { usePincodeAutoComplete } from '@/hooks/usePincodeAutoComplete';
 
 // Multi-step form schemas
 const shopInfoSchema = z.object({
@@ -126,9 +125,6 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
   const [servicesData, setServicesData] = useState<ServicesForm | null>(null);
   const [customService, setCustomService] = useState('');
   const [customEquipment, setCustomEquipment] = useState('');
-  
-  // Pincode auto-complete hook
-  const { fetchLocationFromPincode, isLoading: pincodeLoading, error: pincodeError } = usePincodeAutoComplete();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -1022,108 +1018,6 @@ export default function ComprehensiveShopApplication({ onComplete }: Comprehensi
                           </FormItem>
                         )}
                       />
-                    </div>
-
-                    {/* Location Fields with Pincode Auto-Complete */}
-                    <div className="space-y-4">
-                      <div className="border-b pb-2">
-                        <h3 className="text-lg font-semibold text-brand-yellow flex items-center space-x-2">
-                          <MapPin className="w-5 h-5" />
-                          <span>Location Details</span>
-                        </h3>
-                        <p className="text-sm text-medium-gray">Enter pincode to auto-fetch city and state</p>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4">
-                        <FormField
-                          control={finalForm.control}
-                          name="pinCode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center space-x-2">
-                                <span>Pincode</span>
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input 
-                                    placeholder="e.g., 400001"
-                                    maxLength={6}
-                                    {...field}
-                                    onChange={async (e) => {
-                                      const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
-                                      field.onChange(value);
-                                      
-                                      // Auto-fetch location when pincode is 6 digits
-                                      if (value.length === 6) {
-                                        console.log('🔍 Auto-fetching location for pincode:', value);
-                                        const locationData = await fetchLocationFromPincode(value);
-                                        if (locationData) {
-                                          // Auto-fill city and state
-                                          finalForm.setValue('city', locationData.city);
-                                          finalForm.setValue('state', locationData.state);
-                                        }
-                                      }
-                                    }}
-                                    className={`${pincodeError ? 'border-red-500' : ''}`}
-                                  />
-                                  {pincodeLoading && (
-                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                      <Loader2 className="w-4 h-4 animate-spin text-brand-yellow" />
-                                    </div>
-                                  )}
-                                </div>
-                              </FormControl>
-                              {pincodeError && (
-                                <p className="text-sm text-red-500 mt-1">{pincodeError}</p>
-                              )}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={finalForm.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center space-x-2">
-                                <span>City</span>
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Auto-filled from pincode"
-                                  {...field}
-                                  className="bg-gray-50"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={finalForm.control}
-                          name="state"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center space-x-2">
-                                <span>State</span>
-                                <span className="text-red-500">*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Auto-filled from pincode"
-                                  {...field}
-                                  className="bg-gray-50"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
                     </div>
 
                     <FormField

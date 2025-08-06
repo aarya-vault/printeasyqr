@@ -326,9 +326,7 @@ export function EnhancedAdminAnalytics() {
                         <div className="font-medium text-rich-black">{shop.name}</div>
                         <div className="flex items-center gap-2 text-xs text-medium-gray">
                           <MapPin className="w-3 h-3" />
-                          {shop.city && shop.city !== 'Unknown' ? shop.city : 
-                            shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location N/A'
-                          }
+                          {shop.city}
                         </div>
                       </div>
                     </div>

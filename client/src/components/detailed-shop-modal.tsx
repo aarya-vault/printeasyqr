@@ -11,7 +11,6 @@ import {
   Mail, User, Building, Settings
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
 interface Shop {
   id: number;
@@ -21,7 +20,6 @@ interface Shop {
   city: string;
   state: string;
   phone: string;
-  pinCode?: string;
   publicOwnerName?: string;
   publicContactNumber?: string;
   services?: string[];
@@ -136,13 +134,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                   <div>
                     <p className="font-medium">Address</p>
                     <p className="text-sm text-gray-600">{shop.address}</p>
-                    <LocationDisplay 
-                      city={shop.city} 
-                      state={shop.state} 
-                      pincode={shop.pinCode}
-                      className="text-sm text-gray-600"
-                      showPincode={false}
-                    />
+                    <p className="text-sm text-gray-600">{shop.city}, {shop.state}</p>
                   </div>
                 </div>
                 

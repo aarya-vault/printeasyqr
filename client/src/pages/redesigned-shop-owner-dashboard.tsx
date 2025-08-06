@@ -8,14 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Separator } from '@/components/ui/separator';
 import { printFile, printAllFiles } from '@/utils/print-helpers';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 import {
@@ -42,17 +34,7 @@ import {
   Power,
   Zap,
   BarChart3,
-  Activity,
-  TrendingUp,
-  DollarSign,
-  Star,
-  ArrowUp,
-  ArrowDown,
-  Repeat,
-  UserCheck,
-  PieChart,
-  ChevronDown,
-  ChevronUp
+  Activity
 } from 'lucide-react';
 import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
@@ -89,63 +71,6 @@ interface DashboardStats {
   avgProcessingTime: string;
 }
 
-// Analytics interface for integrated analytics
-interface ShopAnalytics {
-  shop: {
-    id: number;
-    name: string;
-    city: string;
-    state: string;
-    rating: number;
-    totalOrders: number;
-  };
-  summary: {
-    totalOrders: number;
-    totalRevenue: number;
-    uniqueCustomers: number;
-    completionRate: number;
-    repeatCustomerRate: number;
-    avgOrderValue: number;
-    avgCompletionTime: string;
-  };
-  orderStats: {
-    new: number;
-    processing: number;
-    ready: number;
-    completed: number;
-    cancelled: number;
-    lastWeek: number;
-    lastMonth: number;
-  };
-  customerStats: {
-    total: number;
-    active30Days: number;
-    active7Days: number;
-    repeatCustomers: number;
-    repeatRate: number;
-  };
-  performance: {
-    urgentOrders: number;
-    walkinOrders: number;
-    digitalOrders: number;
-    avgCompletionTime: number;
-    completionRate: number;
-  };
-  growth: {
-    monthlyOrderGrowth: number;
-    trending: 'up' | 'down' | 'stable';
-  };
-  repeatCustomers: Array<{
-    customer_id: number;
-    customer_name: string;
-    customer_phone: string;
-    order_count: number;
-    total_spent: number;
-    last_order_date: string;
-    loyaltyLevel: 'VIP' | 'Regular' | 'New';
-  }>;
-}
-
 export default function RedesignedShopOwnerDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -158,8 +83,6 @@ export default function RedesignedShopOwnerDashboard() {
   const [showUnifiedChat, setShowUnifiedChat] = useState(false);
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showCustomerInsights, setShowCustomerInsights] = useState(false);
 
   // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
@@ -180,37 +103,6 @@ export default function RedesignedShopOwnerDashboard() {
     staleTime: 15000, // 15 seconds
     gcTime: 60000, // 1 minute
     retry: 2,
-  });
-
-  // Integrated Analytics Query - JWT-based authentication
-  const { data: analytics, isLoading: analyticsLoading } = useQuery<ShopAnalytics>({
-    queryKey: [`/api/shop-owner/shop/${shopData?.shop?.id}/analytics`],
-    queryFn: async () => {
-      if (!shopData?.shop?.id) return null;
-      
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        throw new Error('No authentication token found');
-      }
-      
-      const response = await fetch(`/api/shop-owner/shop/${shopData.shop.id}/analytics`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Analytics failed: ${response.status}`);
-      }
-      
-      return response.json();
-    },
-    enabled: Boolean(shopData?.shop?.id && user?.id && user?.role === 'shop_owner' && !authLoading),
-    retry: 2,
-    staleTime: 300000, // 5 minutes for analytics
   });
 
   // Calculate order statistics efficiently with real insights
@@ -700,7 +592,15 @@ export default function RedesignedShopOwnerDashboard() {
                   <History className="w-4 h-4 mr-2" />
                   Order History
                 </Button>
-                {/* Analytics button removed - now integrated in dashboard */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/shop-analytics')}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -797,123 +697,6 @@ export default function RedesignedShopOwnerDashboard() {
             subtitle="Average time"
           />
         </div>
-
-        {/* Business Analytics - Minimal Button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => setShowAnalytics(true)}
-            variant="outline"
-            className="w-full md:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            View Business Analytics
-            {analyticsLoading && <LoadingSpinner size="sm" className="ml-2" />}
-          </Button>
-        </div>
-
-        {/* Business Analytics Modal */}
-        <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-[#FFBF00]" />
-                Business Analytics
-              </DialogTitle>
-              <DialogDescription>
-                Customer insights and business metrics for your shop
-              </DialogDescription>
-            </DialogHeader>
-            
-            {analyticsLoading ? (
-              <div className="text-center py-12">
-                <LoadingSpinner />
-                <p className="text-gray-500 mt-4">Loading business insights...</p>
-              </div>
-            ) : analytics ? (
-              <div className="space-y-6">
-                {/* Key Customer Metrics - No Revenue */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Total Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
-                      </div>
-                      <Users className="w-8 h-8 text-[#FFBF00]" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Unique Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
-                      </div>
-                      <UserCheck className="w-8 h-8 text-[#FFBF00]" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Repeat Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.repeatCustomers || 0}</p>
-                      </div>
-                      <Repeat className="w-8 h-8 text-[#FFBF00]" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Customer Activity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Activity className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Customer Activity
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Active (Last 7 Days)</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active7Days || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Active (Last 30 Days)</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active30Days || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Repeat Rate</span>
-                        <span className="font-bold text-black text-lg">{analytics.summary?.repeatCustomerRate || 0}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <CheckCircle2 className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Order Completion
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Completion Rate</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.summary?.completionRate || 0}%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Avg. Completion Time</span>
-                        <span className="font-bold text-black text-lg">{analytics.summary?.avgCompletionTime || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">No Analytics Data</p>
-                <p className="text-sm">Start receiving orders to see business insights</p>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
 
 
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { 
   Printer, ArrowRight, CheckCircle, Clock, Shield, 
   Users, MapPin, Smartphone, FileText, Star,
   Building2, Award, Zap, HeadphonesIcon, Upload,
   MessageCircle, Search, Camera, Download, Eye,
   ChevronRight, Phone, Mail, Globe, CheckCircle2,
-  Timer, Headphones, QrCode, User, Store, ExternalLink
+  Timer, Headphones, QrCode, User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,9 +17,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 import QRScanner from '@/components/qr-scanner';
-import { useQuery } from '@tanstack/react-query';
-import { Badge } from '@/components/ui/badge';
 
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
@@ -32,7 +31,6 @@ export default function NewHomepage() {
   const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-
 
   // Auto-fill customer phone from persistent data
   useEffect(() => {
@@ -433,14 +431,6 @@ export default function NewHomepage() {
                   <Smartphone className="w-5 h-5 mr-2" />
                   Login Now
                 </Button>
-                <Button 
-                  onClick={() => navigate('/browse-shops')}
-                  variant="outline"
-                  className="w-full sm:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black px-6 py-3"
-                >
-                  <Store className="w-5 h-5 mr-2" />
-                  Browse Shops
-                </Button>
               </div>
             </div>
           </div>
@@ -526,21 +516,11 @@ export default function NewHomepage() {
                   <User className="w-5 h-5 mr-2" />
                   Customer Login
                 </Button>
-                <Button 
-                  onClick={() => navigate('/browse-shops')}
-                  variant="outline"
-                  className="w-full sm:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black px-6 py-3"
-                >
-                  <Store className="w-5 h-5 mr-2" />
-                  Browse Shops
-                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-
 
       
       {/* Beautiful Redesigned Footer */}

@@ -24,7 +24,6 @@ import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-ma
 import ShopApplicationEditModal from "@/components/shop-application-edit-modal";
 import EnhancedAdminAnalytics from "@/components/enhanced-admin-analytics";
 import CompleteAdminShopEdit from './complete-admin-shop-edit';
-import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
 
 
@@ -361,12 +360,7 @@ export default function EnhancedAdminDashboard() {
                           <div className="space-y-1 text-sm text-medium-gray">
                             <p>Applicant: {application.ownerFullName || application.applicant?.name || 'Name not provided'}</p>
                             <p>Email: {application.email}</p>
-                            <p>Location: <LocationDisplay 
-                              city={application.city} 
-                              state={application.state} 
-                              pincode={application.pinCode}
-                              className=""
-                            /></p>
+                            <p>Location: {application.city || application.publicAddress?.split(',')[1]?.trim() || 'Not specified'}, {application.state || application.publicAddress?.split(',')[2]?.trim() || 'Not specified'}</p>
                             <p>Experience: {application.formationYear ? new Date().getFullYear() - application.formationYear : 'Not specified'} years</p>
                             <p>Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
                           </div>
@@ -919,12 +913,7 @@ export default function EnhancedAdminDashboard() {
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Location:</span>
-                                  <LocationDisplay 
-                                    city={shop.city} 
-                                    state={shop.state} 
-                                    pincode={shop.pinCode}
-                                    className="ml-2"
-                                  />
+                                  <span className="ml-2">{shop.city || 'Not specified'}, {shop.state || 'Not specified'}</span>
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Orders:</span>

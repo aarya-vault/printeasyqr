@@ -71,12 +71,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               <div>
                 <p className="text-sm text-medium-gray">Public Address</p>
                 <p className="font-medium">{shop.address}</p>
-                <p className="text-sm">
-                  {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
-                    ? `${shop.city}, ${shop.state}${shop.pinCode ? ` - ${shop.pinCode}` : ''}`
-                    : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
-                  }
-                </p>
+                <p className="text-sm">{shop.city}, {shop.state} - {shop.pinCode}</p>
               </div>
               <div>
                 <p className="text-sm text-medium-gray">Public Contact</p>

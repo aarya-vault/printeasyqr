@@ -123,10 +123,7 @@ export default function ShopQRModal({ shop, onClose }: ShopQRModalProps) {
               {/* Shop Details */}
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-rich-black mb-2">{shop.name}</h2>
-                <p className="text-medium-gray">
-                  {shop.address}{shop.city && shop.city !== 'Unknown' ? `, ${shop.city}` : ''}
-                  {shop.state && shop.state !== 'Unknown' && shop.city && shop.city !== 'Unknown' ? `, ${shop.state}` : ''}
-                </p>
+                <p className="text-medium-gray">{shop.address}, {shop.city}</p>
                 <p className="text-medium-gray mt-2 flex items-center justify-center">
                   <span className="text-xl mr-2">📞</span>
                   {shop.publicContactNumber || shop.phone}
