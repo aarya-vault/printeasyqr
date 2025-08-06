@@ -92,7 +92,7 @@ const ShopApplication = sequelize.define('ShopApplication', {
   },
   equipment: {
     type: DataTypes.JSONB,
-    allowNull: false,
+    allowNull: true, // Equipment is now truly optional
     defaultValue: []
   },
   customEquipment: {

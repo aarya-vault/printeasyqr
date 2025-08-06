@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { 
   Settings, Clock, Users, MapPin, Phone, Mail, 
   Save, Eye, EyeOff, Briefcase, CheckCircle, AlertCircle
@@ -36,13 +37,13 @@ const shopSettingsSchema = z.object({
   
   // Working Hours
   workingHours: z.object({
-    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
-    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
+    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean(), is24Hours: z.boolean().default(false) }),
   }),
   
   // Settings
@@ -425,57 +426,97 @@ export default function ShopSettings() {
                       <FormItem>
                         <div className="space-y-4">
                           {Object.entries(field.value).map(([day, hours]) => (
-                            <div key={day} className="flex items-center space-x-4 p-4 border rounded-md">
-                              <div className="w-24 font-medium capitalize">{day}</div>
-                              <Switch
-                                checked={!hours.closed}
-                                onCheckedChange={(checked) => {
-                                  if (isEditing) {
-                                    field.onChange({
-                                      ...field.value,
-                                      [day]: { ...hours, closed: !checked }
-                                    });
-                                  }
-                                }}
-                                disabled={!isEditing}
-                                className="data-[state=checked]:bg-brand-yellow"
-                              />
-                              <span className="text-sm w-16">
-                                {hours.closed ? 'Closed' : 'Open'}
-                              </span>
-                              {!hours.closed && (
-                                <>
-                                  <Input
-                                    type="time"
-                                    value={hours.open}
-                                    onChange={(e) => {
-                                      if (isEditing) {
-                                        field.onChange({
-                                          ...field.value,
-                                          [day]: { ...hours, open: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    disabled={!isEditing}
-                                    className="w-28"
-                                  />
-                                  <span className="text-medium-gray">to</span>
-                                  <Input
-                                    type="time"
-                                    value={hours.close}
-                                    onChange={(e) => {
-                                      if (isEditing) {
-                                        field.onChange({
-                                          ...field.value,
-                                          [day]: { ...hours, close: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    disabled={!isEditing}
-                                    className="w-28"
-                                  />
-                                </>
-                              )}
+                            <div key={day} className="p-4 border rounded-md">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                  <div className="w-24 font-medium capitalize">{day}</div>
+                                  <div className="flex items-center space-x-4">
+                                    <div className="flex items-center space-x-2">
+                                      <Switch
+                                        checked={!hours.closed}
+                                        onCheckedChange={(checked) => {
+                                          if (isEditing) {
+                                            field.onChange({
+                                              ...field.value,
+                                              [day]: { ...hours, closed: !checked, is24Hours: !checked ? (hours.is24Hours || false) : false }
+                                            });
+                                          }
+                                        }}
+                                        disabled={!isEditing}
+                                        className="data-[state=checked]:bg-brand-yellow"
+                                      />
+                                      <span className="text-sm w-16">
+                                        {hours.closed ? 'Closed' : 'Open'}
+                                      </span>
+                                    </div>
+                                    {!hours.closed && (
+                                      <div className="flex items-center space-x-2">
+                                        <Switch
+                                          checked={hours.is24Hours || false}
+                                          onCheckedChange={(checked) => {
+                                            if (isEditing) {
+                                              field.onChange({
+                                                ...field.value,
+                                                [day]: { 
+                                                  ...hours, 
+                                                  is24Hours: checked,
+                                                  open: checked ? '00:00' : (hours.open || '09:00'),
+                                                  close: checked ? '23:59' : (hours.close || '18:00')
+                                                }
+                                              });
+                                            }
+                                          }}
+                                          disabled={!isEditing}
+                                          className="data-[state=checked]:bg-brand-yellow"
+                                        />
+                                        <span className="text-sm text-brand-yellow font-medium">24/7</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {!hours.closed && !hours.is24Hours && (
+                                  <div className="flex items-center space-x-2">
+                                    <Input
+                                      type="time"
+                                      value={hours.open}
+                                      onChange={(e) => {
+                                        if (isEditing) {
+                                          field.onChange({
+                                            ...field.value,
+                                            [day]: { ...hours, open: e.target.value }
+                                          });
+                                        }
+                                      }}
+                                      disabled={!isEditing}
+                                      className="w-28"
+                                    />
+                                    <span className="text-medium-gray">to</span>
+                                    <Input
+                                      type="time"
+                                      value={hours.close}
+                                      onChange={(e) => {
+                                        if (isEditing) {
+                                          field.onChange({
+                                            ...field.value,
+                                            [day]: { ...hours, close: e.target.value }
+                                          });
+                                        }
+                                      }}
+                                      disabled={!isEditing}
+                                      className="w-28"
+                                    />
+                                  </div>
+                                )}
+                                
+                                {!hours.closed && hours.is24Hours && (
+                                  <div className="flex items-center">
+                                    <Badge variant="outline" className="border-brand-yellow text-brand-yellow">
+                                      Open 24 Hours
+                                    </Badge>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>

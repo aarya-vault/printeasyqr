@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -41,13 +42,13 @@ interface ShopApplication {
   customEquipment?: string[];
   yearsOfExperience: string;
   workingHours: {
-    monday: { open: string; close: string; closed?: boolean };
-    tuesday: { open: string; close: string; closed?: boolean };
-    wednesday: { open: string; close: string; closed?: boolean };
-    thursday: { open: string; close: string; closed?: boolean };
-    friday: { open: string; close: string; closed?: boolean };
-    saturday: { open: string; close: string; closed?: boolean };
-    sunday: { open: string; close: string; closed?: boolean };
+    monday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    tuesday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    wednesday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    thursday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    friday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    saturday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
+    sunday: { open: string; close: string; closed?: boolean; is24Hours?: boolean };
   };
   acceptsWalkinOrders: boolean;
   status: 'pending' | 'approved' | 'rejected';
@@ -120,9 +121,9 @@ export default function ShopApplicationEditModal({
     }
   };
 
-  const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed', value: string | boolean) => {
+  const updateWorkingHours = (day: string, field: 'open' | 'close' | 'closed' | 'is24Hours', value: string | boolean) => {
     const dayKey = day.toLowerCase() as keyof typeof editingApplication.workingHours;
-    const currentDayHours = editingApplication.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false };
+    const currentDayHours = editingApplication.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
     
     setEditingApplication({
       ...editingApplication,
@@ -437,7 +438,8 @@ export default function ShopApplicationEditModal({
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Equipment Available</CardTitle>
+                    <CardTitle>Equipment Available (Optional)</CardTitle>
+                    <p className="text-sm text-medium-gray">Select equipment available at your shop (optional)</p>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-3 gap-2">
@@ -445,7 +447,7 @@ export default function ShopApplicationEditModal({
                         <label key={equipment} className="flex items-center space-x-2 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={editingApplication.equipment.includes(equipment)}
+                            checked={editingApplication.equipment?.includes(equipment) || false}
                             onChange={() => toggleEquipment(equipment)}
                             className="rounded"
                           />
@@ -486,34 +488,70 @@ export default function ShopApplicationEditModal({
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {dayNames.map((day) => {
-                      const dayHours = editingApplication.workingHours[day.key as keyof typeof editingApplication.workingHours] || { open: '09:00', close: '18:00', closed: false };
+                      const dayHours = editingApplication.workingHours[day.key as keyof typeof editingApplication.workingHours] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
                       return (
-                        <div key={day.key} className="flex items-center space-x-4 p-3 border rounded-lg">
-                          <div className="w-20 font-medium">{day.label}</div>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              checked={!dayHours.closed}
-                              onCheckedChange={(checked) => updateWorkingHours(day.key, 'closed', !checked)}
-                            />
-                            <span className="text-sm">{dayHours.closed ? 'Closed' : 'Open'}</span>
+                        <div key={day.key} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-20 font-medium">{day.label}</div>
+                              <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={!dayHours.closed}
+                                    onCheckedChange={(checked) => {
+                                      updateWorkingHours(day.key, 'closed', !checked);
+                                      if (!checked) {
+                                        updateWorkingHours(day.key, 'is24Hours', false);
+                                      }
+                                    }}
+                                  />
+                                  <span className="text-sm">{dayHours.closed ? 'Closed' : 'Open'}</span>
+                                </div>
+                                {!dayHours.closed && (
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      checked={dayHours.is24Hours || false}
+                                      onCheckedChange={(checked) => {
+                                        updateWorkingHours(day.key, 'is24Hours', checked);
+                                        if (checked) {
+                                          updateWorkingHours(day.key, 'open', '00:00');
+                                          updateWorkingHours(day.key, 'close', '23:59');
+                                        }
+                                      }}
+                                      className="data-[state=checked]:bg-brand-yellow"
+                                    />
+                                    <span className="text-sm text-brand-yellow font-medium">24/7</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {!dayHours.closed && !dayHours.is24Hours && (
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="time"
+                                  value={dayHours.open}
+                                  onChange={(e) => updateWorkingHours(day.key, 'open', e.target.value)}
+                                  className="w-32"
+                                />
+                                <span>to</span>
+                                <Input
+                                  type="time"
+                                  value={dayHours.close}
+                                  onChange={(e) => updateWorkingHours(day.key, 'close', e.target.value)}
+                                  className="w-32"
+                                />
+                              </div>
+                            )}
+                            
+                            {!dayHours.closed && dayHours.is24Hours && (
+                              <div className="flex items-center">
+                                <Badge variant="outline" className="border-brand-yellow text-brand-yellow">
+                                  Open 24 Hours
+                                </Badge>
+                              </div>
+                            )}
                           </div>
-                          {!dayHours.closed && (
-                            <>
-                              <Input
-                                type="time"
-                                value={dayHours.open}
-                                onChange={(e) => updateWorkingHours(day.key, 'open', e.target.value)}
-                                className="w-32"
-                              />
-                              <span>to</span>
-                              <Input
-                                type="time"
-                                value={dayHours.close}
-                                onChange={(e) => updateWorkingHours(day.key, 'close', e.target.value)}
-                                className="w-32"
-                              />
-                            </>
-                          )}
                         </div>
                       );
                     })}
