@@ -137,7 +137,7 @@ export default function AnonymousVisitorBrowseShops() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8">
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
@@ -205,17 +205,17 @@ export default function AnonymousVisitorBrowseShops() {
           </div>
         ) : filteredShops.length > 0 ? (
           /* Shops Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredShops.map((shop: Shop) => (
               <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer" onClick={() => handleShopClick(shop)}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-black text-lg mb-1">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-black text-base sm:text-lg mb-1 truncate">
                         {shop.name}
                       </h3>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600 mb-2">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                         <span className="truncate">
                           {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
                             ? `${shop.city}, ${shop.state}`
@@ -224,39 +224,38 @@ export default function AnonymousVisitorBrowseShops() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end space-y-2">
+                    <div className="flex flex-col items-end space-y-1 sm:space-y-2 flex-shrink-0 ml-2">
                       {shop.isOnline ? (
-                        <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
-                          <CheckCircle className="w-3 h-3 mr-1" />
+                        <Badge className="bg-green-100 text-green-800 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
+                          <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           Online
                         </Badge>
                       ) : (
-                        <Badge className="bg-gray-100 text-gray-800 text-xs px-2 py-1">
-                          <AlertCircle className="w-3 h-3 mr-1" />
+                        <Badge className="bg-gray-100 text-gray-800 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
+                          <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           Offline
                         </Badge>
                       )}
-                      {shop.rating > 0 && (
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Star className="w-3 h-3 fill-[#FFBF00] text-[#FFBF00] mr-1" />
-                          {shop.rating.toFixed(1)}
-                        </div>
+                      {shop.acceptsWalkinOrders && (
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs bg-blue-100 text-blue-800 px-1.5 sm:px-2 py-0.5 sm:py-1">
+                          Walk-ins
+                        </Badge>
                       )}
                     </div>
                   </div>
                   
                   {/* Services */}
                   {shop.services && shop.services.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-700 mb-2">Services:</p>
+                    <div className="mb-3 sm:mb-4">
+                      <p className="text-[10px] sm:text-xs font-medium text-gray-700 mb-1.5 sm:mb-2">Services:</p>
                       <div className="flex flex-wrap gap-1">
                         {shop.services.slice(0, 3).map((service: string, index: number) => (
-                          <span key={index} className="text-xs bg-[#FFBF00]/10 text-gray-700 px-2 py-1 rounded border border-[#FFBF00]/20">
+                          <span key={index} className="text-[10px] sm:text-xs bg-[#FFBF00]/10 text-gray-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded border border-[#FFBF00]/20">
                             {service}
                           </span>
                         ))}
                         {shop.services.length > 3 && (
-                          <span className="text-xs text-gray-500 px-2 py-1">
+                          <span className="text-[10px] sm:text-xs text-gray-500 px-1.5 sm:px-2 py-0.5 sm:py-1">
                             +{shop.services.length - 3} more
                           </span>
                         )}
@@ -265,13 +264,13 @@ export default function AnonymousVisitorBrowseShops() {
                   )}
 
                   {/* Experience & Orders */}
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                     <div className="flex items-center">
-                      <Award className="w-4 h-4 mr-1" />
+                      <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span>{shop.yearsOfExperience || 0} years exp.</span>
                     </div>
                     <div className="flex items-center">
-                      <Building2 className="w-4 h-4 mr-1" />
+                      <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       <span>{shop.totalOrders || 0} orders</span>
                     </div>
                   </div>
@@ -283,9 +282,9 @@ export default function AnonymousVisitorBrowseShops() {
                         e.stopPropagation();
                         handleStartOrdering(shop);
                       }}
-                      className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                      className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium text-xs sm:text-sm py-2"
                     >
-                      <Printer className="w-4 h-4 mr-2" />
+                      <Printer className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Login to Print
                     </Button>
                     <Button
@@ -294,9 +293,9 @@ export default function AnonymousVisitorBrowseShops() {
                         handleShopClick(shop);
                       }}
                       variant="outline"
-                      className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                      className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00] text-xs sm:text-sm py-2"
                     >
-                      <ExternalLink className="w-4 h-4 mr-2" />
+                      <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       View Details
                     </Button>
                   </div>
@@ -329,44 +328,44 @@ export default function AnonymousVisitorBrowseShops() {
 
       {/* Shop Details Modal */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center text-xl">
-              <Store className="w-6 h-6 mr-3 text-[#FFBF00]" />
+            <DialogTitle className="flex items-center text-lg sm:text-xl">
+              <Store className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-[#FFBF00]" />
               {selectedShop?.name}
             </DialogTitle>
-            <DialogDescription className="text-base">
+            <DialogDescription className="text-sm sm:text-base">
               Complete shop information and services
             </DialogDescription>
           </DialogHeader>
           
           {selectedShop && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Status and Rating */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {selectedShop.isOnline ? (
-                    <Badge className="bg-green-100 text-green-800">
-                      <CheckCircle className="w-4 h-4 mr-2" />
+                    <Badge className="bg-green-100 text-green-800 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Online & Available
                     </Badge>
                   ) : (
-                    <Badge className="bg-gray-100 text-gray-800">
-                      <AlertCircle className="w-4 h-4 mr-2" />
+                    <Badge className="bg-gray-100 text-gray-800 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Currently Offline
                     </Badge>
                   )}
                   {selectedShop.acceptsWalkinOrders && (
-                    <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40">
+                    <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40 text-xs sm:text-sm px-2 sm:px-3 py-1">
                       Walk-in Orders
                     </Badge>
                   )}
                 </div>
                 {selectedShop.rating > 0 && (
                   <div className="flex items-center">
-                    <Star className="w-5 h-5 fill-[#FFBF00] text-[#FFBF00] mr-1" />
-                    <span className="font-semibold">{selectedShop.rating.toFixed(1)}</span>
-                    <span className="text-sm text-gray-500 ml-2">
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-[#FFBF00] text-[#FFBF00] mr-1" />
+                    <span className="font-semibold text-sm sm:text-base">{selectedShop.rating.toFixed(1)}</span>
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2">
                       ({selectedShop.totalOrders} orders)
                     </span>
                   </div>
@@ -519,22 +518,22 @@ export default function AnonymousVisitorBrowseShops() {
               <Separator />
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Button
                   onClick={() => {
                     setShowDetails(false);
                     handleStartOrdering(selectedShop);
                   }}
-                  className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                  className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium text-sm sm:text-base py-2.5 sm:py-3"
                   size="lg"
                 >
-                  <Printer className="w-5 h-5 mr-2" />
+                  <Printer className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                   Login to Print
                 </Button>
                 <Button
                   onClick={() => setShowDetails(false)}
                   variant="outline"
-                  className="flex-1 border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                  className="flex-1 border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00] text-sm sm:text-base py-2.5 sm:py-3"
                   size="lg"
                 >
                   Close Details
