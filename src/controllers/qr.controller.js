@@ -79,8 +79,19 @@ class QRController {
           return document.fonts.ready;
         });
         
-        // Small delay for rendering
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Extended delay for complete CSS and font rendering (increased from 200ms to 2000ms)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Wait for all images to load (if any)
+        await page.evaluate(() => {
+          return Promise.all([...document.images].map(img => {
+            if (img.complete) return;
+            return new Promise(resolve => {
+              img.addEventListener('load', resolve);
+              img.addEventListener('error', resolve);
+            });
+          }));
+        });
 
         // Take screenshot of body
         const bodyHandle = await page.$('body');

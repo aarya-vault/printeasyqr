@@ -80,12 +80,37 @@ export default function ShopOwnerAnalytics() {
 
   const currentShop = Array.isArray(userShops) && userShops.length > 0 ? userShops[0] : null;
 
-  // Get shop analytics
+  // Get shop analytics with explicit query function 
   const { data: analytics, isLoading: analyticsLoading, error } = useQuery<ShopAnalytics>({
     queryKey: [`/api/shop-owner/shop/${currentShop?.id}/analytics`],
+    queryFn: async () => {
+      if (!currentShop?.id) return null;
+      
+      const authToken = localStorage.getItem('authToken');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      
+      const response = await fetch(`/api/shop-owner/shop/${currentShop.id}/analytics`, {
+        method: 'GET',
+        headers,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Analytics API failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return response.json();
+    },
     enabled: !!currentShop?.id,
     retry: 3,
-    retryDelay: 1000
+    retryDelay: 1000,
+    refetchOnWindowFocus: false
   });
 
   const isLoading = shopsLoading || analyticsLoading;
