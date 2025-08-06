@@ -21,7 +21,7 @@ const BrowseShops = lazy(() => import("@/pages/browse-shops"));
 const RedesignedShopOwnerDashboard = lazy(() => import("@/pages/redesigned-shop-owner-dashboard"));
 const ShopOrderHistory = lazy(() => import("@/pages/shop-order-history"));
 const ShopOrderDetails = lazy(() => import("@/pages/shop-order-details"));
-const RedesignedShopSettings = lazy(() => import("@/pages/redesigned-shop-settings"));
+const RedesignedShopSettings = lazy(() => import("@/pages/enhanced-shop-settings"));
 const EnhancedAdminDashboard = lazy(() => import("@/pages/enhanced-admin-dashboard"));
 const AdminLogin = lazy(() => import("@/components/auth/admin-login").then(m => ({ default: m.AdminLogin })));
 const ComprehensiveApplicationPage = lazy(() => import("@/pages/comprehensive-application"));

@@ -358,15 +358,15 @@ export default function RedesignedShopOwnerDashboard() {
 
   const StatCard = ({ title, value, icon: Icon, subtitle }: any) => (
     <Card className="transition-shadow hover:shadow-md">
-      <CardContent className="p-4">
+      <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-2xl font-bold text-rich-black">{value}</p>
-            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          <div className="space-y-1 flex-1 min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{title}</p>
+            <p className="text-lg sm:text-2xl font-bold text-rich-black">{value}</p>
+            {subtitle && <p className="text-xs text-gray-500 truncate">{subtitle}</p>}
           </div>
-          <div className="p-2 bg-brand-yellow/20 rounded-lg">
-            <Icon className="w-5 h-5 text-brand-yellow" />
+          <div className="p-1.5 sm:p-2 bg-brand-yellow/20 rounded-lg ml-2">
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-yellow" />
           </div>
         </div>
       </CardContent>

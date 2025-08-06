@@ -81,9 +81,10 @@ export default function ShopOwnerAnalytics() {
   const currentShop = Array.isArray(userShops) && userShops.length > 0 ? userShops[0] : null;
 
   // Get shop analytics
-  const { data: analytics, isLoading } = useQuery<ShopAnalytics>({
+  const { data: analytics, isLoading, error } = useQuery<ShopAnalytics>({
     queryKey: [`/api/shop-owner/shop/${currentShop?.id}/analytics`],
-    enabled: !!currentShop?.id
+    enabled: !!currentShop?.id,
+    retry: 2
   });
 
   // Get customer insights
@@ -94,17 +95,41 @@ export default function ShopOwnerAnalytics() {
 
   if (isLoading || !analytics) {
     return (
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-6 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading shop analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 font-semibold mb-2">Failed to load analytics</p>
+          <p className="text-gray-600 text-sm mb-4">There was an error loading your shop analytics. This might be due to:</p>
+          <ul className="text-xs text-gray-500 text-left mb-4 space-y-1">
+            <li>• No orders in your shop yet</li>
+            <li>• Network connectivity issues</li>
+            <li>• Server maintenance</li>
+          </ul>
+          <div className="flex gap-2 justify-center">
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+            >
+              Refresh Page
+            </Button>
+            <Button 
+              onClick={() => navigate('/shop-dashboard')} 
+              variant="outline"
+            >
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
     );

@@ -421,26 +421,87 @@ class ShopController {
     }
   }
 
-  // Update shop settings
+  // Update shop settings - Enhanced with all application fields
   static async updateShopSettings(req, res) {
     try {
+      const userId = req.userId;
       const updateData = req.body;
-      const userId = req.user.id;
-      
-      // Find shop by owner ID
+
       const shop = await Shop.findOne({ where: { ownerId: userId } });
       if (!shop) {
         return res.status(404).json({ message: 'Shop not found' });
       }
+
+      // Prepare update data with all fields from enhanced settings
+      const fieldsToUpdate = {
+        // Basic Information
+        name: updateData.name,
+        publicOwnerName: updateData.publicOwnerName,
+        address: updateData.address,
+        phone: updateData.phone,
+        slug: updateData.slug,
+        
+        // Internal Information
+        internalName: updateData.internalName,
+        ownerFullName: updateData.ownerFullName,
+        email: updateData.email,
+        ownerPhone: updateData.ownerPhone,
+        completeAddress: updateData.completeAddress,
+        description: updateData.description,
+        
+        // Location
+        pinCode: updateData.pinCode,
+        city: updateData.city,
+        state: updateData.state,
+        
+        // Business Details
+        services: Array.isArray(updateData.services) ? JSON.stringify(updateData.services) : updateData.services,
+        equipment: Array.isArray(updateData.equipment) ? JSON.stringify(updateData.equipment) : updateData.equipment,
+        yearsOfExperience: updateData.yearsOfExperience ? parseInt(updateData.yearsOfExperience) : null,
+        formationYear: updateData.formationYear ? parseInt(updateData.formationYear) : null,
+        
+        // Working Hours
+        workingHours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
+        
+        // Shop Settings
+        isOnline: updateData.isOnline,
+        acceptsWalkinOrders: updateData.acceptsWalkinOrders,
+        
+        // Notifications (if supported by model)
+        notifications: typeof updateData.notifications === 'object' ? JSON.stringify(updateData.notifications) : updateData.notifications,
+      };
+
+      // Remove undefined fields
+      Object.keys(fieldsToUpdate).forEach(key => {
+        if (fieldsToUpdate[key] === undefined) {
+          delete fieldsToUpdate[key];
+        }
+      });
+
+      await shop.update(fieldsToUpdate);
       
-      // Update shop with provided data
-      await shop.update(updateData);
-      
-      const transformedShop = ShopController.transformShopData(shop);
-      res.json(transformedShop);
+      // Fetch updated shop data with owner
+      const updatedShop = await Shop.findOne({
+        where: { id: shop.id },
+        include: [
+          {
+            model: User,
+            as: 'owner',
+            attributes: ['id', 'name', 'email', 'phone']
+          }
+        ]
+      });
+
+      res.json({ 
+        message: 'Settings updated successfully', 
+        shop: ShopController.transformShopData(updatedShop) 
+      });
     } catch (error) {
       console.error('Update shop settings error:', error);
-      res.status(500).json({ message: 'Failed to update shop settings' });
+      res.status(500).json({ 
+        message: 'Failed to update settings',
+        error: error.message 
+      });
     }
   }
 }

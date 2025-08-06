@@ -23,6 +23,7 @@ import AdminUserEditModal from "@/components/admin-user-edit-modal";
 import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-management-modal";
 import ShopApplicationEditModal from "@/components/shop-application-edit-modal";
 import EnhancedAdminAnalytics from "@/components/enhanced-admin-analytics";
+import CompleteAdminShopEdit from './complete-admin-shop-edit';
 
 
 
@@ -440,37 +441,156 @@ export default function EnhancedAdminDashboard() {
                       </button>
                     </div>
 
-                    <div className="space-y-4 mb-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-rich-black">Shop Name</label>
-                          <p className="text-medium-gray">{selectedApplication.publicShopName}</p>
+                    <div className="space-y-6 mb-6">
+                      {/* Basic Information */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Basic Information</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Public Shop Name</label>
+                            <p className="text-medium-gray">{selectedApplication.publicShopName}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Public Owner Name</label>
+                            <p className="text-medium-gray">{selectedApplication.publicOwnerName || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Shop Slug</label>
+                            <p className="text-medium-gray font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                              printeasy.com/shop/{selectedApplication.shopSlug}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Public Contact</label>
+                            <p className="text-medium-gray">{selectedApplication.publicContactNumber}</p>
+                          </div>
                         </div>
-                        <div>
-                          <label className="text-sm font-medium text-rich-black">Shop Slug</label>
-                          <p className="text-medium-gray">{selectedApplication.shopSlug}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-rich-black">Applicant</label>
-                          <p className="text-medium-gray">{selectedApplication.ownerFullName || selectedApplication.applicant?.name || 'Name not provided'}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-rich-black">Email</label>
-                          <p className="text-medium-gray">{selectedApplication.email}</p>
+                        
+                        <div className="mt-4">
+                          <label className="text-sm font-medium text-rich-black">Public Address</label>
+                          <p className="text-medium-gray">{selectedApplication.publicAddress}</p>
                         </div>
                       </div>
 
+                      {/* Internal Information */}
                       <div>
-                        <label className="text-sm font-medium text-rich-black">Services Offered</label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {selectedApplication.services.map((service, index) => (
-                            <Badge key={index} variant="secondary">
-                              {service}
-                            </Badge>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Internal Information</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Internal Shop Name</label>
+                            <p className="text-medium-gray">{selectedApplication.internalShopName}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Owner Full Name</label>
+                            <p className="text-medium-gray">{selectedApplication.ownerFullName}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Email Address</label>
+                            <p className="text-medium-gray">{selectedApplication.email}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Phone Number</label>
+                            <p className="text-medium-gray">{selectedApplication.phoneNumber}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4">
+                          <label className="text-sm font-medium text-rich-black">Complete Address</label>
+                          <p className="text-medium-gray">{selectedApplication.completeAddress}</p>
+                        </div>
+                      </div>
+
+                      {/* Location Details */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Location</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">PIN Code</label>
+                            <p className="text-medium-gray font-mono">{selectedApplication.pinCode}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">City</label>
+                            <p className="text-medium-gray">{selectedApplication.city}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">State</label>
+                            <p className="text-medium-gray">{selectedApplication.state}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Business Details */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Business Information</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Formation Year</label>
+                            <p className="text-medium-gray">{selectedApplication.formationYear || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-rich-black">Years of Experience</label>
+                            <p className="text-medium-gray">{selectedApplication.yearsOfExperience || 'Not provided'} years</p>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <label className="text-sm font-medium text-rich-black">Services Offered</label>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {selectedApplication.services.map((service, index) => (
+                              <Badge key={index} variant="secondary" className="bg-brand-yellow/10 text-rich-black">
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-rich-black">Equipment Available</label>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {selectedApplication.equipment && selectedApplication.equipment.length > 0 ? (
+                              selectedApplication.equipment.map((equipment, index) => (
+                                <Badge key={index} variant="outline" className="border-brand-yellow text-rich-black">
+                                  {equipment}
+                                </Badge>
+                              ))
+                            ) : (
+                              <p className="text-gray-500 text-sm">No equipment specified</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Working Hours */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Working Hours</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
+                          {Object.entries(selectedApplication.workingHours || {}).map(([day, hours]) => (
+                            <div key={day} className="border rounded-lg p-3 bg-gray-50">
+                              <h5 className="font-medium text-rich-black capitalize mb-2">{day}</h5>
+                              {hours.closed ? (
+                                <Badge variant="secondary" className="text-xs">Closed</Badge>
+                              ) : hours.is24Hours ? (
+                                <Badge className="bg-brand-yellow text-rich-black text-xs">24/7</Badge>
+                              ) : (
+                                <p className="text-sm text-medium-gray">
+                                  {hours.open} - {hours.close}
+                                </p>
+                              )}
+                            </div>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Settings */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-rich-black mb-3 border-b border-gray-200 pb-2">Shop Settings</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-4 h-4 rounded-full ${selectedApplication.acceptsWalkinOrders ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                            <span className="text-sm text-medium-gray">
+                              {selectedApplication.acceptsWalkinOrders ? 'Accepts Walk-in Orders' : 'No Walk-in Orders'}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -508,6 +628,18 @@ export default function EnhancedAdminDashboard() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Complete Shop Edit Modal */}
+            {editingApplication && (
+              <CompleteAdminShopEdit 
+                shop={editingApplication}
+                onClose={() => setEditingApplication(null)}
+                onSave={() => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/admin/applications'] });
+                  setEditingApplication(null);
+                }}
+              />
             )}
           </TabsContent>
 
