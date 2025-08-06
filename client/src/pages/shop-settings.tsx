@@ -50,11 +50,15 @@ export default function ShopSettings() {
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     select: (data: any) => {
-      console.log('✅ Shop data received:', data);
+      console.log('🔍 RAW API Response:', JSON.stringify(data, null, 2));
       // Handle both direct shop data and nested shop format
-      return data?.shop || data;
+      const shopData = data?.shop || data;
+      console.log('✅ Selected Shop data:', JSON.stringify(shopData, null, 2));
+      return shopData;
     }
   });
+
+  console.log('🔍 REACT QUERY - shop:', shop, 'isLoading:', isLoading, 'error:', error);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -77,17 +81,22 @@ export default function ShopSettings() {
   // Initialize form data when shop data loads
   useEffect(() => {
     console.log('🔧 SETTINGS - useEffect triggered, shop:', shop);
-    if (shop) {
+    console.log('🔧 SETTINGS - shop type:', typeof shop);
+    console.log('🔧 SETTINGS - shop keys:', shop ? Object.keys(shop) : 'no keys');
+    
+    if (shop && typeof shop === 'object') {
       console.log('🔍 Shop data loaded for settings:', {
         name: shop.name,
+        publicOwnerName: shop.publicOwnerName,
+        internalName: shop.internalName,
         services: shop.services,
         equipment: shop.equipment,
         workingHours: shop.workingHours,
         email: shop.email,
         address: shop.address,
         completeAddress: shop.completeAddress,
-        publicOwnerName: shop.publicOwnerName,
-        internalName: shop.internalName,
+        phone: shop.phone,
+        ownerPhone: shop.ownerPhone,
         slug: shop.slug
       });
       
@@ -97,11 +106,11 @@ export default function ShopSettings() {
         address: shop.address || shop.completeAddress || '',
         phone: shop.phone || shop.ownerPhone || '',
         email: shop.email || '',
-        services: Array.isArray(shop.services) ? shop.services : (shop.services ? JSON.parse(shop.services) : []),
-        equipment: Array.isArray(shop.equipment) ? shop.equipment : (shop.equipment ? JSON.parse(shop.equipment) : []),
-        workingHours: typeof shop.workingHours === 'object' ? shop.workingHours : (shop.workingHours ? JSON.parse(shop.workingHours) : {}),
-        isOnline: shop.isOnline ?? true,
-        acceptingOrders: shop.acceptsWalkinOrders ?? true,
+        services: Array.isArray(shop.services) ? shop.services : [],
+        equipment: Array.isArray(shop.equipment) ? shop.equipment : [],
+        workingHours: (typeof shop.workingHours === 'object' && shop.workingHours) ? shop.workingHours : {},
+        isOnline: Boolean(shop.isOnline),
+        acceptingOrders: Boolean(shop.acceptsWalkinOrders),
         notifications: shop.notifications || {
           newOrders: true,
           statusUpdates: true,
@@ -109,7 +118,7 @@ export default function ShopSettings() {
         }
       };
       
-      console.log('🚀 SETTINGS - Setting form data:', newFormData);
+      console.log('🚀 SETTINGS - NEW FORM DATA:', JSON.stringify(newFormData, null, 2));
       setFormData(newFormData);
     }
   }, [shop]);
@@ -178,10 +187,28 @@ export default function ShopSettings() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-yellow"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FFBF00] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading shop settings...</p>
+        </div>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading shop settings</p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('🔍 RENDER - Current formData:', JSON.stringify(formData, null, 2));
 
   return (
     <div className="min-h-screen bg-gray-50">
