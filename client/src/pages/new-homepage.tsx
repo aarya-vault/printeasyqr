@@ -276,7 +276,7 @@ export default function NewHomepage() {
                 <div className="w-20 h-20 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-6">
                   <Smartphone className="w-10 h-10 text-rich-black" />
                 </div>
-                <h2 className="text-2xl font-bold mb-4">Enter PrintEasy World</h2>
+                <h2 className="text-2xl font-bold mb-4 text-[#ffbf00]">Enter PrintEasy World</h2>
                 <p className="text-gray-300 mb-6 leading-relaxed">
                   Join with your mobile number to unlock seamless printing experiences across India.
                 </p>
@@ -637,10 +637,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </section>
-
-
-
-      
       {/* Beautiful Redesigned Footer */}
       <footer className="bg-rich-black text-white relative overflow-hidden">
         {/* Background Pattern */}
@@ -782,7 +778,6 @@ export default function NewHomepage() {
           </div>
         </div>
       </footer>
-
       {/* QR Scanner Modal */}
       {showQRScanner && (
         <QRScanner
@@ -797,8 +792,6 @@ export default function NewHomepage() {
           }}
         />
       )}
-
-
     </div>
   );
 }
