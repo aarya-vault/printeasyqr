@@ -360,7 +360,10 @@ export default function EnhancedAdminDashboard() {
                           <div className="space-y-1 text-sm text-medium-gray">
                             <p>Applicant: {application.ownerFullName || application.applicant?.name || 'Name not provided'}</p>
                             <p>Email: {application.email}</p>
-                            <p>Location: {application.city || application.publicAddress?.split(',')[1]?.trim() || 'Not specified'}, {application.state || application.publicAddress?.split(',')[2]?.trim() || 'Not specified'}</p>
+                            <p>Location: {application.city && application.state && application.city !== 'Unknown' && application.state !== 'Unknown' 
+                              ? `${application.city}, ${application.state}`
+                              : application.pinCode ? `PIN: ${application.pinCode}` : 'Not specified'
+                            }</p>
                             <p>Experience: {application.formationYear ? new Date().getFullYear() - application.formationYear : 'Not specified'} years</p>
                             <p>Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
                           </div>
@@ -913,7 +916,12 @@ export default function EnhancedAdminDashboard() {
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Location:</span>
-                                  <span className="ml-2">{shop.city || 'Not specified'}, {shop.state || 'Not specified'}</span>
+                                  <span className="ml-2">
+                                    {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                                      ? `${shop.city}, ${shop.state}`
+                                      : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Not specified'
+                                    }
+                                  </span>
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Orders:</span>

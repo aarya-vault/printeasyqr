@@ -62,7 +62,12 @@ export function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                 <MapPin className="w-4 h-4 text-brand-yellow" />
                 <div>
                   <p className="text-sm font-medium">Location</p>
-                  <p className="text-sm text-gray-600">{shop.city}</p>
+                  <p className="text-sm text-gray-600">
+                    {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                      ? `${shop.city}, ${shop.state}`
+                      : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
+                    }
+                  </p>
                   <p className="text-xs text-gray-500">{shop.address}</p>
                 </div>
               </div>

@@ -259,7 +259,10 @@ export default function BrowseShops() {
                       <div className="flex items-center text-sm text-gray-600 mb-2">
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
                         <span className="truncate">
-                          {shop.city}, {shop.state}
+                          {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                            ? `${shop.city}, ${shop.state}`
+                            : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
+                          }
                         </span>
                       </div>
                     </div>
@@ -419,7 +422,12 @@ export default function BrowseShops() {
                     <Building2 className="w-4 h-4 mr-3 mt-0.5 text-gray-500 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-gray-900">{selectedShop.completeAddress || selectedShop.address}</p>
-                      <p className="text-sm text-gray-600">{selectedShop.city}, {selectedShop.state} - {selectedShop.pinCode}</p>
+                      <p className="text-sm text-gray-600">
+                        {selectedShop.city && selectedShop.state && selectedShop.city !== 'Unknown' && selectedShop.state !== 'Unknown' 
+                          ? `${selectedShop.city}, ${selectedShop.state}${selectedShop.pinCode ? ` - ${selectedShop.pinCode}` : ''}`
+                          : selectedShop.pinCode ? `PIN: ${selectedShop.pinCode}` : 'Location not available'
+                        }
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">

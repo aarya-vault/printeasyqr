@@ -69,7 +69,12 @@ export default function ShopContactModal({ shop, onClose }: ShopContactModalProp
                 <div>
                   <p className="text-sm text-medium-gray">Location</p>
                   <p className="font-medium text-rich-black">{shop.completeAddress}</p>
-                  <p className="text-sm text-rich-black">{shop.city}, {shop.state} - {shop.pinCode}</p>
+                  <p className="text-sm text-rich-black">
+                    {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                      ? `${shop.city}, ${shop.state}${shop.pinCode ? ` - ${shop.pinCode}` : ''}`
+                      : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
+                    }
+                  </p>
                 </div>
               </div>
             </CardContent>

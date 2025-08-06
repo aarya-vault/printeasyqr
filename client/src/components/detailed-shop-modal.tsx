@@ -134,7 +134,12 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                   <div>
                     <p className="font-medium">Address</p>
                     <p className="text-sm text-gray-600">{shop.address}</p>
-                    <p className="text-sm text-gray-600">{shop.city}, {shop.state}</p>
+                    <p className="text-sm text-gray-600">
+                      {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                        ? `${shop.city}, ${shop.state}`
+                        : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
+                      }
+                    </p>
                   </div>
                 </div>
                 
