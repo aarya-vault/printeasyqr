@@ -1,5 +1,6 @@
 import express from 'express';
 import AnalyticsController from '../controllers/analytics.controller.js';
+import BusinessAnalyticsController from '../controllers/businessAnalytics.controller.js';
 import { requireAuth, requireAdmin, requireShopOwner } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -9,6 +10,7 @@ router.get('/admin/enhanced', requireAuth, requireAdmin, AnalyticsController.get
 
 // Shop owner analytics routes
 router.get('/shop/:shopId', requireAuth, requireShopOwner, AnalyticsController.getShopOwnerAnalytics);
+router.get('/business/:shopId', requireAuth, requireShopOwner, BusinessAnalyticsController.getShopOwnerBusinessAnalytics);
 
 // Event tracking routes
 router.post('/track/unlock', requireAuth, AnalyticsController.trackCustomerUnlock);

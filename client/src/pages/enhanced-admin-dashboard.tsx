@@ -187,6 +187,9 @@ export default function EnhancedAdminDashboard() {
               <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
                 <Shield className="w-6 h-6 text-rich-black" />
               </div>
+              <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-rich-black" />
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-rich-black">Admin Dashboard</h1>
                 <p className="text-sm text-medium-gray">Platform Management Center</p>

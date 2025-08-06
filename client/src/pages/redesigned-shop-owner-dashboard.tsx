@@ -182,9 +182,9 @@ export default function RedesignedShopOwnerDashboard() {
     retry: 2,
   });
 
-  // Integrated Analytics Query - JWT-based authentication
-  const { data: analytics, isLoading: analyticsLoading } = useQuery<ShopAnalytics>({
-    queryKey: [`/api/shop-owner/shop/${shopData?.shop?.id}/analytics`],
+  // Business Analytics Query - Real data for unique customers
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: [`/api/analytics/business/${shopData?.shop?.id}`],
     queryFn: async () => {
       if (!shopData?.shop?.id) return null;
       
@@ -193,7 +193,7 @@ export default function RedesignedShopOwnerDashboard() {
         throw new Error('No authentication token found');
       }
       
-      const response = await fetch(`/api/shop-owner/shop/${shopData.shop.id}/analytics`, {
+      const response = await fetch(`/api/analytics/business/${shopData.shop.id}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ export default function RedesignedShopOwnerDashboard() {
       });
       
       if (!response.ok) {
-        throw new Error(`Analytics failed: ${response.status}`);
+        throw new Error(`Business analytics failed: ${response.status}`);
       }
       
       return response.json();
@@ -836,18 +836,9 @@ export default function RedesignedShopOwnerDashboard() {
                   <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Total Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
-                      </div>
-                      <Users className="w-8 h-8 text-[#FFBF00]" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Unique Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
+                        <p className="text-sm font-medium text-gray-700">Customers First Shop</p>
+                        <p className="text-2xl font-bold text-black">{analytics?.uniqueCustomersFirstShop || 0}</p>
+                        <p className="text-xs text-gray-500">Their first shop was yours</p>
                       </div>
                       <UserCheck className="w-8 h-8 text-[#FFBF00]" />
                     </div>
@@ -856,10 +847,22 @@ export default function RedesignedShopOwnerDashboard() {
                   <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Repeat Customers</p>
-                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.repeatCustomers || 0}</p>
+                        <p className="text-sm font-medium text-gray-700">Total Unlocked</p>
+                        <p className="text-2xl font-bold text-black">{analytics?.totalCustomersUnlocked || 0}</p>
+                        <p className="text-xs text-gray-500">Total users who unlocked</p>
                       </div>
-                      <Repeat className="w-8 h-8 text-[#FFBF00]" />
+                      <Users className="w-8 h-8 text-[#FFBF00]" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Conversion Rate</p>
+                        <p className="text-2xl font-bold text-black">{analytics?.conversionRate || 0}%</p>
+                        <p className="text-xs text-gray-500">First shop → orders</p>
+                      </div>
+                      <TrendingUp className="w-8 h-8 text-[#FFBF00]" />
                     </div>
                   </div>
                 </div>
