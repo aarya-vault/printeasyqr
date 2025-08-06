@@ -207,7 +207,7 @@ export default function CustomerAccount() {
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={() => navigate('/browse-shops')}
+              onClick={() => navigate('/customer-browse-shops')}
             >
               <ShoppingCart className="w-4 h-4 mr-3" />
               Browse Print Shops

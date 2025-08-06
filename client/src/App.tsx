@@ -18,6 +18,7 @@ const CustomerAccount = lazy(() => import("@/pages/customer-account"));
 const CustomerOrders = lazy(() => import("@/pages/customer-orders"));
 const CustomerVisitedShops = lazy(() => import("@/pages/customer-visited-shops"));
 const BrowseShops = lazy(() => import("@/pages/browse-shops"));
+const CustomerBrowseShops = lazy(() => import("@/pages/customer-browse-shops"));
 const RedesignedShopOwnerDashboard = lazy(() => import("@/pages/redesigned-shop-owner-dashboard"));
 const ShopOrderHistory = lazy(() => import("@/pages/shop-order-history"));
 const ShopOrderDetails = lazy(() => import("@/pages/shop-order-details"));
@@ -45,6 +46,7 @@ function Router() {
         <Route path="/customer-orders" component={CustomerOrders} />
         <Route path="/customer-visited-shops" component={CustomerVisitedShops} />
         <Route path="/browse-shops" component={BrowseShops} />
+        <Route path="/customer-browse-shops" component={CustomerBrowseShops} />
         <Route path="/shop-dashboard" component={RedesignedShopOwnerDashboard} />
         <Route path="/shop-order-history" component={ShopOrderHistory} />
 

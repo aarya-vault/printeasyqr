@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { 
   Search, MapPin, Clock, Store, Printer, Phone, 
   Mail, Star, Users, Award, ArrowLeft, ExternalLink,
   Filter, X, CheckCircle, AlertCircle, Building2,
-  Timer, Calendar, Shield
+  Timer, Calendar, Shield, Lock, Unlock, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -46,24 +46,84 @@ interface Shop {
   acceptsWalkinOrders: boolean;
 }
 
-export default function AnonymousVisitorBrowseShops() {
+export default function CustomerBrowseShops() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [filterCity, setFilterCity] = useState('');
   const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
+  const [filterUnlocked, setFilterUnlocked] = useState<'all' | 'locked' | 'unlocked'>('all');
+
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   // Fetch all shops
-  const { data: shops = [], isLoading } = useQuery({
+  const { data: shops = [], isLoading: shopsLoading } = useQuery({
     queryKey: ['/api/shops'],
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Fetch unlocked shops for the customer
+  const { data: unlockedShopsData, isLoading: unlockedLoading } = useQuery({
+    queryKey: [`/api/customer/${user?.id}/unlocked-shops`],
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  const unlockedShopIds = (unlockedShopsData as any)?.unlockedShopIds || [];
+  
+  // Unlock shop mutation
+  const unlockShopMutation = useMutation({
+    mutationFn: async (shopSlug: string) => {
+      const response = await fetch(`/api/unlock-shop/${shopSlug}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to unlock shop: ${response.status} ${errorText}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/customer/${user?.id}/unlocked-shops`] });
+      toast({
+        title: "Shop Unlocked!",
+        description: "You can now place orders with this shop.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Unlock Failed",
+        description: error.message || "Failed to unlock shop. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Add unlock status to shops
+  const shopsWithUnlockStatus = shops.map((shop: Shop) => ({
+    ...shop,
+    isUnlocked: unlockedShopIds.includes(shop.id)
+  }));
+
   // Filter shops based on search and filters
-  const filteredShops = shops.filter((shop: Shop) => {
+  const filteredShops = shopsWithUnlockStatus.filter((shop: Shop & { isUnlocked: boolean }) => {
     const matchesSearch = 
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,8 +134,11 @@ export default function AnonymousVisitorBrowseShops() {
     
     const matchesCity = !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
     const matchesOnline = filterOnline === null || shop.isOnline === filterOnline;
+    const matchesUnlocked = filterUnlocked === 'all' || 
+      (filterUnlocked === 'locked' && !shop.isUnlocked) ||
+      (filterUnlocked === 'unlocked' && shop.isUnlocked);
 
-    return matchesSearch && matchesCity && matchesOnline;
+    return matchesSearch && matchesCity && matchesOnline && matchesUnlocked;
   });
 
   // Extract unique cities for filter
@@ -87,24 +150,21 @@ export default function AnonymousVisitorBrowseShops() {
   };
 
   const handleStartOrdering = (shop: Shop) => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to place orders and unlock shops",
-        variant: "default",
-      });
-      navigate('/');
-      return;
-    }
-    
     navigate(`/shop/${shop.slug}`);
+  };
+
+  const handleUnlockShop = (shop: Shop) => {
+    unlockShopMutation.mutate(shop.slug);
   };
 
   const clearFilters = () => {
     setSearchQuery('');
     setFilterCity('');
     setFilterOnline(null);
+    setFilterUnlocked('all');
   };
+
+  const isLoading = shopsLoading || unlockedLoading;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,24 +175,27 @@ export default function AnonymousVisitorBrowseShops() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-4">
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/customer-dashboard')}
               variant="ghost"
               className="flex items-center text-gray-600 hover:text-[#FFBF00]"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
+              Back to Dashboard
             </Button>
             
             <div className="text-right">
               <p className="text-sm text-gray-500">
                 Found {filteredShops.length} of {shops.length} shops
               </p>
+              <p className="text-xs text-gray-400">
+                {unlockedShopIds.length} unlocked shops
+              </p>
             </div>
           </div>
           
-          <h1 className="text-3xl font-bold text-black mb-2">Discover Print Shops</h1>
+          <h1 className="text-3xl font-bold text-black mb-2">Browse Print Shops</h1>
           <p className="text-gray-600">
-            Explore verified print shops near you. Login to unlock shops and place orders.
+            Discover and unlock verified print shops. Scan QR codes or unlock shops to place orders.
           </p>
         </div>
       </div>
@@ -140,9 +203,9 @@ export default function AnonymousVisitorBrowseShops() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Main Search */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -180,9 +243,22 @@ export default function AnonymousVisitorBrowseShops() {
                 <option value="false">Offline</option>
               </select>
             </div>
+
+            {/* Unlock Status Filter */}
+            <div className="lg:col-span-2">
+              <select
+                value={filterUnlocked}
+                onChange={(e) => setFilterUnlocked(e.target.value as 'all' | 'locked' | 'unlocked')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
+              >
+                <option value="all">All Shops</option>
+                <option value="unlocked">Unlocked Only</option>
+                <option value="locked">Locked Only</option>
+              </select>
+            </div>
             
             {/* Clear Filters */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <Button
                 onClick={clearFilters}
                 variant="outline"
@@ -193,8 +269,6 @@ export default function AnonymousVisitorBrowseShops() {
               </Button>
             </div>
           </div>
-          
-          
         </div>
 
         {/* Loading State */}
@@ -206,10 +280,25 @@ export default function AnonymousVisitorBrowseShops() {
         ) : filteredShops.length > 0 ? (
           /* Shops Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredShops.map((shop: Shop) => (
-              <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer">
+            {filteredShops.map((shop: Shop & { isUnlocked: boolean }) => (
+              <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer relative">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
+                  {/* Unlock Status Badge */}
+                  <div className="absolute top-4 right-4">
+                    {shop.isUnlocked ? (
+                      <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                        <Unlock className="w-3 h-3 mr-1" />
+                        Unlocked
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-orange-100 text-orange-800 text-xs px-2 py-1">
+                        <Lock className="w-3 h-3 mr-1" />
+                        Locked
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex items-start justify-between mb-4 pr-20">
                     <div className="flex-1">
                       <h3 className="font-bold text-black text-lg mb-1">
                         {shop.name}
@@ -224,25 +313,27 @@ export default function AnonymousVisitorBrowseShops() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end space-y-2">
-                      {shop.isOnline ? (
-                        <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Online
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-gray-100 text-gray-800 text-xs px-2 py-1">
-                          <AlertCircle className="w-3 h-3 mr-1" />
-                          Offline
-                        </Badge>
-                      )}
-                      {shop.rating > 0 && (
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Star className="w-3 h-3 fill-[#FFBF00] text-[#FFBF00] mr-1" />
-                          {shop.rating.toFixed(1)}
-                        </div>
-                      )}
-                    </div>
+                  </div>
+
+                  {/* Online Status */}
+                  <div className="mb-4">
+                    {shop.isOnline ? (
+                      <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Online
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-gray-100 text-gray-800 text-xs px-2 py-1">
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        Offline
+                      </Badge>
+                    )}
+                    {shop.rating > 0 && (
+                      <div className="inline-flex items-center text-xs text-gray-500 ml-2">
+                        <Star className="w-3 h-3 fill-[#FFBF00] text-[#FFBF00] mr-1" />
+                        {shop.rating.toFixed(1)}
+                      </div>
+                    )}
                   </div>
                   
                   {/* Services */}
@@ -278,13 +369,33 @@ export default function AnonymousVisitorBrowseShops() {
 
                   {/* Action Buttons */}
                   <div className="space-y-2">
-                    <Button
-                      onClick={() => handleStartOrdering(shop)}
-                      className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
-                    >
-                      <Printer className="w-4 h-4 mr-2" />
-                      Start Ordering
-                    </Button>
+                    {shop.isUnlocked ? (
+                      <Button
+                        onClick={() => handleStartOrdering(shop)}
+                        className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                      >
+                        <Printer className="w-4 h-4 mr-2" />
+                        Start Ordering
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleUnlockShop(shop)}
+                        disabled={unlockShopMutation.isPending}
+                        className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                      >
+                        {unlockShopMutation.isPending ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                            Unlocking...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4 mr-2" />
+                            Unlock Shop
+                          </>
+                        )}
+                      </Button>
+                    )}
                     <Button
                       onClick={() => handleShopClick(shop)}
                       variant="outline"
@@ -304,11 +415,11 @@ export default function AnonymousVisitorBrowseShops() {
             <Store className="w-20 h-20 text-gray-400 mx-auto mb-6" />
             <h3 className="text-xl font-semibold text-gray-600 mb-3">No Shops Found</h3>
             <p className="text-gray-500 mb-6">
-              {searchQuery || filterCity || filterOnline !== null 
+              {searchQuery || filterCity || filterOnline !== null || filterUnlocked !== 'all'
                 ? "Try adjusting your search or filters" 
                 : "Check back later for verified print shops"}
             </p>
-            {(searchQuery || filterCity || filterOnline !== null) && (
+            {(searchQuery || filterCity || filterOnline !== null || filterUnlocked !== 'all') && (
               <Button
                 onClick={clearFilters}
                 variant="outline"
@@ -328,6 +439,12 @@ export default function AnonymousVisitorBrowseShops() {
             <DialogTitle className="flex items-center text-xl">
               <Store className="w-6 h-6 mr-3 text-[#FFBF00]" />
               {selectedShop?.name}
+              {selectedShop && unlockedShopIds.includes(selectedShop.id) && (
+                <Badge className="bg-green-100 text-green-800 ml-3">
+                  <Unlock className="w-3 h-3 mr-1" />
+                  Unlocked
+                </Badge>
+              )}
             </DialogTitle>
             <DialogDescription className="text-base">
               Complete shop information and services
@@ -390,114 +507,111 @@ export default function AnonymousVisitorBrowseShops() {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <Phone className="w-4 h-4 mr-3 text-gray-500" />
+                    <Phone className="w-4 h-4 mr-3 text-gray-500 flex-shrink-0" />
                     <span className="text-gray-900">{selectedShop.phone}</span>
                   </div>
                   {selectedShop.email && (
                     <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-3 text-gray-500" />
+                      <Mail className="w-4 h-4 mr-3 text-gray-500 flex-shrink-0" />
                       <span className="text-gray-900">{selectedShop.email}</span>
                     </div>
                   )}
-                  {selectedShop.publicOwnerName && (
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-3 text-gray-500" />
-                      <span className="text-gray-900">Owner: {selectedShop.publicOwnerName}</span>
-                    </div>
-                  )}
                 </div>
               </div>
 
               <Separator />
 
-              {/* Services & Equipment */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {selectedShop.services && selectedShop.services.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Printer className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Services Offered
-                    </h4>
-                    <div className="space-y-2">
-                      {selectedShop.services.map((service: string, index: number) => (
-                        <div key={index} className="flex items-center">
-                          <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-                          <span className="text-gray-900">{service}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedShop.equipment && selectedShop.equipment.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Award className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Equipment Available
-                    </h4>
-                    <div className="space-y-2">
-                      {selectedShop.equipment.map((item: string, index: number) => (
-                        <div key={index} className="flex items-center">
-                          <Shield className="w-4 h-4 mr-2 text-blue-500" />
-                          <span className="text-gray-900">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Experience & Working Hours */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Services */}
+              {selectedShop.services && selectedShop.services.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center text-black">
-                    <Timer className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                    Experience
+                    <Printer className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                    Services Offered
                   </h4>
-                  <p className="text-gray-900">{selectedShop.yearsOfExperience || 0} years in printing business</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Successfully completed {selectedShop.totalOrders || 0} orders
-                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedShop.services.map((service: string, index: number) => (
+                      <span key={index} className="bg-[#FFBF00]/10 text-gray-700 px-3 py-1 rounded-md text-sm border border-[#FFBF00]/20">
+                        {service}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+              )}
 
+              {/* Equipment */}
+              {selectedShop.equipment && selectedShop.equipment.length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center text-black">
-                    <Calendar className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                    Working Hours
+                    <Building2 className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                    Equipment Available
                   </h4>
-                  <p className="text-gray-900">
-                    {selectedShop.workingHours ? 'Custom working hours' : 'Standard business hours'}
-                  </p>
-                  {selectedShop.acceptsWalkinOrders && (
-                    <p className="text-sm text-green-600 mt-1">✓ Accepts walk-in orders</p>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedShop.equipment.map((item: string, index: number) => (
+                      <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Separator />
+
+              {/* Shop Experience */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <Award className="w-8 h-8 text-[#FFBF00] mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-black">{selectedShop.yearsOfExperience || 0}</p>
+                  <p className="text-sm text-gray-600">Years Experience</p>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <Users className="w-8 h-8 text-[#FFBF00] mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-black">{selectedShop.totalOrders || 0}</p>
+                  <p className="text-sm text-gray-600">Total Orders</p>
+                </div>
+              </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex space-x-3 pt-4">
+                {unlockedShopIds.includes(selectedShop.id) ? (
+                  <Button
+                    onClick={() => {
+                      setShowDetails(false);
+                      handleStartOrdering(selectedShop);
+                    }}
+                    className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Start Ordering
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      handleUnlockShop(selectedShop);
+                      setShowDetails(false);
+                    }}
+                    disabled={unlockShopMutation.isPending}
+                    className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                  >
+                    {unlockShopMutation.isPending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                        Unlocking...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Unlock Shop
+                      </>
+                    )}
+                  </Button>
+                )}
                 <Button
-                  onClick={() => {
-                    setShowDetails(false);
-                    handleStartOrdering(selectedShop);
-                  }}
-                  className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
-                  size="lg"
-                >
-                  <Printer className="w-5 h-5 mr-2" />
-                  Start Ordering
-                </Button>
-                <Button
-                  onClick={() => setShowDetails(false)}
                   variant="outline"
-                  className="flex-1 border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
-                  size="lg"
+                  onClick={() => setShowDetails(false)}
+                  className="border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
                 >
-                  Close Details
+                  Close
                 </Button>
               </div>
             </div>
