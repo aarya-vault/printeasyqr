@@ -13,6 +13,13 @@ import {
 import { format } from 'date-fns';
 import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
+// Helper function to calculate years of experience
+const calculateYearsOfExperience = (formationYear: number | string): number => {
+  const currentYear = new Date().getFullYear();
+  const year = typeof formationYear === 'string' ? parseInt(formationYear) : formationYear;
+  return Math.max(0, currentYear - year);
+};
+
 interface Shop {
   id: number;
   name: string;
@@ -276,27 +283,62 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
               </CardContent>
             </Card>
 
-            {/* Services Offered */}
-            {shop.services && shop.services.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-brand-yellow" />
-                    Services Offered
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
-                    {shop.services.map((service, index) => (
-                      <Badge key={index} variant="outline" className="justify-start">
-                        <Printer className="w-3 h-3 mr-1" />
-                        {service}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* Services & Equipment */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Services Offered */}
+              {((shop.services && shop.services.length > 0) || (shop.servicesOffered && shop.servicesOffered.length > 0)) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-brand-yellow" />
+                      Services Offered
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {(shop.services || shop.servicesOffered || []).map((service, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
+                            <Printer className="w-4 h-4 text-black" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{service}</p>
+                            <p className="text-sm text-gray-600">Professional service</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Equipment Available */}
+              {((shop.equipment && shop.equipment.length > 0) || (shop.equipmentAvailable && shop.equipmentAvailable.length > 0)) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Settings className="w-5 h-5 text-brand-yellow" />
+                      Equipment Available
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {(shop.equipment || shop.equipmentAvailable || []).map((equipment, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Package className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{equipment}</p>
+                            <p className="text-sm text-gray-600">Professional equipment</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             {/* Equipment Available */}
             {((shop.equipment && shop.equipment.length > 0) || (shop.equipmentAvailable && shop.equipmentAvailable.length > 0)) && (
@@ -372,8 +414,18 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                   <div className="flex items-center gap-3">
                     <Calendar className="w-4 h-4 text-gray-500" />
                     <div>
-                      <p className="font-medium text-gray-900">Established</p>
-                      <p className="text-sm text-gray-600">{shop.formationYear}</p>
+                      <p className="font-medium text-gray-900">Years of Experience</p>
+                      <p className="text-sm text-gray-600">{calculateYearsOfExperience(shop.formationYear)} years</p>
+                    </div>
+                  </div>
+                )}
+                
+                {shop.yearsOfExperience && shop.yearsOfExperience !== calculateYearsOfExperience(shop.formationYear) && (
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <div>
+                      <p className="font-medium text-gray-900">Additional Experience</p>
+                      <p className="text-sm text-gray-600">{shop.yearsOfExperience}</p>
                     </div>
                   </div>
                 )}

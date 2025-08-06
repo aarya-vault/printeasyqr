@@ -168,6 +168,14 @@ export default function CustomerBrowseShops() {
   };
 
   const handleShopClick = (shop: Shop) => {
+    console.log('🔍 Shop data for detailed modal:', {
+      name: shop.name,
+      services: shop.services,
+      equipment: shop.equipment,
+      workingHours: shop.workingHours,
+      yearsOfExperience: shop.yearsOfExperience,
+      formationYear: shop.formationYear
+    });
     setSelectedShop(shop);
     setShowShopDetails(true);
   };
@@ -396,7 +404,7 @@ export default function CustomerBrowseShops() {
                             onClick={() => handleOrderClick(shop, 'upload')}
                           >
                             <Upload className="w-4 h-4 mr-1.5" />
-                            Place Order
+                            Login to Print
                           </Button>
                           <Button
                             size="sm"

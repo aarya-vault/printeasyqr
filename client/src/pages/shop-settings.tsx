@@ -46,14 +46,14 @@ export default function ShopSettings() {
 
   // Fetch shop details
   const { data: shop, isLoading } = useQuery({
-    queryKey: ['/api/shops', user?.shopId],
+    queryKey: [`/api/shops/owner/${user?.id}`],
     queryFn: async () => {
-      if (!user?.shopId) return null;
-      const response = await fetch(`/api/shops/${user.shopId}`);
+      if (!user?.id) return null;
+      const response = await fetch(`/api/shops/owner/${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch shop details');
       return response.json();
     },
-    enabled: !!user?.shopId
+    enabled: !!user?.id
   });
 
   const [formData, setFormData] = useState({
@@ -63,6 +63,7 @@ export default function ShopSettings() {
     phone: '',
     email: '',
     services: [] as string[],
+    equipment: [] as string[],
     workingHours: {} as Record<string, { open: string; close: string; closed: boolean }>,
     isOnline: true,
     acceptingOrders: true,
@@ -76,16 +77,26 @@ export default function ShopSettings() {
   // Initialize form data when shop data loads
   useEffect(() => {
     if (shop) {
+      console.log('🔍 Shop data loaded for settings:', {
+        name: shop.name,
+        services: shop.services,
+        equipment: shop.equipment,
+        workingHours: shop.workingHours,
+        email: shop.email,
+        address: shop.address
+      });
+      
       setFormData({
         name: shop.name || '',
         description: shop.description || '',
         address: shop.address || '',
         phone: shop.phone || '',
         email: shop.email || '',
-        services: shop.services || [],
-        workingHours: shop.workingHours || {},
+        services: Array.isArray(shop.services) ? shop.services : (shop.services ? JSON.parse(shop.services) : []),
+        equipment: Array.isArray(shop.equipment) ? shop.equipment : (shop.equipment ? JSON.parse(shop.equipment) : []),
+        workingHours: typeof shop.workingHours === 'object' ? shop.workingHours : (shop.workingHours ? JSON.parse(shop.workingHours) : {}),
         isOnline: shop.isOnline ?? true,
-        acceptingOrders: shop.acceptingOrders ?? true,
+        acceptingOrders: shop.acceptsWalkinOrders ?? true,
         notifications: shop.notifications || {
           newOrders: true,
           statusUpdates: true,
@@ -98,12 +109,17 @@ export default function ShopSettings() {
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
+      console.log('🔍 Sending shop settings update:', formData);
       const response = await fetch('/api/shops/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      if (!response.ok) throw new Error('Failed to save settings');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Shop settings update failed:', errorText);
+        throw new Error('Failed to save settings');
+      }
       return response.json();
     },
     onSuccess: () => {
