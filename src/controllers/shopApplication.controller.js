@@ -189,6 +189,11 @@ class ShopApplicationController {
       
       await transaction.commit();
       
+      console.log(`✅ Application ${applicationId} ${status} successfully`);
+      if (status === 'approved') {
+        console.log(`✅ Shop created for application ${applicationId}`);
+      }
+      
       res.json({ 
         success: true, 
         message: `Application ${status}`,
@@ -196,8 +201,14 @@ class ShopApplicationController {
       });
     } catch (error) {
       await transaction.rollback();
-      console.error('Update application error:', error);
-      res.status(500).json({ message: 'Failed to update application' });
+      console.error('❌ Update application error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        applicationId,
+        status
+      });
+      res.status(500).json({ message: 'Failed to update application', error: error.message });
     }
   }
 

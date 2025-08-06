@@ -22,6 +22,7 @@ import { ShopEditModal } from "@/components/admin/shop-edit-modal";
 import AdminUserEditModal from "@/components/admin-user-edit-modal";
 import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-management-modal";
 import ShopApplicationEditModal from "@/components/shop-application-edit-modal";
+import EnhancedAdminAnalytics from "@/components/enhanced-admin-analytics";
 
 
 
@@ -356,7 +357,7 @@ export default function EnhancedAdminDashboard() {
                             </Badge>
                           </div>
                           <div className="space-y-1 text-sm text-medium-gray">
-                            <p>Applicant: {application.ownerFullName}</p>
+                            <p>Applicant: {application.ownerFullName || application.applicant?.name || 'Name not provided'}</p>
                             <p>Email: {application.email}</p>
                             <p>Location: {application.city || 'Not specified'}, {application.state || 'Not specified'}</p>
                             <p>Experience: {application.formationYear ? new Date().getFullYear() - application.formationYear : 'Not specified'} years</p>
@@ -454,7 +455,7 @@ export default function EnhancedAdminDashboard() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm font-medium text-rich-black">Applicant</label>
-                          <p className="text-medium-gray">{selectedApplication.ownerFullName}</p>
+                          <p className="text-medium-gray">{selectedApplication.ownerFullName || selectedApplication.applicant?.name || 'Name not provided'}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-rich-black">Email</label>

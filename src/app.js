@@ -21,6 +21,7 @@ import adminRoutes from './routes/admin.routes.js';
 import qrRoutes from './routes/qr.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import pincodeRoutes from './routes/pincode.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -138,6 +139,7 @@ app.use('/api', qrRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/pincode', pincodeRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // File download route - Protected with authentication
 app.get('/api/download/:filename', requireAuth, (req, res) => {

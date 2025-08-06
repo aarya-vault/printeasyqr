@@ -6,6 +6,8 @@ import Message from './Message.js';
 import CustomerShopUnlock from './CustomerShopUnlock.js';
 import ShopApplication from './ShopApplication.js';
 import Notification from './Notification.js';
+import ShopUnlock from './ShopUnlock.js';
+import QRScan from './QRScan.js';
 
 // Define associations
 const defineAssociations = () => {
@@ -51,6 +53,14 @@ const defineAssociations = () => {
 
   // Notification associations
   Notification.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+
+  // ShopUnlock associations
+  ShopUnlock.belongsTo(User, { as: 'customer', foreignKey: 'customerId' });
+  ShopUnlock.belongsTo(Shop, { as: 'shop', foreignKey: 'shopId' });
+
+  // QRScan associations
+  QRScan.belongsTo(User, { as: 'customer', foreignKey: 'customerId' });
+  QRScan.belongsTo(Shop, { as: 'shop', foreignKey: 'shopId' });
 };
 
 // Initialize associations
@@ -77,5 +87,7 @@ export {
   CustomerShopUnlock,
   ShopApplication,
   Notification,
+  ShopUnlock,
+  QRScan,
   syncDatabase
 };
