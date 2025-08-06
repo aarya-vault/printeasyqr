@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { debounce } from 'lodash';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -14,42 +15,72 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, ArrowRight, Store, User, Mail, Phone, MapPin, 
-  Clock, Briefcase, Settings, CheckCircle, Loader2, Plus, X
+  Clock, Briefcase, Settings, CheckCircle, Loader2, Plus, X, AlertCircle, Check
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Form validation schema
 const applicationSchema = z.object({
   // Public Information
-  publicShopName: z.string().min(1, 'Public shop name is required'),
+  publicShopName: z.string()
+    .min(2, 'Shop name must be at least 2 characters')
+    .max(50, 'Shop name must be less than 50 characters')
+    .regex(/^[a-zA-Z0-9\s&.-]+$/, 'Shop name can only contain letters, numbers, spaces, &, ., and -'),
   publicOwnerName: z.string().optional(),
-  publicAddress: z.string().min(1, 'Public address is required'),
-  publicContactNumber: z.string().min(10, 'Public contact number is required'),
+  publicAddress: z.string()
+    .min(10, 'Address must be at least 10 characters')
+    .max(200, 'Address must be less than 200 characters'),
+  publicContactNumber: z.string()
+    .regex(/^[6-9]\d{9}$/, 'Enter valid 10-digit Indian mobile number (starting with 6-9)'),
+  
+  // Shop URL/Slug
+  shopSlug: z.string()
+    .min(3, 'Shop URL must be at least 3 characters')
+    .max(30, 'Shop URL must be less than 30 characters')
+    .regex(/^[a-z0-9-]+$/, 'Shop URL can only contain lowercase letters, numbers, and hyphens')
+    .refine((slug) => !slug.startsWith('-') && !slug.endsWith('-'), 'Shop URL cannot start or end with hyphens')
+    .refine((slug) => !slug.includes('--'), 'Shop URL cannot contain consecutive hyphens'),
   
   // Internal Information
-  internalShopName: z.string().min(1, 'Internal shop name is required'),
-  ownerFullName: z.string().min(1, 'Owner full name is required'),
-  email: z.string().email('Valid email is required'),
-  phoneNumber: z.string().min(10, 'Valid phone number is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  completeAddress: z.string().min(1, 'Complete address is required'),
+  internalShopName: z.string()
+    .min(2, 'Internal shop name must be at least 2 characters')
+    .max(50, 'Internal shop name must be less than 50 characters'),
+  ownerFullName: z.string()
+    .min(2, 'Owner name must be at least 2 characters')
+    .max(50, 'Owner name must be less than 50 characters')
+    .regex(/^[a-zA-Z\s]+$/, 'Owner name can only contain letters and spaces'),
+  email: z.string()
+    .email('Enter valid email address')
+    .max(100, 'Email must be less than 100 characters'),
+  phoneNumber: z.string()
+    .regex(/^[6-9]\d{9}$/, 'Enter valid 10-digit Indian mobile number (starting with 6-9)'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(50, 'Password must be less than 50 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+  completeAddress: z.string()
+    .min(20, 'Complete address must be at least 20 characters')
+    .max(300, 'Complete address must be less than 300 characters'),
   
   // Location
-  pinCode: z.string().min(6, 'Valid pin code is required'),
+  pinCode: z.string()
+    .regex(/^\d{6}$/, 'Enter valid 6-digit PIN code'),
   
   // Business Details
-  services: z.array(z.string()).min(1, 'At least one service is required'),
+  services: z.array(z.string()).min(1, 'Select at least one service'),
   customServices: z.array(z.string()).max(10, 'Maximum 10 custom services allowed').optional().default([]),
   equipment: z.array(z.string()).optional().default([]), // Equipment is now optional
   customEquipment: z.array(z.string()).max(10, 'Maximum 10 custom equipment allowed').optional().default([]),
-  formationYear: z.string().min(4, 'Formation year is required').refine(
-    (year) => {
-      const currentYear = new Date().getFullYear();
-      const yearNum = parseInt(year);
-      return yearNum >= 1900 && yearNum <= currentYear;
-    },
-    'Formation year must be valid (1900-current year)'
-  ),
+  formationYear: z.string()
+    .regex(/^\d{4}$/, 'Enter valid 4-digit year')
+    .refine(
+      (year) => {
+        const currentYear = new Date().getFullYear();
+        const yearNum = parseInt(year);
+        return yearNum >= 1950 && yearNum <= currentYear;
+      },
+      `Formation year must be between 1950 and ${new Date().getFullYear()}`
+    ),
   
   // Working Hours
   workingHours: z.object({
@@ -93,6 +124,10 @@ export default function ComprehensiveApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customServiceInput, setCustomServiceInput] = useState('');
   const [customEquipmentInput, setCustomEquipmentInput] = useState('');
+  const [slugAvailability, setSlugAvailability] = useState<{
+    status: 'idle' | 'checking' | 'available' | 'taken' | 'error';
+    message?: string;
+  }>({ status: 'idle' });
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -103,6 +138,7 @@ export default function ComprehensiveApplicationPage() {
       publicOwnerName: '',
       publicAddress: '',
       publicContactNumber: '',
+      shopSlug: '',
       internalShopName: '',
       ownerFullName: '',
       email: '',
@@ -128,20 +164,88 @@ export default function ComprehensiveApplicationPage() {
     },
   });
 
+  // Debounced slug availability checker
+  const checkSlugAvailability = useCallback(
+    debounce(async (slug: string) => {
+      if (!slug || slug.length < 3) {
+        setSlugAvailability({ status: 'idle' });
+        return;
+      }
+
+      setSlugAvailability({ status: 'checking' });
+      
+      try {
+        const response = await fetch(`/api/shops/check-slug/${encodeURIComponent(slug)}`);
+        const result = await response.json();
+        
+        if (result.available) {
+          setSlugAvailability({ 
+            status: 'available', 
+            message: 'This shop URL is available!' 
+          });
+        } else {
+          setSlugAvailability({ 
+            status: 'taken', 
+            message: 'This shop URL is already taken. Please choose another.' 
+          });
+        }
+      } catch (error) {
+        setSlugAvailability({ 
+          status: 'error', 
+          message: 'Unable to check availability. Please try again.' 
+        });
+      }
+    }, 500),
+    []
+  );
+
+  // Auto-generate slug from shop name
+  const generateSlugFromName = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
+  // Format phone number as user types
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    return numbers.substring(0, 10);
+  };
+
+  // Format PIN code
+  const formatPinCode = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    return numbers.substring(0, 6);
+  };
+
+  // Format formation year
+  const formatFormationYear = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    return numbers.substring(0, 4);
+  };
+
   const onSubmit = async (data: ApplicationForm) => {
     setIsSubmitting(true);
     try {
-      // Generate shop slug from public shop name
-      const shopSlug = data.publicShopName
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+      // Check final slug availability before submission
+      if (slugAvailability.status === 'taken') {
+        toast({
+          variant: 'destructive',
+          title: 'Shop URL Not Available',
+          description: 'Please choose a different shop URL.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       const response = await fetch('/api/shop-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, shopSlug }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -273,7 +377,7 @@ export default function ComprehensiveApplicationPage() {
                   <FormLabel>Public Address *</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Address customers will see"
+                      placeholder="Address visible to customers"
                       className="min-h-[80px]"
                       {...field} 
                     />
@@ -290,7 +394,73 @@ export default function ComprehensiveApplicationPage() {
                 <FormItem>
                   <FormLabel>Public Contact Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contact number for customers" {...field} />
+                    <Input 
+                      placeholder="10-digit mobile number (e.g., 9876543210)" 
+                      value={field.value}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        field.onChange(formatted);
+                      }}
+                      maxLength={10}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Shop URL/Slug Field */}
+            <FormField
+              control={form.control}
+              name="shopSlug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop URL (Slug) *</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 text-sm text-gray-500 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
+                          printease.com/shop/
+                        </span>
+                        <Input 
+                          placeholder="your-shop-name"
+                          className="rounded-l-none"
+                          value={field.value}
+                          onChange={(e) => {
+                            const slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                            field.onChange(slug);
+                            checkSlugAvailability(slug);
+                          }}
+                          onBlur={() => {
+                            if (!field.value && form.getValues('publicShopName')) {
+                              const generatedSlug = generateSlugFromName(form.getValues('publicShopName'));
+                              field.onChange(generatedSlug);
+                              checkSlugAvailability(generatedSlug);
+                            }
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Slug availability indicator */}
+                      {slugAvailability.status !== 'idle' && (
+                        <div className={`flex items-center gap-2 text-sm ${
+                          slugAvailability.status === 'available' ? 'text-green-600' :
+                          slugAvailability.status === 'taken' ? 'text-red-600' :
+                          slugAvailability.status === 'checking' ? 'text-blue-600' :
+                          'text-orange-600'
+                        }`}>
+                          {slugAvailability.status === 'checking' && <Loader2 className="w-4 h-4 animate-spin" />}
+                          {slugAvailability.status === 'available' && <Check className="w-4 h-4" />}
+                          {slugAvailability.status === 'taken' && <AlertCircle className="w-4 h-4" />}
+                          {slugAvailability.status === 'error' && <AlertCircle className="w-4 h-4" />}
+                          {slugAvailability.message}
+                        </div>
+                      )}
+                      
+                      <p className="text-xs text-gray-500">
+                        This will be your shop's unique URL. Only lowercase letters, numbers, and hyphens allowed.
+                      </p>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -365,10 +535,19 @@ export default function ComprehensiveApplicationPage() {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number *</FormLabel>
+                    <FormLabel>Phone Number * (Login Username)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your contact number" {...field} />
+                      <Input 
+                        placeholder="10-digit mobile number (e.g., 9876543210)" 
+                        value={field.value}
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                        maxLength={10}
+                      />
                     </FormControl>
+                    <p className="text-xs text-gray-500">This will be your username for login</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -382,8 +561,15 @@ export default function ComprehensiveApplicationPage() {
                 <FormItem>
                   <FormLabel>Password *</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Create a secure password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="Minimum 8 characters with uppercase, lowercase & number" 
+                      {...field} 
+                    />
                   </FormControl>
+                  <p className="text-xs text-gray-500">
+                    Must contain at least one uppercase letter, one lowercase letter, and one number
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -394,14 +580,17 @@ export default function ComprehensiveApplicationPage() {
               name="completeAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Complete Address *</FormLabel>
+                  <FormLabel>Complete Business Address *</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Full business address with landmarks"
-                      className="min-h-[80px]"
+                      placeholder="Full address with street, area, landmarks, city, state (minimum 20 characters)"
+                      className="min-h-[100px]"
                       {...field} 
                     />
                   </FormControl>
+                  <p className="text-xs text-gray-500">
+                    Include all details like building name, street, area, landmarks
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -412,9 +601,17 @@ export default function ComprehensiveApplicationPage() {
               name="pinCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pin Code * (For location-based matching)</FormLabel>
+                  <FormLabel>PIN Code * (For location-based matching)</FormLabel>
                   <FormControl>
-                    <Input placeholder="6-digit pin code" maxLength={6} {...field} />
+                    <Input 
+                      placeholder="6-digit PIN code (e.g., 560001)" 
+                      value={field.value}
+                      onChange={(e) => {
+                        const formatted = formatPinCode(e.target.value);
+                        field.onChange(formatted);
+                      }}
+                      maxLength={6}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -440,13 +637,20 @@ export default function ComprehensiveApplicationPage() {
                   <FormLabel>Formation Year *</FormLabel>
                   <FormControl>
                     <Input 
-                      type="number" 
-                      placeholder={`e.g., ${new Date().getFullYear() - 10}`}
-                      min="1900"
-                      max={new Date().getFullYear()}
-                      {...field} 
+                      placeholder={`4-digit year (e.g., ${new Date().getFullYear() - 10})`}
+                      value={field.value}
+                      onChange={(e) => {
+                        const formatted = formatFormationYear(e.target.value);
+                        field.onChange(formatted);
+                      }}
+                      maxLength={4}
                     />
                   </FormControl>
+                  {field.value && field.value.length === 4 && (
+                    <p className="text-xs text-green-600">
+                      Years of Experience: {new Date().getFullYear() - parseInt(field.value)} years
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
