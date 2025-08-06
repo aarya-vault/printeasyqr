@@ -95,10 +95,77 @@ def process_pincode_csv(csv_file_path, output_file_path):
                 
                 normalized_district = district_mapping.get(district.upper(), district)
                 
-                # Use office name as city if it's more descriptive
-                city = office_name.replace(' B.O', '').replace(' S.O', '').replace(' H.O', '').strip()
-                if not city or city.upper() in ['NA', 'N/A', '']:
-                    city = normalized_district
+                # Clean and map data properly:
+                # For major cities, use district name as city
+                # For smaller areas, use cleaned office name as district/area within city
+                
+                # Clean office name by removing postal suffixes and numbers
+                cleaned_office = office_name
+                suffixes_to_remove = [' B.O', ' S.O', ' H.O', ' BO', ' SO', ' HO', ' No.1', ' No.2', ' No.3', ' No.4', ' No.5']
+                for suffix in suffixes_to_remove:
+                    cleaned_office = cleaned_office.replace(suffix, '')
+                cleaned_office = cleaned_office.strip()
+                
+                # Major city mapping - use district as city for these
+                major_cities = {
+                    'AHMADABAD': 'Ahmedabad',
+                    'AHMEDABAD': 'Ahmedabad', 
+                    'MUMBAI CITY': 'Mumbai',
+                    'MUMBAI': 'Mumbai',
+                    'BANGALORE URBAN': 'Bangalore',
+                    'BANGALORE': 'Bangalore',
+                    'NEW DELHI': 'New Delhi',
+                    'DELHI': 'Delhi',
+                    'KOLKATA': 'Kolkata',
+                    'CHENNAI': 'Chennai',
+                    'HYDERABAD': 'Hyderabad',
+                    'PUNE': 'Pune',
+                    'SURAT': 'Surat',
+                    'JAIPUR': 'Jaipur',
+                    'LUCKNOW': 'Lucknow',
+                    'KANPUR': 'Kanpur',
+                    'NAGPUR': 'Nagpur',
+                    'INDORE': 'Indore',
+                    'THANE': 'Thane',
+                    'BHOPAL': 'Bhopal',
+                    'VISAKHAPATNAM': 'Visakhapatnam',
+                    'PIMPRI CHINCHWAD': 'Pimpri Chinchwad',
+                    'PATNA': 'Patna',
+                    'VADODARA': 'Vadodara',
+                    'LUDHIANA': 'Ludhiana',
+                    'RAJKOT': 'Rajkot',
+                    'AGRA': 'Agra',
+                    'NASHIK': 'Nashik',
+                    'FARIDABAD': 'Faridabad',
+                    'MEERUT': 'Meerut',
+                    'KALYAN DOMBIVALI': 'Kalyan',
+                    'VASAI VIRAR': 'Vasai',
+                    'VARANASI': 'Varanasi',
+                    'SRINAGAR': 'Srinagar',
+                    'DHANBAD': 'Dhanbad',
+                    'AURANGABAD': 'Aurangabad',
+                    'NAVI MUMBAI': 'Navi Mumbai',
+                    'ALLAHABAD': 'Allahabad',
+                    'AMRITSAR': 'Amritsar',
+                    'GWALIOR': 'Gwalior',
+                    'COIMBATORE': 'Coimbatore',
+                    'MADURAI': 'Madurai',
+                    'JODHPUR': 'Jodhpur',
+                    'KOTA': 'Kota',
+                    'GUWAHATI': 'Guwahati',
+                    'CHANDIGARH': 'Chandigarh'
+                }
+                
+                # Check if district is a major city
+                city = major_cities.get(normalized_district.upper(), None)
+                
+                if city:
+                    # For major cities, use city name and cleaned office as district/area
+                    district_name = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
+                else:
+                    # For smaller towns/areas, use cleaned office name as city
+                    city = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
+                    district_name = normalized_district
                 
                 # Create entry (prioritize more specific entries)
                 if pincode not in pincode_data:
@@ -106,7 +173,7 @@ def process_pincode_csv(csv_file_path, output_file_path):
                         'pincode': pincode,
                         'city': city,
                         'state': normalized_state,
-                        'district': normalized_district
+                        'district': district_name
                     }
                     state_counts[normalized_state] += 1
                     district_counts[normalized_district] += 1
@@ -116,6 +183,7 @@ def process_pincode_csv(csv_file_path, output_file_path):
                     current_city = pincode_data[pincode]['city']
                     if len(city) > len(current_city) and city.upper() not in ['BO', 'SO', 'HO']:
                         pincode_data[pincode]['city'] = city
+                        pincode_data[pincode]['district'] = district_name
                     duplicate_count += 1
                 
                 if processed_count % 10000 == 0:
