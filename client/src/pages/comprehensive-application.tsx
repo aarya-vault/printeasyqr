@@ -42,7 +42,14 @@ const applicationSchema = z.object({
   customServices: z.array(z.string()).max(10, 'Maximum 10 custom services allowed').optional().default([]),
   equipment: z.array(z.string()).optional().default([]), // Equipment is now optional
   customEquipment: z.array(z.string()).max(10, 'Maximum 10 custom equipment allowed').optional().default([]),
-  yearsOfExperience: z.string().min(1, 'Experience is required'),
+  formationYear: z.string().min(4, 'Formation year is required').refine(
+    (year) => {
+      const currentYear = new Date().getFullYear();
+      const yearNum = parseInt(year);
+      return yearNum >= 1900 && yearNum <= currentYear;
+    },
+    'Formation year must be valid (1900-current year)'
+  ),
   
   // Working Hours
   workingHours: z.object({
@@ -107,7 +114,7 @@ export default function ComprehensiveApplicationPage() {
       customServices: [],
       equipment: [],
       customEquipment: [],
-      yearsOfExperience: '',
+      formationYear: '',
       workingHours: {
         monday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
         tuesday: { open: '09:00', close: '18:00', closed: false, is24Hours: false },
@@ -427,26 +434,19 @@ export default function ComprehensiveApplicationPage() {
 
             <FormField
               control={form.control}
-              name="yearsOfExperience"
+              name="formationYear"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Years of Experience *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your experience level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Less than 1 year">Less than 1 year</SelectItem>
-                      <SelectItem value="1-2 years">1-2 years</SelectItem>
-                      <SelectItem value="3-5 years">3-5 years</SelectItem>
-                      <SelectItem value="6-10 years">6-10 years</SelectItem>
-                      <SelectItem value="11-15 years">11-15 years</SelectItem>
-                      <SelectItem value="16-20 years">16-20 years</SelectItem>
-                      <SelectItem value="20+ years">20+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Formation Year *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder={`e.g., ${new Date().getFullYear() - 10}`}
+                      min="1900"
+                      max={new Date().getFullYear()}
+                      {...field} 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -692,7 +692,7 @@ export default function ComprehensiveApplicationPage() {
                 <p><strong>Owner:</strong> {form.watch('ownerFullName')}</p>
                 <p><strong>Email:</strong> {form.watch('email')}</p>
                 <p><strong>Pin Code:</strong> {form.watch('pinCode')}</p>
-                <p><strong>Experience:</strong> {form.watch('yearsOfExperience')}</p>
+                <p><strong>Formation Year:</strong> {form.watch('formationYear')} ({form.watch('formationYear') ? new Date().getFullYear() - parseInt(form.watch('formationYear')) : 0} years experience)</p>
                 <p><strong>Services:</strong> {form.watch('services').length} selected + {form.watch('customServices')?.length || 0} custom</p>
                 <p><strong>Equipment:</strong> {form.watch('equipment')?.length || 0} selected + {form.watch('customEquipment')?.length || 0} custom</p>
                 <p><strong>Walk-in Orders:</strong> {form.watch('acceptsWalkinOrders') ? 'Yes' : 'No'}</p>

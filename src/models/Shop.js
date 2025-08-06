@@ -90,8 +90,13 @@ const Shop = sequelize.define('Shop', {
   },
   yearsOfExperience: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true, // Keep for backward compatibility
     field: 'years_of_experience'
+  },
+  formationYear: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'formation_year'
   },
   // Working Hours and Availability
   workingHours: {

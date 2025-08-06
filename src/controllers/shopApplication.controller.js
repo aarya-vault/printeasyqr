@@ -91,6 +91,7 @@ class ShopApplicationController {
         equipment: app.equipment,
         customEquipment: app.customEquipment,
         yearsOfExperience: app.yearsOfExperience,
+        formationYear: app.formationYear,
         workingHours: app.workingHours,
         acceptsWalkinOrders: app.acceptsWalkinOrders,
         status: app.status,
@@ -175,7 +176,8 @@ class ShopApplicationController {
           // Services
           services: application.services,
           equipment: application.equipment,
-          yearsOfExperience: application.yearsOfExperience,
+          yearsOfExperience: application.yearsOfExperience, // Keep for backward compatibility
+          formationYear: application.formationYear,
           workingHours: application.workingHours,
           acceptsWalkinOrders: application.acceptsWalkinOrders,
           // Status

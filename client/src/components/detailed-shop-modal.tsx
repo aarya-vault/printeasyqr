@@ -25,6 +25,7 @@ interface Shop {
   services?: string[];
   equipment?: string[];
   yearsOfExperience?: string;
+  formationYear?: number;
   workingHours?: any;
   acceptsWalkinOrders: boolean;
   isOnline: boolean;
@@ -42,6 +43,14 @@ interface DetailedShopModalProps {
 
 export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick }: DetailedShopModalProps) {
   if (!shop) return null;
+
+  // Calculate years of experience from formation year
+  const calculateYearsOfExperience = (formationYear?: number): string => {
+    if (!formationYear) return shop.yearsOfExperience || 'N/A';
+    const currentYear = new Date().getFullYear();
+    const experience = currentYear - formationYear;
+    return experience > 0 ? `${experience} years` : 'New';
+  };
 
   // Format working hours for display
   const formatWorkingHours = (): string[] => {
@@ -164,7 +173,7 @@ export default function DetailedShopModal({ shop, isOpen, onClose, onOrderClick 
                     <p className="text-sm text-gray-600">Total Orders</p>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="text-2xl font-bold text-brand-yellow">{shop.yearsOfExperience || 'N/A'}</p>
+                    <p className="text-2xl font-bold text-brand-yellow">{calculateYearsOfExperience(shop.formationYear)}</p>
                     <p className="text-sm text-gray-600">Years Experience</p>
                   </div>
                 </div>

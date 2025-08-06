@@ -268,7 +268,16 @@ export default function ShopOrder() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="bg-rich-black p-2 rounded-lg">
-                <Package className="w-5 h-5 text-brand-yellow" />
+                <img 
+                  src="/api/public-objects/PrintEasy_The_Harsh_QR (2).png" 
+                  alt="PrintEasy Logo" 
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    // Fallback to Package icon if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = '<svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>';
+                  }}
+                />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-rich-black">PrintEasy</h2>

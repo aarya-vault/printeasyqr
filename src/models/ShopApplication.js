@@ -100,10 +100,10 @@ const ShopApplication = sequelize.define('ShopApplication', {
     defaultValue: [],
     field: 'custom_equipment'
   },
-  yearsOfExperience: {
-    type: DataTypes.STRING,
+  formationYear: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'years_of_experience'
+    field: 'formation_year'
   },
   // Working Hours
   workingHours: {
