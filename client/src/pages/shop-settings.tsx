@@ -89,6 +89,7 @@ export default function ShopSettings() {
 
   // Initialize form data when shop data loads
   useEffect(() => {
+    console.log('🔧 SETTINGS - useEffect triggered, shop:', shop);
     if (shop) {
       console.log('🔍 Shop data loaded for settings:', {
         name: shop.name,
@@ -96,14 +97,18 @@ export default function ShopSettings() {
         equipment: shop.equipment,
         workingHours: shop.workingHours,
         email: shop.email,
-        address: shop.address
+        address: shop.address,
+        completeAddress: shop.completeAddress,
+        publicOwnerName: shop.publicOwnerName,
+        internalName: shop.internalName,
+        slug: shop.slug
       });
       
       setFormData({
         name: shop.name || '',
-        description: shop.description || '',
-        address: shop.address || '',
-        phone: shop.phone || '',
+        description: shop.description || shop.completeAddress || '',
+        address: shop.address || shop.completeAddress || '',
+        phone: shop.phone || shop.ownerPhone || '',
         email: shop.email || '',
         services: Array.isArray(shop.services) ? shop.services : (shop.services ? JSON.parse(shop.services) : []),
         equipment: Array.isArray(shop.equipment) ? shop.equipment : (shop.equipment ? JSON.parse(shop.equipment) : []),
