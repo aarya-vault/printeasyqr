@@ -114,13 +114,7 @@ export function AdminLogin() {
             </Button>
           </form>
           
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-medium text-rich-black mb-2">Test Credentials:</h4>
-            <div className="text-sm text-medium-gray space-y-1">
-              <p><strong>Email:</strong> admin@printeasy.com</p>
-              <p><strong>Password:</strong> admin123</p>
-            </div>
-          </div>
+          
           
           <div className="mt-4 text-center">
             <button 
