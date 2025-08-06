@@ -1,122 +1,130 @@
 import React, { useState, useEffect } from 'react';
 
-export interface LocationData {
+interface LocationData {
   city: string;
   state: string;
-  district?: string;
+  district: string;
   pincode: string;
 }
 
-export interface ShopLocationData {
-  city?: string;
-  state?: string;
-  pinCode?: string;
+interface UseLocationFromPincodeResult {
+  location: LocationData | null;
+  loading: boolean;
+  error: string | null;
 }
 
 /**
- * Hook to get location data from pincode
- * Automatically fetches city and state if they're missing but pincode exists
+ * Custom hook to fetch location data from pincode
+ * Returns actual city and state names instead of "Unknown"
  */
-export function useLocationFromPincode(shopData: ShopLocationData) {
+export function useLocationFromPincode(pincode: string | null | undefined): UseLocationFromPincodeResult {
   const [location, setLocation] = useState<LocationData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchLocationData = async () => {
-      // If we already have city and state, use them
-      if (shopData.city && shopData.state) {
-        setLocation({
-          city: shopData.city,
-          state: shopData.state,
-          pincode: shopData.pinCode || ''
-        });
-        return;
-      }
+    if (!pincode || pincode.length !== 6 || !/^\d+$/.test(pincode) || pincode === '123456') {
+      setLocation(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
 
-      // If we have pincode but missing city/state, fetch them
-      if (shopData.pinCode && shopData.pinCode.length === 6) {
-        setIsLoading(true);
-        try {
-          const response = await fetch(`/api/pincode/location/${shopData.pinCode}`);
-          const result = await response.json();
-
-          if (result.success && result.data) {
-            setLocation({
-              city: result.data.city,
-              state: result.data.state,
-              district: result.data.district,
-              pincode: shopData.pinCode
-            });
-          } else {
-            // Fallback to original data or "Unknown"
-            setLocation({
-              city: shopData.city || 'Unknown',
-              state: shopData.state || 'Unknown',
-              pincode: shopData.pinCode
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching location from pincode:', error);
-          // Fallback to original data or "Unknown"
-          setLocation({
-            city: shopData.city || 'Unknown',
-            state: shopData.state || 'Unknown',
-            pincode: shopData.pinCode || ''
-          });
-        } finally {
-          setIsLoading(false);
+    const fetchLocation = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch(`/api/pincode/location/${pincode}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } else {
-        // No valid pincode, use whatever data we have
-        setLocation({
-          city: shopData.city || 'Unknown',
-          state: shopData.state || 'Unknown',
-          pincode: shopData.pinCode || ''
-        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setLocation(data.data);
+        } else {
+          setError('Location not found for this pincode');
+          setLocation(null);
+        }
+      } catch (err) {
+        console.error('Error fetching location:', err);
+        setError('Failed to fetch location data');
+        setLocation(null);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchLocationData();
-  }, [shopData.city, shopData.state, shopData.pinCode]);
+    fetchLocation();
+  }, [pincode]);
 
-  return { location, isLoading };
+  return { location, loading, error };
 }
 
 /**
- * Utility function to get formatted location string
+ * Utility function to format location display with real-time pincode lookup
  */
-export function getFormattedLocation(shopData: ShopLocationData): string {
-  // If we have both city and state, return them
-  if (shopData.city && shopData.state && shopData.city !== 'Unknown' && shopData.state !== 'Unknown') {
-    return `${shopData.city}, ${shopData.state}`;
+export function useFormattedLocation(city: string | undefined, state: string | undefined, pincode: string | undefined): string {
+  const { location, loading } = useLocationFromPincode(pincode);
+  
+  // If we have valid city and state data already, use it
+  if (city && state && city !== 'Unknown' && state !== 'Unknown' && city.trim() !== '' && state.trim() !== '') {
+    return `${city}, ${state}`;
   }
-
-  // If we don't have city/state but have pincode, indicate it's being fetched
-  if (shopData.pinCode && shopData.pinCode.length === 6) {
-    return `PIN: ${shopData.pinCode}`;
+  
+  // If we're loading location data from pincode
+  if (loading) {
+    return 'Loading location...';
   }
-
-  // Default fallback
-  return 'Location not available';
+  
+  // If we got location data from pincode lookup
+  if (location) {
+    return `${location.city}, ${location.state}`;
+  }
+  
+  // Final fallback
+  return pincode ? `PIN: ${pincode}` : 'Location not available';
 }
 
 /**
- * Synchronous utility to get location display text
- * This will show current data or fallback appropriately
+ * React component for displaying location with real-time pincode lookup
  */
-export function getLocationDisplayText(shopData: ShopLocationData): string {
-  // If we have both city and state, use them
-  if (shopData.city && shopData.state && 
-      shopData.city !== 'Unknown' && shopData.state !== 'Unknown' &&
-      shopData.city.trim() !== '' && shopData.state.trim() !== '') {
-    return `${shopData.city}, ${shopData.state}`;
+export function LocationDisplay({ 
+  city, 
+  state, 
+  pincode, 
+  className = '',
+  showPincode = false 
+}: {
+  city?: string;
+  state?: string;
+  pincode?: string;
+  className?: string;
+  showPincode?: boolean;
+}) {
+  const { location, loading } = useLocationFromPincode(pincode);
+  
+  // Determine what to display
+  let displayText = '';
+  
+  if (city && state && city !== 'Unknown' && state !== 'Unknown' && city.trim() !== '' && state.trim() !== '') {
+    displayText = `${city}, ${state}`;
+    if (showPincode && pincode) {
+      displayText += ` - ${pincode}`;
+    }
+  } else if (loading) {
+    displayText = 'Loading...';
+  } else if (location) {
+    displayText = `${location.city}, ${location.state}`;
+    if (showPincode && pincode) {
+      displayText += ` - ${pincode}`;
+    }
+  } else {
+    displayText = pincode ? `PIN: ${pincode}` : 'Location not available';
   }
-
-  // If we have pincode, show that as a fallback
-  if (shopData.pinCode && shopData.pinCode.length === 6) {
-    return `PIN: ${shopData.pinCode}`;
-  }
-
-  // Last resort
-  return 'Location not available';
+  
+  return React.createElement('span', { className }, displayText);
 }

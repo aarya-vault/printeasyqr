@@ -22,6 +22,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Navbar } from '@/components/layout/navbar';
+import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
 interface Shop {
   id: number;
@@ -422,12 +423,13 @@ export default function BrowseShops() {
                     <Building2 className="w-4 h-4 mr-3 mt-0.5 text-gray-500 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-gray-900">{selectedShop.completeAddress || selectedShop.address}</p>
-                      <p className="text-sm text-gray-600">
-                        {selectedShop.city && selectedShop.state && selectedShop.city !== 'Unknown' && selectedShop.state !== 'Unknown' 
-                          ? `${selectedShop.city}, ${selectedShop.state}${selectedShop.pinCode ? ` - ${selectedShop.pinCode}` : ''}`
-                          : selectedShop.pinCode ? `PIN: ${selectedShop.pinCode}` : 'Location not available'
-                        }
-                      </p>
+                      <LocationDisplay 
+                        city={selectedShop.city} 
+                        state={selectedShop.state} 
+                        pincode={selectedShop.pinCode}
+                        className="text-sm text-gray-600"
+                        showPincode={true}
+                      />
                     </div>
                   </div>
                   <div className="flex items-center">
