@@ -359,7 +359,7 @@ export default function EnhancedAdminDashboard() {
                           <div className="space-y-1 text-sm text-medium-gray">
                             <p>Applicant: {application.ownerFullName || application.applicant?.name || 'Name not provided'}</p>
                             <p>Email: {application.email}</p>
-                            <p>Location: {application.city || 'Not specified'}, {application.state || 'Not specified'}</p>
+                            <p>Location: {application.city || application.publicAddress?.split(',')[1]?.trim() || 'Not specified'}, {application.state || application.publicAddress?.split(',')[2]?.trim() || 'Not specified'}</p>
                             <p>Experience: {application.formationYear ? new Date().getFullYear() - application.formationYear : 'Not specified'} years</p>
                             <p>Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
                           </div>
