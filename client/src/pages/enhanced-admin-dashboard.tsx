@@ -102,6 +102,14 @@ export default function EnhancedAdminDashboard() {
     retryDelay: 1000
   });
 
+  // Fetch analytics data
+  const { data: analyticsData, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['/api/analytics/admin/enhanced'],
+    enabled: !!user && user.role === 'admin',
+    retry: 3,
+    retryDelay: 1000
+  });
+
   // Update shop application mutation
   const updateApplicationMutation = useMutation({
     mutationFn: async ({ id, status, notes }: { id: number; status: string; notes?: string }) => {
@@ -1006,7 +1014,7 @@ export default function EnhancedAdminDashboard() {
                     <div>
                       <p className="text-sm text-medium-gray mb-1">QR Customer Acquisition</p>
                       <p className="text-2xl font-bold text-rich-black">
-                        {users.filter((u: User) => u.role === 'customer').length}
+                        {analyticsData?.qrCustomerAcquisition?.total_customers_via_qr || 0}
                       </p>
                       <p className="text-xs text-success-green mt-1">Total customers via QR</p>
                     </div>
@@ -1078,12 +1086,7 @@ export default function EnhancedAdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {shops
-                      .map((shop: Shop) => ({
-                        ...shop,
-                        qrCustomers: Math.floor(Math.random() * 25) + 5
-                      }))
-                      .sort((a: any, b: any) => b.qrCustomers - a.qrCustomers)
+                    {(analyticsData?.topPerformingShops || [])
                       .slice(0, 5)
                       .map((shop: any, index: number) => (
                         <div key={shop.id} className="flex items-center justify-between">
@@ -1102,7 +1105,7 @@ export default function EnhancedAdminDashboard() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-rich-black">{shop.qrCustomers}</p>
+                            <p className="font-semibold text-rich-black">{shop.unique_customers_acquired}</p>
                             <p className="text-xs text-medium-gray">customers</p>
                           </div>
                         </div>
@@ -1210,7 +1213,7 @@ export default function EnhancedAdminDashboard() {
                           <td className="py-3 px-4 text-center">
                             <span className="flex items-center justify-center gap-1">
                               <Users className="w-4 h-4 text-brand-yellow" />
-                              {Math.floor(Math.random() * 15) + 1}
+                              {analyticsData?.shopPerformance?.find((s: any) => s.name === shop.name)?.unique_customers_acquired || 0}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-right">
