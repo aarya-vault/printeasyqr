@@ -65,6 +65,12 @@ const applicationSchema = z.object({
   // Location
   pinCode: z.string()
     .regex(/^\d{6}$/, 'Enter valid 6-digit PIN code'),
+  city: z.string()
+    .min(2, 'City name must be at least 2 characters')
+    .max(50, 'City name cannot exceed 50 characters'),
+  state: z.string()
+    .min(2, 'State name must be at least 2 characters')
+    .max(50, 'State name cannot exceed 50 characters'),
   
   // Business Details
   services: z.array(z.string()).min(1, 'Select at least one service'),
@@ -146,6 +152,8 @@ export default function ComprehensiveApplicationPage() {
       password: '',
       completeAddress: '',
       pinCode: '',
+      city: '',
+      state: '',
       services: [],
       customServices: [],
       equipment: [],
@@ -601,14 +609,43 @@ export default function ComprehensiveApplicationPage() {
               name="pinCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>PIN Code * (For location-based matching)</FormLabel>
+                  <FormLabel>PIN Code * (Auto-fetches city & state)</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="6-digit PIN code (e.g., 560001)" 
                       value={field.value}
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const formatted = formatPinCode(e.target.value);
                         field.onChange(formatted);
+                        
+                        // Auto-fetch city and state when PIN code is complete
+                        if (formatted.length === 6) {
+                          try {
+                            const response = await fetch(`/api/pincode/lookup/${formatted}`);
+                            const result = await response.json();
+                            
+                            if (result.success && result.data) {
+                              // Auto-populate city and state
+                              form.setValue('city', result.data.city);
+                              form.setValue('state', result.data.state);
+                              
+                              toast({
+                                title: "Location Found",
+                                description: `${result.data.city}, ${result.data.state}`,
+                                duration: 3000,
+                              });
+                            } else {
+                              toast({
+                                title: "PIN Code Not Found",
+                                description: "Please verify the PIN code",
+                                variant: "destructive",
+                                duration: 3000,
+                              });
+                            }
+                          } catch (error) {
+                            console.error('PIN code lookup failed:', error);
+                          }
+                        }
                       }}
                       maxLength={6}
                     />
@@ -617,6 +654,47 @@ export default function ComprehensiveApplicationPage() {
                 </FormItem>
               )}
             />
+            
+            {/* Auto-populated City and State fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City * (Auto-filled from PIN)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="City will be auto-filled" 
+                        {...field}
+                        className="bg-gray-50"
+                        readOnly
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State * (Auto-filled from PIN)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="State will be auto-filled" 
+                        {...field}
+                        className="bg-gray-50"
+                        readOnly
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         );
 

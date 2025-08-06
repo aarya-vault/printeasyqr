@@ -145,4 +145,4 @@ class PinCodeService {
   }
 }
 
-module.exports = PinCodeService;
+export default PinCodeService;
