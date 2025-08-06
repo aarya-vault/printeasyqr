@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Import the pincode utilities directly (fixing the "unknown" city/state issue)
+// Import the pincode utilities
 const { getPincodeData, isValidIndianPincode } = require('../../shared/indian-pincode-data.js');
 
 // Auto-fetch location from pincode
@@ -17,28 +17,23 @@ router.get('/location/:pincode', async (req, res) => {
       });
     }
     
-    // Get location data from comprehensive Indian database
+    // Get location data from local database
     const locationData = getPincodeData(pincode);
     
     if (locationData) {
       return res.json({
         success: true,
-        data: {
-          city: locationData.city,
-          state: locationData.state,
-          district: locationData.district || locationData.city,
-          pincode: locationData.pincode
-        }
+        data: locationData
       });
     } else {
       return res.json({
         success: false,
-        message: 'Pincode not found in database. Please enter city and state manually.'
+        message: 'Location data not found for this pincode. Please enter city and state manually.'
       });
     }
     
   } catch (error) {
-    console.error('❌ Pincode lookup error:', error);
+    console.error('Pincode lookup error:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch location data. Please try again.'
@@ -59,7 +54,7 @@ router.get('/validate/:pincode', (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Pincode validation error:', error);
+    console.error('Pincode validation error:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to validate pincode'
