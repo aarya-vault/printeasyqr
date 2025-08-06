@@ -11,9 +11,10 @@ import {
 import { apiRequest } from '@/lib/queryClient';
 
 interface EnhancedAnalytics {
-  revenue: {
-    totalRevenue: number;
-    totalOrders: number;
+  qrCustomerAcquisition: {
+    total_customers_via_qr: number;
+    shops_unlocked: number;
+    total_qr_orders: number;
   };
   monthlyGrowth: Array<{
     month: string;
@@ -22,10 +23,10 @@ interface EnhancedAnalytics {
     total_users: number;
   }>;
   customerEngagement: {
-    active_customers: number;
-    avg_order_value: number;
-    total_orders_last_30_days: number;
-    shops_with_orders: number;
+    customers_acquired_via_qr: number;
+    customers_who_ordered: number;
+    shops_with_qr_unlocks: number;
+    qr_to_order_conversion_rate: number;
   };
   customerUnlocks: {
     total_unlocks: number;
@@ -42,8 +43,9 @@ interface EnhancedAnalytics {
     id: number;
     name: string;
     city: string;
-    recentOrders: number;
-    rating: number;
+    unique_customers_acquired: number;
+    customers_converted_to_orders: number;
+    conversion_rate: number;
   }>;
 }
 
@@ -87,9 +89,9 @@ export function EnhancedAdminAnalytics() {
     );
   }
 
-  const conversionRate = analytics.qrScans.total_scans > 0 
-    ? ((analytics.customerUnlocks.total_unlocks / analytics.qrScans.total_scans) * 100).toFixed(1)
-    : '0';
+  const qrConversionRate = analytics.customerEngagement.customers_acquired_via_qr > 0 
+    ? analytics.customerEngagement.qr_to_order_conversion_rate
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -138,15 +140,15 @@ export function EnhancedAdminAnalytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-medium-gray mb-1">Total Revenue</p>
+                    <p className="text-sm text-medium-gray mb-1">QR Customers Acquired</p>
                     <p className="text-2xl font-bold text-rich-black">
-                      ₹{analytics.revenue.totalRevenue?.toLocaleString() || '0'}
+                      {analytics.qrCustomerAcquisition.total_customers_via_qr || '0'}
                     </p>
                     <p className="text-xs text-medium-gray mt-1">
-                      {analytics.revenue.totalOrders} completed orders
+                      {analytics.qrCustomerAcquisition.shops_unlocked} shops unlocked
                     </p>
                   </div>
-                  <DollarSign className="w-8 h-8 text-green-500 opacity-50" />
+                  <Users className="w-8 h-8 text-green-500 opacity-50" />
                 </div>
               </CardContent>
             </Card>
@@ -155,13 +157,13 @@ export function EnhancedAdminAnalytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-medium-gray mb-1">Active Customers</p>
+                    <p className="text-sm text-medium-gray mb-1">QR to Order Customers</p>
                     <p className="text-2xl font-bold text-rich-black">
-                      {analytics.customerEngagement.active_customers}
+                      {analytics.customerEngagement.customers_who_ordered || '0'}
                     </p>
-                    <p className="text-xs text-medium-gray mt-1">Last 30 days</p>
+                    <p className="text-xs text-medium-gray mt-1">Converted from QR scans</p>
                   </div>
-                  <Users className="w-8 h-8 text-blue-500 opacity-50" />
+                  <TrendingUp className="w-8 h-8 text-blue-500 opacity-50" />
                 </div>
               </CardContent>
             </Card>
@@ -187,10 +189,10 @@ export function EnhancedAdminAnalytics() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-medium-gray mb-1">QR Conversion</p>
-                    <p className="text-2xl font-bold text-rich-black">{conversionRate}%</p>
+                    <p className="text-sm text-medium-gray mb-1">QR to Order Rate</p>
+                    <p className="text-2xl font-bold text-rich-black">{qrConversionRate}%</p>
                     <p className="text-xs text-medium-gray mt-1">
-                      {analytics.qrScans.total_scans} total scans
+                      Customer acquisition efficiency
                     </p>
                   </div>
                   <Zap className="w-8 h-8 text-purple-500 opacity-50" />
@@ -306,7 +308,7 @@ export function EnhancedAdminAnalytics() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Store className="w-5 h-5 text-brand-yellow" />
-                Top Performing Shops
+                Top QR Customer Acquisition Shops
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -326,15 +328,14 @@ export function EnhancedAdminAnalytics() {
                         <div className="font-medium text-rich-black">{shop.name}</div>
                         <div className="flex items-center gap-2 text-xs text-medium-gray">
                           <MapPin className="w-3 h-3" />
-                          {shop.city && shop.city !== 'Unknown' ? shop.city : 
-                            shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location N/A'
-                          }
+                          {shop.city && shop.city !== 'Unknown' ? shop.city : 'Location N/A'}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold text-rich-black">{shop.recentOrders}</div>
-                      <div className="text-xs text-medium-gray">recent orders</div>
+                      <div className="font-semibold text-rich-black">{shop.unique_customers_acquired}</div>
+                      <div className="text-xs text-medium-gray">customers acquired</div>
+                      <div className="text-xs text-brand-yellow">{shop.conversion_rate}% conversion</div>
                     </div>
                   </div>
                 ))}

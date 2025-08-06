@@ -58,11 +58,31 @@ export const getShopAnalytics = async (req, res) => {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
-    // Calculate basic metrics
+    // Calculate QR Customer Acquisition metrics (replacing revenue focus)
     const totalOrders = allOrders.length;
-    const totalRevenue = allOrders
-      .filter(order => order.finalAmount)
-      .reduce((sum, order) => sum + parseFloat(order.finalAmount || 0), 0);
+    
+    // Get QR customer acquisition data
+    const customerUnlocks = await User.sequelize.query(`
+      SELECT DISTINCT
+        csu.customer_id,
+        u.name as customer_name,
+        u.phone as customer_phone,
+        csu.created_at as first_unlock_date,
+        MIN(o.created_at) as first_order_date,
+        COUNT(o.id) as total_orders_from_customer
+      FROM customer_shop_unlocks csu
+      JOIN users u ON csu.customer_id = u.id
+      LEFT JOIN orders o ON csu.customer_id = o.customer_id AND csu.shop_id = o.shop_id
+      WHERE csu.shop_id = ?
+      GROUP BY csu.customer_id, u.name, u.phone, csu.created_at
+      ORDER BY csu.created_at DESC
+    `, {
+      replacements: [shopId],
+      type: User.sequelize.QueryTypes.SELECT
+    });
+
+    const customersAcquiredViaQR = customerUnlocks.length;
+    const customersWhoOrdered = customerUnlocks.filter(c => c.total_orders_from_customer > 0).length;
 
     // Order status distribution
     const orderStats = {
@@ -96,23 +116,23 @@ export const getShopAnalytics = async (req, res) => {
       }
     });
 
+    // Enhanced repeat customers analysis focusing on QR acquisition
     const repeatCustomers = Object.entries(customerOrderCounts)
       .filter(([_, count]) => count > 1)
       .map(([customerId, count]) => {
         const customerOrders = allOrders.filter(order => order.customerId === parseInt(customerId));
-        const totalSpent = customerOrders
-          .filter(order => order.finalAmount)
-          .reduce((sum, order) => sum + parseFloat(order.finalAmount || 0), 0);
-        
         const lastOrder = customerOrders[0]; // Orders are sorted by createdAt DESC
         const loyaltyLevel = count >= 5 ? 'VIP' : count >= 3 ? 'Regular' : 'New';
+        
+        // Check if customer was acquired via QR
+        const wasAcquiredViaQR = customerUnlocks.some(c => c.customer_id === parseInt(customerId));
 
         return {
           customer_id: parseInt(customerId),
           customer_name: lastOrder.customer?.name || 'Unknown Customer',
           customer_phone: lastOrder.customer?.phone || 'N/A',
           order_count: count,
-          total_spent: totalSpent,
+          acquired_via_qr: wasAcquiredViaQR,
           last_order_date: lastOrder.createdAt,
           loyaltyLevel
         };
@@ -170,9 +190,9 @@ export const getShopAnalytics = async (req, res) => {
 
     const trending = monthlyOrderGrowth > 5 ? 'up' : monthlyOrderGrowth < -5 ? 'down' : 'stable';
 
-    // Average order value
-    const avgOrderValue = completedOrders.length > 0 
-      ? totalRevenue / completedOrders.length 
+    // QR Customer Conversion Rate
+    const qrToOrderConversionRate = customersAcquiredViaQR > 0 
+      ? Math.round((customersWhoOrdered / customersAcquiredViaQR) * 100) 
       : 0;
 
     const analytics = {
@@ -181,17 +201,23 @@ export const getShopAnalytics = async (req, res) => {
         name: shop.name,
         city: shop.city,
         state: shop.state,
-        rating: shop.rating || 0,
         totalOrders: shop.totalOrders || totalOrders
       },
       summary: {
         totalOrders,
-        totalRevenue: Math.round(totalRevenue * 100) / 100, // Round to 2 decimal places
         uniqueCustomers,
+        customersAcquiredViaQR,
+        customersWhoOrdered,
+        qrToOrderConversionRate,
         completionRate,
         repeatCustomerRate,
-        avgOrderValue: Math.round(avgOrderValue * 100) / 100, // Round to 2 decimal places
         avgCompletionTime: avgCompletionTime.toString()
+      },
+      qrCustomerAcquisition: {
+        totalCustomersAcquired: customersAcquiredViaQR,
+        customersWhoOrdered,
+        conversionRate: qrToOrderConversionRate,
+        customerDetails: customerUnlocks.slice(0, 10) // Top 10 recent QR acquisitions
       },
       orderStats,
       customerStats: {

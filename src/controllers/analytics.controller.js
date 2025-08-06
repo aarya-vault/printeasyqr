@@ -15,22 +15,17 @@ class AnalyticsController {
         customerUnlockStats,
         qrScanStats
       ] = await Promise.all([
-        // Total revenue and growth
-        Order.findAll({
-          attributes: [
-            [
-              Order.sequelize.fn('COALESCE', 
-                Order.sequelize.fn('SUM', Order.sequelize.col('final_amount')), 
-                0
-              ), 'totalRevenue'
-            ],
-            [
-              Order.sequelize.fn('COUNT', Order.sequelize.col('id')), 
-              'totalOrders'
-            ]
-          ],
-          where: { status: 'completed' }
-        }),
+        // QR Customer Acquisition Analytics (replacing revenue metrics)
+        User.sequelize.query(`
+          SELECT 
+            COUNT(DISTINCT users.id) as total_customers_via_qr,
+            COUNT(DISTINCT csu.shop_id) as shops_unlocked,
+            COUNT(DISTINCT orders.id) as total_qr_orders
+          FROM users
+          LEFT JOIN customer_shop_unlocks csu ON users.id = csu.customer_id
+          LEFT JOIN orders ON users.id = orders.customer_id AND orders.shop_id = csu.shop_id
+          WHERE users.role = 'customer'
+        `, { type: Order.sequelize.QueryTypes.SELECT }),
         
         // Monthly growth data
         User.sequelize.query(`
@@ -45,29 +40,31 @@ class AnalyticsController {
           ORDER BY month ASC
         `, { type: Order.sequelize.QueryTypes.SELECT }),
 
-        // Shop performance metrics
+        // Shop QR Customer Acquisition Performance (replacing ratings-based metrics)
         Shop.findAll({
           attributes: [
-            'id', 'name', 'city', 'totalOrders', 'rating', 'isOnline', 'createdAt'
+            'id', 'name', 'city', 'totalOrders', 'isOnline', 'createdAt',
+            [Shop.sequelize.literal('(SELECT COUNT(DISTINCT csu.customer_id) FROM customer_shop_unlocks csu WHERE csu.shop_id = Shop.id)'), 'uniqueCustomersAcquired'],
+            [Shop.sequelize.literal('(SELECT COUNT(*) FROM customer_shop_unlocks csu WHERE csu.shop_id = Shop.id AND csu.created_at >= NOW() - INTERVAL \'30 days\')'), 'recentUnlocks']
           ],
           include: [{
             model: Order,
-            attributes: ['status', 'finalAmount', 'createdAt'],
+            attributes: ['status', 'createdAt', 'customerId'],
             required: false
           }],
-          order: [['totalOrders', 'DESC']]
+          order: [[Shop.sequelize.literal('uniqueCustomersAcquired'), 'DESC']]
         }),
 
-        // Customer engagement metrics
-        Order.sequelize.query(`
+        // QR Customer Acquisition Engagement (replacing revenue-focused metrics)
+        User.sequelize.query(`
           SELECT 
-            COUNT(DISTINCT customer_id) as active_customers,
-            AVG(final_amount) as avg_order_value,
-            COUNT(*) as total_orders_last_30_days,
-            COUNT(DISTINCT shop_id) as shops_with_orders
-          FROM orders 
-          WHERE created_at >= NOW() - INTERVAL '30 days'
-            AND status != 'cancelled'
+            COUNT(DISTINCT csu.customer_id) as customers_acquired_via_qr,
+            COUNT(DISTINCT o.customer_id) as customers_who_ordered,
+            COUNT(DISTINCT csu.shop_id) as shops_with_qr_unlocks,
+            ROUND(AVG(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END) * 100, 2) as qr_to_order_conversion_rate
+          FROM customer_shop_unlocks csu
+          LEFT JOIN orders o ON csu.customer_id = o.customer_id AND csu.shop_id = o.shop_id
+          WHERE csu.created_at >= NOW() - INTERVAL '30 days'
         `, { type: Order.sequelize.QueryTypes.SELECT }),
 
         // Recent platform activity
@@ -80,24 +77,21 @@ class AnalyticsController {
           ]
         }),
 
-        // Top performing shops
-        Shop.findAll({
-          attributes: [
-            'id', 'name', 'city', 'totalOrders', 'rating', 
-            [Shop.sequelize.fn('COUNT', Shop.sequelize.col('orders.id')), 'recentOrders']
-          ],
-          include: [{
-            model: Order,
-            attributes: [],
-            where: {
-              createdAt: { [Op.gte]: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-            },
-            required: false
-          }],
-          group: ['Shop.id'],
-          order: [[Shop.sequelize.literal('recentOrders'), 'DESC']],
-          limit: 10
-        }),
+        // Top QR Customer Acquisition Shops (replacing ratings-based ranking)
+        Shop.sequelize.query(`
+          SELECT 
+            s.id, s.name, s.city, s.total_orders,
+            COUNT(DISTINCT csu.customer_id) as unique_customers_acquired,
+            COUNT(DISTINCT CASE WHEN o.id IS NOT NULL THEN csu.customer_id END) as customers_converted_to_orders,
+            ROUND(AVG(CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END) * 100, 2) as conversion_rate
+          FROM shops s
+          LEFT JOIN customer_shop_unlocks csu ON s.id = csu.shop_id
+          LEFT JOIN orders o ON csu.customer_id = o.customer_id AND csu.shop_id = o.shop_id
+          WHERE s.is_approved = true
+          GROUP BY s.id, s.name, s.city, s.total_orders
+          ORDER BY unique_customers_acquired DESC, conversion_rate DESC
+          LIMIT 10
+        `, { type: Order.sequelize.QueryTypes.SELECT }),
 
         // Customer unlock statistics
         ShopUnlock ? ShopUnlock.sequelize.query(`
