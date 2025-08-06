@@ -781,7 +781,7 @@ export default function EnhancedAdminDashboard() {
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Location:</span>
-                                  <span className="ml-2">{shop.city}</span>
+                                  <span className="ml-2">{shop.city || 'Not specified'}, {shop.state || 'Not specified'}</span>
                                 </p>
                                 <p className="flex items-center">
                                   <span className="font-medium">Orders:</span>

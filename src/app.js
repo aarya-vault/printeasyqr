@@ -14,6 +14,7 @@ const __dirname = dirname(__filename);
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import shopRoutes from './routes/shop.routes.js';
+import shopOwnerAnalyticsRoutes from './routes/shopOwnerAnalytics.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import shopApplicationRoutes from './routes/shopApplication.routes.js';
@@ -22,7 +23,6 @@ import qrRoutes from './routes/qr.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import pincodeRoutes from './routes/pincode.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
-import shopOwnerAnalyticsRoutes from './routes/shopOwnerAnalytics.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -133,6 +133,7 @@ app.use('/api*', (req, res, next) => {
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', shopRoutes);
+app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', messageRoutes);
 app.use('/api', shopApplicationRoutes);

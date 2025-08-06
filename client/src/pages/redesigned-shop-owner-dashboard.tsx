@@ -595,6 +595,15 @@ export default function RedesignedShopOwnerDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => navigate('/shop-analytics')}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => navigate('/shop-settings')}
                   className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
                 >

@@ -1,11 +1,11 @@
-import express from 'express';
-import ShopOwnerAnalyticsController from '../controllers/shopOwnerAnalytics.controller.js';
+import { Router } from 'express';
 import { requireAuth, requireShopOwner } from '../middleware/auth.middleware.js';
+import { getShopAnalytics, getCustomerInsights } from '../controllers/shopOwnerAnalytics.controller.js';
 
-const router = express.Router();
+const router = Router();
 
-// Shop owner analytics routes
-router.get('/shop/:shopId/analytics', requireAuth, requireShopOwner, ShopOwnerAnalyticsController.getShopAnalytics);
-router.get('/shop/:shopId/customer-insights', requireAuth, requireShopOwner, ShopOwnerAnalyticsController.getCustomerInsights);
+// Protected routes - require shop owner authentication
+router.get('/shop/:shopId/analytics', requireAuth, getShopAnalytics);
+router.get('/shop/:shopId/customer-insights', requireAuth, getCustomerInsights);
 
 export default router;
