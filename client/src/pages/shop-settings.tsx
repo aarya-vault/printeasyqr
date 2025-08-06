@@ -46,27 +46,14 @@ export default function ShopSettings() {
 
   // Fetch shop details
   const { data: shop, isLoading, error } = useQuery({
-    queryKey: [`/api/shops/owner/${user?.id}`],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      console.log('🔍 Fetching shop details for user:', user.id);
-      const response = await fetch(`/api/shops/owner/${user.id}`, {
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        console.error('Failed to fetch shop details:', response.status);
-        throw new Error('Failed to fetch shop details');
-      }
-      const data = await response.json();
+    queryKey: ['/api/shops/owner', user?.id],
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    select: (data: any) => {
       console.log('✅ Shop data received:', data);
       // Handle both direct shop data and nested shop format
-      return data.shop || data;
-    },
-    enabled: !!user?.id
+      return data?.shop || data;
+    }
   });
 
   const [formData, setFormData] = useState({
@@ -131,26 +118,14 @@ export default function ShopSettings() {
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
       console.log('🔍 Sending shop settings update:', formData);
-      const response = await fetch('/api/shops/settings', {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData)
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Shop settings update failed:', errorText);
-        throw new Error('Failed to save settings');
-      }
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('/api/shops/settings', 'PATCH', formData);
       return response.json();
     },
     onSuccess: () => {
       // Invalidate all shop-related queries for real-time synchronization
       queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops/owner', user?.id] });
       if (shop?.slug) {
         queryClient.invalidateQueries({ queryKey: [`/api/shops/slug/${shop.slug}`] });
       }
