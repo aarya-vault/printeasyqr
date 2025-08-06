@@ -39,19 +39,9 @@ export function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-rich-black">
-              {shop.name}
-            </DialogTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-bold text-rich-black">
+            {shop.name}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
