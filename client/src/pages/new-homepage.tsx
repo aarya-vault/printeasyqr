@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { 
   Printer, ArrowRight, CheckCircle, Clock, Shield, 
   Users, MapPin, Smartphone, FileText, Star,
   Building2, Award, Zap, HeadphonesIcon, Upload,
   MessageCircle, Search, Camera, Download, Eye,
   ChevronRight, Phone, Mail, Globe, CheckCircle2,
-  Timer, Headphones, QrCode, User
+  Timer, Headphones, QrCode, User, Store, ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,8 +17,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { useToast } from '@/hooks/use-toast';
-import { useLocation } from 'wouter';
 import QRScanner from '@/components/qr-scanner';
+import { useQuery } from '@tanstack/react-query';
+import { Badge } from '@/components/ui/badge';
 
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
@@ -31,6 +32,14 @@ export default function NewHomepage() {
   const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [showBrowseShops, setShowBrowseShops] = useState(false);
+
+  // Fetch shops for anonymous browsing
+  const { data: shops = [], isLoading: shopsLoading } = useQuery({
+    queryKey: ['/api/shops'],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: showBrowseShops, // Only fetch when browse section is shown
+  });
 
   // Auto-fill customer phone from persistent data
   useEffect(() => {
@@ -516,11 +525,140 @@ export default function NewHomepage() {
                   <User className="w-5 h-5 mr-2" />
                   Customer Login
                 </Button>
+                <Button 
+                  onClick={() => setShowBrowseShops(!showBrowseShops)}
+                  variant="outline"
+                  className="w-full sm:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black px-6 py-3"
+                >
+                  <Store className="w-5 h-5 mr-2" />
+                  {showBrowseShops ? 'Hide Shops' : 'Browse Shops'}
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Browse Shops Section - Anonymous Discovery */}
+      {showBrowseShops && (
+        <section className="py-8 lg:py-12 bg-white">
+          <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-6xl lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
+                Discover Print Shops
+              </h2>
+              <p className="text-gray-600 text-sm lg:text-base">
+                Browse verified shops on our platform. Login required to place orders.
+              </p>
+            </div>
+
+            {shopsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFBF00] mx-auto"></div>
+                <p className="text-gray-500 mt-4">Loading shops...</p>
+              </div>
+            ) : shops.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {shops.slice(0, 9).map((shop: any) => (
+                  <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-rich-black text-lg mb-1">
+                            {shop.publicName || shop.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 mb-2">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            <span className="truncate">
+                              {shop.publicAddress || shop.address}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {shop.isOnline ? (
+                            <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">Online</Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-800 text-xs px-2 py-1">Offline</Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Services */}
+                      {(shop.servicesOffered || shop.services) && (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-gray-700 mb-1">Services:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {(shop.servicesOffered || shop.services)?.slice(0, 3).map((service: string, index: number) => (
+                              <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                {service}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Working Hours Status */}
+                      <div className="mb-4">
+                        <div className="flex items-center text-sm">
+                          <Clock className="w-4 h-4 mr-1 text-gray-500" />
+                          <span className="text-gray-600">
+                            {shop.workingHours ? 'Custom Hours' : 'Standard Hours'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <Button
+                          onClick={() => {
+                            toast({
+                              title: "Login Required",
+                              description: "Please login to place orders and unlock shops",
+                              variant: "default",
+                            });
+                            handleCustomerLogin();
+                          }}
+                          className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 text-sm py-2"
+                        >
+                          <Printer className="w-4 h-4 mr-2" />
+                          Start Ordering
+                        </Button>
+                        <Button
+                          onClick={() => navigate('/browse-shops')}
+                          variant="outline"
+                          className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00] text-sm py-2"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Store className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">No Shops Available</h3>
+                <p className="text-gray-500">Check back later for verified print shops</p>
+              </div>
+            )}
+
+            {shops.length > 9 && (
+              <div className="text-center mt-8">
+                <Button
+                  onClick={() => navigate('/browse-shops')}
+                  variant="outline"
+                  className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black px-8 py-3"
+                >
+                  View All {shops.length} Shops
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       
       {/* Beautiful Redesigned Footer */}
