@@ -1,421 +1,496 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
+import { useLocation } from 'wouter';
+import { 
+  Search, MapPin, Clock, Store, Printer, Phone, 
+  Mail, Star, Users, Award, ArrowLeft, ExternalLink,
+  Filter, X, CheckCircle, AlertCircle, Building2,
+  Timer, Calendar, Shield
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useLocation, Link } from 'wouter';
-import { 
-  ArrowLeft, Search, MapPin, Clock, Star, Users, Upload,
-  Home, Package, ShoppingCart, User, Phone, Eye, Lock, Unlock, Store, Printer
-} from 'lucide-react';
-import LoadingScreen from '@/components/loading-screen';
-import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
-import BottomNavigation from '@/components/common/bottom-navigation';
-import DetailedShopModal from '@/components/detailed-shop-modal';
+import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { Navbar } from '@/components/layout/navbar';
 
 interface Shop {
   id: number;
   name: string;
   slug: string;
   address: string;
+  city: string;
+  state: string;
+  pinCode: string;
   phone: string;
-  publicName?: string;
-  publicAddress?: string;
-  publicContactNumber?: string;
-  isOpen?: boolean;
-  isOnline?: boolean;
-  workingHours?: Record<string, {
-    open?: string;
-    close?: string;
-    closed?: boolean;
-    is24Hours?: boolean;
-  }>;
-  servicesOffered?: string[];
-  equipmentAvailable?: string[];
-  services?: string[];
-  equipment?: string[];
+  email: string;
+  publicOwnerName: string;
+  completeAddress: string;
+  services: string[];
+  equipment: string[];
+  yearsOfExperience: number;
+  workingHours: any;
+  isOnline: boolean;
+  rating: number;
+  totalOrders: number;
+  acceptsWalkinOrders: boolean;
 }
 
 export default function BrowseShops() {
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
-  const [showShopDetails, setShowShopDetails] = useState(false);
-  const { toast } = useToast();
+  const [showDetails, setShowDetails] = useState(false);
+  const [filterCity, setFilterCity] = useState('');
+  const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
 
-  // Fetch active shops
-  const { data: shops = [], isLoading } = useQuery<Shop[]>({
+  // Fetch all shops
+  const { data: shops = [], isLoading } = useQuery({
     queryKey: ['/api/shops'],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // Fetch customer's unlocked shops - need to get current user ID first
-  const { data: userData } = useQuery({
-    queryKey: ['/api/auth/me'],
-    staleTime: 5 * 60 * 1000,
+  // Filter shops based on search and filters
+  const filteredShops = shops.filter((shop: Shop) => {
+    const matchesSearch = 
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.services?.some(service => service.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesCity = !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
+    const matchesOnline = filterOnline === null || shop.isOnline === filterOnline;
+
+    return matchesSearch && matchesCity && matchesOnline;
   });
 
-  const { data: unlockedData } = useQuery<{unlockedShopIds: number[]}>({
-    queryKey: [`/api/customer/${userData?.id}/unlocked-shops`],
-    enabled: !!userData?.id,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const unlockedShopIds = unlockedData?.unlockedShopIds || [];
-
-  // Check if shop is available (unlocked)
-  const isShopUnlocked = (shopId: number) => {
-    return unlockedShopIds.includes(shopId);
-  };
-
-  // Enhanced shop availability calculation
-  const calculateShopAvailability = (shop: Shop) => {
-    // Handle shops with no working hours data
-    if (!shop.workingHours || typeof shop.workingHours !== 'object') {
-      return { isOpen: shop.isOnline !== false, status: 'Hours not available' };
-    }
-    
-    const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    const daySchedule = shop.workingHours[currentDay];
-    if (!daySchedule || daySchedule.closed) {
-      return { isOpen: false, status: 'Closed Today' };
-    }
-    
-    // Check for 24/7 operation
-    if (daySchedule.is24Hours) {
-      return { isOpen: true, status: 'Open 24 Hours' };
-    }
-    
-    // Ensure open and close times exist
-    if (!daySchedule.open || !daySchedule.close) {
-      return { isOpen: false, status: 'Hours not available' };
-    }
-    
-    const openTimeParts = daySchedule.open.split(':');
-    const closeTimeParts = daySchedule.close.split(':');
-    
-    if (openTimeParts.length !== 2 || closeTimeParts.length !== 2) {
-      return { isOpen: false, status: 'Invalid hours format' };
-    }
-    
-    const openTime = parseInt(openTimeParts[0]) * 60 + parseInt(openTimeParts[1]);
-    const closeTime = parseInt(closeTimeParts[0]) * 60 + parseInt(closeTimeParts[1]);
-    
-    // Handle 24/7 shops (open equals close time)
-    if (openTime === closeTime) {
-      return { isOpen: true, status: '24/7 Open' };
-    }
-    
-    // Handle overnight shops
-    if (openTime > closeTime) {
-      const isOpen = currentTime >= openTime || currentTime <= closeTime;
-      return { 
-        isOpen, 
-        status: isOpen ? 'Open Now' : `Opens at ${daySchedule.open}` 
-      };
-    }
-    
-    // Regular hours
-    const isOpen = currentTime >= openTime && currentTime <= closeTime;
-    return { 
-      isOpen, 
-      status: isOpen ? 'Open Now' : currentTime < openTime ? `Opens at ${daySchedule.open}` : 'Closed'
-    };
-  };
+  // Extract unique cities for filter
+  const cities = Array.from(new Set(shops.map((shop: Shop) => shop.city))).sort();
 
   const handleShopClick = (shop: Shop) => {
     setSelectedShop(shop);
-    setShowShopDetails(true);
+    setShowDetails(true);
   };
 
-  const handleOrderClick = (shop: Shop, type: 'upload' | 'walkin') => {
-    if (!isShopUnlocked(shop.id)) {
+  const handleStartOrdering = (shop: Shop) => {
+    if (!user) {
       toast({
-        title: "Shop Locked",
-        description: "Please scan the shop's QR code to unlock ordering capabilities.",
-        variant: "destructive",
+        title: "Login Required",
+        description: "Please login to place orders and unlock shops",
+        variant: "default",
       });
+      navigate('/');
       return;
     }
-
-    if (shop.slug) {
-      navigate(`/shop/${shop.slug}?type=${type}`);
-    } else {
-      console.error('Shop slug is missing:', shop);
-      toast({
-        title: "Navigation Error",
-        description: "Unable to navigate to shop. Please try again.",
-        variant: "destructive",
-      });
-    }
+    
+    navigate(`/shop/${shop.slug}`);
   };
 
-  // Filter shops based on search
-  const filteredShops = shops.filter(shop => {
-    const search = searchQuery.toLowerCase();
-    return (
-      shop.name.toLowerCase().includes(search) ||
-      shop.address.toLowerCase().includes(search) ||
-      (shop.servicesOffered || shop.services || []).some(service => 
-        service.toLowerCase().includes(search)
-      )
-    );
-  });
-
-  // Sort shops - unlocked shops first
-  const sortedShops = [...filteredShops].sort((a, b) => {
-    const aUnlocked = isShopUnlocked(a.id);
-    const bUnlocked = isShopUnlocked(b.id);
-    
-    if (aUnlocked && !bUnlocked) return -1;
-    if (!aUnlocked && bUnlocked) return 1;
-    return 0;
-  });
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterCity('');
+    setFilterOnline(null);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/customer-dashboard')}
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold text-rich-black">Print Shops</h1>
-                <p className="text-sm text-gray-500">{filteredShops.length} shops available</p>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              onClick={() => navigate('/')}
+              variant="ghost"
+              className="flex items-center text-gray-600 hover:text-[#FFBF00]"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+            
+            <div className="text-right">
+              <p className="text-sm text-gray-500">
+                Found {filteredShops.length} of {shops.length} shops
+              </p>
             </div>
           </div>
-
-          {/* Search */}
-          <div className="mt-4 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search shops by name, location, or services..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          
+          <h1 className="text-3xl font-bold text-black mb-2">Browse Print Shops</h1>
+          <p className="text-gray-600">
+            Discover verified print shops near you. Login required to place orders.
+          </p>
         </div>
       </div>
 
-      {/* Shops List */}
-      <div className="px-6 py-6">
-        {filteredShops.length === 0 ? (
-          <Card className="bg-white">
-            <CardContent className="p-8 text-center">
-              <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No shops found</p>
-              <p className="text-sm text-gray-400 mt-1">
-                {searchQuery ? 'Try different search terms' : 'No print shops are currently available'}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sortedShops.map((shop) => {
-              const availability = calculateShopAvailability(shop);
-              const isUnlocked = isShopUnlocked(shop.id);
-              
-              return (
-                <Card 
-                  key={shop.id} 
-                  className={`transition-all cursor-pointer ${
-                    isUnlocked 
-                      ? 'border-2 border-brand-yellow/50 hover:border-brand-yellow bg-gradient-to-br from-white to-brand-yellow/5 hover:shadow-lg' 
-                      : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 opacity-75'
-                  }`}
-                  onClick={() => handleShopClick(shop)}
-                >
-                  <CardContent className="p-4 sm:p-5">
-                    {/* Shop Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {/* Shop Icon */}
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            isUnlocked ? 'bg-brand-yellow' : 'bg-gray-300'
-                          }`}>
-                            <Store className={`w-6 h-6 ${isUnlocked ? 'text-rich-black' : 'text-gray-600'}`} />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className={`font-bold text-lg ${isUnlocked ? 'text-rich-black' : 'text-gray-700'}`}>
-                                {shop.name}
-                              </h3>
-                              {isUnlocked ? (
-                                <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30">
-                                  <Unlock className="w-3 h-3 mr-1" />
-                                  Unlocked
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="bg-gray-200 text-gray-600">
-                                  <Lock className="w-3 h-3 mr-1" />
-                                  Locked
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            {/* Availability Badge */}
-                            <div className="mt-1">
-                              <Badge 
-                                className={`text-xs ${
-                                  availability.isOpen 
-                                    ? 'bg-green-100 text-green-800 border-green-200' 
-                                    : 'bg-red-100 text-red-800 border-red-200'
-                                }`}
-                              >
-                                <Clock className="w-3 h-3 mr-1" />
-                                {availability.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Main Search */}
+            <div className="lg:col-span-5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search shops, cities, services..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            {/* City Filter */}
+            <div className="lg:col-span-3">
+              <select
+                value={filterCity}
+                onChange={(e) => setFilterCity(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
+              >
+                <option value="">All Cities</option>
+                {cities.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Online Status Filter */}
+            <div className="lg:col-span-2">
+              <select
+                value={filterOnline === null ? '' : filterOnline.toString()}
+                onChange={(e) => setFilterOnline(e.target.value === '' ? null : e.target.value === 'true')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
+              >
+                <option value="">All Status</option>
+                <option value="true">Online</option>
+                <option value="false">Offline</option>
+              </select>
+            </div>
+            
+            {/* Clear Filters */}
+            <div className="lg:col-span-2">
+              <Button
+                onClick={clearFilters}
+                variant="outline"
+                className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Clear
+              </Button>
+            </div>
+          </div>
+        </div>
 
-                    {/* Shop Details */}
-                    <div className="space-y-2 mb-3">
-                      <div className="flex items-start gap-2">
-                        <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                        <span className={`text-sm line-clamp-2 ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                          {shop.address || shop.publicAddress || 'Address not available'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Phone className={`w-4 h-4 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                        <span className={`text-sm ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                          {shop.publicContactNumber || shop.phone}
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFBF00] mx-auto"></div>
+            <p className="text-gray-500 mt-4">Loading shops...</p>
+          </div>
+        ) : filteredShops.length > 0 ? (
+          /* Shops Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredShops.map((shop: Shop) => (
+              <Card key={shop.id} className="hover:shadow-lg transition-shadow border border-gray-200 cursor-pointer">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-black text-lg mb-1">
+                        {shop.name}
+                      </h3>
+                      <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span className="truncate">
+                          {shop.city}, {shop.state}
                         </span>
                       </div>
                     </div>
-
-                    {/* Services */}
-                    {(shop.servicesOffered || shop.services) && (shop.servicesOffered || shop.services).length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Printer className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                          <span className={`text-xs font-medium ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                            Services Available
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {(shop.servicesOffered || shop.services || []).slice(0, 3).map((service, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="outline" 
-                              className={`text-xs ${
-                                isUnlocked 
-                                  ? 'border-gray-300 bg-white' 
-                                  : 'border-gray-200 bg-gray-100 text-gray-500'
-                              }`}
-                            >
-                              {service}
-                            </Badge>
-                          ))}
-                          {(shop.servicesOffered || shop.services || []).length > 3 && (
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${
-                                isUnlocked 
-                                  ? 'border-gray-300 bg-gray-50' 
-                                  : 'border-gray-200 bg-gray-100 text-gray-500'
-                              }`}
-                            >
-                              +{(shop.servicesOffered || shop.services).length - 3} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      {isUnlocked ? (
-                        <>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium"
-                            onClick={() => handleOrderClick(shop, 'upload')}
-                          >
-                            <Upload className="w-4 h-4 mr-1.5" />
-                            Place Order
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
-                            onClick={() => handleShopClick(shop)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </>
+                    <div className="flex flex-col items-end space-y-2">
+                      {shop.isOnline ? (
+                        <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Online
+                        </Badge>
                       ) : (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled
-                            className="flex-1 opacity-50"
-                          >
-                            <Lock className="w-3 h-3 mr-1" />
-                            Scan QR to Unlock
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="opacity-70"
-                            onClick={() => handleShopClick(shop)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </>
+                        <Badge className="bg-gray-100 text-gray-800 text-xs px-2 py-1">
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          Offline
+                        </Badge>
+                      )}
+                      {shop.rating > 0 && (
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Star className="w-3 h-3 fill-[#FFBF00] text-[#FFBF00] mr-1" />
+                          {shop.rating.toFixed(1)}
+                        </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                  
+                  {/* Services */}
+                  {shop.services && shop.services.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Services:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {shop.services.slice(0, 3).map((service: string, index: number) => (
+                          <span key={index} className="text-xs bg-[#FFBF00]/10 text-gray-700 px-2 py-1 rounded border border-[#FFBF00]/20">
+                            {service}
+                          </span>
+                        ))}
+                        {shop.services.length > 3 && (
+                          <span className="text-xs text-gray-500 px-2 py-1">
+                            +{shop.services.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Experience & Orders */}
+                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                    <div className="flex items-center">
+                      <Award className="w-4 h-4 mr-1" />
+                      <span>{shop.yearsOfExperience || 0} years exp.</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Building2 className="w-4 h-4 mr-1" />
+                      <span>{shop.totalOrders || 0} orders</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
+                    <Button
+                      onClick={() => handleStartOrdering(shop)}
+                      className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                    >
+                      <Printer className="w-4 h-4 mr-2" />
+                      Start Ordering
+                    </Button>
+                    <Button
+                      onClick={() => handleShopClick(shop)}
+                      variant="outline"
+                      className="w-full border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          /* Empty State */
+          <div className="text-center py-16">
+            <Store className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-3">No Shops Found</h3>
+            <p className="text-gray-500 mb-6">
+              {searchQuery || filterCity || filterOnline !== null 
+                ? "Try adjusting your search or filters" 
+                : "Check back later for verified print shops"}
+            </p>
+            {(searchQuery || filterCity || filterOnline !== null) && (
+              <Button
+                onClick={clearFilters}
+                variant="outline"
+                className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
+              >
+                Clear All Filters
+              </Button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Centralized Bottom Navigation */}
-      <BottomNavigation />
+      {/* Shop Details Modal */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-xl">
+              <Store className="w-6 h-6 mr-3 text-[#FFBF00]" />
+              {selectedShop?.name}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Complete shop information and services
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedShop && (
+            <div className="space-y-6">
+              {/* Status and Rating */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  {selectedShop.isOnline ? (
+                    <Badge className="bg-green-100 text-green-800">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Online & Available
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-gray-100 text-gray-800">
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      Currently Offline
+                    </Badge>
+                  )}
+                  {selectedShop.acceptsWalkinOrders && (
+                    <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40">
+                      Walk-in Orders
+                    </Badge>
+                  )}
+                </div>
+                {selectedShop.rating > 0 && (
+                  <div className="flex items-center">
+                    <Star className="w-5 h-5 fill-[#FFBF00] text-[#FFBF00] mr-1" />
+                    <span className="font-semibold">{selectedShop.rating.toFixed(1)}</span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({selectedShop.totalOrders} orders)
+                    </span>
+                  </div>
+                )}
+              </div>
 
-      {/* Floating Chat Button */}
-      <UnifiedFloatingChatButton />
+              <Separator />
 
-      {/* Detailed Shop Modal */}
-      <DetailedShopModal
-        shop={selectedShop}
-        isOpen={showShopDetails}
-        onClose={() => setShowShopDetails(false)}
-        onOrderClick={(type) => {
-          if (selectedShop) {
-            handleOrderClick(selectedShop, type);
-            setShowShopDetails(false);
-          }
-        }}
-      />
+              {/* Contact Information */}
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center text-black">
+                  <MapPin className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                  Contact & Location
+                </h4>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <Building2 className="w-4 h-4 mr-3 mt-0.5 text-gray-500 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-900">{selectedShop.completeAddress || selectedShop.address}</p>
+                      <p className="text-sm text-gray-600">{selectedShop.city}, {selectedShop.state} - {selectedShop.pinCode}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="w-4 h-4 mr-3 text-gray-500" />
+                    <span className="text-gray-900">{selectedShop.phone}</span>
+                  </div>
+                  {selectedShop.email && (
+                    <div className="flex items-center">
+                      <Mail className="w-4 h-4 mr-3 text-gray-500" />
+                      <span className="text-gray-900">{selectedShop.email}</span>
+                    </div>
+                  )}
+                  {selectedShop.publicOwnerName && (
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-3 text-gray-500" />
+                      <span className="text-gray-900">Owner: {selectedShop.publicOwnerName}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Services & Equipment */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {selectedShop.services && selectedShop.services.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center text-black">
+                      <Printer className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                      Services Offered
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedShop.services.map((service: string, index: number) => (
+                        <div key={index} className="flex items-center">
+                          <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                          <span className="text-gray-900">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedShop.equipment && selectedShop.equipment.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center text-black">
+                      <Award className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                      Equipment Available
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedShop.equipment.map((item: string, index: number) => (
+                        <div key={index} className="flex items-center">
+                          <Shield className="w-4 h-4 mr-2 text-blue-500" />
+                          <span className="text-gray-900">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Experience & Working Hours */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center text-black">
+                    <Timer className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                    Experience
+                  </h4>
+                  <p className="text-gray-900">{selectedShop.yearsOfExperience || 0} years in printing business</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Successfully completed {selectedShop.totalOrders || 0} orders
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center text-black">
+                    <Calendar className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                    Working Hours
+                  </h4>
+                  <p className="text-gray-900">
+                    {selectedShop.workingHours ? 'Custom working hours' : 'Standard business hours'}
+                  </p>
+                  {selectedShop.acceptsWalkinOrders && (
+                    <p className="text-sm text-green-600 mt-1">✓ Accepts walk-in orders</p>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  onClick={() => {
+                    setShowDetails(false);
+                    handleStartOrdering(selectedShop);
+                  }}
+                  className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium"
+                  size="lg"
+                >
+                  <Printer className="w-5 h-5 mr-2" />
+                  Start Ordering
+                </Button>
+                <Button
+                  onClick={() => setShowDetails(false)}
+                  variant="outline"
+                  className="flex-1 border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                  size="lg"
+                >
+                  Close Details
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

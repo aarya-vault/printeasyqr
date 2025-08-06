@@ -8,7 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 import { printFile, printAllFiles } from '@/utils/print-helpers';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
@@ -792,197 +798,122 @@ export default function RedesignedShopOwnerDashboard() {
           />
         </div>
 
-        {/* Integrated Analytics Section - Collapsible Tabs */}
-        <div className="grid grid-cols-1 gap-4 mb-6">
-          {/* Business Analytics Collapsible Section */}
-          <Collapsible open={showAnalytics} onOpenChange={setShowAnalytics}>
-            <Card>
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <BarChart3 className="w-5 h-5 text-[#FFBF00]" />
-                      <CardTitle className="text-lg">Business Analytics</CardTitle>
-                      {analyticsLoading && <LoadingSpinner size="sm" />}
-                    </div>
-                    {showAnalytics ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent className="pt-0">
-                  {analyticsLoading ? (
-                    <div className="text-center py-8">
-                      <LoadingSpinner />
-                      <p className="text-gray-500 mt-2">Loading business insights...</p>
-                    </div>
-                  ) : analytics ? (
-                    <div className="space-y-6">
-                      {/* Business Summary */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-blue-600 font-medium">Total Revenue</p>
-                              <p className="text-2xl font-bold text-blue-800">₹{analytics.summary.totalRevenue}</p>
-                            </div>
-                            <DollarSign className="w-8 h-8 text-blue-500" />
-                          </div>
-                        </div>
-                        <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-green-600 font-medium">Total Customers</p>
-                              <p className="text-2xl font-bold text-green-800">{analytics.customerStats.total}</p>
-                            </div>
-                            <Users className="w-8 h-8 text-green-500" />
-                          </div>
-                        </div>
-                        <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-purple-600 font-medium">Completion Rate</p>
-                              <p className="text-2xl font-bold text-purple-800">{analytics.summary.completionRate}%</p>
-                            </div>
-                            <CheckCircle2 className="w-8 h-8 text-purple-500" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Order Statistics */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <p className="text-2xl font-bold text-gray-800">{analytics.orderStats.new}</p>
-                          <p className="text-sm text-gray-600">New Orders</p>
-                        </div>
-                        <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                          <p className="text-2xl font-bold text-yellow-800">{analytics.orderStats.processing}</p>
-                          <p className="text-sm text-yellow-600">Processing</p>
-                        </div>
-                        <div className="text-center p-3 bg-blue-50 rounded-lg">
-                          <p className="text-2xl font-bold text-blue-800">{analytics.orderStats.ready}</p>
-                          <p className="text-sm text-blue-600">Ready</p>
-                        </div>
-                        <div className="text-center p-3 bg-green-50 rounded-lg">
-                          <p className="text-2xl font-bold text-green-800">{analytics.orderStats.completed}</p>
-                          <p className="text-sm text-green-600">Completed</p>
-                        </div>
-                        <div className="text-center p-3 bg-red-50 rounded-lg">
-                          <p className="text-2xl font-bold text-red-800">{analytics.orderStats.cancelled}</p>
-                          <p className="text-sm text-red-600">Cancelled</p>
-                        </div>
-                      </div>
-
-                      {/* Performance Metrics */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white p-4 rounded-lg border">
-                          <h4 className="font-semibold mb-3 flex items-center">
-                            <Activity className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                            Performance Overview
-                          </h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Average Order Value:</span>
-                              <span className="font-medium">₹{analytics.summary.avgOrderValue}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Average Completion:</span>
-                              <span className="font-medium">{analytics.summary.avgCompletionTime}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Repeat Customer Rate:</span>
-                              <span className="font-medium">{analytics.summary.repeatCustomerRate}%</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white p-4 rounded-lg border">
-                          <h4 className="font-semibold mb-3 flex items-center">
-                            <TrendingUp className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                            Growth Insights
-                          </h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600">Monthly Growth:</span>
-                              <div className="flex items-center">
-                                <span className="font-medium mr-1">{analytics.growth.monthlyOrderGrowth}%</span>
-                                {analytics.growth.trending === 'up' && <ArrowUp className="w-4 h-4 text-green-500" />}
-                                {analytics.growth.trending === 'down' && <ArrowDown className="w-4 h-4 text-red-500" />}
-                              </div>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Active Customers (30d):</span>
-                              <span className="font-medium">{analytics.customerStats.active30Days}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Active Customers (7d):</span>
-                              <span className="font-medium">{analytics.customerStats.active7Days}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No analytics data available</p>
-                    </div>
-                  )}
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Customer Insights Collapsible Section */}
-          <Collapsible open={showCustomerInsights} onOpenChange={setShowCustomerInsights}>
-            <Card>
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Users className="w-5 h-5 text-[#FFBF00]" />
-                      <CardTitle className="text-lg">Top Customers</CardTitle>
-                    </div>
-                    {showCustomerInsights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent className="pt-0">
-                  {analytics?.repeatCustomers && analytics.repeatCustomers.length > 0 ? (
-                    <div className="space-y-3">
-                      {analytics.repeatCustomers.slice(0, 10).map((customer, index) => (
-                        <div key={customer.customer_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-[#FFBF00] text-black rounded-full flex items-center justify-center font-bold text-sm">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-gray-900">{customer.customer_name}</p>
-                              <p className="text-sm text-gray-500">{customer.customer_phone}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-900">{customer.order_count} orders</p>
-                            <p className="text-sm text-gray-500">₹{customer.total_spent}</p>
-                            <Badge variant={customer.loyaltyLevel === 'VIP' ? 'default' : 'secondary'} className="mt-1">
-                              {customer.loyaltyLevel}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No repeat customers yet</p>
-                    </div>
-                  )}
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
+        {/* Business Analytics - Minimal Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowAnalytics(true)}
+            variant="outline"
+            className="w-full md:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            View Business Analytics
+            {analyticsLoading && <LoadingSpinner size="sm" className="ml-2" />}
+          </Button>
         </div>
+
+        {/* Business Analytics Modal */}
+        <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-[#FFBF00]" />
+                Business Analytics
+              </DialogTitle>
+              <DialogDescription>
+                Customer insights and business metrics for your shop
+              </DialogDescription>
+            </DialogHeader>
+            
+            {analyticsLoading ? (
+              <div className="text-center py-12">
+                <LoadingSpinner />
+                <p className="text-gray-500 mt-4">Loading business insights...</p>
+              </div>
+            ) : analytics ? (
+              <div className="space-y-6">
+                {/* Key Customer Metrics - No Revenue */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Total Customers</p>
+                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
+                      </div>
+                      <Users className="w-8 h-8 text-[#FFBF00]" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Unique Customers</p>
+                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.total || 0}</p>
+                      </div>
+                      <UserCheck className="w-8 h-8 text-[#FFBF00]" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/20 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Repeat Customers</p>
+                        <p className="text-2xl font-bold text-black">{analytics.customerStats?.repeatCustomers || 0}</p>
+                      </div>
+                      <Repeat className="w-8 h-8 text-[#FFBF00]" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Customer Activity */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-3 flex items-center text-black">
+                      <Activity className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                      Customer Activity
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Active (Last 7 Days)</span>
+                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active7Days || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Active (Last 30 Days)</span>
+                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active30Days || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Repeat Rate</span>
+                        <span className="font-bold text-black text-lg">{analytics.summary?.repeatCustomerRate || 0}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-3 flex items-center text-black">
+                      <CheckCircle2 className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                      Order Completion
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Completion Rate</span>
+                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.summary?.completionRate || 0}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Avg. Completion Time</span>
+                        <span className="font-bold text-black text-lg">{analytics.summary?.avgCompletionTime || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No Analytics Data</p>
+                <p className="text-sm">Start receiving orders to see business insights</p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
 
 
