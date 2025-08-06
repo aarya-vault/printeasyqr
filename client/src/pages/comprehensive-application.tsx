@@ -34,8 +34,6 @@ const applicationSchema = z.object({
   completeAddress: z.string().min(1, 'Complete address is required'),
   
   // Location
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
   pinCode: z.string().min(6, 'Valid pin code is required'),
   
   // Business Details
@@ -103,8 +101,6 @@ export default function ComprehensiveApplicationPage() {
       phoneNumber: '',
       password: '',
       completeAddress: '',
-      city: '',
-      state: '',
       pinCode: '',
       services: [],
       customServices: [],
@@ -396,49 +392,19 @@ export default function ComprehensiveApplicationPage() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="City" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="State" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="pinCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pin Code *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Pin Code" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="pinCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pin Code * (For location-based matching)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="6-digit pin code" maxLength={6} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         );
 
@@ -704,7 +670,7 @@ export default function ComprehensiveApplicationPage() {
                 <p><strong>Public Shop Name:</strong> {form.watch('publicShopName')}</p>
                 <p><strong>Owner:</strong> {form.watch('ownerFullName')}</p>
                 <p><strong>Email:</strong> {form.watch('email')}</p>
-                <p><strong>City:</strong> {form.watch('city')}, {form.watch('state')}</p>
+                <p><strong>Pin Code:</strong> {form.watch('pinCode')}</p>
                 <p><strong>Experience:</strong> {form.watch('yearsOfExperience')}</p>
                 <p><strong>Services:</strong> {form.watch('services').length} selected + {form.watch('customServices')?.length || 0} custom</p>
                 <p><strong>Equipment:</strong> {form.watch('equipment')?.length || 0} selected + {form.watch('customEquipment')?.length || 0} custom</p>

@@ -34,8 +34,6 @@ interface ShopApplication {
   email: string;
   phoneNumber: string;
   completeAddress: string;
-  city: string;
-  state: string;
   pinCode: string;
   services: string[];
   customServices?: string[];
@@ -154,6 +152,48 @@ export default function ShopApplicationEditModal({
       : [...editingApplication.equipment, equipment];
     
     setEditingApplication({ ...editingApplication, equipment: equipmentList });
+  };
+
+  const addCustomService = () => {
+    if (customServiceInput.trim()) {
+      const currentCustomServices = editingApplication.customServices || [];
+      if (!currentCustomServices.includes(customServiceInput.trim()) && currentCustomServices.length < 10) {
+        setEditingApplication({
+          ...editingApplication,
+          customServices: [...currentCustomServices, customServiceInput.trim()]
+        });
+        setCustomServiceInput('');
+      }
+    }
+  };
+
+  const removeCustomService = (service: string) => {
+    const currentCustomServices = editingApplication.customServices || [];
+    setEditingApplication({
+      ...editingApplication,
+      customServices: currentCustomServices.filter(s => s !== service)
+    });
+  };
+
+  const addCustomEquipment = () => {
+    if (customEquipmentInput.trim()) {
+      const currentCustomEquipment = editingApplication.customEquipment || [];
+      if (!currentCustomEquipment.includes(customEquipmentInput.trim()) && currentCustomEquipment.length < 10) {
+        setEditingApplication({
+          ...editingApplication,
+          customEquipment: [...currentCustomEquipment, customEquipmentInput.trim()]
+        });
+        setCustomEquipmentInput('');
+      }
+    }
+  };
+
+  const removeCustomEquipment = (equipment: string) => {
+    const currentCustomEquipment = editingApplication.customEquipment || [];
+    setEditingApplication({
+      ...editingApplication,
+      customEquipment: currentCustomEquipment.filter(e => e !== equipment)
+    });
   };
 
   return (
@@ -371,46 +411,19 @@ export default function ShopApplicationEditModal({
                         rows={3}
                       />
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-rich-black mb-2">
-                          City *
-                        </label>
-                        <Input
-                          value={editingApplication.city}
-                          onChange={(e) => setEditingApplication({
-                            ...editingApplication,
-                            city: e.target.value
-                          })}
-                          placeholder="City name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-rich-black mb-2">
-                          State *
-                        </label>
-                        <Input
-                          value={editingApplication.state}
-                          onChange={(e) => setEditingApplication({
-                            ...editingApplication,
-                            state: e.target.value
-                          })}
-                          placeholder="State"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-rich-black mb-2">
-                          Pin Code *
-                        </label>
-                        <Input
-                          value={editingApplication.pinCode}
-                          onChange={(e) => setEditingApplication({
-                            ...editingApplication,
-                            pinCode: e.target.value
-                          })}
-                          placeholder="6-digit PIN"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        Pin Code * (For location-based matching)
+                      </label>
+                      <Input
+                        value={editingApplication.pinCode}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          pinCode: e.target.value
+                        })}
+                        placeholder="6-digit PIN"
+                        maxLength={6}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -436,6 +449,44 @@ export default function ShopApplicationEditModal({
                         </label>
                       ))}
                     </div>
+                    
+                    {/* Custom Services Section */}
+                    <div className="mt-4 space-y-3">
+                      <label className="block text-sm font-medium text-rich-black">Custom Services</label>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          placeholder="Add custom service (max 10)"
+                          value={customServiceInput}
+                          onChange={(e) => setCustomServiceInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomService())}
+                          disabled={(editingApplication.customServices?.length || 0) >= 10}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={addCustomService}
+                          disabled={!customServiceInput.trim() || (editingApplication.customServices?.length || 0) >= 10}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {editingApplication.customServices && editingApplication.customServices.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {editingApplication.customServices.map((service: string) => (
+                            <Badge key={service} variant="secondary" className="flex items-center gap-1">
+                              {service}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() => removeCustomService(service)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Custom services: {editingApplication.customServices?.length || 0}/10
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -457,6 +508,44 @@ export default function ShopApplicationEditModal({
                           <span className="text-sm capitalize">{equipment}</span>
                         </label>
                       ))}
+                    </div>
+                    
+                    {/* Custom Equipment Section */}
+                    <div className="mt-4 space-y-3">
+                      <label className="block text-sm font-medium text-rich-black">Custom Equipment</label>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          placeholder="Add custom equipment (max 10)"
+                          value={customEquipmentInput}
+                          onChange={(e) => setCustomEquipmentInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomEquipment())}
+                          disabled={(editingApplication.customEquipment?.length || 0) >= 10}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={addCustomEquipment}
+                          disabled={!customEquipmentInput.trim() || (editingApplication.customEquipment?.length || 0) >= 10}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {editingApplication.customEquipment && editingApplication.customEquipment.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {editingApplication.customEquipment.map((equipment: string) => (
+                            <Badge key={equipment} variant="secondary" className="flex items-center gap-1">
+                              {equipment}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() => removeCustomEquipment(equipment)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Custom equipment: {editingApplication.customEquipment?.length || 0}/10
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
