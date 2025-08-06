@@ -90,8 +90,8 @@ class ShopController {
       
       const transformedShop = ShopController.transformShopData(shop);
       
-      // Return the shop data directly (not nested in "shop" property)
-      res.json(transformedShop);
+      // Return the shop data in the expected format for dashboard compatibility
+      res.json({ shop: transformedShop });
     } catch (error) {
       console.error('Get shop error:', error);
       res.status(500).json({ message: 'Failed to get shop' });

@@ -63,7 +63,8 @@ export default function ShopSettings() {
       }
       const data = await response.json();
       console.log('✅ Shop data received:', data);
-      return data;
+      // Handle both direct shop data and nested shop format
+      return data.shop || data;
     },
     enabled: !!user?.id
   });
