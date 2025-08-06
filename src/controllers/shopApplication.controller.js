@@ -162,8 +162,8 @@ class ShopApplicationController {
           name: application.publicShopName,
           slug: application.shopSlug,
           address: application.publicAddress,
-          city: application.city,
-          state: application.state,
+          city: application.city || 'Unknown', // Fix: Provide default value
+          state: application.state || 'Unknown', // Fix: Provide default value
           pinCode: application.pinCode,
           phone: application.publicContactNumber || application.phoneNumber,
           publicOwnerName: application.publicOwnerName,
