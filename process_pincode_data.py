@@ -95,9 +95,11 @@ def process_pincode_csv(csv_file_path, output_file_path):
                 
                 normalized_district = district_mapping.get(district.upper(), district)
                 
-                # Clean and map data properly:
-                # For major cities, use district name as city
-                # For smaller areas, use cleaned office name as district/area within city
+                # CORRECT DATA MAPPING LOGIC:
+                # In Indian postal system:
+                # - "district" column in CSV = City (major administrative area like Ahmedabad, Mumbai)
+                # - "officename" column = District/Area within the city (like Thaltej, Ellisbridge)
+                # - "statename" column = State (Gujarat, Maharashtra)
                 
                 # Clean office name by removing postal suffixes and numbers
                 cleaned_office = office_name
@@ -106,14 +108,16 @@ def process_pincode_csv(csv_file_path, output_file_path):
                     cleaned_office = cleaned_office.replace(suffix, '')
                 cleaned_office = cleaned_office.strip()
                 
-                # Major city mapping - use district as city for these
+                # Major city mapping - CSV "district" column is actually the city
                 major_cities = {
                     'AHMADABAD': 'Ahmedabad',
                     'AHMEDABAD': 'Ahmedabad', 
                     'MUMBAI CITY': 'Mumbai',
                     'MUMBAI': 'Mumbai',
                     'BANGALORE URBAN': 'Bangalore',
+                    'BENGALURU URBAN': 'Bangalore',
                     'BANGALORE': 'Bangalore',
+                    'BENGALURU': 'Bangalore',
                     'NEW DELHI': 'New Delhi',
                     'DELHI': 'Delhi',
                     'KOLKATA': 'Kolkata',
@@ -156,36 +160,40 @@ def process_pincode_csv(csv_file_path, output_file_path):
                     'CHANDIGARH': 'Chandigarh'
                 }
                 
-                # Check if district is a major city
-                city = major_cities.get(normalized_district.upper(), None)
+                # CORRECT ASSIGNMENT:
+                # City = from CSV "district" column (mapped through major_cities)
+                # District = from cleaned CSV "officename" column
                 
-                if city:
-                    # For major cities, city name comes from major_cities mapping
-                    # District should remain the geographic district (normalized_district)
-                    # The cleaned office name becomes the area/locality info (we can store it separately or ignore)
-                    district_name = normalized_district
-                else:
-                    # For smaller towns/areas, use cleaned office name as city
-                    city = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
-                    district_name = normalized_district
+                city = major_cities.get(normalized_district.upper(), normalized_district)
+                district_name = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
                 
-                # Create entry (prioritize more specific entries)
+                # Get office type for prioritization
+                office_type = row.get('officetype', '').strip()
+                
+                # Create entry (prioritize SO > HO > BO)
                 if pincode not in pincode_data:
                     pincode_data[pincode] = {
                         'pincode': pincode,
                         'city': city,
                         'state': normalized_state,
-                        'district': district_name
+                        'district': district_name,
+                        'office_type': office_type
                     }
                     state_counts[normalized_state] += 1
                     district_counts[normalized_district] += 1
                     processed_count += 1
                 else:
-                    # Update if current entry has better city information
-                    current_city = pincode_data[pincode]['city']
-                    if len(city) > len(current_city) and city.upper() not in ['BO', 'SO', 'HO']:
+                    # Update if current entry has better office type priority
+                    current_office_type = pincode_data[pincode].get('office_type', '')
+                    office_priority = {'SO': 3, 'HO': 2, 'BO': 1, 'PO': 3}  # SO and PO are highest priority
+                    
+                    current_priority = office_priority.get(current_office_type, 0)
+                    new_priority = office_priority.get(office_type, 0)
+                    
+                    if new_priority > current_priority:
                         pincode_data[pincode]['city'] = city
                         pincode_data[pincode]['district'] = district_name
+                        pincode_data[pincode]['office_type'] = office_type
                     duplicate_count += 1
                 
                 if processed_count % 10000 == 0:
