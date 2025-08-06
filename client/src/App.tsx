@@ -24,7 +24,7 @@ const ShopOrderDetails = lazy(() => import("@/pages/shop-order-details"));
 const RedesignedShopSettings = lazy(() => import("@/pages/redesigned-shop-settings"));
 const EnhancedAdminDashboard = lazy(() => import("@/pages/enhanced-admin-dashboard"));
 const AdminLogin = lazy(() => import("@/components/auth/admin-login").then(m => ({ default: m.AdminLogin })));
-const SimpleShopApplication = lazy(() => import("@/components/simple-shop-application"));
+const ComprehensiveApplicationPage = lazy(() => import("@/pages/comprehensive-application"));
 const ShopOrder = lazy(() => import("@/pages/shop-order"));
 const OrderConfirmation = lazy(() => import("@/pages/order-confirmation"));
 const ShopNotifications = lazy(() => import("@/pages/shop-notifications"));
@@ -51,7 +51,7 @@ function Router() {
         <Route path="/admin-dashboard" component={EnhancedAdminDashboard} />
         <Route path="/admin-login" component={AdminLogin} />
         <Route path="/shop-login" component={ShopLoginPage} />
-        <Route path="/apply-shop" component={SimpleShopApplication} />
+        <Route path="/apply-shop" component={ComprehensiveApplicationPage} />
         <Route path="/shop/:slug" component={ShopOrder} />
         <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
         <Route path="/shop-notifications" component={ShopNotifications} />
