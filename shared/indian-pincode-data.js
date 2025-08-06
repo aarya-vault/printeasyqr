@@ -8900,19 +8900,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803211",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Chaksarwar"
+    "district": "PATNA"
   },
   "803212": {
     "pincode": "803212",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Budra"
+    "district": "PATNA"
   },
   "803214": {
     "pincode": "803214",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Bhgawatipur Karmor"
+    "district": "PATNA"
   },
   "803213": {
     "pincode": "803213",
@@ -8942,7 +8942,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803110",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Badarbali"
+    "district": "PATNA"
   },
   "801302": {
     "pincode": "801302",
@@ -8960,19 +8960,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "801304",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Daniyawan"
+    "district": "PATNA"
   },
   "803302": {
     "pincode": "803302",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Chintamanchak"
+    "district": "PATNA"
   },
   "801305": {
     "pincode": "801305",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Akair"
+    "district": "PATNA"
   },
   "803111": {
     "pincode": "803111",
@@ -8990,7 +8990,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803221",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Kanhaipur"
+    "district": "PATNA"
   },
   "803114": {
     "pincode": "803114",
@@ -9158,19 +9158,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800009",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Punadih"
+    "district": "PATNA"
   },
   "803203": {
     "pincode": "803203",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DGTOLA"
+    "district": "PATNA"
   },
   "801505": {
     "pincode": "801505",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DHIBRA"
+    "district": "PATNA"
   },
   "801109": {
     "pincode": "801109",
@@ -9182,25 +9182,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "801110",
     "city": "Patna",
     "state": "Bihar",
-    "district": "CHIKSHI"
+    "district": "PATNA"
   },
   "801102": {
     "pincode": "801102",
     "city": "Patna",
     "state": "Bihar",
-    "district": "SIHI"
+    "district": "PATNA"
   },
   "804453": {
     "pincode": "804453",
     "city": "Patna",
     "state": "Bihar",
-    "district": "JAT DUMARI"
+    "district": "PATNA"
   },
   "801104": {
     "pincode": "801104",
     "city": "Patna",
     "state": "Bihar",
-    "district": "ARAP"
+    "district": "PATNA"
   },
   "803202": {
     "pincode": "803202",
@@ -9212,13 +9212,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "801103",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DSIMARI"
+    "district": "PATNA"
   },
   "803201": {
     "pincode": "803201",
     "city": "Patna",
     "state": "Bihar",
-    "district": "KACHIDARGALI"
+    "district": "PATNA"
   },
   "804451": {
     "pincode": "804451",
@@ -9236,31 +9236,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "801108",
     "city": "Patna",
     "state": "Bihar",
-    "district": "JIV RAKHAN TOLA."
+    "district": "PATNA"
   },
   "801503": {
     "pincode": "801503",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DAUDPUR"
+    "district": "PATNA"
   },
   "801111": {
     "pincode": "801111",
     "city": "Patna",
     "state": "Bihar",
-    "district": "SRICHANDPUR"
+    "district": "PATNA"
   },
   "800030": {
     "pincode": "800030",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DHELMA"
+    "district": "PATNA"
   },
   "801105": {
     "pincode": "801105",
     "city": "Patna",
     "state": "Bihar",
-    "district": "MKURJI"
+    "district": "PATNA"
   },
   "821301": {
     "pincode": "821301",
@@ -12272,7 +12272,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824111",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Bedauli"
+    "district": "AURANGABAD"
   },
   "824217": {
     "pincode": "824217",
@@ -12290,25 +12290,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824112",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Charan"
+    "district": "AURANGABAD"
   },
   "824113": {
     "pincode": "824113",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Chanda"
+    "district": "AURANGABAD"
   },
   "824143": {
     "pincode": "824143",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Fort Daudnagar"
+    "district": "AURANGABAD"
   },
   "824202": {
     "pincode": "824202",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Ararua"
+    "district": "AURANGABAD"
   },
   "824220": {
     "pincode": "824220",
@@ -12320,7 +12320,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824203",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Gamhari"
+    "district": "AURANGABAD"
   },
   "824205": {
     "pincode": "824205",
@@ -12332,7 +12332,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824120",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Chaurahi"
+    "district": "AURANGABAD"
   },
   "824206": {
     "pincode": "824206",
@@ -12344,13 +12344,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824122",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Kurwan"
+    "district": "AURANGABAD"
   },
   "824121": {
     "pincode": "824121",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Karsawan"
+    "district": "AURANGABAD"
   },
   "824127": {
     "pincode": "824127",
@@ -12368,37 +12368,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824123",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Ankupa"
+    "district": "AURANGABAD"
   },
   "824208": {
     "pincode": "824208",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Beri Khiriawan"
+    "district": "AURANGABAD"
   },
   "824303": {
     "pincode": "824303",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Bairia"
+    "district": "AURANGABAD"
   },
   "824301": {
     "pincode": "824301",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Bara"
+    "district": "AURANGABAD"
   },
   "824124": {
     "pincode": "824124",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Bharub"
+    "district": "AURANGABAD"
   },
   "824125": {
     "pincode": "824125",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Bishambharpur"
+    "district": "AURANGABAD"
   },
   "824210": {
     "pincode": "824210",
@@ -12410,7 +12410,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824102",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Jogia"
+    "district": "AURANGABAD"
   },
   "824211": {
     "pincode": "824211",
@@ -12422,19 +12422,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824115",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Angrahi"
+    "district": "AURANGABAD"
   },
   "824302": {
     "pincode": "824302",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Karmalahang"
+    "district": "AURANGABAD"
   },
   "824103": {
     "pincode": "824103",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Baligaon"
+    "district": "AURANGABAD"
   },
   "824221": {
     "pincode": "824221",
@@ -15038,7 +15038,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110038",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Rajokari"
+    "district": "NEW DELHI"
   },
   "110047": {
     "pincode": "110047",
@@ -15110,43 +15110,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382424",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Chandkheda Society Area"
+    "district": "Ahmedabad"
   },
   "382210": {
     "pincode": "382210",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Navapura"
+    "district": "Ahmedabad"
   },
   "382430": {
     "pincode": "382430",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Kujad"
+    "district": "Ahmedabad"
   },
   "382433": {
     "pincode": "382433",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Chaulaj"
+    "district": "Ahmedabad"
   },
   "382330": {
     "pincode": "382330",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Limbadia"
+    "district": "Ahmedabad"
   },
   "382425": {
     "pincode": "382425",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Girmatha"
+    "district": "Ahmedabad"
   },
   "382405": {
     "pincode": "382405",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Gyaspur"
+    "district": "Ahmedabad"
   },
   "385001": {
     "pincode": "385001",
@@ -15296,7 +15296,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382225",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Rampur"
+    "district": "Ahmedabad"
   },
   "382220": {
     "pincode": "382220",
@@ -15308,43 +15308,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382463",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Otaria"
+    "district": "Ahmedabad"
   },
   "382260": {
     "pincode": "382260",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Kavitha"
+    "district": "Ahmedabad"
   },
   "382213": {
     "pincode": "382213",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Vasna  Chacharvadi"
+    "district": "Ahmedabad"
   },
   "382120": {
     "pincode": "382120",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Kukvav"
+    "district": "Ahmedabad"
   },
   "382460": {
     "pincode": "382460",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Rojka"
+    "district": "Ahmedabad"
   },
   "382455": {
     "pincode": "382455",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bhangadh"
+    "district": "Ahmedabad"
   },
   "382465": {
     "pincode": "382465",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Kamiala"
+    "district": "Ahmedabad"
   },
   "382115": {
     "pincode": "382115",
@@ -15362,43 +15362,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382145",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bhoyani"
+    "district": "Ahmedabad"
   },
   "382265": {
     "pincode": "382265",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Simej"
+    "district": "Ahmedabad"
   },
   "382240": {
     "pincode": "382240",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Deo Dholera"
+    "district": "Ahmedabad"
   },
   "382230": {
     "pincode": "382230",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Arnej"
+    "district": "Ahmedabad"
   },
   "382130": {
     "pincode": "382130",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Dhedasana"
+    "district": "Ahmedabad"
   },
   "382250": {
     "pincode": "382250",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Jeska"
+    "district": "Ahmedabad"
   },
   "382140": {
     "pincode": "382140",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ashoknagar"
+    "district": "Ahmedabad"
   },
   "382245": {
     "pincode": "382245",
@@ -15410,13 +15410,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382110",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Fangadi"
+    "district": "Ahmedabad"
   },
   "382150": {
     "pincode": "382150",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Khudad"
+    "district": "Ahmedabad"
   },
   "382170": {
     "pincode": "382170",
@@ -15428,7 +15428,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382421",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Zundal"
+    "district": "Ahmedabad"
   },
   "382308": {
     "pincode": "382308",
@@ -15440,7 +15440,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382481",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Gota"
+    "district": "Ahmedabad"
   },
   "382321": {
     "pincode": "382321",
@@ -15470,19 +15470,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382470",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Jagatpur"
+    "district": "Ahmedabad"
   },
   "380060": {
     "pincode": "380060",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Lapkaman"
+    "district": "Ahmedabad"
   },
   "382449": {
     "pincode": "382449",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Vanch"
+    "district": "Ahmedabad"
   },
   "382315": {
     "pincode": "382315",
@@ -15506,7 +15506,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382445",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Vivekanandnagar"
+    "district": "Ahmedabad"
   },
   "382725": {
     "pincode": "382725",
@@ -19268,103 +19268,103 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828114",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Keshalpur"
+    "district": "DHANBAD"
   },
   "828307": {
     "pincode": "828307",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Karmatand"
+    "district": "DHANBAD"
   },
   "828201": {
     "pincode": "828201",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Ankduara"
+    "district": "DHANBAD"
   },
   "828106": {
     "pincode": "828106",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bastacola"
+    "district": "DHANBAD"
   },
   "828401": {
     "pincode": "828401",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhendra"
+    "district": "DHANBAD"
   },
   "828109": {
     "pincode": "828109",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "G Raghunathpur"
+    "district": "DHANBAD"
   },
   "828142": {
     "pincode": "828142",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Ludharia"
+    "district": "DHANBAD"
   },
   "826004": {
     "pincode": "826004",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Murradih"
+    "district": "DHANBAD"
   },
   "828111": {
     "pincode": "828111",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhagatdih"
+    "district": "DHANBAD"
   },
   "828113": {
     "pincode": "828113",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Tilaiya"
+    "district": "DHANBAD"
   },
   "828115": {
     "pincode": "828115",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Suranga"
+    "district": "DHANBAD"
   },
   "828305": {
     "pincode": "828305",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "KANDRA"
+    "district": "DHANBAD"
   },
   "828129": {
     "pincode": "828129",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Karitand"
+    "district": "DHANBAD"
   },
   "828204": {
     "pincode": "828204",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Kesarkural"
+    "district": "DHANBAD"
   },
   "828205": {
     "pincode": "828205",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Benagoria"
+    "district": "DHANBAD"
   },
   "828121": {
     "pincode": "828121",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhadrichak"
+    "district": "DHANBAD"
   },
   "828402": {
     "pincode": "828402",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Sahubahiyar"
+    "district": "DHANBAD"
   },
   "825322": {
     "pincode": "825322",
@@ -21854,7 +21854,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190006",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Saidpora Hamchi"
+    "district": "SRINAGAR"
   },
   "191103": {
     "pincode": "191103",
@@ -21878,13 +21878,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190011",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Anchar"
+    "district": "SRINAGAR"
   },
   "191101": {
     "pincode": "191101",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Lasjan"
+    "district": "SRINAGAR"
   },
   "193402": {
     "pincode": "193402",
@@ -22118,7 +22118,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "396510",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Gangadia"
+    "district": "SURAT"
   },
   "394651": {
     "pincode": "394651",
@@ -22136,7 +22136,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394317",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Vadadla Tanti"
+    "district": "SURAT"
   },
   "394630": {
     "pincode": "394630",
@@ -22148,7 +22148,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394305",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Timbarva"
+    "district": "SURAT"
   },
   "394670": {
     "pincode": "394670",
@@ -22160,25 +22160,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394310",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Soyani"
+    "district": "SURAT"
   },
   "394163": {
     "pincode": "394163",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Fali"
+    "district": "SURAT"
   },
   "394335": {
     "pincode": "394335",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Masad"
+    "district": "SURAT"
   },
   "394180": {
     "pincode": "394180",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Dungra"
+    "district": "SURAT"
   },
   "394655": {
     "pincode": "394655",
@@ -22196,7 +22196,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394160",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Goddha"
+    "district": "SURAT"
   },
   "394370": {
     "pincode": "394370",
@@ -22208,13 +22208,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394330",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Delad"
+    "district": "SURAT"
   },
   "394315": {
     "pincode": "394315",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Italva"
+    "district": "SURAT"
   },
   "394715": {
     "pincode": "394715",
@@ -22226,7 +22226,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394350",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Goji"
+    "district": "SURAT"
   },
   "394716": {
     "pincode": "394716",
@@ -22244,7 +22244,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394170",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Vegi"
+    "district": "SURAT"
   },
   "394375": {
     "pincode": "394375",
@@ -22262,13 +22262,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394325",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Antroli"
+    "district": "SURAT"
   },
   "394248": {
     "pincode": "394248",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Haladva"
+    "district": "SURAT"
   },
   "394620": {
     "pincode": "394620",
@@ -22280,13 +22280,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394355",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Akoti"
+    "district": "SURAT"
   },
   "394185": {
     "pincode": "394185",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kosmadi"
+    "district": "SURAT"
   },
   "394641": {
     "pincode": "394641",
@@ -23084,31 +23084,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394235",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kachholi"
+    "district": "SURAT"
   },
   "394530": {
     "pincode": "394530",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bhagwa"
+    "district": "SURAT"
   },
   "394517": {
     "pincode": "394517",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Vansva"
+    "district": "SURAT"
   },
   "394540": {
     "pincode": "394540",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Ishanpore"
+    "district": "SURAT"
   },
   "395005": {
     "pincode": "395005",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Barbodhan"
+    "district": "SURAT"
   },
   "394230": {
     "pincode": "394230",
@@ -23120,31 +23120,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395007",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Gavier"
+    "district": "SURAT"
   },
   "394107": {
     "pincode": "394107",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kosad"
+    "district": "SURAT"
   },
   "394125": {
     "pincode": "394125",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bharan"
+    "district": "SURAT"
   },
   "395004": {
     "pincode": "395004",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Dabholi"
+    "district": "SURAT"
   },
   "394110": {
     "pincode": "394110",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Limodra"
+    "district": "SURAT"
   },
   "394120": {
     "pincode": "394120",
@@ -23156,43 +23156,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394410",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Gijram"
+    "district": "SURAT"
   },
   "394130": {
     "pincode": "394130",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Syadla"
+    "district": "SURAT"
   },
   "394210": {
     "pincode": "394210",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Dindoli"
+    "district": "SURAT"
   },
   "394445": {
     "pincode": "394445",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Ghanavad"
+    "district": "SURAT"
   },
   "395013": {
     "pincode": "395013",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Pasodara"
+    "district": "SURAT"
   },
   "394440": {
     "pincode": "394440",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Godbar"
+    "district": "SURAT"
   },
   "391110": {
     "pincode": "391110",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Mota  Habipura"
+    "district": "VADODARA"
   },
   "391125": {
     "pincode": "391125",
@@ -23216,7 +23216,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "391105",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Mandva"
+    "district": "VADODARA"
   },
   "391165": {
     "pincode": "391165",
@@ -23270,7 +23270,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "391250",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Bavaria"
+    "district": "VADODARA"
   },
   "391145": {
     "pincode": "391145",
@@ -23282,133 +23282,133 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "391115",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Surasamal"
+    "district": "VADODARA"
   },
   "391107": {
     "pincode": "391107",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Bhilapur"
+    "district": "VADODARA"
   },
   "390019": {
     "pincode": "390019",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Amodar"
+    "district": "VADODARA"
   },
   "390022": {
     "pincode": "390022",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Amaliyara"
+    "district": "VADODARA"
   },
   "390010": {
     "pincode": "390010",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Vadsar"
+    "district": "VADODARA"
   },
   "390004": {
     "pincode": "390004",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Kapurai"
+    "district": "VADODARA"
   },
   "391780": {
     "pincode": "391780",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Natwar Nagar"
+    "district": "VADODARA"
   },
   "391410": {
     "pincode": "391410",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Bill"
+    "district": "VADODARA"
   },
   "391244": {
     "pincode": "391244",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Lakodara"
+    "district": "VADODARA"
   },
   "391774": {
     "pincode": "391774",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Himmatpura"
+    "district": "VADODARA"
   },
   "391510": {
     "pincode": "391510",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Ajwa Compound"
+    "district": "VADODARA"
   },
   "391210": {
     "pincode": "391210",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Gandhara"
+    "district": "VADODARA"
   },
   "391450": {
     "pincode": "391450",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Majatan"
+    "district": "VADODARA"
   },
   "391220": {
     "pincode": "391220",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Kuvarpura"
+    "district": "VADODARA"
   },
   "391330": {
     "pincode": "391330",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Angadh"
+    "district": "VADODARA"
   },
   "391421": {
     "pincode": "391421",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Masar"
+    "district": "VADODARA"
   },
   "391240": {
     "pincode": "391240",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Methi"
+    "district": "VADODARA"
   },
   "391430": {
     "pincode": "391430",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Muval"
+    "district": "VADODARA"
   },
   "391440": {
     "pincode": "391440",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Jaspura"
+    "district": "VADODARA"
   },
   "391243": {
     "pincode": "391243",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Manglej"
+    "district": "VADODARA"
   },
   "391350": {
     "pincode": "391350",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Padmala"
+    "district": "VADODARA"
   },
   "391445": {
     "pincode": "391445",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Sadhi"
+    "district": "VADODARA"
   },
   "391761": {
     "pincode": "391761",
@@ -23420,37 +23420,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "391520",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Karchia"
+    "district": "VADODARA"
   },
   "391530": {
     "pincode": "391530",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Sihora"
+    "district": "VADODARA"
   },
   "391770": {
     "pincode": "391770",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Mevli"
+    "district": "VADODARA"
   },
   "391745": {
     "pincode": "391745",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Pilol"
+    "district": "VADODARA"
   },
   "391775": {
     "pincode": "391775",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Lamdapura"
+    "district": "VADODARA"
   },
   "391760": {
     "pincode": "391760",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Alva"
+    "district": "VADODARA"
   },
   "396035": {
     "pincode": "396035",
@@ -24002,67 +24002,67 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360311",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Shivrajgadh"
+    "district": "RAJKOT"
   },
   "360485": {
     "pincode": "360485",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Khirasara"
+    "district": "RAJKOT"
   },
   "360452": {
     "pincode": "360452",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Baradiya"
+    "district": "RAJKOT"
   },
   "360410": {
     "pincode": "360410",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Jamnavad"
+    "district": "RAJKOT"
   },
   "360320": {
     "pincode": "360320",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Navagam"
+    "district": "RAJKOT"
   },
   "360405": {
     "pincode": "360405",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Satodad"
+    "district": "RAJKOT"
   },
   "360050": {
     "pincode": "360050",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Lilapur"
+    "district": "RAJKOT"
   },
   "360370": {
     "pincode": "360370",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Mota Gundala"
+    "district": "RAJKOT"
   },
   "360470": {
     "pincode": "360470",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rabarika"
+    "district": "RAJKOT"
   },
   "360030": {
     "pincode": "360030",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Ardoi"
+    "district": "RAJKOT"
   },
   "360421": {
     "pincode": "360421",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Bhadajalia"
+    "district": "RAJKOT"
   },
   "360480": {
     "pincode": "360480",
@@ -24074,7 +24074,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360440",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Dumiyani"
+    "district": "RAJKOT"
   },
   "360490": {
     "pincode": "360490",
@@ -24086,13 +24086,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360045",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Bildi"
+    "district": "RAJKOT"
   },
   "360055": {
     "pincode": "360055",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Amrapar"
+    "district": "RAJKOT"
   },
   "361110": {
     "pincode": "361110",
@@ -24728,19 +24728,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360020",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Vadali"
+    "district": "RAJKOT"
   },
   "360022": {
     "pincode": "360022",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Khokhaddad"
+    "district": "RAJKOT"
   },
   "360023": {
     "pincode": "360023",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rafala"
+    "district": "RAJKOT"
   },
   "363670": {
     "pincode": "363670",
@@ -24770,13 +24770,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360004",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Vavdi"
+    "district": "RAJKOT"
   },
   "360025": {
     "pincode": "360025",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Bhupgadh"
+    "district": "RAJKOT"
   },
   "363650": {
     "pincode": "363650",
@@ -24788,13 +24788,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360024",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Pardi"
+    "district": "RAJKOT"
   },
   "360060": {
     "pincode": "360060",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Kundani"
+    "district": "RAJKOT"
   },
   "363621": {
     "pincode": "363621",
@@ -25292,13 +25292,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121004",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Fatehpur Billoch"
+    "district": "FARIDABAD"
   },
   "121002": {
     "pincode": "121002",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Kheri Kalan"
+    "district": "FARIDABAD"
   },
   "121107": {
     "pincode": "121107",
@@ -25322,7 +25322,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121101",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Bhuvapur"
+    "district": "FARIDABAD"
   },
   "122101": {
     "pincode": "122101",
@@ -30662,7 +30662,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431118",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Ajantha Caves"
+    "district": "AURANGABAD"
   },
   "431132": {
     "pincode": "431132",
@@ -30674,7 +30674,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431112",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Anwi"
+    "district": "AURANGABAD"
   },
   "425107": {
     "pincode": "425107",
@@ -31310,19 +31310,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423502",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Gosrane"
+    "district": "NASHIK"
   },
   "423402": {
     "pincode": "423402",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Bokte"
+    "district": "NASHIK"
   },
   "423101": {
     "pincode": "423101",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Bhatgaon"
+    "district": "NASHIK"
   },
   "423102": {
     "pincode": "423102",
@@ -31334,127 +31334,127 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423303",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Sompur"
+    "district": "NASHIK"
   },
   "422308": {
     "pincode": "422308",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Deopur"
+    "district": "NASHIK"
   },
   "423501": {
     "pincode": "423501",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ganore"
+    "district": "NASHIK"
   },
   "422205": {
     "pincode": "422205",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Bopegaon"
+    "district": "NASHIK"
   },
   "423213": {
     "pincode": "423213",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Shemli"
+    "district": "NASHIK"
   },
   "422306": {
     "pincode": "422306",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Pimplad"
+    "district": "NASHIK"
   },
   "423105": {
     "pincode": "423105",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Tehare"
+    "district": "NASHIK"
   },
   "423104": {
     "pincode": "423104",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Kanadgaon"
+    "district": "NASHIK"
   },
   "423403": {
     "pincode": "423403",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khirdisathe"
+    "district": "NASHIK"
   },
   "423204": {
     "pincode": "423204",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khirmani"
+    "district": "NASHIK"
   },
   "423106": {
     "pincode": "423106",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Borale"
+    "district": "NASHIK"
   },
   "424109": {
     "pincode": "424109",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Jalgaon KH"
+    "district": "NASHIK"
   },
   "423212": {
     "pincode": "423212",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khayde"
+    "district": "NASHIK"
   },
   "422303": {
     "pincode": "422303",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dhrangaon Veer"
+    "district": "NASHIK"
   },
   "422209": {
     "pincode": "422209",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dhondgavan"
+    "district": "NASHIK"
   },
   "423301": {
     "pincode": "423301",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dangsaundane"
+    "district": "NASHIK"
   },
   "423302": {
     "pincode": "423302",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Antapur"
+    "district": "NASHIK"
   },
   "423110": {
     "pincode": "423110",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Chinchave"
+    "district": "NASHIK"
   },
   "423117": {
     "pincode": "423117",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Bhayale"
+    "district": "NASHIK"
   },
   "423401": {
     "pincode": "423401",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Jalgaon Neur"
+    "district": "NASHIK"
   },
   "423205": {
     "pincode": "423205",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Chikhalohal"
+    "district": "NASHIK"
   },
   "431704": {
     "pincode": "431704",
@@ -31670,79 +31670,79 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431807",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Talegaon"
+    "district": "AURANGABAD"
   },
   "422010": {
     "pincode": "422010",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Pimpalgaon Khamb"
+    "district": "NASHIK"
   },
   "422202": {
     "pincode": "422202",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Kazimale"
+    "district": "NASHIK"
   },
   "422203": {
     "pincode": "422203",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dugaon"
+    "district": "NASHIK"
   },
   "422013": {
     "pincode": "422013",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Udhoji Maratha Boarding"
+    "district": "NASHIK"
   },
   "422204": {
     "pincode": "422204",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Deodongra"
+    "district": "NASHIK"
   },
   "422007": {
     "pincode": "422007",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Jalkhed"
+    "district": "NASHIK"
   },
   "422004": {
     "pincode": "422004",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Mhasrul"
+    "district": "NASHIK"
   },
   "422207": {
     "pincode": "422207",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Amba"
+    "district": "NASHIK"
   },
   "422003": {
     "pincode": "422003",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ambegaon"
+    "district": "NASHIK"
   },
   "422208": {
     "pincode": "422208",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Asarbari"
+    "district": "NASHIK"
   },
   "422211": {
     "pincode": "422211",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Alangun"
+    "district": "NASHIK"
   },
   "422212": {
     "pincode": "422212",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Amboli"
+    "district": "NASHIK"
   },
   "416550": {
     "pincode": "416550",
@@ -31754,73 +31754,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422215",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Pimpri  achala"
+    "district": "NASHIK"
   },
   "422502": {
     "pincode": "422502",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Lahavit"
+    "district": "NASHIK"
   },
   "422401": {
     "pincode": "422401",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Vadner Dumala"
+    "district": "NASHIK"
   },
   "422402": {
     "pincode": "422402",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khadked"
+    "district": "NASHIK"
   },
   "422112": {
     "pincode": "422112",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Datli"
+    "district": "NASHIK"
   },
   "422403": {
     "pincode": "422403",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Bhavali Khurd"
+    "district": "NASHIK"
   },
   "422606": {
     "pincode": "422606",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Kankuri"
+    "district": "NASHIK"
   },
   "422102": {
     "pincode": "422102",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Jaigaon"
+    "district": "NASHIK"
   },
   "422103": {
     "pincode": "422103",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Patole"
+    "district": "NASHIK"
   },
   "422302": {
     "pincode": "422302",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Oney"
+    "district": "NASHIK"
   },
   "422105": {
     "pincode": "422105",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Kotamgaon"
+    "district": "NASHIK"
   },
   "422104": {
     "pincode": "422104",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Pathare"
+    "district": "NASHIK"
   },
   "413515": {
     "pincode": "413515",
@@ -32528,25 +32528,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "441108",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Dongargaon"
+    "district": "NAGPUR"
   },
   "441110": {
     "pincode": "441110",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Wanadongri"
+    "district": "NAGPUR"
   },
   "441122": {
     "pincode": "441122",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gumgaon"
+    "district": "NAGPUR"
   },
   "440023": {
     "pincode": "440023",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Dhamna"
+    "district": "NAGPUR"
   },
   "441914": {
     "pincode": "441914",
@@ -32702,127 +32702,127 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "441201",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Malewada"
+    "district": "NAGPUR"
   },
   "441301": {
     "pincode": "441301",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Thadipauni"
+    "district": "NAGPUR"
   },
   "441501": {
     "pincode": "441501",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kalambi"
+    "district": "NAGPUR"
   },
   "441404": {
     "pincode": "441404",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gondegaon"
+    "district": "NAGPUR"
   },
   "441401": {
     "pincode": "441401",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Belda"
+    "district": "NAGPUR"
   },
   "441302": {
     "pincode": "441302",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Isapur Khurd"
+    "district": "NAGPUR"
   },
   "441112": {
     "pincode": "441112",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Khairi Dhalgaon"
+    "district": "NAGPUR"
   },
   "441101": {
     "pincode": "441101",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Badegaon"
+    "district": "NAGPUR"
   },
   "441103": {
     "pincode": "441103",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Khursapar"
+    "district": "NAGPUR"
   },
   "441111": {
     "pincode": "441111",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gumthi"
+    "district": "NAGPUR"
   },
   "441202": {
     "pincode": "441202",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ambadi"
+    "district": "NAGPUR"
   },
   "441210": {
     "pincode": "441210",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gothangaon"
+    "district": "NAGPUR"
   },
   "441104": {
     "pincode": "441104",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gumthala"
+    "district": "NAGPUR"
   },
   "441502": {
     "pincode": "441502",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kohli"
+    "district": "NAGPUR"
   },
   "441304": {
     "pincode": "441304",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kharsoli"
+    "district": "NAGPUR"
   },
   "441305": {
     "pincode": "441305",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Khapa Ghudan"
+    "district": "NAGPUR"
   },
   "441105": {
     "pincode": "441105",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ambazari"
+    "district": "NAGPUR"
   },
   "441113": {
     "pincode": "441113",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Chanpa"
+    "district": "NAGPUR"
   },
   "441106": {
     "pincode": "441106",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Dudhala"
+    "district": "NAGPUR"
   },
   "441107": {
     "pincode": "441107",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Gaimukh Nanda"
+    "district": "NAGPUR"
   },
   "441204": {
     "pincode": "441204",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Matkazari"
+    "district": "NAGPUR"
   },
   "441203": {
     "pincode": "441203",
@@ -33380,67 +33380,67 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411033",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Thergaon"
+    "district": "PUNE"
   },
   "411048": {
     "pincode": "411048",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kondhwa KH"
+    "district": "PUNE"
   },
   "411062": {
     "pincode": "411062",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Talawade"
+    "district": "PUNE"
   },
   "411023": {
     "pincode": "411023",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Mandvi BK"
+    "district": "PUNE"
   },
   "412411": {
     "pincode": "412411",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Rajuri"
+    "district": "PUNE"
   },
   "412105": {
     "pincode": "412105",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Solu"
+    "district": "PUNE"
   },
   "412401": {
     "pincode": "412401",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pimpalgaon Tarfa Narayangaon"
+    "district": "PUNE"
   },
   "412406": {
     "pincode": "412406",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Lakhangaon"
+    "district": "PUNE"
   },
   "413102": {
     "pincode": "413102",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Shiravali"
+    "district": "PUNE"
   },
   "413103": {
     "pincode": "413103",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhodani"
+    "district": "PUNE"
   },
   "413104": {
     "pincode": "413104",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bori"
+    "district": "PUNE"
   },
   "412206": {
     "pincode": "412206",
@@ -33452,13 +33452,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "410501",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vadgaon Ghenanad"
+    "district": "PUNE"
   },
   "413801": {
     "pincode": "413801",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Nanvij"
+    "district": "PUNE"
   },
   "412101": {
     "pincode": "412101",
@@ -33470,283 +33470,283 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "412109",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Sadumbre"
+    "district": "PUNE"
   },
   "410509": {
     "pincode": "410509",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kondhwal"
+    "district": "PUNE"
   },
   "412408": {
     "pincode": "412408",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Amondi"
+    "district": "PUNE"
   },
   "411025": {
     "pincode": "411025",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khanapur Haveli"
+    "district": "PUNE"
   },
   "413106": {
     "pincode": "413106",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bijawadi"
+    "district": "PUNE"
   },
   "412303": {
     "pincode": "412303",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Walunj"
+    "district": "PUNE"
   },
   "410502": {
     "pincode": "410502",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Godre"
+    "district": "PUNE"
   },
   "412404": {
     "pincode": "412404",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Saburdi"
+    "district": "PUNE"
   },
   "410515": {
     "pincode": "410515",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Sakore"
+    "district": "PUNE"
   },
   "410405": {
     "pincode": "410405",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vehergaon"
+    "district": "PUNE"
   },
   "412203": {
     "pincode": "412203",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pargaon"
+    "district": "PUNE"
   },
   "412205": {
     "pincode": "412205",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Alande"
+    "district": "PUNE"
   },
   "410401": {
     "pincode": "410401",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kusgaon BK"
+    "district": "PUNE"
   },
   "412201": {
     "pincode": "412201",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kadam Wak Wasti"
+    "district": "PUNE"
   },
   "412219": {
     "pincode": "412219",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Roti"
+    "district": "PUNE"
   },
   "413115": {
     "pincode": "413115",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Malegaon IRR Colony"
+    "district": "PUNE"
   },
   "410503": {
     "pincode": "410503",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Chandoli BK"
+    "district": "PUNE"
   },
   "412307": {
     "pincode": "412307",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Manjari BK"
+    "district": "PUNE"
   },
   "413802": {
     "pincode": "413802",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kurkumbh"
+    "district": "PUNE"
   },
   "410504": {
     "pincode": "410504",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pimparkhed"
+    "district": "PUNE"
   },
   "412213": {
     "pincode": "412213",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ambavane"
+    "district": "PUNE"
   },
   "413120": {
     "pincode": "413120",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vyahali"
+    "district": "PUNE"
   },
   "412102": {
     "pincode": "412102",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Gulunche"
+    "district": "PUNE"
   },
   "412409": {
     "pincode": "412409",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Hivare KH"
+    "district": "PUNE"
   },
   "412403": {
     "pincode": "412403",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhamari"
+    "district": "PUNE"
   },
   "413110": {
     "pincode": "413110",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhakale"
+    "district": "PUNE"
   },
   "412107": {
     "pincode": "412107",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kuran BK"
+    "district": "PUNE"
   },
   "412311": {
     "pincode": "412311",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dawanewadi"
+    "district": "PUNE"
   },
   "412108": {
     "pincode": "412108",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kule"
+    "district": "PUNE"
   },
   "410406": {
     "pincode": "410406",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Shivali"
+    "district": "PUNE"
   },
   "410512": {
     "pincode": "410512",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Karegaon"
+    "district": "PUNE"
   },
   "412412": {
     "pincode": "412412",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vadgaon Kandali"
+    "district": "PUNE"
   },
   "412115": {
     "pincode": "412115",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Andgaon"
+    "district": "PUNE"
   },
   "412104": {
     "pincode": "412104",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Malshiras"
+    "district": "PUNE"
   },
   "410505": {
     "pincode": "410505",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Chinchoshi"
+    "district": "PUNE"
   },
   "412209": {
     "pincode": "412209",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhamburde"
+    "district": "PUNE"
   },
   "412301": {
     "pincode": "412301",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bopgaon"
+    "district": "PUNE"
   },
   "412210": {
     "pincode": "412210",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Nimone"
+    "district": "PUNE"
   },
   "412306": {
     "pincode": "412306",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Karanje"
+    "district": "PUNE"
   },
   "412204": {
     "pincode": "412204",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhondave Wadi"
+    "district": "PUNE"
   },
   "412208": {
     "pincode": "412208",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhanore"
+    "district": "PUNE"
   },
   "410507": {
     "pincode": "410507",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ambale"
+    "district": "PUNE"
   },
   "412402": {
     "pincode": "412402",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kharoshi"
+    "district": "PUNE"
   },
   "412103": {
     "pincode": "412103",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Korhale KH"
+    "district": "PUNE"
   },
   "412207": {
     "pincode": "412207",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Telewadi"
+    "district": "PUNE"
   },
   "412212": {
     "pincode": "412212",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Varoti BK"
+    "district": "PUNE"
   },
   "413114": {
     "pincode": "413114",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Anthurne"
+    "district": "PUNE"
   },
   "415209": {
     "pincode": "415209",
@@ -34346,13 +34346,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431151",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Babra"
+    "district": "AURANGABAD"
   },
   "431002": {
     "pincode": "431002",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Assegaon"
+    "district": "AURANGABAD"
   },
   "431134": {
     "pincode": "431134",
@@ -34364,85 +34364,85 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431136",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Waladgaon"
+    "district": "AURANGABAD"
   },
   "431105": {
     "pincode": "431105",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Bokud Jalgaon"
+    "district": "AURANGABAD"
   },
   "431154": {
     "pincode": "431154",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Shekta"
+    "district": "AURANGABAD"
   },
   "431137": {
     "pincode": "431137",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Takali Ambad"
+    "district": "AURANGABAD"
   },
   "431007": {
     "pincode": "431007",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Khodegaon"
+    "district": "AURANGABAD"
   },
   "431147": {
     "pincode": "431147",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Karanjkheda"
+    "district": "AURANGABAD"
   },
   "431115": {
     "pincode": "431115",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Lamangaon"
+    "district": "AURANGABAD"
   },
   "431102": {
     "pincode": "431102",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Devlana"
+    "district": "AURANGABAD"
   },
   "431109": {
     "pincode": "431109",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Warkheda"
+    "district": "AURANGABAD"
   },
   "431008": {
     "pincode": "431008",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Kankora"
+    "district": "AURANGABAD"
   },
   "431103": {
     "pincode": "431103",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Chikhalthan"
+    "district": "AURANGABAD"
   },
   "431101": {
     "pincode": "431101",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Golegaon"
+    "district": "AURANGABAD"
   },
   "423702": {
     "pincode": "423702",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Kankori"
+    "district": "AURANGABAD"
   },
   "423701": {
     "pincode": "423701",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Arapur"
+    "district": "AURANGABAD"
   },
   "431121": {
     "pincode": "431121",
@@ -34454,49 +34454,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431107",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Changatpuri"
+    "district": "AURANGABAD"
   },
   "431148": {
     "pincode": "431148",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Pimpalwadi (Pirachi)"
+    "district": "AURANGABAD"
   },
   "423703": {
     "pincode": "423703",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Savandgaon"
+    "district": "AURANGABAD"
   },
   "431111": {
     "pincode": "431111",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Jategaon"
+    "district": "AURANGABAD"
   },
   "431104": {
     "pincode": "431104",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Basadi"
+    "district": "AURANGABAD"
   },
   "431116": {
     "pincode": "431116",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Tunki"
+    "district": "AURANGABAD"
   },
   "431133": {
     "pincode": "431133",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Kasoda"
+    "district": "AURANGABAD"
   },
   "431117": {
     "pincode": "431117",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Balapur"
+    "district": "AURANGABAD"
   },
   "431204": {
     "pincode": "431204",
@@ -34520,7 +34520,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431113",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Deulgaon Bazar"
+    "district": "AURANGABAD"
   },
   "431114": {
     "pincode": "431114",
@@ -35408,43 +35408,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421603",
     "city": "Thane",
     "state": "NA",
-    "district": "Birwadi"
+    "district": "THANE"
   },
   "421602": {
     "pincode": "421602",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Mokhawane"
+    "district": "THANE"
   },
   "421403": {
     "pincode": "421403",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Thune"
+    "district": "THANE"
   },
   "421102": {
     "pincode": "421102",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Atali"
+    "district": "THANE"
   },
   "421401": {
     "pincode": "421401",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Kishore"
+    "district": "THANE"
   },
   "421103": {
     "pincode": "421103",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Mamnoli"
+    "district": "THANE"
   },
   "421601": {
     "pincode": "421601",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Andad"
+    "district": "THANE"
   },
   "421302": {
     "pincode": "421302",
@@ -35462,13 +35462,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400612",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Diwa"
+    "district": "THANE"
   },
   "401101": {
     "pincode": "401101",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Rai"
+    "district": "THANE"
   },
   "401501": {
     "pincode": "401501",
@@ -38312,13 +38312,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474001",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Ajaypur"
+    "district": "GWALIOR"
   },
   "475001": {
     "pincode": "475001",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Jorasi"
+    "district": "GWALIOR"
   },
   "475335": {
     "pincode": "475335",
@@ -38330,13 +38330,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "475220",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Mastura"
+    "district": "GWALIOR"
   },
   "475110": {
     "pincode": "475110",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Chandpur"
+    "district": "GWALIOR"
   },
   "475661": {
     "pincode": "475661",
@@ -38354,7 +38354,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "475115",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Kethoda"
+    "district": "GWALIOR"
   },
   "475336": {
     "pincode": "475336",
@@ -38378,7 +38378,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "475005",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Chiruli"
+    "district": "GWALIOR"
   },
   "475673": {
     "pincode": "475673",
@@ -38396,13 +38396,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474006",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Bilhati Kalan"
+    "district": "GWALIOR"
   },
   "475002": {
     "pincode": "475002",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Tiholi"
+    "district": "GWALIOR"
   },
   "474005": {
     "pincode": "474005",
@@ -38414,7 +38414,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "475330",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Jakhoda"
+    "district": "GWALIOR"
   },
   "477001": {
     "pincode": "477001",
@@ -39902,61 +39902,61 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "452016",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Bicholi Mardana"
+    "district": "INDORE"
   },
   "453001": {
     "pincode": "453001",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Kalaria"
+    "district": "INDORE"
   },
   "453115": {
     "pincode": "453115",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Limbodapar"
+    "district": "INDORE"
   },
   "453111": {
     "pincode": "453111",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Palia"
+    "district": "INDORE"
   },
   "452020": {
     "pincode": "452020",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Palda"
+    "district": "INDORE"
   },
   "453771": {
     "pincode": "453771",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Kadwali Bujurg"
+    "district": "INDORE"
   },
   "453661": {
     "pincode": "453661",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Khurdi"
+    "district": "INDORE"
   },
   "453441": {
     "pincode": "453441",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Gujarkheda"
+    "district": "INDORE"
   },
   "453331": {
     "pincode": "453331",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Rangwasa"
+    "district": "INDORE"
   },
   "453551": {
     "pincode": "453551",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Chhitoda"
+    "district": "INDORE"
   },
   "455227": {
     "pincode": "455227",
@@ -41276,37 +41276,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462030",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bairagarh Kalan"
+    "district": "BHOPAL"
   },
   "462036": {
     "pincode": "462036",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Parwaliya Sadak"
+    "district": "BHOPAL"
   },
   "463106": {
     "pincode": "463106",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Pipal Khedi"
+    "district": "BHOPAL"
   },
   "462101": {
     "pincode": "462101",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Dhamarra"
+    "district": "BHOPAL"
   },
   "463111": {
     "pincode": "463111",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Dhaturiya"
+    "district": "BHOPAL"
   },
   "462038": {
     "pincode": "462038",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Khamkheda"
+    "district": "BHOPAL"
   },
   "462046": {
     "pincode": "462046",
@@ -41318,7 +41318,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462120",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bilakho"
+    "district": "BHOPAL"
   },
   "464993": {
     "pincode": "464993",
@@ -41330,13 +41330,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462010",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Imaliya"
+    "district": "BHOPAL"
   },
   "462042": {
     "pincode": "462042",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bairagarh Chichali"
+    "district": "BHOPAL"
   },
   "471001": {
     "pincode": "471001",
@@ -44714,7 +44714,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600118",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Rv Nagar"
+    "district": "CHENNAI"
   },
   "601202": {
     "pincode": "601202",
@@ -44774,7 +44774,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600125",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Manapakkam"
+    "district": "CHENNAI"
   },
   "600056": {
     "pincode": "600056",
@@ -45176,73 +45176,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641201",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Panapatti"
+    "district": "COIMBATORE"
   },
   "641006": {
     "pincode": "641006",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Krishnarayapuram"
+    "district": "COIMBATORE"
   },
   "641016": {
     "pincode": "641016",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Pappampatti"
+    "district": "COIMBATORE"
   },
   "641032": {
     "pincode": "641032",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Arisipalayam"
+    "district": "COIMBATORE"
   },
   "641107": {
     "pincode": "641107",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Ganesapuram"
+    "district": "COIMBATORE"
   },
   "641062": {
     "pincode": "641062",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Nilambur"
+    "district": "COIMBATORE"
   },
   "641111": {
     "pincode": "641111",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vellalapalayam Podanur"
+    "district": "COIMBATORE"
   },
   "641030": {
     "pincode": "641030",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kavundampalayam"
+    "district": "COIMBATORE"
   },
   "641026": {
     "pincode": "641026",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Selvapuram"
+    "district": "COIMBATORE"
   },
   "641031": {
     "pincode": "641031",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Rakkipalayam"
+    "district": "COIMBATORE"
   },
   "641007": {
     "pincode": "641007",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vedapatti"
+    "district": "COIMBATORE"
   },
   "641109": {
     "pincode": "641109",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Deenampalayam"
+    "district": "COIMBATORE"
   },
   "635201": {
     "pincode": "635201",
@@ -45974,19 +45974,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642109",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Singarampalayam"
+    "district": "COIMBATORE"
   },
   "642110": {
     "pincode": "642110",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Mettupalayam"
+    "district": "COIMBATORE"
   },
   "642002": {
     "pincode": "642002",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Achipatti"
+    "district": "COIMBATORE"
   },
   "642120": {
     "pincode": "642120",
@@ -45998,49 +45998,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642123",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Zamin Kottampatti"
+    "district": "COIMBATORE"
   },
   "642133": {
     "pincode": "642133",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Topslip"
+    "district": "COIMBATORE"
   },
   "642134": {
     "pincode": "642134",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Pethanaickanur"
+    "district": "COIMBATORE"
   },
   "642004": {
     "pincode": "642004",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Akilandapuram"
+    "district": "COIMBATORE"
   },
   "641202": {
     "pincode": "641202",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kurunallipalayam"
+    "district": "COIMBATORE"
   },
   "642127": {
     "pincode": "642127",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Urulikkal"
+    "district": "COIMBATORE"
   },
   "642105": {
     "pincode": "642105",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Mount Stuart"
+    "district": "COIMBATORE"
   },
   "642005": {
     "pincode": "642005",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Devambadi"
+    "district": "COIMBATORE"
   },
   "642154": {
     "pincode": "642154",
@@ -46052,7 +46052,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642107",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Lakshmapuram"
+    "district": "COIMBATORE"
   },
   "642201": {
     "pincode": "642201",
@@ -46634,7 +46634,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641653",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Annurmettupalayam"
+    "district": "COIMBATORE"
   },
   "638451": {
     "pincode": "638451",
@@ -46646,25 +46646,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641401",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kangayampalayam"
+    "district": "COIMBATORE"
   },
   "641104": {
     "pincode": "641104",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Mangalakaraipudur"
+    "district": "COIMBATORE"
   },
   "641659": {
     "pincode": "641659",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Giddampalayam"
+    "district": "COIMBATORE"
   },
   "641305": {
     "pincode": "641305",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Nellithurai"
+    "district": "COIMBATORE"
   },
   "638459": {
     "pincode": "638459",
@@ -46754,7 +46754,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641669",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Malayadipalayam"
+    "district": "COIMBATORE"
   },
   "641602": {
     "pincode": "641602",
@@ -48014,73 +48014,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "283104",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Bateshwar"
+    "district": "AGRA"
   },
   "283201": {
     "pincode": "283201",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Chokda"
+    "district": "AGRA"
   },
   "283113": {
     "pincode": "283113",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Bitholi"
+    "district": "AGRA"
   },
   "283111": {
     "pincode": "283111",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Dauki"
+    "district": "AGRA"
   },
   "283114": {
     "pincode": "283114",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Chitra Hat"
+    "district": "AGRA"
   },
   "283126": {
     "pincode": "283126",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Basona"
+    "district": "AGRA"
   },
   "283123": {
     "pincode": "283123",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Biprawali"
+    "district": "AGRA"
   },
   "282007": {
     "pincode": "282007",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Dahtora"
+    "district": "AGRA"
   },
   "282006": {
     "pincode": "282006",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Bamrauli Katara"
+    "district": "AGRA"
   },
   "283101": {
     "pincode": "283101",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Daultabad"
+    "district": "AGRA"
   },
   "283102": {
     "pincode": "283102",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Barara"
+    "district": "AGRA"
   },
   "283105": {
     "pincode": "283105",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Sahara"
+    "district": "AGRA"
   },
   "262001": {
     "pincode": "262001",
@@ -48092,7 +48092,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "283110",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Bharkol"
+    "district": "AGRA"
   },
   "212601": {
     "pincode": "212601",
@@ -48104,31 +48104,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "283112",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Mihawa"
+    "district": "AGRA"
   },
   "283115": {
     "pincode": "283115",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Bhara"
+    "district": "AGRA"
   },
   "283119": {
     "pincode": "283119",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Waha"
+    "district": "AGRA"
   },
   "283124": {
     "pincode": "283124",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Garshan"
+    "district": "AGRA"
   },
   "283125": {
     "pincode": "283125",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Barauli Ahir"
+    "district": "AGRA"
   },
   "202138": {
     "pincode": "202138",
@@ -49916,25 +49916,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302031",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Luniawas"
+    "district": "JAIPUR"
   },
   "302038": {
     "pincode": "302038",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dhand"
+    "district": "JAIPUR"
   },
   "302026": {
     "pincode": "302026",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mahapura"
+    "district": "JAIPUR"
   },
   "302027": {
     "pincode": "302027",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Saipura"
+    "district": "JAIPUR"
   },
   "303313": {
     "pincode": "303313",
@@ -49946,13 +49946,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "303305",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Badwa"
+    "district": "JAIPUR"
   },
   "303301": {
     "pincode": "303301",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Khatipura"
+    "district": "JAIPUR"
   },
   "303327": {
     "pincode": "303327",
@@ -50060,223 +50060,223 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "303604",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Habaspura"
+    "district": "JAIPUR"
   },
   "303602": {
     "pincode": "303602",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Deva Ka Bas"
+    "district": "JAIPUR"
   },
   "303007": {
     "pincode": "303007",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Awania"
+    "district": "JAIPUR"
   },
   "303901": {
     "pincode": "303901",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Akodiya"
+    "district": "JAIPUR"
   },
   "303904": {
     "pincode": "303904",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Chittora"
+    "district": "JAIPUR"
   },
   "303008": {
     "pincode": "303008",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Gagardoo"
+    "district": "JAIPUR"
   },
   "303706": {
     "pincode": "303706",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Pachar"
+    "district": "JAIPUR"
   },
   "303908": {
     "pincode": "303908",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Radoli"
+    "district": "JAIPUR"
   },
   "303006": {
     "pincode": "303006",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dosara"
+    "district": "JAIPUR"
   },
   "303348": {
     "pincode": "303348",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Chainpura"
+    "district": "JAIPUR"
   },
   "303005": {
     "pincode": "303005",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Choru"
+    "district": "JAIPUR"
   },
   "303338": {
     "pincode": "303338",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bobas"
+    "district": "JAIPUR"
   },
   "303603": {
     "pincode": "303603",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Baseri Khurd"
+    "district": "JAIPUR"
   },
   "303903": {
     "pincode": "303903",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Kumariawas"
+    "district": "JAIPUR"
   },
   "303103": {
     "pincode": "303103",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Jaje Kalan"
+    "district": "JAIPUR"
   },
   "303002": {
     "pincode": "303002",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhuranpura"
+    "district": "JAIPUR"
   },
   "303601": {
     "pincode": "303601",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Hanutpura"
+    "district": "JAIPUR"
   },
   "303001": {
     "pincode": "303001",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dantil"
+    "district": "JAIPUR"
   },
   "303702": {
     "pincode": "303702",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Sirsali"
+    "district": "JAIPUR"
   },
   "303804": {
     "pincode": "303804",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Amarpura"
+    "district": "JAIPUR"
   },
   "303120": {
     "pincode": "303120",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Amloda"
+    "district": "JAIPUR"
   },
   "303712": {
     "pincode": "303712",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dhoblai"
+    "district": "JAIPUR"
   },
   "303701": {
     "pincode": "303701",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhato Ki Gali"
+    "district": "JAIPUR"
   },
   "303704": {
     "pincode": "303704",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhurthal"
+    "district": "JAIPUR"
   },
   "303109": {
     "pincode": "303109",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Booj"
+    "district": "JAIPUR"
   },
   "303801": {
     "pincode": "303801",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dhola Ka Bas"
+    "district": "JAIPUR"
   },
   "303803": {
     "pincode": "303803",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Singot Kalan"
+    "district": "JAIPUR"
   },
   "303108": {
     "pincode": "303108",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Gopalpura"
+    "district": "JAIPUR"
   },
   "303003": {
     "pincode": "303003",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhamod"
+    "district": "JAIPUR"
   },
   "303805": {
     "pincode": "303805",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Chonp"
+    "district": "JAIPUR"
   },
   "303105": {
     "pincode": "303105",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Banethi"
+    "district": "JAIPUR"
   },
   "303106": {
     "pincode": "303106",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Khelana"
+    "district": "JAIPUR"
   },
   "303107": {
     "pincode": "303107",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Jodhpura"
+    "district": "JAIPUR"
   },
   "303110": {
     "pincode": "303110",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Karoli"
+    "district": "JAIPUR"
   },
   "303806": {
     "pincode": "303806",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mahar Kalan"
+    "district": "JAIPUR"
   },
   "303807": {
     "pincode": "303807",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Loharwada"
+    "district": "JAIPUR"
   },
   "303102": {
     "pincode": "303102",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Kuthada"
+    "district": "JAIPUR"
   },
   "322201": {
     "pincode": "322201",
@@ -51128,7 +51128,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342314",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Burkiya"
+    "district": "JODHPUR"
   },
   "345023": {
     "pincode": "345023",
@@ -51152,91 +51152,91 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342311",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Cheemana"
+    "district": "JODHPUR"
   },
   "342023": {
     "pincode": "342023",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Belwa Rajawtan"
+    "district": "JODHPUR"
   },
   "342027": {
     "pincode": "342027",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Bhatinda"
+    "district": "JODHPUR"
   },
   "342307": {
     "pincode": "342307",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Khidrat"
+    "district": "JODHPUR"
   },
   "342605": {
     "pincode": "342605",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Boyal"
+    "district": "JODHPUR"
   },
   "342603": {
     "pincode": "342603",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Birani"
+    "district": "JODHPUR"
   },
   "342602": {
     "pincode": "342602",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Pichiyak"
+    "district": "JODHPUR"
   },
   "342604": {
     "pincode": "342604",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Patel Nagar"
+    "district": "JODHPUR"
   },
   "342312": {
     "pincode": "342312",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Barsallu Kallan"
+    "district": "JODHPUR"
   },
   "342308": {
     "pincode": "342308",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Moriya Munjasar"
+    "district": "JODHPUR"
   },
   "342037": {
     "pincode": "342037",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Bhawad"
+    "district": "JODHPUR"
   },
   "342029": {
     "pincode": "342029",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Nandiya Khurd"
+    "district": "JODHPUR"
   },
   "342302": {
     "pincode": "342302",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Palli"
+    "district": "JODHPUR"
   },
   "342802": {
     "pincode": "342802",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Khara Bera Purohitan"
+    "district": "JODHPUR"
   },
   "342305": {
     "pincode": "342305",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Manaklao"
+    "district": "JODHPUR"
   },
   "342303": {
     "pincode": "342303",
@@ -51248,61 +51248,61 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342014",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Dhawa"
+    "district": "JODHPUR"
   },
   "342309": {
     "pincode": "342309",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Bher"
+    "district": "JODHPUR"
   },
   "342301": {
     "pincode": "342301",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Baru"
+    "district": "JODHPUR"
   },
   "342606": {
     "pincode": "342606",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Burkiya"
+    "district": "JODHPUR"
   },
   "342601": {
     "pincode": "342601",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Chodhan"
+    "district": "JODHPUR"
   },
   "342015": {
     "pincode": "342015",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Fitkasani"
+    "district": "JODHPUR"
   },
   "342025": {
     "pincode": "342025",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Bhaloo Kallan"
+    "district": "JODHPUR"
   },
   "342024": {
     "pincode": "342024",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Beru"
+    "district": "JODHPUR"
   },
   "342028": {
     "pincode": "342028",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Khirja Ashan"
+    "district": "JODHPUR"
   },
   "342306": {
     "pincode": "342306",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Gheora"
+    "district": "JODHPUR"
   },
   "341303": {
     "pincode": "341303",
@@ -53036,13 +53036,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "141412",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Kishangarh"
+    "district": "LUDHIANA"
   },
   "160102": {
     "pincode": "160102",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Raipur Kalan"
+    "district": "CHANDIGARH"
   },
   "140603": {
     "pincode": "140603",
@@ -53126,211 +53126,211 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "141007",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Mattewara"
+    "district": "LUDHIANA"
   },
   "141008": {
     "pincode": "141008",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Nurpurbet"
+    "district": "LUDHIANA"
   },
   "141015": {
     "pincode": "141015",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Karyana Kalan"
+    "district": "LUDHIANA"
   },
   "142032": {
     "pincode": "142032",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Binjal"
+    "district": "LUDHIANA"
   },
   "141422": {
     "pincode": "141422",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Raqba"
+    "district": "LUDHIANA"
   },
   "141101": {
     "pincode": "141101",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Pandori"
+    "district": "LUDHIANA"
   },
   "142036": {
     "pincode": "142036",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Fatehgarh Siwian"
+    "district": "LUDHIANA"
   },
   "141107": {
     "pincode": "141107",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Rajoana Kalan"
+    "district": "LUDHIANA"
   },
   "141110": {
     "pincode": "141110",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bassian Bet"
+    "district": "LUDHIANA"
   },
   "142031": {
     "pincode": "142031",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Lakha"
+    "district": "LUDHIANA"
   },
   "142030": {
     "pincode": "142030",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Chajjewal"
+    "district": "LUDHIANA"
   },
   "141104": {
     "pincode": "141104",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Akalgarh"
+    "district": "LUDHIANA"
   },
   "142022": {
     "pincode": "142022",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Hamaunpura"
+    "district": "LUDHIANA"
   },
   "142035": {
     "pincode": "142035",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Dallah"
+    "district": "LUDHIANA"
   },
   "142023": {
     "pincode": "142023",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Tuggal"
+    "district": "LUDHIANA"
   },
   "141108": {
     "pincode": "141108",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Andlu"
+    "district": "LUDHIANA"
   },
   "141109": {
     "pincode": "141109",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bhaini Baringa"
+    "district": "LUDHIANA"
   },
   "141105": {
     "pincode": "141105",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Rattowal"
+    "district": "LUDHIANA"
   },
   "142033": {
     "pincode": "142033",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Lodhiwal"
+    "district": "LUDHIANA"
   },
   "142024": {
     "pincode": "142024",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Barsal"
+    "district": "LUDHIANA"
   },
   "142025": {
     "pincode": "142025",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bharowal"
+    "district": "LUDHIANA"
   },
   "141118": {
     "pincode": "141118",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Khatorachuharam"
+    "district": "LUDHIANA"
   },
   "141206": {
     "pincode": "141206",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bhutta"
+    "district": "LUDHIANA"
   },
   "141116": {
     "pincode": "141116",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "SHAHEED BHAGAT SINGH NAGAR"
+    "district": "LUDHIANA"
   },
   "141414": {
     "pincode": "141414",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Allona Pallah"
+    "district": "LUDHIANA"
   },
   "141415": {
     "pincode": "141415",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bharthala Randhawa"
+    "district": "LUDHIANA"
   },
   "141122": {
     "pincode": "141122",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Natt"
+    "district": "LUDHIANA"
   },
   "141113": {
     "pincode": "141113",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Uppal"
+    "district": "LUDHIANA"
   },
   "141112": {
     "pincode": "141112",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bhagpura"
+    "district": "LUDHIANA"
   },
   "141115": {
     "pincode": "141115",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Punjgarain"
+    "district": "LUDHIANA"
   },
   "141119": {
     "pincode": "141119",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Dhudhal Kalan"
+    "district": "LUDHIANA"
   },
   "141417": {
     "pincode": "141417",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Chak Mafi"
+    "district": "LUDHIANA"
   },
   "141114": {
     "pincode": "141114",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bondli"
+    "district": "LUDHIANA"
   },
   "141120": {
     "pincode": "141120",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Pawa"
+    "district": "LUDHIANA"
   },
   "141117": {
     "pincode": "141117",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Lehal"
+    "district": "LUDHIANA"
   },
   "147203": {
     "pincode": "147203",
@@ -53570,151 +53570,151 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "143102",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bhoewali"
+    "district": "AMRITSAR"
   },
   "143108": {
     "pincode": "143108",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Assarapur"
+    "district": "AMRITSAR"
   },
   "143202": {
     "pincode": "143202",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bhalaipur Purban"
+    "district": "AMRITSAR"
   },
   "143201": {
     "pincode": "143201",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Kot Mehtab"
+    "district": "AMRITSAR"
   },
   "143203": {
     "pincode": "143203",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Khanpur"
+    "district": "AMRITSAR"
   },
   "143103": {
     "pincode": "143103",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Tera Kalan"
+    "district": "AMRITSAR"
   },
   "143504": {
     "pincode": "143504",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Dhade"
+    "district": "AMRITSAR"
   },
   "143606": {
     "pincode": "143606",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Balbawa"
+    "district": "AMRITSAR"
   },
   "143109": {
     "pincode": "143109",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bhullar"
+    "district": "AMRITSAR"
   },
   "143204": {
     "pincode": "143204",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bal Sarai"
+    "district": "AMRITSAR"
   },
   "143107": {
     "pincode": "143107",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Chhidan"
+    "district": "AMRITSAR"
   },
   "143009": {
     "pincode": "143009",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Thathgarh"
+    "district": "AMRITSAR"
   },
   "143113": {
     "pincode": "143113",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Talwandi Dogran"
+    "district": "AMRITSAR"
   },
   "143149": {
     "pincode": "143149",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Devidaspura"
+    "district": "AMRITSAR"
   },
   "143502": {
     "pincode": "143502",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Jaintipur"
+    "district": "AMRITSAR"
   },
   "143111": {
     "pincode": "143111",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Allowal"
+    "district": "AMRITSAR"
   },
   "143022": {
     "pincode": "143022",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Daburji"
+    "district": "AMRITSAR"
   },
   "143601": {
     "pincode": "143601",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bhangali"
+    "district": "AMRITSAR"
   },
   "143114": {
     "pincode": "143114",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Arjan Manga"
+    "district": "AMRITSAR"
   },
   "143101": {
     "pincode": "143101",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Mallunangal"
+    "district": "AMRITSAR"
   },
   "143112": {
     "pincode": "143112",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Chima Bath"
+    "district": "AMRITSAR"
   },
   "143205": {
     "pincode": "143205",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Ghagar Bhana"
+    "district": "AMRITSAR"
   },
   "143116": {
     "pincode": "143116",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Bhattike"
+    "district": "AMRITSAR"
   },
   "143501": {
     "pincode": "143501",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Khankot Garden Colony"
+    "district": "AMRITSAR"
   },
   "143413": {
     "pincode": "143413",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Jhita Kalan"
+    "district": "AMRITSAR"
   },
   "143301": {
     "pincode": "143301",
@@ -53750,7 +53750,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "143115",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Manawala Kalan"
+    "district": "AMRITSAR"
   },
   "143416": {
     "pincode": "143416",
@@ -55754,25 +55754,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221104",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Hariadih"
+    "district": "VARANASI"
   },
   "221112": {
     "pincode": "221112",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Kamauli"
+    "district": "VARANASI"
   },
   "221101": {
     "pincode": "221101",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Chaubepurkhurd"
+    "district": "VARANASI"
   },
   "221011": {
     "pincode": "221011",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Ramna"
+    "district": "VARANASI"
   },
   "232105": {
     "pincode": "232105",
@@ -55838,13 +55838,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221201",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Kuru"
+    "district": "VARANASI"
   },
   "221204": {
     "pincode": "221204",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Basani"
+    "district": "VARANASI"
   },
   "221401": {
     "pincode": "221401",
@@ -55856,19 +55856,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221302",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Harshosh"
+    "district": "VARANASI"
   },
   "221405": {
     "pincode": "221405",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Hariharpur"
+    "district": "VARANASI"
   },
   "221305": {
     "pincode": "221305",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Marui"
+    "district": "VARANASI"
   },
   "221310": {
     "pincode": "221310",
@@ -55892,7 +55892,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221202",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Ayar"
+    "district": "VARANASI"
   },
   "221406": {
     "pincode": "221406",
@@ -55916,19 +55916,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221206",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Parsara"
+    "district": "VARANASI"
   },
   "221403": {
     "pincode": "221403",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Banakat"
+    "district": "VARANASI"
   },
   "221208": {
     "pincode": "221208",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Marui"
+    "district": "VARANASI"
   },
   "221404": {
     "pincode": "221404",
@@ -58304,109 +58304,109 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625501",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Mettupatti"
+    "district": "MADURAI"
   },
   "625514": {
     "pincode": "625514",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "AKokkulam"
+    "district": "MADURAI"
   },
   "625214": {
     "pincode": "625214",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Thenkarai"
+    "district": "MADURAI"
   },
   "625019": {
     "pincode": "625019",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pulluthu"
+    "district": "MADURAI"
   },
   "625503": {
     "pincode": "625503",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Tettur"
+    "district": "MADURAI"
   },
   "625402": {
     "pincode": "625402",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Thenur"
+    "district": "MADURAI"
   },
   "625221": {
     "pincode": "625221",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Thiruvalavayanallur"
+    "district": "MADURAI"
   },
   "625701": {
     "pincode": "625701",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Kuraiyur"
+    "district": "MADURAI"
   },
   "625008": {
     "pincode": "625008",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Austinpatti"
+    "district": "MADURAI"
   },
   "625022": {
     "pincode": "625022",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Nallur"
+    "district": "MADURAI"
   },
   "625702": {
     "pincode": "625702",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "MSubbulapuram"
+    "district": "MADURAI"
   },
   "625708": {
     "pincode": "625708",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pappanaickenpatti"
+    "district": "MADURAI"
   },
   "625704": {
     "pincode": "625704",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Alappalacheri"
+    "district": "MADURAI"
   },
   "625706": {
     "pincode": "625706",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Achampatti"
+    "district": "MADURAI"
   },
   "625707": {
     "pincode": "625707",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Lalapuram"
+    "district": "MADURAI"
   },
   "625301": {
     "pincode": "625301",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pulipatti"
+    "district": "MADURAI"
   },
   "625020": {
     "pincode": "625020",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Karuppayurani"
+    "district": "MADURAI"
   },
   "625101": {
     "pincode": "625101",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Kachirayanpatti"
+    "district": "MADURAI"
   },
   "625102": {
     "pincode": "625102",
@@ -58418,61 +58418,61 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625103",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Manappachery"
+    "district": "MADURAI"
   },
   "625009": {
     "pincode": "625009",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Anuppanady"
+    "district": "MADURAI"
   },
   "625014": {
     "pincode": "625014",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Chatrapatti"
+    "district": "MADURAI"
   },
   "625104": {
     "pincode": "625104",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Vowalthottam"
+    "district": "MADURAI"
   },
   "625106": {
     "pincode": "625106",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Kilaiyur"
+    "district": "MADURAI"
   },
   "625107": {
     "pincode": "625107",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Rajakkur"
+    "district": "MADURAI"
   },
   "625201": {
     "pincode": "625201",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Sakkimangalam"
+    "district": "MADURAI"
   },
   "625108": {
     "pincode": "625108",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Attapatti"
+    "district": "MADURAI"
   },
   "625110": {
     "pincode": "625110",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Poonjuthi"
+    "district": "MADURAI"
   },
   "625109": {
     "pincode": "625109",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Alagichipatti"
+    "district": "MADURAI"
   },
   "623601": {
     "pincode": "623601",
@@ -58844,13 +58844,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625527",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Chinnakattalai"
+    "district": "MADURAI"
   },
   "625529": {
     "pincode": "625529",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Kalappanpatti"
+    "district": "MADURAI"
   },
   "625536": {
     "pincode": "625536",
@@ -58868,13 +58868,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625532",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Nattamangalam"
+    "district": "MADURAI"
   },
   "625537": {
     "pincode": "625537",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Eravarpatti"
+    "district": "MADURAI"
   },
   "625603": {
     "pincode": "625603",
@@ -58898,7 +58898,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625535",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Jothilnayakanur"
+    "district": "MADURAI"
   },
   "627413": {
     "pincode": "627413",
@@ -61604,13 +61604,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "324002",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Borkheda"
+    "district": "KOTA"
   },
   "326520": {
     "pincode": "326520",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Budh Khan"
+    "district": "KOTA"
   },
   "325209": {
     "pincode": "325209",
@@ -61634,7 +61634,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325214",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Jaloda Khatian"
+    "district": "KOTA"
   },
   "325207": {
     "pincode": "325207",
@@ -61658,7 +61658,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "326518",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Khedli"
+    "district": "KOTA"
   },
   "325220": {
     "pincode": "325220",
@@ -61676,31 +61676,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325201",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Parliya"
+    "district": "KOTA"
   },
   "325208": {
     "pincode": "325208",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Bamori"
+    "district": "KOTA"
   },
   "325004": {
     "pincode": "325004",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Khyawada"
+    "district": "KOTA"
   },
   "325602": {
     "pincode": "325602",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Sawan Bhadon"
+    "district": "KOTA"
   },
   "325009": {
     "pincode": "325009",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Borda"
+    "district": "KOTA"
   },
   "325216": {
     "pincode": "325216",
@@ -61718,7 +61718,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "326519",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Pipa Khedi"
+    "district": "KOTA"
   },
   "325219": {
     "pincode": "325219",
@@ -61730,7 +61730,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325601",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Hingi"
+    "district": "KOTA"
   },
   "325217": {
     "pincode": "325217",
@@ -61742,7 +61742,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325203",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Bhanda Hera"
+    "district": "KOTA"
   },
   "325206": {
     "pincode": "325206",
@@ -61754,7 +61754,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325204",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Banethia"
+    "district": "KOTA"
   },
   "325224": {
     "pincode": "325224",
@@ -61766,25 +61766,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "325003",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Dhani Kasar"
+    "district": "KOTA"
   },
   "324010": {
     "pincode": "324010",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Chand Baori"
+    "district": "KOTA"
   },
   "325001": {
     "pincode": "325001",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Aamli"
+    "district": "KOTA"
   },
   "326530": {
     "pincode": "326530",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Salawad Khurd"
+    "district": "KOTA"
   },
   "323001": {
     "pincode": "323001",
@@ -62204,7 +62204,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824126",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Pothu"
+    "district": "AURANGABAD"
   },
   "802157": {
     "pincode": "802157",
@@ -62288,13 +62288,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800020",
     "city": "Patna",
     "state": "Bihar",
-    "district": "C G NAGAR"
+    "district": "PATNA"
   },
   "800004": {
     "pincode": "800004",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Machhuatoli"
+    "district": "PATNA"
   },
   "800008": {
     "pincode": "800008",
@@ -62306,25 +62306,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800014",
     "city": "Patna",
     "state": "Bihar",
-    "district": "BV College"
+    "district": "PATNA"
   },
   "800024": {
     "pincode": "800024",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Keshari Nagar"
+    "district": "PATNA"
   },
   "800027": {
     "pincode": "800027",
     "city": "Patna",
     "state": "Bihar",
-    "district": "NEW JAGANPURA"
+    "district": "PATNA"
   },
   "800023": {
     "pincode": "800023",
     "city": "Patna",
     "state": "Bihar",
-    "district": "PATEL NAGAR"
+    "district": "PATNA"
   },
   "800033": {
     "pincode": "800033",
@@ -62582,13 +62582,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110001",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Supreme Court"
+    "district": "NEW DELHI"
   },
   "110004": {
     "pincode": "110004",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Rashtrapati Bhawan"
+    "district": "NEW DELHI"
   },
   "110055": {
     "pincode": "110055",
@@ -62642,19 +62642,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110021",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Anand Niketan"
+    "district": "NEW DELHI"
   },
   "110010": {
     "pincode": "110010",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Delhi Cantt"
+    "district": "NEW DELHI"
   },
   "110037": {
     "pincode": "110037",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Gurgaon Road"
+    "district": "NEW DELHI"
   },
   "110097": {
     "pincode": "110097",
@@ -62666,13 +62666,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110023",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Netaji Nagar South West Delhi"
+    "district": "NEW DELHI"
   },
   "110022": {
     "pincode": "110022",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "R K Puram Sect7"
+    "district": "NEW DELHI"
   },
   "110016": {
     "pincode": "110016",
@@ -62720,97 +62720,97 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380006",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ellisbridge"
+    "district": "Ahmedabad"
   },
   "380027": {
     "pincode": "380027",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Gandhi Ashram Ahmedabad"
+    "district": "Ahmedabad"
   },
   "380061": {
     "pincode": "380061",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ghatlodia"
+    "district": "Ahmedabad"
   },
   "380009": {
     "pincode": "380009",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Gujarat University"
+    "district": "Ahmedabad"
   },
   "380015": {
     "pincode": "380015",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Manekbag"
+    "district": "Ahmedabad"
   },
   "380013": {
     "pincode": "380013",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Naranpura Vistar"
+    "district": "Ahmedabad"
   },
   "380007": {
     "pincode": "380007",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Narayannagar"
+    "district": "Ahmedabad"
   },
   "382480": {
     "pincode": "382480",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ranip"
+    "district": "Ahmedabad"
   },
   "380005": {
     "pincode": "380005",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Sabarmati"
+    "district": "Ahmedabad"
   },
   "380058": {
     "pincode": "380058",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ghuma"
+    "district": "Ahmedabad"
   },
   "380024": {
     "pincode": "380024",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Asarwa Ext South"
+    "district": "Ahmedabad"
   },
   "380004": {
     "pincode": "380004",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Cantonment"
+    "district": "Ahmedabad"
   },
   "382345": {
     "pincode": "382345",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Saijpur Bogha"
+    "district": "Ahmedabad"
   },
   "382443": {
     "pincode": "382443",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Isanpur"
+    "district": "Ahmedabad"
   },
   "380008": {
     "pincode": "380008",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Khokhara Mehmadabad"
+    "district": "Ahmedabad"
   },
   "382435": {
     "pincode": "382435",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Nandej"
+    "district": "Ahmedabad"
   },
   "382021": {
     "pincode": "382021",
@@ -62936,31 +62936,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360040",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Atkot"
+    "district": "RAJKOT"
   },
   "360465": {
     "pincode": "360465",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Derdi Kumbaji"
+    "district": "RAJKOT"
   },
   "360360": {
     "pincode": "360360",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Jetalsar Jn"
+    "district": "RAJKOT"
   },
   "360330": {
     "pincode": "360330",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Moviya"
+    "district": "RAJKOT"
   },
   "360375": {
     "pincode": "360375",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Navagadh"
+    "district": "RAJKOT"
   },
   "361003": {
     "pincode": "361003",
@@ -63050,31 +63050,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360007",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Raiya Road"
+    "district": "RAJKOT"
   },
   "360001": {
     "pincode": "360001",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Seva Sadan"
+    "district": "RAJKOT"
   },
   "360021": {
     "pincode": "360021",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Metoda Gidc"
+    "district": "RAJKOT"
   },
   "360026": {
     "pincode": "360026",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Sapar Veraval"
+    "district": "RAJKOT"
   },
   "360006": {
     "pincode": "360006",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Bhomeswar NDT"
+    "district": "RAJKOT"
   },
   "363755": {
     "pincode": "363755",
@@ -63098,25 +63098,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394140",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bodhan Surat"
+    "district": "SURAT"
   },
   "394150": {
     "pincode": "394150",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kathor"
+    "district": "SURAT"
   },
   "394320": {
     "pincode": "394320",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Sevni"
+    "district": "SURAT"
   },
   "394601": {
     "pincode": "394601",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Sugar Factory Bardoli"
+    "district": "SURAT"
   },
   "393017": {
     "pincode": "393017",
@@ -63230,85 +63230,85 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394510",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bhatha"
+    "district": "SURAT"
   },
   "395003": {
     "pincode": "395003",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Muglisara"
+    "district": "SURAT"
   },
   "394520": {
     "pincode": "394520",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Variav"
+    "district": "SURAT"
   },
   "394421": {
     "pincode": "394421",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Mosali"
+    "district": "SURAT"
   },
   "394101": {
     "pincode": "394101",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Mota Varachha"
+    "district": "SURAT"
   },
   "394105": {
     "pincode": "394105",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Utran Power House"
+    "district": "SURAT"
   },
   "390014": {
     "pincode": "390014",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Makarpura"
+    "district": "VADODARA"
   },
   "390011": {
     "pincode": "390011",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Manjalpur"
+    "district": "VADODARA"
   },
   "390009": {
     "pincode": "390009",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Ongc Col"
+    "district": "VADODARA"
   },
   "391740": {
     "pincode": "391740",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Chhani Vadodara"
+    "district": "VADODARA"
   },
   "390016": {
     "pincode": "390016",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Industrial Estate Vadodara"
+    "district": "VADODARA"
   },
   "391320": {
     "pincode": "391320",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Jawahar Nagar Vadodara"
+    "district": "VADODARA"
   },
   "390023": {
     "pincode": "390023",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Subhanpura"
+    "district": "VADODARA"
   },
   "390021": {
     "pincode": "390021",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "T B Sanatorium"
+    "district": "VADODARA"
   },
   "396210": {
     "pincode": "396210",
@@ -63416,19 +63416,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121007",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Escortsnagar Faridabad"
+    "district": "FARIDABAD"
   },
   "121008": {
     "pincode": "121008",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Faridabad Sector 29"
+    "district": "FARIDABAD"
   },
   "121001": {
     "pincode": "121001",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Feroz Gandhi Nagar Faridabad"
+    "district": "FARIDABAD"
   },
   "121103": {
     "pincode": "121103",
@@ -63440,19 +63440,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121010",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Nhpc Colony Faridabad"
+    "district": "FARIDABAD"
   },
   "121013": {
     "pincode": "121013",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Sec91"
+    "district": "FARIDABAD"
   },
   "121012": {
     "pincode": "121012",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Sector21D"
+    "district": "FARIDABAD"
   },
   "122005": {
     "pincode": "122005",
@@ -63794,43 +63794,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190004",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Batwara"
+    "district": "SRINAGAR"
   },
   "191121": {
     "pincode": "191121",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Brein"
+    "district": "SRINAGAR"
   },
   "190002": {
     "pincode": "190002",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Jamia Masjid"
+    "district": "SRINAGAR"
   },
   "190008": {
     "pincode": "190008",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Jawahar Nagar"
+    "district": "SRINAGAR"
   },
   "190001": {
     "pincode": "190001",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Nehru Park"
+    "district": "SRINAGAR"
   },
   "190009": {
     "pincode": "190009",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Rambagh Srinagar"
+    "district": "SRINAGAR"
   },
   "190025": {
     "pincode": "190025",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Skuast"
+    "district": "SRINAGAR"
   },
   "182206": {
     "pincode": "182206",
@@ -63860,19 +63860,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828309",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Jitpur"
+    "district": "DHANBAD"
   },
   "828306": {
     "pincode": "828306",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Nawagarh Dhanbad"
+    "district": "DHANBAD"
   },
   "826005": {
     "pincode": "826005",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "BCCl Township"
+    "district": "DHANBAD"
   },
   "828303": {
     "pincode": "828303",
@@ -63884,43 +63884,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828107",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Domgarh"
+    "district": "DHANBAD"
   },
   "828110": {
     "pincode": "828110",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Jealgora"
+    "district": "DHANBAD"
   },
   "826001": {
     "pincode": "826001",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Manaitand"
+    "district": "DHANBAD"
   },
   "828127": {
     "pincode": "828127",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Saraidhela"
+    "district": "DHANBAD"
   },
   "828126": {
     "pincode": "828126",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Sudamdih"
+    "district": "DHANBAD"
   },
   "826007": {
     "pincode": "826007",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Centralized Delivery Office PO"
+    "district": "DHANBAD"
   },
   "826012": {
     "pincode": "826012",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "99 Koylanchal City"
+    "district": "DHANBAD"
   },
   "825102": {
     "pincode": "825102",
@@ -64046,13 +64046,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700001",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "KOLKATA GPO"
+    "district": "KOLKATA"
   },
   "700002": {
     "pincode": "700002",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Cossipore"
+    "district": "KOLKATA"
   },
   "742101": {
     "pincode": "742101",
@@ -64310,25 +64310,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500081",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Cyberabad"
+    "district": "HYDERABAD"
   },
   "500096": {
     "pincode": "500096",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Film Nagar"
+    "district": "HYDERABAD"
   },
   "500038": {
     "pincode": "500038",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Sanjeev Reddy Nagar"
+    "district": "HYDERABAD"
   },
   "500073": {
     "pincode": "500073",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Srinagar Colony"
+    "district": "HYDERABAD"
   },
   "500018": {
     "pincode": "500018",
@@ -64340,7 +64340,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500022",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Central Secretariat"
+    "district": "HYDERABAD"
   },
   "500046": {
     "pincode": "500046",
@@ -64352,7 +64352,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500008",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Golconda"
+    "district": "HYDERABAD"
   },
   "500091": {
     "pincode": "500091",
@@ -64364,13 +64364,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500001",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Moazzampura"
+    "district": "HYDERABAD"
   },
   "500004": {
     "pincode": "500004",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Parishram Bhawan"
+    "district": "HYDERABAD"
   },
   "500901": {
     "pincode": "500901",
@@ -64382,25 +64382,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500064",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Bahadurpura"
+    "district": "HYDERABAD"
   },
   "500065": {
     "pincode": "500065",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Fatehdarwaza"
+    "district": "HYDERABAD"
   },
   "500053": {
     "pincode": "500053",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Uppuguda"
+    "district": "HYDERABAD"
   },
   "500112": {
     "pincode": "500112",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Badangpet"
+    "district": "HYDERABAD"
   },
   "500958": {
     "pincode": "500958",
@@ -64412,7 +64412,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500027",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Barkatpura"
+    "district": "HYDERABAD"
   },
   "500060": {
     "pincode": "500060",
@@ -64442,13 +64442,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500044",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Nallakunta"
+    "district": "HYDERABAD"
   },
   "500036": {
     "pincode": "500036",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Osmannagar"
+    "district": "HYDERABAD"
   },
   "500102": {
     "pincode": "500102",
@@ -64472,25 +64472,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500080",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Gandhinagar"
+    "district": "HYDERABAD"
   },
   "500040": {
     "pincode": "500040",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Ie Moulali"
+    "district": "HYDERABAD"
   },
   "500007": {
     "pincode": "500007",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "IICT"
+    "district": "HYDERABAD"
   },
   "500017": {
     "pincode": "500017",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Lallaguda"
+    "district": "HYDERABAD"
   },
   "500903": {
     "pincode": "500903",
@@ -64502,7 +64502,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500015",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "EME Records"
+    "district": "HYDERABAD"
   },
   "500067": {
     "pincode": "500067",
@@ -64520,7 +64520,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500117",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Kailash Hills Colony"
+    "district": "HYDERABAD"
   },
   "500972": {
     "pincode": "500972",
@@ -67688,7 +67688,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462001",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Gandhi Medical College"
+    "district": "BHOPAL"
   },
   "462099": {
     "pincode": "462099",
@@ -67700,19 +67700,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462003",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Tulsi Nagar"
+    "district": "BHOPAL"
   },
   "462002": {
     "pincode": "462002",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Vidya Vihar"
+    "district": "BHOPAL"
   },
   "462040": {
     "pincode": "462040",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "IBD Hallmark city kolar road"
+    "district": "BHOPAL"
   },
   "462116": {
     "pincode": "462116",
@@ -67724,7 +67724,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462028",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Kokta"
+    "district": "BHOPAL"
   },
   "471606": {
     "pincode": "471606",
@@ -69386,7 +69386,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800001",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Patna GPO"
+    "district": "PATNA"
   },
   "110019": {
     "pincode": "110019",
@@ -69398,13 +69398,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380002",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Revdibazar"
+    "district": "Ahmedabad"
   },
   "390002": {
     "pincode": "390002",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Fateganj"
+    "district": "VADODARA"
   },
   "177101": {
     "pincode": "177101",
@@ -69524,7 +69524,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400016",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Mahim"
+    "district": "MUMBAI"
   },
   "444601": {
     "pincode": "444601",
@@ -69536,13 +69536,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440002",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Nagpur City"
+    "district": "NAGPUR"
   },
   "411005": {
     "pincode": "411005",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Shivajinagar"
+    "district": "PUNE"
   },
   "413709": {
     "pincode": "413709",
@@ -69638,13 +69638,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600003",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Park Town"
+    "district": "CHENNAI"
   },
   "600001": {
     "pincode": "600001",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Chennai G.P.O."
+    "district": "CHENNAI"
   },
   "631501": {
     "pincode": "631501",
@@ -69686,7 +69686,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625016",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Arasaradi"
+    "district": "MADURAI"
   },
   "630606": {
     "pincode": "630606",
@@ -69716,7 +69716,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "282003",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Agra Fort"
+    "district": "AGRA"
   },
   "207001": {
     "pincode": "207001",
@@ -72590,85 +72590,85 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226017",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Alamnagar"
+    "district": "LUCKNOW"
   },
   "226401": {
     "pincode": "226401",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Neewan"
+    "district": "LUCKNOW"
   },
   "226028": {
     "pincode": "226028",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Amraigaon"
+    "district": "LUCKNOW"
   },
   "226501": {
     "pincode": "226501",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "HASNAPUR"
+    "district": "LUCKNOW"
   },
   "226203": {
     "pincode": "226203",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Arjunpur"
+    "district": "LUCKNOW"
   },
   "226101": {
     "pincode": "226101",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Amethia Salempur"
+    "district": "LUCKNOW"
   },
   "226102": {
     "pincode": "226102",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Bhadwana"
+    "district": "LUCKNOW"
   },
   "226104": {
     "pincode": "226104",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Beerpur"
+    "district": "LUCKNOW"
   },
   "226301": {
     "pincode": "226301",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Jabrauli"
+    "district": "LUCKNOW"
   },
   "226303": {
     "pincode": "226303",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Chatauni"
+    "district": "LUCKNOW"
   },
   "226302": {
     "pincode": "226302",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Dayalpur"
+    "district": "LUCKNOW"
   },
   "226002": {
     "pincode": "226002",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Bhadrukh"
+    "district": "LUCKNOW"
   },
   "226021": {
     "pincode": "226021",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Madiyaon"
+    "district": "LUCKNOW"
   },
   "226026": {
     "pincode": "226026",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Behta"
+    "district": "LUCKNOW"
   },
   "229206": {
     "pincode": "229206",
@@ -76280,7 +76280,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "250617",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Badarkha"
+    "district": "MEERUT"
   },
   "250615": {
     "pincode": "250615",
@@ -76322,91 +76322,91 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "250001",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Bana"
+    "district": "MEERUT"
   },
   "250341": {
     "pincode": "250341",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Bahadurpur"
+    "district": "MEERUT"
   },
   "250221": {
     "pincode": "250221",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Alipur"
+    "district": "MEERUT"
   },
   "250104": {
     "pincode": "250104",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Mahalwala"
+    "district": "MEERUT"
   },
   "250004": {
     "pincode": "250004",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Jithauli"
+    "district": "MEERUT"
   },
   "250222": {
     "pincode": "250222",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Mahalka"
+    "district": "MEERUT"
   },
   "250401": {
     "pincode": "250401",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Assa"
+    "district": "MEERUT"
   },
   "250406": {
     "pincode": "250406",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Amarsinghpur"
+    "district": "MEERUT"
   },
   "250223": {
     "pincode": "250223",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Ruhasa"
+    "district": "MEERUT"
   },
   "250342": {
     "pincode": "250342",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Baparsi"
+    "district": "MEERUT"
   },
   "250344": {
     "pincode": "250344",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Maina Poothi"
+    "district": "MEERUT"
   },
   "250501": {
     "pincode": "250501",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Bhola"
+    "district": "MEERUT"
   },
   "245206": {
     "pincode": "245206",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Ajrara"
+    "district": "MEERUT"
   },
   "250205": {
     "pincode": "250205",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Muzakkipur"
+    "district": "MEERUT"
   },
   "250502": {
     "pincode": "250502",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Baram"
+    "district": "MEERUT"
   },
   "244221": {
     "pincode": "244221",
@@ -77360,31 +77360,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "452005",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore Airport"
+    "district": "INDORE"
   },
   "452001": {
     "pincode": "452001",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore Tukoganj"
+    "district": "INDORE"
   },
   "453552": {
     "pincode": "453552",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Simrol"
+    "district": "INDORE"
   },
   "452006": {
     "pincode": "452006",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Army Head Quarter"
+    "district": "INDORE"
   },
   "452007": {
     "pincode": "452007",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Gurunanak Chauk"
+    "district": "INDORE"
   },
   "482011": {
     "pincode": "482011",
@@ -77456,19 +77456,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474009",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Lashkar City"
+    "district": "GWALIOR"
   },
   "474002": {
     "pincode": "474002",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Industrial Estate Gwalior"
+    "district": "GWALIOR"
   },
   "474011": {
     "pincode": "474011",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Jiwaji University"
+    "district": "GWALIOR"
   },
   "476228": {
     "pincode": "476228",
@@ -77684,37 +77684,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400033",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Kalachowki"
+    "district": "MUMBAI"
   },
   "400003": {
     "pincode": "400003",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Masjid"
+    "district": "MUMBAI"
   },
   "400009": {
     "pincode": "400009",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Princess Dock"
+    "district": "MUMBAI"
   },
   "400014": {
     "pincode": "400014",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Naigaon (Mumbai)"
+    "district": "MUMBAI"
   },
   "400012": {
     "pincode": "400012",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Parel Naka"
+    "district": "MUMBAI"
   },
   "400031": {
     "pincode": "400031",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Wadala"
+    "district": "MUMBAI"
   },
   "400070": {
     "pincode": "400070",
@@ -77726,7 +77726,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400022",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Transit Camp"
+    "district": "MUMBAI"
   },
   "400053": {
     "pincode": "400053",
@@ -77858,19 +77858,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400004",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Chaupati"
+    "district": "MUMBAI"
   },
   "400013": {
     "pincode": "400013",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Delisle Road"
+    "district": "MUMBAI"
   },
   "400030": {
     "pincode": "400030",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Worli Police Camp"
+    "district": "MUMBAI"
   },
   "400113": {
     "pincode": "400113",
@@ -77882,31 +77882,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400011",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Agripada"
+    "district": "MUMBAI"
   },
   "400035": {
     "pincode": "400035",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Rajbhavan (Mumbai)"
+    "district": "MUMBAI"
   },
   "400005": {
     "pincode": "400005",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Asvini"
+    "district": "MUMBAI"
   },
   "400001": {
     "pincode": "400001",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Bazargate"
+    "district": "MUMBAI"
   },
   "400021": {
     "pincode": "400021",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Nariman Point"
+    "district": "MUMBAI"
   },
   "400111": {
     "pincode": "400111",
@@ -77918,13 +77918,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400614",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Belapur Node   III"
+    "district": "THANE"
   },
   "400703": {
     "pincode": "400703",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "K.U.Bazar"
+    "district": "THANE"
   },
   "410202": {
     "pincode": "410202",
@@ -77936,7 +77936,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400705",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Sanpada"
+    "district": "THANE"
   },
   "402402": {
     "pincode": "402402",
@@ -77954,49 +77954,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421002",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Bus Terminus"
+    "district": "THANE"
   },
   "421402": {
     "pincode": "421402",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Dhasai"
+    "district": "THANE"
   },
   "421004": {
     "pincode": "421004",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Ulhasnagar 4"
+    "district": "THANE"
   },
   "400606": {
     "pincode": "400606",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Jekegram"
+    "district": "THANE"
   },
   "400605": {
     "pincode": "400605",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Kalwa"
+    "district": "THANE"
   },
   "400607": {
     "pincode": "400607",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Sandozbaugh"
+    "district": "THANE"
   },
   "400601": {
     "pincode": "400601",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Thane Bazar"
+    "district": "THANE"
   },
   "400604": {
     "pincode": "400604",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Wagle I.E."
+    "district": "THANE"
   },
   "401105": {
     "pincode": "401105",
@@ -78062,73 +78062,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440032",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Mahal (Nagpur)"
+    "district": "NAGPUR"
   },
   "440034": {
     "pincode": "440034",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Mhalginagar"
+    "district": "NAGPUR"
   },
   "440013": {
     "pincode": "440013",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Borgaon Road"
+    "district": "NAGPUR"
   },
   "440019": {
     "pincode": "440019",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "C.R.P.F. Nagpur"
+    "district": "NAGPUR"
   },
   "440036": {
     "pincode": "440036",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Jaitala"
+    "district": "NAGPUR"
   },
   "440001": {
     "pincode": "440001",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kasturchand Park"
+    "district": "NAGPUR"
   },
   "440010": {
     "pincode": "440010",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Khare Town"
+    "district": "NAGPUR"
   },
   "440030": {
     "pincode": "440030",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Nadt Campus"
+    "district": "NAGPUR"
   },
   "440006": {
     "pincode": "440006",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Seminary Hills"
+    "district": "NAGPUR"
   },
   "440007": {
     "pincode": "440007",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Vayusena Nagar"
+    "district": "NAGPUR"
   },
   "441303": {
     "pincode": "441303",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Mowad"
+    "district": "NAGPUR"
   },
   "441109": {
     "pincode": "441109",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Sillewara Project"
+    "district": "NAGPUR"
   },
   "442106": {
     "pincode": "442106",
@@ -78194,67 +78194,67 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411027",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Aundh Camp"
+    "district": "PUNE"
   },
   "411026": {
     "pincode": "411026",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhosari I.E."
+    "district": "PUNE"
   },
   "411037": {
     "pincode": "411037",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bibvewadi"
+    "district": "PUNE"
   },
   "411031": {
     "pincode": "411031",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "C M E"
+    "district": "PUNE"
   },
   "411012": {
     "pincode": "411012",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dapodi"
+    "district": "PUNE"
   },
   "411028": {
     "pincode": "411028",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Hadapsar"
+    "district": "PUNE"
   },
   "411003": {
     "pincode": "411003",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khadki Bazar"
+    "district": "PUNE"
   },
   "411060": {
     "pincode": "411060",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Mohamadwadi"
+    "district": "PUNE"
   },
   "411017": {
     "pincode": "411017",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pimpri Colony"
+    "district": "PUNE"
   },
   "411001": {
     "pincode": "411001",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pune Cantt East"
+    "district": "PUNE"
   },
   "411006": {
     "pincode": "411006",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Yerwada"
+    "district": "PUNE"
   },
   "411079": {
     "pincode": "411079",
@@ -78266,97 +78266,97 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411004",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "A.R. Shala"
+    "district": "PUNE"
   },
   "411007": {
     "pincode": "411007",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Aundh T.S."
+    "district": "PUNE"
   },
   "411002": {
     "pincode": "411002",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bajirao Road"
+    "district": "PUNE"
   },
   "411038": {
     "pincode": "411038",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ex. Serviceman Colony"
+    "district": "PUNE"
   },
   "411030": {
     "pincode": "411030",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Narayan Peth"
+    "district": "PUNE"
   },
   "411052": {
     "pincode": "411052",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Navsahyadri"
+    "district": "PUNE"
   },
   "411042": {
     "pincode": "411042",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Swargate"
+    "district": "PUNE"
   },
   "411073": {
     "pincode": "411073",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ambegaon Bk DSO"
+    "district": "PUNE"
   },
   "412405": {
     "pincode": "412405",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Avsari KH"
+    "district": "PUNE"
   },
   "413133": {
     "pincode": "413133",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Baramati MIDC"
+    "district": "PUNE"
   },
   "413105": {
     "pincode": "413105",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhigwan R S"
+    "district": "PUNE"
   },
   "412216": {
     "pincode": "412216",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Koregaon Bhima"
+    "district": "PUNE"
   },
   "412304": {
     "pincode": "412304",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Morgaon"
+    "district": "PUNE"
   },
   "413132": {
     "pincode": "413132",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Palasdeo"
+    "district": "PUNE"
   },
   "410302": {
     "pincode": "410302",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "R P T S Khandala"
+    "district": "PUNE"
   },
   "410516": {
     "pincode": "410516",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Shinoli"
+    "district": "PUNE"
   },
   "410506": {
     "pincode": "410506",
@@ -78368,19 +78368,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "412312",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Veer"
+    "district": "PUNE"
   },
   "412214": {
     "pincode": "412214",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Yavat"
+    "district": "PUNE"
   },
   "410517": {
     "pincode": "410517",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khodad"
+    "district": "PUNE"
   },
   "415207": {
     "pincode": "415207",
@@ -78452,37 +78452,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431005",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Chhatrapati Sambhajinagar Railway Station"
+    "district": "AURANGABAD"
   },
   "431006": {
     "pincode": "431006",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Chikalthana Industrial Area"
+    "district": "AURANGABAD"
   },
   "431004": {
     "pincode": "431004",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Dr. B.A. Marathwada University"
+    "district": "AURANGABAD"
   },
   "431001": {
     "pincode": "431001",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Medical College (Chhatrapati Sambhajinagar)"
+    "district": "AURANGABAD"
   },
   "431011": {
     "pincode": "431011",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Kanchanwadi"
+    "district": "AURANGABAD"
   },
   "431120": {
     "pincode": "431120",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Soegaon"
+    "district": "AURANGABAD"
   },
   "431520": {
     "pincode": "431520",
@@ -78542,19 +78542,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423201",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dabhadi"
+    "district": "NASHIK"
   },
   "423203": {
     "pincode": "423203",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Malegaon City"
+    "district": "NASHIK"
   },
   "423111": {
     "pincode": "423111",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Vadner Bhairav"
+    "district": "NASHIK"
   },
   "431604": {
     "pincode": "431604",
@@ -78566,25 +78566,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422002",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Jeevan Prakash"
+    "district": "NASHIK"
   },
   "422001": {
     "pincode": "422001",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Nashik City"
+    "district": "NASHIK"
   },
   "422113": {
     "pincode": "422113",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ind. Est. Malegaon Sinnar"
+    "district": "NASHIK"
   },
   "422101": {
     "pincode": "422101",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Nehru Nagar (Nashik)"
+    "district": "NASHIK"
   },
   "413519": {
     "pincode": "413519",
@@ -79160,43 +79160,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160012",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Engg College"
+    "district": "CHANDIGARH"
   },
   "160101": {
     "pincode": "160101",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Manimajra"
+    "district": "CHANDIGARH"
   },
   "160019": {
     "pincode": "160019",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Raj Bhawan Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160015": {
     "pincode": "160015",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 16 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160022": {
     "pincode": "160022",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 22 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160047": {
     "pincode": "160047",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 44 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160009": {
     "pincode": "160009",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 8Chandgarh"
+    "district": "CHANDIGARH"
   },
   "140118": {
     "pincode": "140118",
@@ -79238,55 +79238,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "141014",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Dhandari Kalan"
+    "district": "LUDHIANA"
   },
   "141003": {
     "pincode": "141003",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Janta Nagar"
+    "district": "LUDHIANA"
   },
   "141016": {
     "pincode": "141016",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Lohora"
+    "district": "LUDHIANA"
   },
   "141001": {
     "pincode": "141001",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Pt Colony Ludhiana"
+    "district": "LUDHIANA"
   },
   "142034": {
     "pincode": "142034",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Manuke"
+    "district": "LUDHIANA"
   },
   "141419": {
     "pincode": "141419",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Ghudani Kalan"
+    "district": "LUDHIANA"
   },
   "141202": {
     "pincode": "141202",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Gujjarwal"
+    "district": "LUDHIANA"
   },
   "141205": {
     "pincode": "141205",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Latala"
+    "district": "LUDHIANA"
   },
   "141123": {
     "pincode": "141123",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Ramgarh Ludhiana"
+    "district": "LUDHIANA"
   },
   "147003": {
     "pincode": "147003",
@@ -79322,37 +79322,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "143001",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Amritsar Kty"
+    "district": "AMRITSAR"
   },
   "143006": {
     "pincode": "143006",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Basti Ram Dhab"
+    "district": "AMRITSAR"
   },
   "143105": {
     "pincode": "143105",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Chheharta"
+    "district": "AMRITSAR"
   },
   "143002": {
     "pincode": "143002",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Khalsa College"
+    "district": "AMRITSAR"
   },
   "143603": {
     "pincode": "143603",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Ramdass"
+    "district": "AMRITSAR"
   },
   "143004": {
     "pincode": "143004",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Nodal Delivery Centre Amritsar"
+    "district": "AMRITSAR"
   },
   "151111": {
     "pincode": "151111",
@@ -79574,25 +79574,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "326517",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Morak"
+    "district": "KOTA"
   },
   "324001": {
     "pincode": "324001",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Subhash Marg Kota"
+    "district": "KOTA"
   },
   "324009": {
     "pincode": "324009",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Dadabari Kota"
+    "district": "KOTA"
   },
   "324006": {
     "pincode": "324006",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Kota City"
+    "district": "KOTA"
   },
   "313205": {
     "pincode": "313205",
@@ -79652,85 +79652,85 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302002",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Govind Nagar (Jaipur)"
+    "district": "JAIPUR"
   },
   "302004": {
     "pincode": "302004",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Krishna Mandir"
+    "district": "JAIPUR"
   },
   "302017": {
     "pincode": "302017",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Malviya Nagar (Jaipur)"
+    "district": "JAIPUR"
   },
   "302028": {
     "pincode": "302028",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Amer"
+    "district": "JAIPUR"
   },
   "302016": {
     "pincode": "302016",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bani Park"
+    "district": "JAIPUR"
   },
   "302012": {
     "pincode": "302012",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Khatipura"
+    "district": "JAIPUR"
   },
   "302039": {
     "pincode": "302039",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Murlipura"
+    "district": "JAIPUR"
   },
   "302034": {
     "pincode": "302034",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Panchyawala"
+    "district": "JAIPUR"
   },
   "302033": {
     "pincode": "302033",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Pratap Nagar Housing Board"
+    "district": "JAIPUR"
   },
   "302013": {
     "pincode": "302013",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Road No 5 Vkia"
+    "district": "JAIPUR"
   },
   "302022": {
     "pincode": "302022",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Sitapura Industrial Area"
+    "district": "JAIPUR"
   },
   "302021": {
     "pincode": "302021",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Vaishali Nagar"
+    "district": "JAIPUR"
   },
   "302046": {
     "pincode": "302046",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhanpur kalan"
+    "district": "JAIPUR"
   },
   "303012": {
     "pincode": "303012",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Kanota"
+    "district": "JAIPUR"
   },
   "322240": {
     "pincode": "322240",
@@ -79742,25 +79742,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "303123",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Karansar"
+    "district": "JAIPUR"
   },
   "303124": {
     "pincode": "303124",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "HINGONIA"
+    "district": "JAIPUR"
   },
   "303104": {
     "pincode": "303104",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Manoharpur Jaipur"
+    "district": "JAIPUR"
   },
   "303121": {
     "pincode": "303121",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "NIMS University"
+    "district": "JAIPUR"
   },
   "322212": {
     "pincode": "322212",
@@ -79832,19 +79832,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342003",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur Chopasni Road"
+    "district": "JODHPUR"
   },
   "342006": {
     "pincode": "342006",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur Kachery"
+    "district": "JODHPUR"
   },
   "342013": {
     "pincode": "342013",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Sangaria Jodhpur"
+    "district": "JODHPUR"
   },
   "341518": {
     "pincode": "341518",
@@ -79928,7 +79928,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600031",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "World University Service Centre"
+    "district": "CHENNAI"
   },
   "632520": {
     "pincode": "632520",
@@ -79964,109 +79964,109 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600018",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Pr. Accountant General"
+    "district": "CHENNAI"
   },
   "600024": {
     "pincode": "600024",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Kodambakkam"
+    "district": "CHENNAI"
   },
   "600107": {
     "pincode": "600107",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Koyambedu Wholesale Mkt"
+    "district": "CHENNAI"
   },
   "600033": {
     "pincode": "600033",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Mambalam R.S."
+    "district": "CHENNAI"
   },
   "600015": {
     "pincode": "600015",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Saidapet (Chennai)"
+    "district": "CHENNAI"
   },
   "600026": {
     "pincode": "600026",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Vadapalani"
+    "district": "CHENNAI"
   },
   "600030": {
     "pincode": "600030",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Aminjikarai"
+    "district": "CHENNAI"
   },
   "600102": {
     "pincode": "600102",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Anna Nagar East"
+    "district": "CHENNAI"
   },
   "600101": {
     "pincode": "600101",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Anna Nagar Western Extn"
+    "district": "CHENNAI"
   },
   "600106": {
     "pincode": "600106",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Arumbakkam"
+    "district": "CHENNAI"
   },
   "600023": {
     "pincode": "600023",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Aynavaram"
+    "district": "CHENNAI"
   },
   "600010": {
     "pincode": "600010",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Kilpauk Medical College"
+    "district": "CHENNAI"
   },
   "600039": {
     "pincode": "600039",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Vyasar Nagar Colony"
+    "district": "CHENNAI"
   },
   "600097": {
     "pincode": "600097",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Karapakkam"
+    "district": "CHENNAI"
   },
   "600061": {
     "pincode": "600061",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Pazhavanthangal"
+    "district": "CHENNAI"
   },
   "600022": {
     "pincode": "600022",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Rajbhavan (Chennai)"
+    "district": "CHENNAI"
   },
   "600113": {
     "pincode": "600113",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Tidel Park"
+    "district": "CHENNAI"
   },
   "600009": {
     "pincode": "600009",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Fort St George"
+    "district": "CHENNAI"
   },
   "602118": {
     "pincode": "602118",
@@ -80162,13 +80162,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600051",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Madhavaram Milk Colony"
+    "district": "CHENNAI"
   },
   "600068": {
     "pincode": "600068",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Manali Tiruvallur"
+    "district": "CHENNAI"
   },
   "600069": {
     "pincode": "600069",
@@ -80282,49 +80282,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641049",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Chinnavedampatti"
+    "district": "COIMBATORE"
   },
   "641014": {
     "pincode": "641014",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Coimbatore Aerodrome"
+    "district": "COIMBATORE"
   },
   "641001": {
     "pincode": "641001",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Coimbatore Fort"
+    "district": "COIMBATORE"
   },
   "641018": {
     "pincode": "641018",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Redfields"
+    "district": "COIMBATORE"
   },
   "641024": {
     "pincode": "641024",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Sundarapuram"
+    "district": "COIMBATORE"
   },
   "641051": {
     "pincode": "641051",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Cheranmaanagar"
+    "district": "COIMBATORE"
   },
   "641013": {
     "pincode": "641013",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "GovtCollege Of Technology"
+    "district": "COIMBATORE"
   },
   "641114": {
     "pincode": "641114",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Karunyanagar"
+    "district": "COIMBATORE"
   },
   "638060": {
     "pincode": "638060",
@@ -80444,13 +80444,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642108",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Iyerpadi"
+    "district": "COIMBATORE"
   },
   "642125": {
     "pincode": "642125",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Sholayar Nagar"
+    "district": "COIMBATORE"
   },
   "636109": {
     "pincode": "636109",
@@ -80516,13 +80516,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641407",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Arasur"
+    "district": "COIMBATORE"
   },
   "641113": {
     "pincode": "641113",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Seeliyur"
+    "district": "COIMBATORE"
   },
   "641604": {
     "pincode": "641604",
@@ -80654,43 +80654,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625018",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Shanthi Nagar"
+    "district": "MADURAI"
   },
   "625234": {
     "pincode": "625234",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Tiruvedagam"
+    "district": "MADURAI"
   },
   "625003": {
     "pincode": "625003",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Alagappa Nagar"
+    "district": "MADURAI"
   },
   "625017": {
     "pincode": "625017",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Anaiyur"
+    "district": "MADURAI"
   },
   "625002": {
     "pincode": "625002",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Ma Race Course"
+    "district": "MADURAI"
   },
   "625007": {
     "pincode": "625007",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pudur Bazaar"
+    "district": "MADURAI"
   },
   "625122": {
     "pincode": "625122",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Therkutheru"
+    "district": "MADURAI"
   },
   "623707": {
     "pincode": "623707",
@@ -81314,37 +81314,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "282004",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "GG Industries"
+    "district": "AGRA"
   },
   "282005": {
     "pincode": "282005",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "KH SANSTHAN"
+    "district": "AGRA"
   },
   "282009": {
     "pincode": "282009",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "COD"
+    "district": "AGRA"
   },
   "282008": {
     "pincode": "282008",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "IAF"
+    "district": "AGRA"
   },
   "282002": {
     "pincode": "282002",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "MEDICAL COLLEGE"
+    "district": "AGRA"
   },
   "282001": {
     "pincode": "282001",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "PRR"
+    "district": "AGRA"
   },
   "202137": {
     "pincode": "202137",
@@ -81608,37 +81608,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221005",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Assi"
+    "district": "VARANASI"
   },
   "221001": {
     "pincode": "221001",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Dasaswmedh"
+    "district": "VARANASI"
   },
   "221116": {
     "pincode": "221116",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Kaithi"
+    "district": "VARANASI"
   },
   "221008": {
     "pincode": "221008",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Ram Nagar Pac"
+    "district": "VARANASI"
   },
   "221012": {
     "pincode": "221012",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Awadhoot Bhagwan Ram Kusth Seva Ashram"
+    "district": "VARANASI"
   },
   "221002": {
     "pincode": "221002",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "39 Gtd"
+    "district": "VARANASI"
   },
   "221301": {
     "pincode": "221301",
@@ -81650,19 +81650,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221010",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Bhelupura"
+    "district": "VARANASI"
   },
   "221107": {
     "pincode": "221107",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Lohta"
+    "district": "VARANASI"
   },
   "221311": {
     "pincode": "221311",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Rajatalab"
+    "district": "VARANASI"
   },
   "243001": {
     "pincode": "243001",
@@ -81704,25 +81704,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "250110",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Pallavpuram"
+    "district": "MEERUT"
   },
   "250626": {
     "pincode": "250626",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Baleni"
+    "district": "MEERUT"
   },
   "250002": {
     "pincode": "250002",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Ramlila Ground"
+    "district": "MEERUT"
   },
   "250005": {
     "pincode": "250005",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Sushant City"
+    "district": "MEERUT"
   },
   "244103": {
     "pincode": "244103",
@@ -82052,61 +82052,61 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226004",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Aishbagh"
+    "district": "LUCKNOW"
   },
   "226012": {
     "pincode": "226012",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "LDA Colony"
+    "district": "LUCKNOW"
   },
   "226011": {
     "pincode": "226011",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "MANAK NAGAR"
+    "district": "LUCKNOW"
   },
   "226007": {
     "pincode": "226007",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "NADWA"
+    "district": "LUCKNOW"
   },
   "226018": {
     "pincode": "226018",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Naya Gaon"
+    "district": "LUCKNOW"
   },
   "226003": {
     "pincode": "226003",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Sarfraj"
+    "district": "LUCKNOW"
   },
   "226008": {
     "pincode": "226008",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Sarojini Nagar"
+    "district": "LUCKNOW"
   },
   "226024": {
     "pincode": "226024",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Chandganj"
+    "district": "LUCKNOW"
   },
   "226015": {
     "pincode": "226015",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Cimap"
+    "district": "LUCKNOW"
   },
   "226001": {
     "pincode": "226001",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Darul Safa"
+    "district": "LUCKNOW"
   },
   "226010": {
     "pincode": "226010",
@@ -82118,25 +82118,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226013",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "IIM Lucknow"
+    "district": "LUCKNOW"
   },
   "226006": {
     "pincode": "226006",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "M N Colony"
+    "district": "LUCKNOW"
   },
   "226020": {
     "pincode": "226020",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Maharishi Vidya Mandir"
+    "district": "LUCKNOW"
   },
   "226016": {
     "pincode": "226016",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Narain Nagar"
+    "district": "LUCKNOW"
   },
   "261402": {
     "pincode": "261402",
@@ -82370,55 +82370,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700044",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Badartala"
+    "district": "KOLKATA"
   },
   "700034": {
     "pincode": "700034",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Brahma Samaj Road"
+    "district": "KOLKATA"
   },
   "700063": {
     "pincode": "700063",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Kalagachia Kolkata"
+    "district": "KOLKATA"
   },
   "700061": {
     "pincode": "700061",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Kasthadanga"
+    "district": "KOLKATA"
   },
   "700027": {
     "pincode": "700027",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Mominpur"
+    "district": "KOLKATA"
   },
   "700024": {
     "pincode": "700024",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "TGRoad"
+    "district": "KOLKATA"
   },
   "700005": {
     "pincode": "700005",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Ahiritola"
+    "district": "KOLKATA"
   },
   "700007": {
     "pincode": "700007",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Archana"
+    "district": "KOLKATA"
   },
   "700006": {
     "pincode": "700006",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Jorasanko"
+    "district": "KOLKATA"
   },
   "743222": {
     "pincode": "743222",
@@ -82478,109 +82478,109 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700022",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bakery Road"
+    "district": "KOLKATA"
   },
   "700019": {
     "pincode": "700019",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Ballygunge Sc College"
+    "district": "KOLKATA"
   },
   "700047": {
     "pincode": "700047",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Garia BT"
+    "district": "KOLKATA"
   },
   "700095": {
     "pincode": "700095",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Golf Green"
+    "district": "KOLKATA"
   },
   "700078": {
     "pincode": "700078",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Jadavgarh"
+    "district": "KOLKATA"
   },
   "700082": {
     "pincode": "700082",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "KPBazar Kolkata"
+    "district": "KOLKATA"
   },
   "700031": {
     "pincode": "700031",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "KPRoy Lane"
+    "district": "KOLKATA"
   },
   "700099": {
     "pincode": "700099",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Mukundapur"
+    "district": "KOLKATA"
   },
   "700094": {
     "pincode": "700094",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Panchasayar"
+    "district": "KOLKATA"
   },
   "700025": {
     "pincode": "700025",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Ramkrishna Park"
+    "district": "KOLKATA"
   },
   "700040": {
     "pincode": "700040",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Russa"
+    "district": "KOLKATA"
   },
   "700016": {
     "pincode": "700016",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Elliot Road"
+    "district": "KOLKATA"
   },
   "700069": {
     "pincode": "700069",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Esplanade"
+    "district": "KOLKATA"
   },
   "700072": {
     "pincode": "700072",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Hindustan Building"
+    "district": "KOLKATA"
   },
   "700071": {
     "pincode": "700071",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Russel Street"
+    "district": "KOLKATA"
   },
   "700014": {
     "pincode": "700014",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bamboovila"
+    "district": "KOLKATA"
   },
   "700017": {
     "pincode": "700017",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Circus Avenue"
+    "district": "KOLKATA"
   },
   "700010": {
     "pincode": "700010",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Joramandir"
+    "district": "KOLKATA"
   },
   "700097": {
     "pincode": "700097",
@@ -83348,7 +83348,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "900099",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "2CBPO"
+    "district": "KOLKATA"
   },
   "506301": {
     "pincode": "506301",
@@ -84050,13 +84050,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803303",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Aunta"
+    "district": "PATNA"
   },
   "803306": {
     "pincode": "803306",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Bakwan"
+    "district": "PATNA"
   },
   "805103": {
     "pincode": "805103",
@@ -84092,13 +84092,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800007",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Bairia"
+    "district": "PATNA"
   },
   "801113": {
     "pincode": "801113",
     "city": "Patna",
     "state": "Bihar",
-    "district": "ANDA"
+    "district": "PATNA"
   },
   "804454": {
     "pincode": "804454",
@@ -85208,13 +85208,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824129",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Jaitiya"
+    "district": "AURANGABAD"
   },
   "824114": {
     "pincode": "824114",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Shekhpura"
+    "district": "AURANGABAD"
   },
   "813110": {
     "pincode": "813110",
@@ -85484,13 +85484,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360035",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Chibhda"
+    "district": "RAJKOT"
   },
   "360070": {
     "pincode": "360070",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Champabeda"
+    "district": "RAJKOT"
   },
   "361315": {
     "pincode": "361315",
@@ -85586,7 +85586,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360002",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Kherdi"
+    "district": "RAJKOT"
   },
   "363110": {
     "pincode": "363110",
@@ -85628,13 +85628,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394155",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Karjan"
+    "district": "SURAT"
   },
   "394240": {
     "pincode": "394240",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bartad"
+    "district": "SURAT"
   },
   "394380": {
     "pincode": "394380",
@@ -85652,13 +85652,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394345",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Umrakh"
+    "district": "SURAT"
   },
   "394352": {
     "pincode": "394352",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Lakhanpor"
+    "district": "SURAT"
   },
   "394720": {
     "pincode": "394720",
@@ -85736,13 +85736,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110070",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Masood Pur"
+    "district": "NEW DELHI"
   },
   "382427": {
     "pincode": "382427",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ode"
+    "district": "Ahmedabad"
   },
   "385540": {
     "pincode": "385540",
@@ -85802,7 +85802,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380059",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Shilaj"
+    "district": "Ahmedabad"
   },
   "382422": {
     "pincode": "382422",
@@ -85814,7 +85814,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382722",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bhadaj"
+    "district": "Ahmedabad"
   },
   "382855": {
     "pincode": "382855",
@@ -86054,25 +86054,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394112",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Dharampur"
+    "district": "SURAT"
   },
   "394430": {
     "pincode": "394430",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Amkhuta"
+    "district": "SURAT"
   },
   "394405": {
     "pincode": "394405",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kosadi"
+    "district": "SURAT"
   },
   "395012": {
     "pincode": "395012",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Parvat"
+    "district": "SURAT"
   },
   "391156": {
     "pincode": "391156",
@@ -86084,19 +86084,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "391310",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Karodia"
+    "district": "VADODARA"
   },
   "391340": {
     "pincode": "391340",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Nandesari"
+    "district": "VADODARA"
   },
   "391101": {
     "pincode": "391101",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Ampad"
+    "district": "VADODARA"
   },
   "396130": {
     "pincode": "396130",
@@ -86174,7 +86174,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121003",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Anangpur"
+    "district": "FARIDABAD"
   },
   "591220": {
     "pincode": "591220",
@@ -87074,13 +87074,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190017",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Bashipora"
+    "district": "SRINAGAR"
   },
   "190003": {
     "pincode": "190003",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Nandpora"
+    "district": "SRINAGAR"
   },
   "182130": {
     "pincode": "182130",
@@ -87110,19 +87110,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828202",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Merrah"
+    "district": "DHANBAD"
   },
   "828203": {
     "pincode": "828203",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Silibari"
+    "district": "DHANBAD"
   },
   "828131": {
     "pincode": "828131",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Kujama"
+    "district": "DHANBAD"
   },
   "829132": {
     "pincode": "829132",
@@ -87980,13 +87980,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "441306",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Dorli Bhandwalkar"
+    "district": "NAGPUR"
   },
   "441214": {
     "pincode": "441214",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Mahalgaon"
+    "district": "NAGPUR"
   },
   "442304": {
     "pincode": "442304",
@@ -88100,73 +88100,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411047",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vadgaon Shinde"
+    "district": "PUNE"
   },
   "412410": {
     "pincode": "412410",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ane"
+    "district": "PUNE"
   },
   "413130": {
     "pincode": "413130",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khadaki"
+    "district": "PUNE"
   },
   "412218": {
     "pincode": "412218",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Amdabad"
+    "district": "PUNE"
   },
   "412220": {
     "pincode": "412220",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Nimgaon Bhogi"
+    "district": "PUNE"
   },
   "412211": {
     "pincode": "412211",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Alegaon"
+    "district": "PUNE"
   },
   "410511": {
     "pincode": "410511",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kuran"
+    "district": "PUNE"
   },
   "413116": {
     "pincode": "413116",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khandaj"
+    "district": "PUNE"
   },
   "412202": {
     "pincode": "412202",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bori Aindi"
+    "district": "PUNE"
   },
   "412106": {
     "pincode": "412106",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kanhe"
+    "district": "PUNE"
   },
   "412305": {
     "pincode": "412305",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Jeur"
+    "district": "PUNE"
   },
   "412215": {
     "pincode": "412215",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kadethan"
+    "district": "PUNE"
   },
   "415510": {
     "pincode": "415510",
@@ -88448,13 +88448,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431152",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "PADALI"
+    "district": "AURANGABAD"
   },
   "431150": {
     "pincode": "431150",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Gondegaon"
+    "district": "AURANGABAD"
   },
   "431207": {
     "pincode": "431207",
@@ -88556,19 +88556,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423208",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Aghar KH"
+    "district": "NASHIK"
   },
   "423206": {
     "pincode": "423206",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Chinchave Galane"
+    "district": "NASHIK"
   },
   "422305": {
     "pincode": "422305",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khedlezung"
+    "district": "NASHIK"
   },
   "431810": {
     "pincode": "431810",
@@ -88598,19 +88598,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422213",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Talegaon Anjneri"
+    "district": "NASHIK"
   },
   "422222": {
     "pincode": "422222",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Gangapur"
+    "district": "NASHIK"
   },
   "422210": {
     "pincode": "422210",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Chatori"
+    "district": "NASHIK"
   },
   "413508": {
     "pincode": "413508",
@@ -88994,7 +88994,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474020",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Bahadurpur (MAF)"
+    "district": "GWALIOR"
   },
   "477449": {
     "pincode": "477449",
@@ -89330,7 +89330,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400706",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Darave"
+    "district": "THANE"
   },
   "410221": {
     "pincode": "410221",
@@ -89402,25 +89402,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421306",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Wadi"
+    "district": "THANE"
   },
   "421503": {
     "pincode": "421503",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Badlapur E.D."
+    "district": "THANE"
   },
   "421301": {
     "pincode": "421301",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Pimpaloli"
+    "district": "THANE"
   },
   "421605": {
     "pincode": "421605",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Titwala"
+    "district": "THANE"
   },
   "401301": {
     "pincode": "401301",
@@ -89636,7 +89636,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "453220",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Bhilbadoli"
+    "district": "INDORE"
   },
   "455111": {
     "pincode": "455111",
@@ -90854,13 +90854,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462044",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Barkheda Nathu"
+    "district": "BHOPAL"
   },
   "462047": {
     "pincode": "462047",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bagroda"
+    "district": "BHOPAL"
   },
   "471101": {
     "pincode": "471101",
@@ -90956,25 +90956,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642103",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Divansapudur"
+    "district": "COIMBATORE"
   },
   "642104": {
     "pincode": "642104",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Chinnappampalayam"
+    "district": "COIMBATORE"
   },
   "642106": {
     "pincode": "642106",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Cinchona East"
+    "district": "COIMBATORE"
   },
   "642003": {
     "pincode": "642003",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Unjavelampatti"
+    "district": "COIMBATORE"
   },
   "642113": {
     "pincode": "642113",
@@ -91070,7 +91070,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641697",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Therampalayam"
+    "district": "COIMBATORE"
   },
   "638460": {
     "pincode": "638460",
@@ -91082,13 +91082,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641668",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Subbarayanpudur"
+    "district": "COIMBATORE"
   },
   "641402": {
     "pincode": "641402",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Muthugoundenpudur"
+    "district": "COIMBATORE"
   },
   "638812": {
     "pincode": "638812",
@@ -91292,25 +91292,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625207",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Mannadimangalam"
+    "district": "MADURAI"
   },
   "625218": {
     "pincode": "625218",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Andipatti"
+    "district": "MADURAI"
   },
   "625703": {
     "pincode": "625703",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pappayapuram"
+    "district": "MADURAI"
   },
   "625105": {
     "pincode": "625105",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Ettimangalam"
+    "district": "MADURAI"
   },
   "623701": {
     "pincode": "623701",
@@ -92114,7 +92114,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600058",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Athipattu"
+    "district": "CHENNAI"
   },
   "601206": {
     "pincode": "601206",
@@ -92180,55 +92180,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641105",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Palathurai"
+    "district": "COIMBATORE"
   },
   "641110": {
     "pincode": "641110",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kottaipalayam"
+    "district": "COIMBATORE"
   },
   "641101": {
     "pincode": "641101",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Madhvarayapuram"
+    "district": "COIMBATORE"
   },
   "641046": {
     "pincode": "641046",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Marudamalai"
+    "district": "COIMBATORE"
   },
   "641019": {
     "pincode": "641019",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Veerapandi Periyanaickenpalaya"
+    "district": "COIMBATORE"
   },
   "641020": {
     "pincode": "641020",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Tekkupalayam"
+    "district": "COIMBATORE"
   },
   "641108": {
     "pincode": "641108",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Anaikatti"
+    "district": "COIMBATORE"
   },
   "641017": {
     "pincode": "641017",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Pannimadai"
+    "district": "COIMBATORE"
   },
   "641025": {
     "pincode": "641025",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Edayarpalayam"
+    "district": "COIMBATORE"
   },
   "636705": {
     "pincode": "636705",
@@ -92636,7 +92636,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "324008",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Nanta"
+    "district": "KOTA"
   },
   "323613": {
     "pincode": "323613",
@@ -92990,31 +92990,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342901",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Basni Harisingh"
+    "district": "JODHPUR"
   },
   "342801": {
     "pincode": "342801",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Feench"
+    "district": "JODHPUR"
   },
   "342304": {
     "pincode": "342304",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Surpura"
+    "district": "JODHPUR"
   },
   "342021": {
     "pincode": "342021",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Dasania"
+    "district": "JODHPUR"
   },
   "342022": {
     "pincode": "342022",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Bhomsagar"
+    "district": "JODHPUR"
   },
   "341304": {
     "pincode": "341304",
@@ -93302,49 +93302,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "141102",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Dewatwal"
+    "district": "LUDHIANA"
   },
   "142029": {
     "pincode": "142029",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Dholan Kalan"
+    "district": "LUDHIANA"
   },
   "141121": {
     "pincode": "141121",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Sherpur Bet"
+    "district": "LUDHIANA"
   },
   "141413": {
     "pincode": "141413",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Nizampur"
+    "district": "LUDHIANA"
   },
   "141421": {
     "pincode": "141421",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Bilaspur"
+    "district": "LUDHIANA"
   },
   "141204": {
     "pincode": "141204",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Kalakh"
+    "district": "LUDHIANA"
   },
   "141418": {
     "pincode": "141418",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Begowal"
+    "district": "LUDHIANA"
   },
   "141127": {
     "pincode": "141127",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Rattangarh"
+    "district": "LUDHIANA"
   },
   "147104": {
     "pincode": "147104",
@@ -93416,7 +93416,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "143119",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Babowal"
+    "district": "AMRITSAR"
   },
   "143303": {
     "pincode": "143303",
@@ -93968,13 +93968,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "283202",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Agwar"
+    "district": "AGRA"
   },
   "283122": {
     "pincode": "283122",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Nahchani"
+    "district": "AGRA"
   },
   "202281": {
     "pincode": "202281",
@@ -94100,7 +94100,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302041",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mundia Rampura"
+    "district": "JAIPUR"
   },
   "303303": {
     "pincode": "303303",
@@ -94130,19 +94130,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "303328",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Dheendha"
+    "district": "JAIPUR"
   },
   "303009": {
     "pincode": "303009",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mandore"
+    "district": "JAIPUR"
   },
   "303905": {
     "pincode": "303905",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mohanpura"
+    "district": "JAIPUR"
   },
   "322255": {
     "pincode": "322255",
@@ -94628,7 +94628,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824101",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Aurangabad Kutchehry"
+    "district": "AURANGABAD"
   },
   "812002": {
     "pincode": "812002",
@@ -94664,31 +94664,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800028",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Patna High Court"
+    "district": "PATNA"
   },
   "800032": {
     "pincode": "800032",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Saristabad"
+    "district": "PATNA"
   },
   "800026": {
     "pincode": "800026",
     "city": "Patna",
     "state": "Bihar",
-    "district": "B H COLONY"
+    "district": "PATNA"
   },
   "800022": {
     "pincode": "800022",
     "city": "Patna",
     "state": "Bihar",
-    "district": "RAJ BHAWAN"
+    "district": "PATNA"
   },
   "800010": {
     "pincode": "800010",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Sadaquat Ashram"
+    "district": "PATNA"
   },
   "821115": {
     "pincode": "821115",
@@ -94838,7 +94838,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110046",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Nangal Raya"
+    "district": "NEW DELHI"
   },
   "110026": {
     "pincode": "110026",
@@ -94856,13 +94856,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382475",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Sardarnagar"
+    "district": "Ahmedabad"
   },
   "380001": {
     "pincode": "380001",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Gandhi Road Ahmedabad"
+    "district": "Ahmedabad"
   },
   "385505": {
     "pincode": "385505",
@@ -95108,7 +95108,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110028",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Naraina Industrial Estate"
+    "district": "NEW DELHI"
   },
   "384265": {
     "pincode": "384265",
@@ -95126,7 +95126,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395001",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Nanpura"
+    "district": "SURAT"
   },
   "176310": {
     "pincode": "176310",
@@ -95240,13 +95240,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400002",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Kalbadevi"
+    "district": "MUMBAI"
   },
   "400008": {
     "pincode": "400008",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Mumbai Central"
+    "district": "MUMBAI"
   },
   "444001": {
     "pincode": "444001",
@@ -95324,13 +95324,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160017",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Chandigarh GPO"
+    "district": "CHANDIGARH"
   },
   "324007": {
     "pincode": "324007",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "New Grain Mandi Kota"
+    "district": "KOTA"
   },
   "603001": {
     "pincode": "603001",
@@ -95342,7 +95342,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600016",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "St Thomas Mount"
+    "district": "CHENNAI"
   },
   "638001": {
     "pincode": "638001",
@@ -95408,7 +95408,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700033",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Tollygunge"
+    "district": "KOLKATA"
   },
   "734101": {
     "pincode": "734101",
@@ -95486,19 +95486,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500045",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "A.Gs. Staff Quarters"
+    "district": "HYDERABAD"
   },
   "500031": {
     "pincode": "500031",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Ibrahim Bagh Lines"
+    "district": "HYDERABAD"
   },
   "500032": {
     "pincode": "500032",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Gachibowli"
+    "district": "HYDERABAD"
   },
   "500077": {
     "pincode": "500077",
@@ -95510,7 +95510,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500059",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Saidabad Colony"
+    "district": "HYDERABAD"
   },
   "500108": {
     "pincode": "500108",
@@ -95546,31 +95546,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500026",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Nehrunagar"
+    "district": "HYDERABAD"
   },
   "500016": {
     "pincode": "500016",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Prakashamnagar"
+    "district": "HYDERABAD"
   },
   "500003": {
     "pincode": "500003",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Rail Nilayam"
+    "district": "HYDERABAD"
   },
   "500056": {
     "pincode": "500056",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Ramakrishna Puram"
+    "district": "HYDERABAD"
   },
   "500020": {
     "pincode": "500020",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Zamistanpur"
+    "district": "HYDERABAD"
   },
   "500962": {
     "pincode": "500962",
@@ -95582,7 +95582,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500010",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Bolarum"
+    "district": "HYDERABAD"
   },
   "500085": {
     "pincode": "500085",
@@ -95684,7 +95684,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360005",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Sau Uni Area"
+    "district": "RAJKOT"
   },
   "388543": {
     "pincode": "388543",
@@ -95744,49 +95744,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394516",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Adityanagar"
+    "district": "SURAT"
   },
   "394515": {
     "pincode": "394515",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kribhconagar"
+    "district": "SURAT"
   },
   "395010": {
     "pincode": "395010",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bombay Market"
+    "district": "SURAT"
   },
   "390001": {
     "pincode": "390001",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Madanzampa"
+    "district": "VADODARA"
   },
   "390013": {
     "pincode": "390013",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Maneja"
+    "district": "VADODARA"
   },
   "390020": {
     "pincode": "390020",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Sayajiganj"
+    "district": "VADODARA"
   },
   "390007": {
     "pincode": "390007",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Vidhyut Nagar Colony"
+    "district": "VADODARA"
   },
   "391776": {
     "pincode": "391776",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Manjusar GIDC"
+    "district": "VADODARA"
   },
   "390008": {
     "pincode": "390008",
@@ -95840,7 +95840,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121009",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Surajkund Faridabad"
+    "district": "FARIDABAD"
   },
   "122010": {
     "pincode": "122010",
@@ -96134,7 +96134,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190010",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Batmaloo"
+    "district": "SRINAGAR"
   },
   "190018": {
     "pincode": "190018",
@@ -96158,13 +96158,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190023",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Lal Bazar"
+    "district": "SRINAGAR"
   },
   "190005": {
     "pincode": "190005",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Sanat Nagar"
+    "district": "SRINAGAR"
   },
   "190007": {
     "pincode": "190007",
@@ -96176,13 +96176,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190012",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Zainakote"
+    "district": "SRINAGAR"
   },
   "190024": {
     "pincode": "190024",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Zakoora"
+    "district": "SRINAGAR"
   },
   "182147": {
     "pincode": "182147",
@@ -96194,7 +96194,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828103",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhelatand"
+    "district": "DHANBAD"
   },
   "827004": {
     "pincode": "827004",
@@ -96212,37 +96212,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828125",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Sonardih"
+    "district": "DHANBAD"
   },
   "828132": {
     "pincode": "828132",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Patherdih Coal Washery"
+    "district": "DHANBAD"
   },
   "828122": {
     "pincode": "828122",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Sindri"
+    "district": "DHANBAD"
   },
   "826006": {
     "pincode": "826006",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Rajganj"
+    "district": "DHANBAD"
   },
   "826008": {
     "pincode": "826008",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "KGAshram"
+    "district": "DHANBAD"
   },
   "826009": {
     "pincode": "826009",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "KkPolytechnic"
+    "district": "DHANBAD"
   },
   "815301": {
     "pincode": "815301",
@@ -96650,19 +96650,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226201",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Jagdishpur"
+    "district": "LUCKNOW"
   },
   "226202": {
     "pincode": "226202",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Kathwara"
+    "district": "LUCKNOW"
   },
   "226103": {
     "pincode": "226103",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Rusena"
+    "district": "LUCKNOW"
   },
   "229202": {
     "pincode": "229202",
@@ -97622,7 +97622,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221007",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Lamahi"
+    "district": "VARANASI"
   },
   "221303": {
     "pincode": "221303",
@@ -97640,31 +97640,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221105",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Jamalpur"
+    "district": "VARANASI"
   },
   "221106": {
     "pincode": "221106",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Bazardiha"
+    "district": "VARANASI"
   },
   "221313": {
     "pincode": "221313",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Khochawan"
+    "district": "VARANASI"
   },
   "221207": {
     "pincode": "221207",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Thaney Rampur"
+    "district": "VARANASI"
   },
   "221307": {
     "pincode": "221307",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Kardhana"
+    "district": "VARANASI"
   },
   "221409": {
     "pincode": "221409",
@@ -97736,13 +97736,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "250404",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Ganeshpur"
+    "district": "MEERUT"
   },
   "250106": {
     "pincode": "250106",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Hasanpur Kalan"
+    "district": "MEERUT"
   },
   "250103": {
     "pincode": "250103",
@@ -98972,43 +98972,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462031",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "3 EME Centre"
+    "district": "BHOPAL"
   },
   "462008": {
     "pincode": "462008",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Jahangirabad (Bhopal)"
+    "district": "BHOPAL"
   },
   "462037": {
     "pincode": "462037",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Peoples Campus"
+    "district": "BHOPAL"
   },
   "462033": {
     "pincode": "462033",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "RGPV"
+    "district": "BHOPAL"
   },
   "462016": {
     "pincode": "462016",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "R.S.Market"
+    "district": "BHOPAL"
   },
   "462011": {
     "pincode": "462011",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Shiksha Mandal"
+    "district": "BHOPAL"
   },
   "462026": {
     "pincode": "462026",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "University (Bhopal)"
+    "district": "BHOPAL"
   },
   "462034": {
     "pincode": "462034",
@@ -99044,37 +99044,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "452018",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore Tillaknagar"
+    "district": "INDORE"
   },
   "452012": {
     "pincode": "452012",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Rajendra Nagar (Indore)"
+    "district": "INDORE"
   },
   "453555": {
     "pincode": "453555",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Shri Aurobindo"
+    "district": "INDORE"
   },
   "452002": {
     "pincode": "452002",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore City 2"
+    "district": "INDORE"
   },
   "452010": {
     "pincode": "452010",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore DDU Nagar"
+    "district": "INDORE"
   },
   "452009": {
     "pincode": "452009",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Lokmanya Nagar Indore"
+    "district": "INDORE"
   },
   "482009": {
     "pincode": "482009",
@@ -99092,13 +99092,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474015",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "AB VIII TM Gwalior"
+    "district": "GWALIOR"
   },
   "474008": {
     "pincode": "474008",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Gwalior Fort"
+    "district": "GWALIOR"
   },
   "403701": {
     "pincode": "403701",
@@ -99344,25 +99344,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400028",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Bhawani Shankar"
+    "district": "MUMBAI"
   },
   "400025": {
     "pincode": "400025",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "New Prabhadevi Road"
+    "district": "MUMBAI"
   },
   "400034": {
     "pincode": "400034",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Haji Ali"
+    "district": "MUMBAI"
   },
   "400007": {
     "pincode": "400007",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "S V Marg"
+    "district": "MUMBAI"
   },
   "410102": {
     "pincode": "410102",
@@ -99386,31 +99386,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421501",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Ambernath South"
+    "district": "THANE"
   },
   "421204": {
     "pincode": "421204",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Manpada"
+    "district": "THANE"
   },
   "421505": {
     "pincode": "421505",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Netaji Bazar"
+    "district": "THANE"
   },
   "400602": {
     "pincode": "400602",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Gokhale Road (Thane)"
+    "district": "THANE"
   },
   "400603": {
     "pincode": "400603",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Kopri Colony"
+    "district": "THANE"
   },
   "400609": {
     "pincode": "400609",
@@ -99422,7 +99422,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "401107",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Mira"
+    "district": "THANE"
   },
   "401506": {
     "pincode": "401506",
@@ -99458,61 +99458,61 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440014",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Jaripatka"
+    "district": "NAGPUR"
   },
   "440035": {
     "pincode": "440035",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kalmna Market Yard"
+    "district": "NAGPUR"
   },
   "440017": {
     "pincode": "440017",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Panchsheel Nagar"
+    "district": "NAGPUR"
   },
   "440027": {
     "pincode": "440027",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Parvati Nagar"
+    "district": "NAGPUR"
   },
   "440012": {
     "pincode": "440012",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Dhantoli"
+    "district": "NAGPUR"
   },
   "440020": {
     "pincode": "440020",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Neeri"
+    "district": "NAGPUR"
   },
   "440022": {
     "pincode": "440022",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ranapratap Nagar"
+    "district": "NAGPUR"
   },
   "440025": {
     "pincode": "440025",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ujwal Nagar (Nagpur)"
+    "district": "NAGPUR"
   },
   "440033": {
     "pincode": "440033",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "University Campus (Nagpur)"
+    "district": "NAGPUR"
   },
   "440016": {
     "pincode": "440016",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Indl.Area Nagpur"
+    "district": "NAGPUR"
   },
   "442003": {
     "pincode": "442003",
@@ -99530,31 +99530,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411014",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dunkirk lines"
+    "district": "PUNE"
   },
   "411032": {
     "pincode": "411032",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Iaf Station"
+    "district": "PUNE"
   },
   "411057": {
     "pincode": "411057",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Infotech  Park (Hinjawadi)"
+    "district": "PUNE"
   },
   "411061": {
     "pincode": "411061",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Pimple Gurav"
+    "district": "PUNE"
   },
   "411022": {
     "pincode": "411022",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Srpf"
+    "district": "PUNE"
   },
   "411080": {
     "pincode": "411080",
@@ -99566,31 +99566,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411051",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Anandnagar (Pune)"
+    "district": "PUNE"
   },
   "411021": {
     "pincode": "411021",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Armament"
+    "district": "PUNE"
   },
   "411011": {
     "pincode": "411011",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kasba Peth"
+    "district": "PUNE"
   },
   "411009": {
     "pincode": "411009",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Parvati"
+    "district": "PUNE"
   },
   "411016": {
     "pincode": "411016",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Shivaji Housing Society"
+    "district": "PUNE"
   },
   "411074": {
     "pincode": "411074",
@@ -99614,13 +99614,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "410402",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Ins Shivaji Lonavale"
+    "district": "PUNE"
   },
   "412110": {
     "pincode": "412110",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Theur"
+    "district": "PUNE"
   },
   "415110": {
     "pincode": "415110",
@@ -99704,7 +99704,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431010",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Satara Parisar"
+    "district": "AURANGABAD"
   },
   "431122": {
     "pincode": "431122",
@@ -99728,7 +99728,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423202",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "G.S.S.K."
+    "district": "NASHIK"
   },
   "431601": {
     "pincode": "431601",
@@ -99740,19 +99740,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422221",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ojhar A.F. Stn."
+    "district": "NASHIK"
   },
   "422008": {
     "pincode": "422008",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Trimurti Chowk"
+    "district": "NASHIK"
   },
   "422214": {
     "pincode": "422214",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Vaitarna Nagar"
+    "district": "NASHIK"
   },
   "413501": {
     "pincode": "413501",
@@ -100046,7 +100046,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160004",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Airforce Highground"
+    "district": "CHANDIGARH"
   },
   "160059": {
     "pincode": "160059",
@@ -100064,73 +100064,73 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160002",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Ram Darbar"
+    "district": "CHANDIGARH"
   },
   "160011": {
     "pincode": "160011",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 11 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160014": {
     "pincode": "160014",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 14 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160020": {
     "pincode": "160020",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 20 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160030": {
     "pincode": "160030",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 29 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160036": {
     "pincode": "160036",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 36 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "141010": {
     "pincode": "141010",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Focal Point"
+    "district": "LUDHIANA"
   },
   "141004": {
     "pincode": "141004",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "PAU"
+    "district": "LUDHIANA"
   },
   "142021": {
     "pincode": "142021",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Baddowal"
+    "district": "LUDHIANA"
   },
   "141401": {
     "pincode": "141401",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Amloh RoadKhanna"
+    "district": "LUDHIANA"
   },
   "141203": {
     "pincode": "141203",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Narangwal"
+    "district": "LUDHIANA"
   },
   "141126": {
     "pincode": "141126",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Sri Bhaini Sahib"
+    "district": "LUDHIANA"
   },
   "147002": {
     "pincode": "147002",
@@ -100274,13 +100274,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "324003",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Industerial Estate Kota"
+    "district": "KOTA"
   },
   "324004": {
     "pincode": "324004",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Udyog Puri Kota"
+    "district": "KOTA"
   },
   "313002": {
     "pincode": "313002",
@@ -100304,37 +100304,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302005",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "N.C.R.Building"
+    "district": "JAIPUR"
   },
   "302001": {
     "pincode": "302001",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Purani Basti (Jaipur)"
+    "district": "JAIPUR"
   },
   "302006": {
     "pincode": "302006",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Station Road (Jaipur)"
+    "district": "JAIPUR"
   },
   "302018": {
     "pincode": "302018",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Durgapura"
+    "district": "JAIPUR"
   },
   "302029": {
     "pincode": "302029",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Muhana"
+    "district": "JAIPUR"
   },
   "303122": {
     "pincode": "303122",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Vedaant Gyan Valley"
+    "district": "JAIPUR"
   },
   "344802": {
     "pincode": "344802",
@@ -100364,19 +100364,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342011",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur Aerodrame"
+    "district": "JODHPUR"
   },
   "342026": {
     "pincode": "342026",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur BSF Trg Centre"
+    "district": "JODHPUR"
   },
   "342001": {
     "pincode": "342001",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur Cloth Market"
+    "district": "JODHPUR"
   },
   "306116": {
     "pincode": "306116",
@@ -100424,109 +100424,109 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600028",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Raja Annamalaipuram"
+    "district": "CHENNAI"
   },
   "600094": {
     "pincode": "600094",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Choolaimedu"
+    "district": "CHENNAI"
   },
   "600006": {
     "pincode": "600006",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Greams Road"
+    "district": "CHENNAI"
   },
   "600017": {
     "pincode": "600017",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Hindi Prachar Sabha"
+    "district": "CHENNAI"
   },
   "600034": {
     "pincode": "600034",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Nungambakkam MDO"
+    "district": "CHENNAI"
   },
   "600035": {
     "pincode": "600035",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Nandanam"
+    "district": "CHENNAI"
   },
   "600092": {
     "pincode": "600092",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Virugambakkam"
+    "district": "CHENNAI"
   },
   "600082": {
     "pincode": "600082",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "G K M Colony"
+    "district": "CHENNAI"
   },
   "600012": {
     "pincode": "600012",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Perambur Barracks"
+    "district": "CHENNAI"
   },
   "600011": {
     "pincode": "600011",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Perambur"
+    "district": "CHENNAI"
   },
   "600007": {
     "pincode": "600007",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Vepery"
+    "district": "CHENNAI"
   },
   "600088": {
     "pincode": "600088",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Adambakkam"
+    "district": "CHENNAI"
   },
   "600020": {
     "pincode": "600020",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Adyar (Chennai)"
+    "district": "CHENNAI"
   },
   "600032": {
     "pincode": "600032",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Guindy Industrial Estate"
+    "district": "CHENNAI"
   },
   "600036": {
     "pincode": "600036",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Indian Institute Of Technology"
+    "district": "CHENNAI"
   },
   "600085": {
     "pincode": "600085",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Kotturpuram"
+    "district": "CHENNAI"
   },
   "600091": {
     "pincode": "600091",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Madipakkam"
+    "district": "CHENNAI"
   },
   "600041": {
     "pincode": "600041",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Palavakkam (Kanchipuram)"
+    "district": "CHENNAI"
   },
   "600089": {
     "pincode": "600089",
@@ -100538,7 +100538,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600115",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Neelangarai"
+    "district": "CHENNAI"
   },
   "600202": {
     "pincode": "600202",
@@ -100586,7 +100586,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600099",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Kolathur"
+    "district": "CHENNAI"
   },
   "600037": {
     "pincode": "600037",
@@ -100598,7 +100598,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600066",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Pozhal"
+    "district": "CHENNAI"
   },
   "600049": {
     "pincode": "600049",
@@ -100700,67 +100700,67 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641004",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Gandhimaanagar"
+    "district": "COIMBATORE"
   },
   "641042": {
     "pincode": "641042",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kovaipudur"
+    "district": "COIMBATORE"
   },
   "641033": {
     "pincode": "641033",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Neelikonampalayam"
+    "district": "COIMBATORE"
   },
   "641023": {
     "pincode": "641023",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Podanur"
+    "district": "COIMBATORE"
   },
   "641045": {
     "pincode": "641045",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Ramanathapuram Coimbatore"
+    "district": "COIMBATORE"
   },
   "641009": {
     "pincode": "641009",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Ramnagar Coimbatore"
+    "district": "COIMBATORE"
   },
   "641035": {
     "pincode": "641035",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Saravanampatti"
+    "district": "COIMBATORE"
   },
   "641012": {
     "pincode": "641012",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Gandhipuram Coimbatore"
+    "district": "COIMBATORE"
   },
   "641022": {
     "pincode": "641022",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "NGGO Colony"
+    "district": "COIMBATORE"
   },
   "641027": {
     "pincode": "641027",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Rathinapuri"
+    "district": "COIMBATORE"
   },
   "641039": {
     "pincode": "641039",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Telungupalayam"
+    "district": "COIMBATORE"
   },
   "636704": {
     "pincode": "636704",
@@ -100850,13 +100850,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642101",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Aliyar Nagar"
+    "district": "COIMBATORE"
   },
   "642117": {
     "pincode": "642117",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Mudis"
+    "district": "COIMBATORE"
   },
   "636014": {
     "pincode": "636014",
@@ -101036,13 +101036,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625011",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Jaihindpuram"
+    "district": "MADURAI"
   },
   "625001": {
     "pincode": "625001",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Madurai West"
+    "district": "MADURAI"
   },
   "625601": {
     "pincode": "625601",
@@ -101258,7 +101258,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "282010",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "SHAHGANJ"
+    "district": "AGRA"
   },
   "202146": {
     "pincode": "202146",
@@ -101330,19 +101330,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221103",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Manduadih"
+    "district": "VARANASI"
   },
   "221109": {
     "pincode": "221109",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Jayapur Varanasi"
+    "district": "VARANASI"
   },
   "221003": {
     "pincode": "221003",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Chandmari"
+    "district": "VARANASI"
   },
   "243006": {
     "pincode": "243006",
@@ -101510,25 +101510,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226005",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Barha"
+    "district": "LUCKNOW"
   },
   "226009": {
     "pincode": "226009",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Industrial Area"
+    "district": "LUCKNOW"
   },
   "226014": {
     "pincode": "226014",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Sgpgi"
+    "district": "LUCKNOW"
   },
   "226022": {
     "pincode": "226022",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Vikas Nagar"
+    "district": "LUCKNOW"
   },
   "248015": {
     "pincode": "248015",
@@ -101600,37 +101600,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700066",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bidhangarh"
+    "district": "KOLKATA"
   },
   "700088": {
     "pincode": "700088",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Brace Bridge"
+    "district": "KOLKATA"
   },
   "700029": {
     "pincode": "700029",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Dover Lane"
+    "district": "KOLKATA"
   },
   "700053": {
     "pincode": "700053",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Kalabagan"
+    "district": "KOLKATA"
   },
   "700060": {
     "pincode": "700060",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Mahendra Banerjee Road"
+    "district": "KOLKATA"
   },
   "700038": {
     "pincode": "700038",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Sahapur"
+    "district": "KOLKATA"
   },
   "700155": {
     "pincode": "700155",
@@ -101654,55 +101654,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700075",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Garfa"
+    "district": "KOLKATA"
   },
   "700020": {
     "pincode": "700020",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "KMHospital"
+    "district": "KOLKATA"
   },
   "700026": {
     "pincode": "700026",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Kalighat"
+    "district": "KOLKATA"
   },
   "700045": {
     "pincode": "700045",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Lake Gardens"
+    "district": "KOLKATA"
   },
   "700041": {
     "pincode": "700041",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Paschim Putiari"
+    "district": "KOLKATA"
   },
   "700012": {
     "pincode": "700012",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bowbazar Kolkata"
+    "district": "KOLKATA"
   },
   "700073": {
     "pincode": "700073",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Chittaranjan Avenue Kolkata"
+    "district": "KOLKATA"
   },
   "700013": {
     "pincode": "700013",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Dharmatala"
+    "district": "KOLKATA"
   },
   "700087": {
     "pincode": "700087",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "New Market"
+    "district": "KOLKATA"
   },
   "700064": {
     "pincode": "700064",
@@ -101732,7 +101732,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700039",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Picnic Garden"
+    "district": "KOLKATA"
   },
   "700101": {
     "pincode": "700101",
@@ -101744,19 +101744,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700009",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Raja Ram Mohan Sarani"
+    "district": "KOLKATA"
   },
   "700015": {
     "pincode": "700015",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Sales Tax Building"
+    "district": "KOLKATA"
   },
   "700062": {
     "pincode": "700062",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "West Bengal Governors Camp"
+    "district": "KOLKATA"
   },
   "700035": {
     "pincode": "700035",
@@ -101786,7 +101786,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700004",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "RGKar Medical College"
+    "district": "KOLKATA"
   },
   "742164": {
     "pincode": "742164",
@@ -102242,19 +102242,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803307",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Baruane"
+    "district": "PATNA"
   },
   "803301": {
     "pincode": "803301",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Malpur"
+    "district": "PATNA"
   },
   "801112": {
     "pincode": "801112",
     "city": "Patna",
     "state": "Bihar",
-    "district": "BARAH"
+    "district": "PATNA"
   },
   "802226": {
     "pincode": "802226",
@@ -102866,7 +102866,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360450",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Nava Matravad"
+    "district": "RAJKOT"
   },
   "362037": {
     "pincode": "362037",
@@ -102968,13 +102968,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394550",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bhimpore"
+    "district": "SURAT"
   },
   "392310": {
     "pincode": "392310",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Kiya"
+    "district": "VADODARA"
   },
   "396193": {
     "pincode": "396193",
@@ -103094,13 +103094,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828101",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Sendra"
+    "district": "DHANBAD"
   },
   "828304": {
     "pincode": "828304",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Rampur"
+    "district": "DHANBAD"
   },
   "829111": {
     "pincode": "829111",
@@ -103262,7 +103262,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110061",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Shahbad Mohammadpur"
+    "district": "NEW DELHI"
   },
   "110075": {
     "pincode": "110075",
@@ -103562,25 +103562,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400608",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Tapasenagar"
+    "district": "THANE"
   },
   "421101": {
     "pincode": "421101",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Mohandul"
+    "district": "THANE"
   },
   "421311": {
     "pincode": "421311",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Kon"
+    "district": "THANE"
   },
   "401106": {
     "pincode": "401106",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Dongari"
+    "district": "THANE"
   },
   "401305": {
     "pincode": "401305",
@@ -103616,7 +103616,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "441102",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Tamaswadi"
+    "district": "NAGPUR"
   },
   "425421": {
     "pincode": "425421",
@@ -103634,7 +103634,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422304",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Khadak Malegaon"
+    "district": "NASHIK"
   },
   "431731": {
     "pincode": "431731",
@@ -103778,13 +103778,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "410513",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bibi"
+    "district": "PUNE"
   },
   "412112": {
     "pincode": "412112",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhamanohol"
+    "district": "PUNE"
   },
   "415104": {
     "pincode": "415104",
@@ -103832,7 +103832,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431110",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Bhendala"
+    "district": "AURANGABAD"
   },
   "424004": {
     "pincode": "424004",
@@ -103844,7 +103844,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474010",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Shankarpur"
+    "district": "GWALIOR"
   },
   "403410": {
     "pincode": "403410",
@@ -103970,7 +103970,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "453112",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Palakhedi"
+    "district": "INDORE"
   },
   "482004": {
     "pincode": "482004",
@@ -104516,13 +104516,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641021",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Eachanari"
+    "district": "COIMBATORE"
   },
   "641010": {
     "pincode": "641010",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kalampalayam"
+    "district": "COIMBATORE"
   },
   "638107": {
     "pincode": "638107",
@@ -104606,13 +104606,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642130",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vellamalai"
+    "district": "COIMBATORE"
   },
   "642001": {
     "pincode": "642001",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vadugapalayam"
+    "district": "COIMBATORE"
   },
   "642111": {
     "pincode": "642111",
@@ -104678,7 +104678,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641103",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Chinthamanipudur"
+    "district": "COIMBATORE"
   },
   "641670": {
     "pincode": "641670",
@@ -104762,13 +104762,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625005",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Harveypatti"
+    "district": "MADURAI"
   },
   "625006": {
     "pincode": "625006",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Vilacheri"
+    "district": "MADURAI"
   },
   "623605": {
     "pincode": "623605",
@@ -105008,7 +105008,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "283121",
     "city": "Agra",
     "state": "Uttar Pradesh",
-    "district": "Rasoolpur"
+    "district": "AGRA"
   },
   "303502": {
     "pincode": "303502",
@@ -105068,7 +105068,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342017",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Rohila Khurd"
+    "district": "JODHPUR"
   },
   "144404": {
     "pincode": "144404",
@@ -105086,7 +105086,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "143008",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Pandori Warraich"
+    "district": "AMRITSAR"
   },
   "143409": {
     "pincode": "143409",
@@ -105362,7 +105362,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221006",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Pure Raghunathpur"
+    "district": "VARANASI"
   },
   "221309": {
     "pincode": "221309",
@@ -105392,7 +105392,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "326529",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "Goyanda"
+    "district": "KOTA"
   },
   "534215": {
     "pincode": "534215",
@@ -105638,13 +105638,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "824304",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "NPGCL Aditi Nagar"
+    "district": "AURANGABAD"
   },
   "804409": {
     "pincode": "804409",
     "city": "Aurangabad",
     "state": "Bihar",
-    "district": "Mehandia"
+    "district": "AURANGABAD"
   },
   "813214": {
     "pincode": "813214",
@@ -105674,49 +105674,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800006",
     "city": "Patna",
     "state": "Bihar",
-    "district": "MYSandalpur"
+    "district": "PATNA"
   },
   "800017": {
     "pincode": "800017",
     "city": "Patna",
     "state": "Bihar",
-    "district": "BSEBOARD"
+    "district": "PATNA"
   },
   "800019": {
     "pincode": "800019",
     "city": "Patna",
     "state": "Bihar",
-    "district": "CDA"
+    "district": "PATNA"
   },
   "800011": {
     "pincode": "800011",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Dighaghat"
+    "district": "PATNA"
   },
   "800013": {
     "pincode": "800013",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Patliputra"
+    "district": "PATNA"
   },
   "800012": {
     "pincode": "800012",
     "city": "Patna",
     "state": "Bihar",
-    "district": "DIGHA"
+    "district": "PATNA"
   },
   "800002": {
     "pincode": "800002",
     "city": "Patna",
     "state": "Bihar",
-    "district": "ANISABAD"
+    "district": "PATNA"
   },
   "801506": {
     "pincode": "801506",
     "city": "Patna",
     "state": "Bihar",
-    "district": "SAHAYNAGAR"
+    "district": "PATNA"
   },
   "495555": {
     "pincode": "495555",
@@ -105782,19 +105782,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110011",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Nirman Bhawan"
+    "district": "NEW DELHI"
   },
   "110067": {
     "pincode": "110067",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "JNU"
+    "district": "NEW DELHI"
   },
   "110066": {
     "pincode": "110066",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "R K Puram Main"
+    "district": "NEW DELHI"
   },
   "900056": {
     "pincode": "900056",
@@ -105806,55 +105806,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380019",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "D Cabin"
+    "district": "Ahmedabad"
   },
   "380052": {
     "pincode": "380052",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Memnagar"
+    "district": "Ahmedabad"
   },
   "380016": {
     "pincode": "380016",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Asarwa Chakla"
+    "district": "Ahmedabad"
   },
   "382340": {
     "pincode": "382340",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Kubernagar"
+    "district": "Ahmedabad"
   },
   "382415": {
     "pincode": "382415",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Odhav Industrial Estate"
+    "district": "Ahmedabad"
   },
   "380049": {
     "pincode": "380049",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Nikol"
+    "district": "Ahmedabad"
   },
   "380003": {
     "pincode": "380003",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "DELIVERY HUB AHMEDABAD"
+    "district": "Ahmedabad"
   },
   "380026": {
     "pincode": "380026",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Amraiwadi"
+    "district": "Ahmedabad"
   },
   "380028": {
     "pincode": "380028",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bhairavnath Road"
+    "district": "Ahmedabad"
   },
   "382016": {
     "pincode": "382016",
@@ -105866,7 +105866,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382428",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bhat"
+    "district": "Ahmedabad"
   },
   "382630": {
     "pincode": "382630",
@@ -105920,7 +105920,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360430",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Patanvav"
+    "district": "RAJKOT"
   },
   "361007": {
     "pincode": "361007",
@@ -105998,7 +105998,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394190",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kholvad"
+    "district": "SURAT"
   },
   "393150": {
     "pincode": "393150",
@@ -106052,13 +106052,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394270",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Hajira"
+    "district": "SURAT"
   },
   "394518": {
     "pincode": "394518",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Ongc Nagar"
+    "district": "SURAT"
   },
   "395015": {
     "pincode": "395015",
@@ -106070,25 +106070,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "390018",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Karelibaug"
+    "district": "VADODARA"
   },
   "390025": {
     "pincode": "390025",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Soma Talav"
+    "district": "VADODARA"
   },
   "390003": {
     "pincode": "390003",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Chemical Industries"
+    "district": "VADODARA"
   },
   "390024": {
     "pincode": "390024",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Chhani Rd"
+    "district": "VADODARA"
   },
   "396155": {
     "pincode": "396155",
@@ -106124,19 +106124,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121006",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Faridabad Sector 7"
+    "district": "FARIDABAD"
   },
   "121005": {
     "pincode": "121005",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Jawahar Colony Faridabad"
+    "district": "FARIDABAD"
   },
   "121015": {
     "pincode": "121015",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Sector55 PO"
+    "district": "FARIDABAD"
   },
   "122002": {
     "pincode": "122002",
@@ -106334,7 +106334,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190020",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Buchpora"
+    "district": "SRINAGAR"
   },
   "190014": {
     "pincode": "190014",
@@ -106370,55 +106370,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828128",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Tundoo"
+    "district": "DHANBAD"
   },
   "828301": {
     "pincode": "828301",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhaga"
+    "district": "DHANBAD"
   },
   "828135": {
     "pincode": "828135",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Chasnalla"
+    "district": "DHANBAD"
   },
   "828108": {
     "pincode": "828108",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Fri"
+    "district": "DHANBAD"
   },
   "826003": {
     "pincode": "826003",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Jagjivan Nagar"
+    "district": "DHANBAD"
   },
   "828207": {
     "pincode": "828207",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Maithon Dam"
+    "district": "DHANBAD"
   },
   "828119": {
     "pincode": "828119",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Patherdih"
+    "district": "DHANBAD"
   },
   "828105": {
     "pincode": "828105",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Shramik Nagar"
+    "district": "DHANBAD"
   },
   "826013": {
     "pincode": "826013",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Baramuri Sub Post Office"
+    "district": "DHANBAD"
   },
   "825314": {
     "pincode": "825314",
@@ -106964,7 +106964,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "142026",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Jagraon"
+    "district": "LUDHIANA"
   },
   "144205": {
     "pincode": "144205",
@@ -106982,7 +106982,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641301",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Mettupalayam"
+    "district": "COIMBATORE"
   },
   "624208": {
     "pincode": "624208",
@@ -107084,13 +107084,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500033",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Jubilee Hills"
+    "district": "HYDERABAD"
   },
   "500028": {
     "pincode": "500028",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Shantinagar"
+    "district": "HYDERABAD"
   },
   "500934": {
     "pincode": "500934",
@@ -107114,13 +107114,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500029",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Himayathnagar"
+    "district": "HYDERABAD"
   },
   "500084": {
     "pincode": "500084",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Kothaguda"
+    "district": "HYDERABAD"
   },
   "500930": {
     "pincode": "500930",
@@ -107138,7 +107138,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500061",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Sitaphalmandi"
+    "district": "HYDERABAD"
   },
   "500103": {
     "pincode": "500103",
@@ -107162,7 +107162,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500009",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Manovikasnagar"
+    "district": "HYDERABAD"
   },
   "500072": {
     "pincode": "500072",
@@ -107780,19 +107780,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462066",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "IISER Bhouri"
+    "district": "BHOPAL"
   },
   "462039": {
     "pincode": "462039",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Trilanga"
+    "district": "BHOPAL"
   },
   "462004": {
     "pincode": "462004",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Vallabh Bhawan"
+    "district": "BHOPAL"
   },
   "486002": {
     "pincode": "486002",
@@ -107828,31 +107828,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "452013",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore Cat"
+    "district": "INDORE"
   },
   "453556": {
     "pincode": "453556",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "IIM CAMPUS RAO"
+    "district": "INDORE"
   },
   "452003": {
     "pincode": "452003",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore Pardesipura"
+    "district": "INDORE"
   },
   "452011": {
     "pincode": "452011",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Indore R.S.S.Nagar"
+    "district": "INDORE"
   },
   "452015": {
     "pincode": "452015",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Industrial Estate (Indore)"
+    "district": "INDORE"
   },
   "482010": {
     "pincode": "482010",
@@ -107876,7 +107876,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474007",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Moti Mahal"
+    "district": "GWALIOR"
   },
   "403731": {
     "pincode": "403731",
@@ -108008,7 +108008,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400027",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "V J B Udyan"
+    "district": "MUMBAI"
   },
   "201311": {
     "pincode": "201311",
@@ -108308,13 +108308,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400037",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "B P T Colony"
+    "district": "MUMBAI"
   },
   "400019": {
     "pincode": "400019",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Matunga"
+    "district": "MUMBAI"
   },
   "400050": {
     "pincode": "400050",
@@ -108404,13 +108404,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400020",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Central Building"
+    "district": "MUMBAI"
   },
   "400708": {
     "pincode": "400708",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Airoli"
+    "district": "THANE"
   },
   "410210": {
     "pincode": "410210",
@@ -108428,7 +108428,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400709",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Kopar Khairne"
+    "district": "THANE"
   },
   "402207": {
     "pincode": "402207",
@@ -108440,19 +108440,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421201",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Dombivali"
+    "district": "THANE"
   },
   "421308": {
     "pincode": "421308",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Bhiwandi"
+    "district": "THANE"
   },
   "400615": {
     "pincode": "400615",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Ghodbunder Road"
+    "district": "THANE"
   },
   "401302": {
     "pincode": "401302",
@@ -108494,31 +108494,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440024",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ayodhya Nagar"
+    "district": "NAGPUR"
   },
   "440018": {
     "pincode": "440018",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Ganjipeth"
+    "district": "NAGPUR"
   },
   "440037": {
     "pincode": "440037",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "BESA Road"
+    "district": "NAGPUR"
   },
   "440005": {
     "pincode": "440005",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Nagpur Airport"
+    "district": "NAGPUR"
   },
   "440015": {
     "pincode": "440015",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Samartha Nagar"
+    "district": "NAGPUR"
   },
   "441904": {
     "pincode": "441904",
@@ -108548,25 +108548,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411034",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kasarwadi"
+    "district": "PUNE"
   },
   "411019": {
     "pincode": "411019",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "M.Phulenagar"
+    "district": "PUNE"
   },
   "411018": {
     "pincode": "411018",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Masulkar Colony"
+    "district": "PUNE"
   },
   "411036": {
     "pincode": "411036",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Mundhva AV"
+    "district": "PUNE"
   },
   "411078": {
     "pincode": "411078",
@@ -108578,43 +108578,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411020",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Botanical Garden (Pune)"
+    "district": "PUNE"
   },
   "411043": {
     "pincode": "411043",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhankawadi"
+    "district": "PUNE"
   },
   "411024": {
     "pincode": "411024",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khadakwasla R.S."
+    "district": "PUNE"
   },
   "411041": {
     "pincode": "411041",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Vadgaon Budruk"
+    "district": "PUNE"
   },
   "411071": {
     "pincode": "411071",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bavdhan"
+    "district": "PUNE"
   },
   "411081": {
     "pincode": "411081",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Charholi"
+    "district": "PUNE"
   },
   "410508": {
     "pincode": "410508",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhamani"
+    "district": "PUNE"
   },
   "415122": {
     "pincode": "415122",
@@ -108644,7 +108644,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431003",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Nizamganj"
+    "district": "AURANGABAD"
   },
   "431203": {
     "pincode": "431203",
@@ -108674,7 +108674,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "423108",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ravalgaon"
+    "district": "NASHIK"
   },
   "431724": {
     "pincode": "431724",
@@ -108686,7 +108686,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422012",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ashok Nagar (Nashik)"
+    "district": "NASHIK"
   },
   "422014": {
     "pincode": "422014",
@@ -108698,7 +108698,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422006",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Gandhi Nagar (Nashik)"
+    "district": "NASHIK"
   },
   "795001": {
     "pincode": "795001",
@@ -108908,7 +108908,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160025",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Maloya Colony"
+    "district": "CHANDIGARH"
   },
   "140201": {
     "pincode": "140201",
@@ -108920,49 +108920,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160023",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 23  Chandigarh"
+    "district": "CHANDIGARH"
   },
   "141013": {
     "pincode": "141013",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Basant Avenue"
+    "district": "LUDHIANA"
   },
   "141006": {
     "pincode": "141006",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Gne College"
+    "district": "LUDHIANA"
   },
   "141012": {
     "pincode": "141012",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Rajguru Nagar"
+    "district": "LUDHIANA"
   },
   "141011": {
     "pincode": "141011",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Nodal Delivery Centre Ludhiana"
+    "district": "LUDHIANA"
   },
   "141125": {
     "pincode": "141125",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Kakrala Kalan"
+    "district": "LUDHIANA"
   },
   "141416": {
     "pincode": "141416",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Payal"
+    "district": "LUDHIANA"
   },
   "143005": {
     "pincode": "143005",
     "city": "Amritsar",
     "state": "Punjab",
-    "district": "Guru Nanak Dev University"
+    "district": "AMRITSAR"
   },
   "151003": {
     "pincode": "151003",
@@ -109010,7 +109010,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "324005",
     "city": "Kota",
     "state": "Rajasthan",
-    "district": "P.I.P. Kota"
+    "district": "KOTA"
   },
   "323615": {
     "pincode": "323615",
@@ -109028,55 +109028,55 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302003",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Krishi Upaj Mandi"
+    "district": "JAIPUR"
   },
   "302049": {
     "pincode": "302049",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "NDC Jaipur GPO"
+    "district": "JAIPUR"
   },
   "302015": {
     "pincode": "302015",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Gandhi Nagar (Jaipur)"
+    "district": "JAIPUR"
   },
   "302037": {
     "pincode": "302037",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Mahindra World City (Jaipur)"
+    "district": "JAIPUR"
   },
   "302019": {
     "pincode": "302019",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Shyam Nagar (Jaipur)"
+    "district": "JAIPUR"
   },
   "302044": {
     "pincode": "302044",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Govindpura."
+    "district": "JAIPUR"
   },
   "302047": {
     "pincode": "302047",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "NDC Mansarowar"
+    "district": "JAIPUR"
   },
   "302020": {
     "pincode": "302020",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Kaveri Path Mansarovar"
+    "district": "JAIPUR"
   },
   "303119": {
     "pincode": "303119",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bhabroo"
+    "district": "JAIPUR"
   },
   "322021": {
     "pincode": "322021",
@@ -109106,7 +109106,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342007",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur KUM Mandore Road"
+    "district": "JODHPUR"
   },
   "341003": {
     "pincode": "341003",
@@ -109130,7 +109130,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600008",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "EGMORE NDSO"
+    "district": "CHENNAI"
   },
   "632401": {
     "pincode": "632401",
@@ -109148,67 +109148,67 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600005",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Chepauk"
+    "district": "CHENNAI"
   },
   "600014": {
     "pincode": "600014",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Royapettah"
+    "district": "CHENNAI"
   },
   "600087": {
     "pincode": "600087",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Alwarthirunagar"
+    "district": "CHENNAI"
   },
   "600093": {
     "pincode": "600093",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Saligramam"
+    "district": "CHENNAI"
   },
   "600040": {
     "pincode": "600040",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Anna Nagar (Chennai)"
+    "district": "CHENNAI"
   },
   "600038": {
     "pincode": "600038",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Icf Colony"
+    "district": "CHENNAI"
   },
   "600083": {
     "pincode": "600083",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Jafferkhanpet"
+    "district": "CHENNAI"
   },
   "600096": {
     "pincode": "600096",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Perungudi"
+    "district": "CHENNAI"
   },
   "600090": {
     "pincode": "600090",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Rajaji Bhavan"
+    "district": "CHENNAI"
   },
   "600081": {
     "pincode": "600081",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Tondiarpet Bazaar"
+    "district": "CHENNAI"
   },
   "600021": {
     "pincode": "600021",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Washermanpet"
+    "district": "CHENNAI"
   },
   "602117": {
     "pincode": "602117",
@@ -109280,25 +109280,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641050",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Malumichampatti"
+    "district": "COIMBATORE"
   },
   "641028": {
     "pincode": "641028",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Sowripalayam"
+    "district": "COIMBATORE"
   },
   "641034": {
     "pincode": "641034",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Tudiyalur"
+    "district": "COIMBATORE"
   },
   "641041": {
     "pincode": "641041",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vadavalli"
+    "district": "COIMBATORE"
   },
   "638053": {
     "pincode": "638053",
@@ -109340,7 +109340,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642006",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Suleeswaran Patti"
+    "district": "COIMBATORE"
   },
   "642102": {
     "pincode": "642102",
@@ -109400,7 +109400,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625012",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Avaniapuram"
+    "district": "MADURAI"
   },
   "623521": {
     "pincode": "623521",
@@ -109580,7 +109580,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221111",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Danganj Bazar"
+    "district": "VARANASI"
   },
   "243126": {
     "pincode": "243126",
@@ -109604,7 +109604,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "250402",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Mawana Factory"
+    "district": "MEERUT"
   },
   "244223": {
     "pincode": "244223",
@@ -109712,7 +109712,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226023",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "32 Bn PAC Lucknow"
+    "district": "LUCKNOW"
   },
   "229209": {
     "pincode": "229209",
@@ -109808,7 +109808,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700008",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Barisha"
+    "district": "KOLKATA"
   },
   "700023": {
     "pincode": "700023",
@@ -109820,7 +109820,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700003",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Baghbazar"
+    "district": "KOLKATA"
   },
   "743704": {
     "pincode": "743704",
@@ -109838,19 +109838,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700032",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bijoygarh"
+    "district": "KOLKATA"
   },
   "700068": {
     "pincode": "700068",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Jodhpur Park"
+    "district": "KOLKATA"
   },
   "700021": {
     "pincode": "700021",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Fort William"
+    "district": "KOLKATA"
   },
   "700159": {
     "pincode": "700159",
@@ -109868,13 +109868,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700085",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "KG Bose Sarani"
+    "district": "KOLKATA"
   },
   "700054": {
     "pincode": "700054",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Phulbagan"
+    "district": "KOLKATA"
   },
   "700077": {
     "pincode": "700077",
@@ -109886,7 +109886,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700037",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Belgachia"
+    "district": "KOLKATA"
   },
   "700090": {
     "pincode": "700090",
@@ -110348,37 +110348,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828112",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Kalimela"
+    "district": "DHANBAD"
   },
   "828302": {
     "pincode": "828302",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Amlabad Colliery"
+    "district": "DHANBAD"
   },
   "828104": {
     "pincode": "828104",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bowakalan"
+    "district": "DHANBAD"
   },
   "818142": {
     "pincode": "818142",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Jhinaki"
+    "district": "DHANBAD"
   },
   "828117": {
     "pincode": "828117",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Burragarh"
+    "district": "DHANBAD"
   },
   "828116": {
     "pincode": "828116",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bara Putki"
+    "district": "DHANBAD"
   },
   "364005": {
     "pincode": "364005",
@@ -110396,13 +110396,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360325",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Vinzivad"
+    "district": "RAJKOT"
   },
   "360380": {
     "pincode": "360380",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Kagvad"
+    "district": "RAJKOT"
   },
   "388345": {
     "pincode": "388345",
@@ -110438,7 +110438,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395009",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Palanpur"
+    "district": "SURAT"
   },
   "133010": {
     "pincode": "133010",
@@ -110540,7 +110540,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411015",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Dhanori"
+    "district": "PUNE"
   },
   "413712": {
     "pincode": "413712",
@@ -110876,13 +110876,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641112",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Ettimadai"
+    "district": "COIMBATORE"
   },
   "641029": {
     "pincode": "641029",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vellakinar"
+    "district": "COIMBATORE"
   },
   "638054": {
     "pincode": "638054",
@@ -110906,13 +110906,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642129",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Odayakulam"
+    "district": "COIMBATORE"
   },
   "642007": {
     "pincode": "642007",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kambalapatti"
+    "district": "COIMBATORE"
   },
   "636404": {
     "pincode": "636404",
@@ -110966,13 +110966,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625205",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Irumbadi"
+    "district": "MADURAI"
   },
   "625021": {
     "pincode": "625021",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Vadapalanji"
+    "district": "MADURAI"
   },
   "623524": {
     "pincode": "623524",
@@ -111050,13 +111050,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "142027",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Malakpur"
+    "district": "LUDHIANA"
   },
   "141103": {
     "pincode": "141103",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Khandur"
+    "district": "LUDHIANA"
   },
   "144028": {
     "pincode": "144028",
@@ -111074,7 +111074,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342032",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Chamu"
+    "district": "JODHPUR"
   },
   "343021": {
     "pincode": "343021",
@@ -111134,7 +111134,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "803215",
     "city": "Patna",
     "state": "Bihar",
-    "district": "NTPC Barh"
+    "district": "PATNA"
   },
   "803121": {
     "pincode": "803121",
@@ -111146,43 +111146,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "801507",
     "city": "Patna",
     "state": "Bihar",
-    "district": "AIIMS"
+    "district": "PATNA"
   },
   "800005": {
     "pincode": "800005",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Patna University"
+    "district": "PATNA"
   },
   "800016": {
     "pincode": "800016",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Rajendra Nagar Patna"
+    "district": "PATNA"
   },
   "801107": {
     "pincode": "801107",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Chiraura Bazar"
+    "district": "PATNA"
   },
   "800025": {
     "pincode": "800025",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Ashiananagar"
+    "district": "PATNA"
   },
   "800015": {
     "pincode": "800015",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Patna Sectt"
+    "district": "PATNA"
   },
   "800021": {
     "pincode": "800021",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Vidyut Parisad"
+    "district": "PATNA"
   },
   "490026": {
     "pincode": "490026",
@@ -111242,7 +111242,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110102",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "NDC NDHO"
+    "district": "NEW DELHI"
   },
   "110024": {
     "pincode": "110024",
@@ -111260,19 +111260,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110057",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Vasant Vihar1"
+    "district": "NEW DELHI"
   },
   "380014": {
     "pincode": "380014",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Navjivan"
+    "district": "Ahmedabad"
   },
   "380063": {
     "pincode": "380063",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Sola H B C"
+    "district": "Ahmedabad"
   },
   "380011": {
     "pincode": "380011",
@@ -111284,37 +111284,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380021",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Rajpur Gomtipur"
+    "district": "Ahmedabad"
   },
   "380023": {
     "pincode": "380023",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Rakhial Udyog Vistar"
+    "district": "Ahmedabad"
   },
   "380018": {
     "pincode": "380018",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Saraspur"
+    "district": "Ahmedabad"
   },
   "382350": {
     "pincode": "382350",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "T B Nagar"
+    "district": "Ahmedabad"
   },
   "380022": {
     "pincode": "380022",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Behrampura"
+    "district": "Ahmedabad"
   },
   "380050": {
     "pincode": "380050",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Ghodasar Ahmedabad"
+    "district": "Ahmedabad"
   },
   "385506": {
     "pincode": "385506",
@@ -111398,7 +111398,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360028",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Rajkot Bedi DSO"
+    "district": "RAJKOT"
   },
   "388330": {
     "pincode": "388330",
@@ -111416,7 +111416,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394245",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Zervavra"
+    "district": "SURAT"
   },
   "387340": {
     "pincode": "387340",
@@ -111440,13 +111440,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395017",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Althan"
+    "district": "SURAT"
   },
   "394221": {
     "pincode": "394221",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Pandesara IE"
+    "district": "SURAT"
   },
   "395014": {
     "pincode": "395014",
@@ -111458,25 +111458,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395011",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Puna Kumbharia"
+    "district": "SURAT"
   },
   "395006": {
     "pincode": "395006",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Varachha Road"
+    "district": "SURAT"
   },
   "391750": {
     "pincode": "391750",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Fartilizer Nagar"
+    "district": "VADODARA"
   },
   "391345": {
     "pincode": "391345",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Petrochemical  T Ship"
+    "district": "VADODARA"
   },
   "396180": {
     "pincode": "396180",
@@ -111614,7 +111614,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "190099",
     "city": "Srinagar",
     "state": "Jammu and Kashmir",
-    "district": "Nodal Delivery Center Srinagar"
+    "district": "SRINAGAR"
   },
   "182207": {
     "pincode": "182207",
@@ -111638,43 +111638,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "828124",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "ACC Colony"
+    "district": "DHANBAD"
   },
   "828130": {
     "pincode": "828130",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "BPolytechnic"
+    "district": "DHANBAD"
   },
   "828133": {
     "pincode": "828133",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Bhulan Bararee"
+    "district": "DHANBAD"
   },
   "828120": {
     "pincode": "828120",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Motinagar Dhanbad"
+    "district": "DHANBAD"
   },
   "828206": {
     "pincode": "828206",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "Panchet Dam"
+    "district": "DHANBAD"
   },
   "828123": {
     "pincode": "828123",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "SIT"
+    "district": "DHANBAD"
   },
   "826011": {
     "pincode": "826011",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "NDC DHANBAD"
+    "district": "DHANBAD"
   },
   "825415": {
     "pincode": "825415",
@@ -111830,7 +111830,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "441001",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Kamthi"
+    "district": "NAGPUR"
   },
   "415001": {
     "pincode": "415001",
@@ -111968,7 +111968,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500041",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Raj Bhawan"
+    "district": "HYDERABAD"
   },
   "500114": {
     "pincode": "500114",
@@ -111992,7 +111992,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500106",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "MANCHIREVULA"
+    "district": "HYDERABAD"
   },
   "500048": {
     "pincode": "500048",
@@ -112004,13 +112004,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500058",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Kanchanbagh"
+    "district": "HYDERABAD"
   },
   "500023": {
     "pincode": "500023",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Yakutpura"
+    "district": "HYDERABAD"
   },
   "501302": {
     "pincode": "501302",
@@ -112028,7 +112028,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500011",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Bowenpally"
+    "district": "HYDERABAD"
   },
   "500047": {
     "pincode": "500047",
@@ -112040,13 +112040,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500094",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Sainikpuri"
+    "district": "HYDERABAD"
   },
   "500118": {
     "pincode": "500118",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Bachupally"
+    "district": "HYDERABAD"
   },
   "500955": {
     "pincode": "500955",
@@ -112886,19 +112886,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462043",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bag Mungalia"
+    "district": "BHOPAL"
   },
   "462023": {
     "pincode": "462023",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Govindpura"
+    "district": "BHOPAL"
   },
   "462020": {
     "pincode": "462020",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "AIIMS"
+    "district": "BHOPAL"
   },
   "263678": {
     "pincode": "263678",
@@ -112988,7 +112988,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "453446",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Rasalpura"
+    "district": "INDORE"
   },
   "452999": {
     "pincode": "452999",
@@ -113024,13 +113024,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474012",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "S.P. Ashram"
+    "district": "GWALIOR"
   },
   "474004": {
     "pincode": "474004",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Birla Nagar"
+    "district": "GWALIOR"
   },
   "403716": {
     "pincode": "403716",
@@ -113096,7 +113096,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400015",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Sewri"
+    "district": "MUMBAI"
   },
   "400024": {
     "pincode": "400024",
@@ -113174,19 +113174,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400026",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Cumballa Hill"
+    "district": "MUMBAI"
   },
   "400032": {
     "pincode": "400032",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Secretariate"
+    "district": "MUMBAI"
   },
   "400701": {
     "pincode": "400701",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Ghansoli"
+    "district": "THANE"
   },
   "410218": {
     "pincode": "410218",
@@ -113198,7 +113198,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400710",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Millenium Business Park"
+    "district": "THANE"
   },
   "415213": {
     "pincode": "415213",
@@ -113210,25 +113210,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421506",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Additional Ambernath"
+    "district": "THANE"
   },
   "421203": {
     "pincode": "421203",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Dombivali I.A."
+    "district": "THANE"
   },
   "400610": {
     "pincode": "400610",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Apna Bazar"
+    "district": "THANE"
   },
   "421305": {
     "pincode": "421305",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Vidyashram"
+    "district": "THANE"
   },
   "401608": {
     "pincode": "401608",
@@ -113252,25 +113252,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440008",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Bagadganj"
+    "district": "NAGPUR"
   },
   "440003": {
     "pincode": "440003",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Medical College (Nagpur)"
+    "district": "NAGPUR"
   },
   "440026": {
     "pincode": "440026",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Uppalwadi"
+    "district": "NAGPUR"
   },
   "440021": {
     "pincode": "440021",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "A.D. Project"
+    "district": "NAGPUR"
   },
   "440038": {
     "pincode": "440038",
@@ -113282,37 +113282,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411035",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Akurdi"
+    "district": "PUNE"
   },
   "411039": {
     "pincode": "411039",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Bhosarigoan"
+    "district": "PUNE"
   },
   "411046": {
     "pincode": "411046",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Katraj"
+    "district": "PUNE"
   },
   "411045": {
     "pincode": "411045",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "N.I.A."
+    "district": "PUNE"
   },
   "411069": {
     "pincode": "411069",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Baner DSO (Pune)"
+    "district": "PUNE"
   },
   "410510": {
     "pincode": "410510",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Loni Dhamani"
+    "district": "PUNE"
   },
   "413303": {
     "pincode": "413303",
@@ -113330,19 +113330,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422009",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Cidco Colony (Nashik)"
+    "district": "NASHIK"
   },
   "422005": {
     "pincode": "422005",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "H P T College"
+    "district": "NASHIK"
   },
   "422501": {
     "pincode": "422501",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Devlali Air Force"
+    "district": "NASHIK"
   },
   "413625": {
     "pincode": "413625",
@@ -113582,13 +113582,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160018",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector 18 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "160006": {
     "pincode": "160006",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "NDC Chandigarh"
+    "district": "CHANDIGARH"
   },
   "140115": {
     "pincode": "140115",
@@ -113600,13 +113600,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "141002",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Model Town Ludhiana"
+    "district": "LUDHIANA"
   },
   "141106": {
     "pincode": "141106",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Halwara Aerodrome"
+    "district": "LUDHIANA"
   },
   "151004": {
     "pincode": "151004",
@@ -113672,13 +113672,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302048",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Sun City"
+    "district": "JAIPUR"
   },
   "303329": {
     "pincode": "303329",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "A C Jobner"
+    "district": "JAIPUR"
   },
   "333702": {
     "pincode": "333702",
@@ -113690,19 +113690,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342012",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Boranada"
+    "district": "JODHPUR"
   },
   "342030": {
     "pincode": "342030",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "IIT JODHPUR"
+    "district": "JODHPUR"
   },
   "342002": {
     "pincode": "342002",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "NDC Jodhpur"
+    "district": "JODHPUR"
   },
   "631006": {
     "pincode": "631006",
@@ -113744,13 +113744,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600025",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Engineering College (Chennai)"
+    "district": "CHENNAI"
   },
   "600042": {
     "pincode": "600042",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Velacheri"
+    "district": "CHENNAI"
   },
   "602003": {
     "pincode": "602003",
@@ -113786,31 +113786,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641008",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Coimbatore Ukkadam"
+    "district": "COIMBATORE"
   },
   "641015": {
     "pincode": "641015",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Uppilipalayam"
+    "district": "COIMBATORE"
   },
   "641047": {
     "pincode": "641047",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Jothipuram"
+    "district": "COIMBATORE"
   },
   "641003": {
     "pincode": "641003",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Lawley Road"
+    "district": "COIMBATORE"
   },
   "641043": {
     "pincode": "641043",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Sahs College"
+    "district": "COIMBATORE"
   },
   "638006": {
     "pincode": "638006",
@@ -113828,7 +113828,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "642114",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Malayandipattinam"
+    "district": "COIMBATORE"
   },
   "642128": {
     "pincode": "642128",
@@ -113882,7 +113882,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625015",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Thiagarajar Engg College"
+    "district": "MADURAI"
   },
   "625526": {
     "pincode": "625526",
@@ -114014,25 +114014,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "232114",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Chahania."
+    "district": "VARANASI"
   },
   "221108": {
     "pincode": "221108",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "Bhulanpur Pac"
+    "district": "VARANASI"
   },
   "221004": {
     "pincode": "221004",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "West Colony"
+    "district": "VARANASI"
   },
   "250003": {
     "pincode": "250003",
     "city": "Meerut",
     "state": "Uttar Pradesh",
-    "district": "Meerut Kutchery"
+    "district": "MEERUT"
   },
   "247122": {
     "pincode": "247122",
@@ -114092,13 +114092,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226027",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "UPG Camp"
+    "district": "LUCKNOW"
   },
   "226025": {
     "pincode": "226025",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "B R A University"
+    "district": "LUCKNOW"
   },
   "229120": {
     "pincode": "229120",
@@ -114122,19 +114122,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700018",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Rabindra Nagar Kolkata"
+    "district": "KOLKATA"
   },
   "700043": {
     "pincode": "700043",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Sonai Kolkata"
+    "district": "KOLKATA"
   },
   "700067": {
     "pincode": "700067",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Lily Biscuit"
+    "district": "KOLKATA"
   },
   "743268": {
     "pincode": "743268",
@@ -114146,25 +114146,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700042",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Bosepukur Road"
+    "district": "KOLKATA"
   },
   "700107": {
     "pincode": "700107",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "EKT"
+    "district": "KOLKATA"
   },
   "700092": {
     "pincode": "700092",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Regent Estate"
+    "district": "KOLKATA"
   },
   "700046": {
     "pincode": "700046",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Abinash Chaowdhury Lane"
+    "district": "KOLKATA"
   },
   "700102": {
     "pincode": "700102",
@@ -114176,7 +114176,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700011",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Narkeldanga"
+    "district": "KOLKATA"
   },
   "700162": {
     "pincode": "700162",
@@ -114200,7 +114200,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700050",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Sinthee"
+    "district": "KOLKATA"
   },
   "742409": {
     "pincode": "742409",
@@ -114464,7 +114464,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "390012",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Tandalja"
+    "district": "VADODARA"
   },
   "396165": {
     "pincode": "396165",
@@ -114500,7 +114500,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "412308",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Uruli Devachi"
+    "district": "PUNE"
   },
   "425314": {
     "pincode": "425314",
@@ -114524,7 +114524,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422201",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Kherwadi R.S"
+    "district": "NASHIK"
   },
   "690529": {
     "pincode": "690529",
@@ -114626,7 +114626,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641048",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Vellanaipatti"
+    "district": "COIMBATORE"
   },
   "636352": {
     "pincode": "636352",
@@ -114698,7 +114698,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "360460",
     "city": "Rajkot",
     "state": "Gujarat",
-    "district": "Dhank"
+    "district": "RAJKOT"
   },
   "370230": {
     "pincode": "370230",
@@ -114740,13 +114740,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "394327",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Kadodara"
+    "district": "SURAT"
   },
   "394326": {
     "pincode": "394326",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Vav Kathodara"
+    "district": "SURAT"
   },
   "392215": {
     "pincode": "392215",
@@ -114770,31 +114770,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "395023",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Bhestan"
+    "district": "SURAT"
   },
   "395002": {
     "pincode": "395002",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "Sagrampura Putli"
+    "district": "SURAT"
   },
   "395008": {
     "pincode": "395008",
     "city": "Surat",
     "state": "Gujarat",
-    "district": "A K Road"
+    "district": "SURAT"
   },
   "390006": {
     "pincode": "390006",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Fatepura Vadodara"
+    "district": "VADODARA"
   },
   "390017": {
     "pincode": "390017",
     "city": "Vadodara",
     "state": "Gujarat",
-    "district": "Wadi SN Road"
+    "district": "VADODARA"
   },
   "390026": {
     "pincode": "390026",
@@ -114836,7 +114836,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "121014",
     "city": "Faridabad",
     "state": "Haryana",
-    "district": "Greater Faridabad PO"
+    "district": "FARIDABAD"
   },
   "121999": {
     "pincode": "121999",
@@ -114926,7 +114926,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "826010",
     "city": "Dhanbad",
     "state": "Jharkhand",
-    "district": "BARWADDA"
+    "district": "DHANBAD"
   },
   "829108": {
     "pincode": "829108",
@@ -115184,7 +115184,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500002",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Charminar"
+    "district": "HYDERABAD"
   },
   "533242": {
     "pincode": "533242",
@@ -115274,13 +115274,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600004",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Mylapore"
+    "district": "CHENNAI"
   },
   "641002": {
     "pincode": "641002",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Rathinasabapathy Puram"
+    "district": "COIMBATORE"
   },
   "627811": {
     "pincode": "627811",
@@ -115310,25 +115310,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500034",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Banjara Hills"
+    "district": "HYDERABAD"
   },
   "500082": {
     "pincode": "500082",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Somajiguda"
+    "district": "HYDERABAD"
   },
   "500057": {
     "pincode": "500057",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Vijay Nagar Colony"
+    "district": "HYDERABAD"
   },
   "500110": {
     "pincode": "500110",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Prashasan Nagar"
+    "district": "HYDERABAD"
   },
   "500931": {
     "pincode": "500931",
@@ -115340,13 +115340,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500109",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "IBC Hyderabad"
+    "district": "HYDERABAD"
   },
   "500006": {
     "pincode": "500006",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Karwan Sahu"
+    "district": "HYDERABAD"
   },
   "500019": {
     "pincode": "500019",
@@ -115370,7 +115370,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500012",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Begum Bazar"
+    "district": "HYDERABAD"
   },
   "500086": {
     "pincode": "500086",
@@ -115382,7 +115382,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500066",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "High Court"
+    "district": "HYDERABAD"
   },
   "500069": {
     "pincode": "500069",
@@ -115394,7 +115394,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500024",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Sahifa"
+    "district": "HYDERABAD"
   },
   "500051": {
     "pincode": "500051",
@@ -115424,7 +115424,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "500014",
     "city": "Hyderabad",
     "state": "Telangana",
-    "district": "Hakimpet"
+    "district": "HYDERABAD"
   },
   "500042": {
     "pincode": "500042",
@@ -115598,25 +115598,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "800031",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Rupaspur"
+    "district": "PATNA"
   },
   "800034": {
     "pincode": "800034",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Beur More"
+    "district": "PATNA"
   },
   "800003": {
     "pincode": "800003",
     "city": "Patna",
     "state": "Bihar",
-    "district": "Kadamkuan"
+    "district": "PATNA"
   },
   "801106": {
     "pincode": "801106",
     "city": "Patna",
     "state": "Bihar",
-    "district": "IIT Patna Bihta"
+    "district": "PATNA"
   },
   "821303": {
     "pincode": "821303",
@@ -115706,7 +115706,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "110069",
     "city": "New Delhi",
     "state": "Delhi",
-    "district": "Union Public Service Commission"
+    "district": "NEW DELHI"
   },
   "110124": {
     "pincode": "110124",
@@ -115718,25 +115718,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "380054",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Bodakdev"
+    "district": "Ahmedabad"
   },
   "380051": {
     "pincode": "380051",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Jivraj Park"
+    "district": "Ahmedabad"
   },
   "380055": {
     "pincode": "380055",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Juhapura"
+    "district": "Ahmedabad"
   },
   "380057": {
     "pincode": "380057",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "South Bopal"
+    "district": "Ahmedabad"
   },
   "380012": {
     "pincode": "380012",
@@ -115748,7 +115748,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "382418",
     "city": "Ahmedabad",
     "state": "Gujarat",
-    "district": "Vastral"
+    "district": "Ahmedabad"
   },
   "570029": {
     "pincode": "570029",
@@ -116180,31 +116180,31 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "462100",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Nariyalkheda"
+    "district": "BHOPAL"
   },
   "462027": {
     "pincode": "462027",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Arera Hills"
+    "district": "BHOPAL"
   },
   "462041": {
     "pincode": "462041",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Ayodhaya Nagar"
+    "district": "BHOPAL"
   },
   "462045": {
     "pincode": "462045",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "Bangrasia"
+    "district": "BHOPAL"
   },
   "462024": {
     "pincode": "462024",
     "city": "Bhopal",
     "state": "Madhya Pradesh",
-    "district": "H.E. Hospital"
+    "district": "BHOPAL"
   },
   "462057": {
     "pincode": "462057",
@@ -116234,7 +116234,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "452014",
     "city": "Indore",
     "state": "Madhya Pradesh",
-    "district": "Khatiwala Tank"
+    "district": "INDORE"
   },
   "482020": {
     "pincode": "482020",
@@ -116246,13 +116246,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "474003",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Hazira Chowk"
+    "district": "GWALIOR"
   },
   "475331": {
     "pincode": "475331",
     "city": "Gwalior",
     "state": "Madhya Pradesh",
-    "district": "Ghatigaon"
+    "district": "GWALIOR"
   },
   "476338": {
     "pincode": "476338",
@@ -116414,19 +116414,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "400017",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Dharavi Road"
+    "district": "MUMBAI"
   },
   "400018": {
     "pincode": "400018",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Worli Naka"
+    "district": "MUMBAI"
   },
   "400006": {
     "pincode": "400006",
     "city": "Mumbai",
     "state": "Maharashtra",
-    "district": "Malabar Hill"
+    "district": "MUMBAI"
   },
   "410216": {
     "pincode": "410216",
@@ -116444,19 +116444,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "421502",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "O.E.Ambernath"
+    "district": "THANE"
   },
   "421005": {
     "pincode": "421005",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Ulhasnagar 5"
+    "district": "THANE"
   },
   "421202": {
     "pincode": "421202",
     "city": "Thane",
     "state": "Maharashtra",
-    "district": "Vishnunagar"
+    "district": "THANE"
   },
   "401402": {
     "pincode": "401402",
@@ -116498,13 +116498,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "440029",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Bhilgaon"
+    "district": "NAGPUR"
   },
   "441123": {
     "pincode": "441123",
     "city": "Nagpur",
     "state": "Maharashtra",
-    "district": "Godhani"
+    "district": "NAGPUR"
   },
   "442111": {
     "pincode": "442111",
@@ -116528,25 +116528,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411013",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Hadpsar I.E."
+    "district": "PUNE"
   },
   "411044": {
     "pincode": "411044",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "P.C.N.T."
+    "district": "PUNE"
   },
   "411040": {
     "pincode": "411040",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Wanowarie"
+    "district": "PUNE"
   },
   "411070": {
     "pincode": "411070",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Moshi"
+    "district": "PUNE"
   },
   "411077": {
     "pincode": "411077",
@@ -116558,37 +116558,37 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "411008",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "N.C.L. Pune"
+    "district": "PUNE"
   },
   "411058": {
     "pincode": "411058",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Warje"
+    "district": "PUNE"
   },
   "411068": {
     "pincode": "411068",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Nanded (Pune)"
+    "district": "PUNE"
   },
   "411067": {
     "pincode": "411067",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Aundh (Pune)"
+    "district": "PUNE"
   },
   "410403": {
     "pincode": "410403",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Kaivalyadham"
+    "district": "PUNE"
   },
   "410301": {
     "pincode": "410301",
     "city": "Pune",
     "state": "Maharashtra",
-    "district": "Khandala"
+    "district": "PUNE"
   },
   "415516": {
     "pincode": "415516",
@@ -116606,7 +116606,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "431009",
     "city": "Aurangabad",
     "state": "Maharashtra",
-    "district": "Garkheda"
+    "district": "AURANGABAD"
   },
   "425101": {
     "pincode": "425101",
@@ -116618,19 +116618,19 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "422011",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Dwarka Corner"
+    "district": "NASHIK"
   },
   "422206": {
     "pincode": "422206",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "Ojhar"
+    "district": "NASHIK"
   },
   "422301": {
     "pincode": "422301",
     "city": "Nashik",
     "state": "Maharashtra",
-    "district": "B.S. Nagar"
+    "district": "NASHIK"
   },
   "798617": {
     "pincode": "798617",
@@ -116780,13 +116780,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "160043",
     "city": "Chandigarh",
     "state": "Chandigarh",
-    "district": "Sector43 Chandigarh"
+    "district": "CHANDIGARH"
   },
   "141201": {
     "pincode": "141201",
     "city": "Ludhiana",
     "state": "Punjab",
-    "district": "Kila Raipur"
+    "district": "LUDHIANA"
   },
   "144022": {
     "pincode": "144022",
@@ -116828,7 +116828,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "302042",
     "city": "Jaipur",
     "state": "Rajasthan",
-    "district": "Bad Ke Balaji"
+    "district": "JAIPUR"
   },
   "344024": {
     "pincode": "344024",
@@ -116846,43 +116846,43 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "342005",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Jodhpur KUM Bhagat Ki Kothi"
+    "district": "JODHPUR"
   },
   "342008": {
     "pincode": "342008",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Nandanwan"
+    "district": "JODHPUR"
   },
   "342016": {
     "pincode": "342016",
     "city": "Jodhpur",
     "state": "Rajasthan",
-    "district": "Rajasthan High Court NB"
+    "district": "JODHPUR"
   },
   "600086": {
     "pincode": "600086",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Gopalapuram (Chennai)"
+    "district": "CHENNAI"
   },
   "600084": {
     "pincode": "600084",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Flowers Road"
+    "district": "CHENNAI"
   },
   "600078": {
     "pincode": "600078",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Kalaignar Karunanidhi Nagar"
+    "district": "CHENNAI"
   },
   "600119": {
     "pincode": "600119",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Sholinganallur"
+    "district": "CHENNAI"
   },
   "600201": {
     "pincode": "600201",
@@ -116894,13 +116894,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600104",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "High Court Building (Chennai)"
+    "district": "CHENNAI"
   },
   "600013": {
     "pincode": "600013",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Rayapuram"
+    "district": "CHENNAI"
   },
   "605012": {
     "pincode": "605012",
@@ -116918,7 +116918,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "600076",
     "city": "Chennai",
     "state": "Tamil Nadu",
-    "district": "Korattur RS"
+    "district": "CHENNAI"
   },
   "600133": {
     "pincode": "600133",
@@ -116954,49 +116954,49 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "641036",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Nanjundapuram"
+    "district": "COIMBATORE"
   },
   "641037": {
     "pincode": "641037",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Pappanaickenpalayam"
+    "district": "COIMBATORE"
   },
   "641044": {
     "pincode": "641044",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Siddhapudur"
+    "district": "COIMBATORE"
   },
   "641005": {
     "pincode": "641005",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Singanallur"
+    "district": "COIMBATORE"
   },
   "641040": {
     "pincode": "641040",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "NDC KPColony"
+    "district": "COIMBATORE"
   },
   "641063": {
     "pincode": "641063",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "NDC Coimbatore"
+    "district": "COIMBATORE"
   },
   "641038": {
     "pincode": "641038",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Kuppakonanpudur"
+    "district": "COIMBATORE"
   },
   "641011": {
     "pincode": "641011",
     "city": "Coimbatore",
     "state": "Tamil Nadu",
-    "district": "Saibaba Mission"
+    "district": "COIMBATORE"
   },
   "637216": {
     "pincode": "637216",
@@ -117032,13 +117032,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "625004",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Pasumalai"
+    "district": "MADURAI"
   },
   "625023": {
     "pincode": "625023",
     "city": "Madurai",
     "state": "Tamil Nadu",
-    "district": "Madras High Court Madurai Bench"
+    "district": "MADURAI"
   },
   "623566": {
     "pincode": "623566",
@@ -117116,7 +117116,7 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "221407",
     "city": "Varanasi",
     "state": "Uttar Pradesh",
-    "district": "NDC Varanasi"
+    "district": "VARANASI"
   },
   "244245": {
     "pincode": "244245",
@@ -117206,25 +117206,25 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "226029",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Vrindavan Colony"
+    "district": "LUCKNOW"
   },
   "226030": {
     "pincode": "226030",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Sushant Golf City"
+    "district": "LUCKNOW"
   },
   "226019": {
     "pincode": "226019",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Industria Area Chinhat"
+    "district": "LUCKNOW"
   },
   "226031": {
     "pincode": "226031",
     "city": "Lucknow",
     "state": "Uttar Pradesh",
-    "district": "Jankipuram Extension"
+    "district": "LUCKNOW"
   },
   "261304": {
     "pincode": "261304",
@@ -117296,13 +117296,13 @@ const INDIAN_PINCODE_DATABASE = {
     "pincode": "700086",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Baghajatin"
+    "district": "KOLKATA"
   },
   "700100": {
     "pincode": "700100",
     "city": "Kolkata",
     "state": "West Bengal",
-    "district": "Vip Nagar"
+    "district": "KOLKATA"
   },
   "700161": {
     "pincode": "700161",

@@ -160,8 +160,10 @@ def process_pincode_csv(csv_file_path, output_file_path):
                 city = major_cities.get(normalized_district.upper(), None)
                 
                 if city:
-                    # For major cities, use city name and cleaned office as district/area
-                    district_name = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
+                    # For major cities, city name comes from major_cities mapping
+                    # District should remain the geographic district (normalized_district)
+                    # The cleaned office name becomes the area/locality info (we can store it separately or ignore)
+                    district_name = normalized_district
                 else:
                     # For smaller towns/areas, use cleaned office name as city
                     city = cleaned_office if cleaned_office and cleaned_office.upper() not in ['NA', 'N/A', ''] else normalized_district
