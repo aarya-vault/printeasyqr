@@ -337,7 +337,7 @@ export default function EnhancedAdminDashboard() {
                     if (!searchQueries.applications) return true;
                     const search = searchQueries.applications.toLowerCase();
                     return (
-                      app.shopName?.toLowerCase().includes(search) ||
+                      app.publicShopName?.toLowerCase().includes(search) ||
                       app.ownerFullName?.toLowerCase().includes(search) ||
                       app.city?.toLowerCase().includes(search) ||
                       app.publicOwnerName?.toLowerCase().includes(search)
@@ -350,16 +350,16 @@ export default function EnhancedAdminDashboard() {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             {getApplicationStatusIcon(application.status)}
-                            <h3 className="text-lg font-semibold text-rich-black">{application.shopName}</h3>
+                            <h3 className="text-lg font-semibold text-rich-black">{application.publicShopName}</h3>
                             <Badge className={getApplicationStatusColor(application.status)}>
                               {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                             </Badge>
                           </div>
                           <div className="space-y-1 text-sm text-medium-gray">
-                            <p>Applicant: {application.applicantName}</p>
+                            <p>Applicant: {application.ownerFullName}</p>
                             <p>Email: {application.email}</p>
-                            <p>Location: {application.city}, {application.state}</p>
-                            <p>Experience: {application.yearsOfExperience}</p>
+                            <p>Location: {application.city || 'Not specified'}, {application.state || 'Not specified'}</p>
+                            <p>Experience: {application.formationYear ? new Date().getFullYear() - application.formationYear : 'Not specified'} years</p>
                             <p>Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
                           </div>
                           <div className="flex flex-wrap gap-2 mt-3">
@@ -443,7 +443,7 @@ export default function EnhancedAdminDashboard() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm font-medium text-rich-black">Shop Name</label>
-                          <p className="text-medium-gray">{selectedApplication.shopName}</p>
+                          <p className="text-medium-gray">{selectedApplication.publicShopName}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-rich-black">Shop Slug</label>
@@ -454,7 +454,7 @@ export default function EnhancedAdminDashboard() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm font-medium text-rich-black">Applicant</label>
-                          <p className="text-medium-gray">{selectedApplication.applicantName}</p>
+                          <p className="text-medium-gray">{selectedApplication.ownerFullName}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-rich-black">Email</label>

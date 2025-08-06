@@ -176,7 +176,7 @@ class ShopApplicationController {
           // Services
           services: application.services,
           equipment: application.equipment,
-          yearsOfExperience: application.yearsOfExperience, // Keep for backward compatibility
+          yearsOfExperience: application.formationYear ? (new Date().getFullYear() - application.formationYear).toString() : '0',
           formationYear: application.formationYear,
           workingHours: application.workingHours,
           acceptsWalkinOrders: application.acceptsWalkinOrders,
