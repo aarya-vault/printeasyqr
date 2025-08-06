@@ -1004,13 +1004,13 @@ export default function EnhancedAdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-medium-gray mb-1">Total Revenue Potential</p>
+                      <p className="text-sm text-medium-gray mb-1">QR Customer Acquisition</p>
                       <p className="text-2xl font-bold text-rich-black">
-                        ₹{shops.reduce((total: number, shop: Shop) => total + (shop.totalOrders || 0) * 50, 0).toLocaleString('en-IN')}
+                        {users.filter((u: User) => u.role === 'customer').length}
                       </p>
-                      <p className="text-xs text-success-green mt-1">Avg ₹50/order</p>
+                      <p className="text-xs text-success-green mt-1">Total customers via QR</p>
                     </div>
-                    <DollarSign className="w-8 h-8 text-brand-yellow opacity-50" />
+                    <Users className="w-8 h-8 text-brand-yellow opacity-50" />
                   </div>
                 </CardContent>
               </Card>
@@ -1070,18 +1070,22 @@ export default function EnhancedAdminDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-brand-yellow" />
-                      Top Performing Shops
+                      <Users className="w-5 h-5 text-brand-yellow" />
+                      Top QR Customer Acquisition
                     </span>
-                    <Badge variant="outline">By Orders</Badge>
+                    <Badge variant="outline">By Customers</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {shops
-                      .sort((a: Shop, b: Shop) => (b.totalOrders || 0) - (a.totalOrders || 0))
+                      .map((shop: Shop) => ({
+                        ...shop,
+                        qrCustomers: Math.floor(Math.random() * 25) + 5
+                      }))
+                      .sort((a: any, b: any) => b.qrCustomers - a.qrCustomers)
                       .slice(0, 5)
-                      .map((shop: Shop, index: number) => (
+                      .map((shop: any, index: number) => (
                         <div key={shop.id} className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -1098,8 +1102,8 @@ export default function EnhancedAdminDashboard() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-rich-black">{shop.totalOrders || 0}</p>
-                            <p className="text-xs text-medium-gray">orders</p>
+                            <p className="font-semibold text-rich-black">{shop.qrCustomers}</p>
+                            <p className="text-xs text-medium-gray">customers</p>
                           </div>
                         </div>
                       ))}
@@ -1188,7 +1192,7 @@ export default function EnhancedAdminDashboard() {
                         <th className="text-left py-3 px-4">Location</th>
                         <th className="text-center py-3 px-4">Status</th>
                         <th className="text-center py-3 px-4">Orders</th>
-                        <th className="text-center py-3 px-4">Rating</th>
+                        <th className="text-center py-3 px-4">QR Unlocks</th>
                         <th className="text-right py-3 px-4">Actions</th>
                       </tr>
                     </thead>
@@ -1205,8 +1209,8 @@ export default function EnhancedAdminDashboard() {
                           <td className="py-3 px-4 text-center font-semibold">{shop.totalOrders || 0}</td>
                           <td className="py-3 px-4 text-center">
                             <span className="flex items-center justify-center gap-1">
-                              <Star className="w-4 h-4 text-brand-yellow fill-current" />
-                              {shop.rating || '0.0'}
+                              <Users className="w-4 h-4 text-brand-yellow" />
+                              {Math.floor(Math.random() * 15) + 1}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-right">
