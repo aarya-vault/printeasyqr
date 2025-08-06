@@ -80,36 +80,40 @@ export default function ShopOwnerAnalytics() {
 
   const currentShop = Array.isArray(userShops) && userShops.length > 0 ? userShops[0] : null;
 
-  // Get shop analytics with explicit query function 
+  // Get shop analytics - Use session-based authentication like other working endpoints
   const { data: analytics, isLoading: analyticsLoading, error } = useQuery<ShopAnalytics>({
     queryKey: [`/api/shop-owner/shop/${currentShop?.id}/analytics`],
     queryFn: async () => {
       if (!currentShop?.id) return null;
       
-      const authToken = localStorage.getItem('authToken');
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-      
+      // Use same authentication approach as working endpoints (orders, etc.)
+      // Don't rely on potentially expired JWT tokens in localStorage
       const response = await fetch(`/api/shop-owner/shop/${currentShop.id}/analytics`, {
         method: 'GET',
-        headers,
-        credentials: 'include'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include' // This ensures session cookies are sent
       });
       
       if (!response.ok) {
-        throw new Error(`Analytics API failed: ${response.status} ${response.statusText}`);
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('🔍 ANALYTICS - Frontend API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          shopId: currentShop.id
+        });
+        throw new Error(`Analytics failed: ${response.status} ${errorText}`);
       }
       
-      return response.json();
+      const data = await response.json();
+      console.log('🔍 ANALYTICS - Frontend data received:', data);
+      return data;
     },
     enabled: !!currentShop?.id,
-    retry: 3,
-    retryDelay: 1000,
+    retry: 2, // Reduce retries for faster feedback
+    retryDelay: 500,
     refetchOnWindowFocus: false
   });
 
