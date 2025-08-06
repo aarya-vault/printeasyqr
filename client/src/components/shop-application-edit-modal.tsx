@@ -413,17 +413,75 @@ export default function ShopApplicationEditModal({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-rich-black mb-2">
-                        Pin Code * (For location-based matching)
+                        Pin Code * (Auto-fetches city & state)
                       </label>
                       <Input
                         value={editingApplication.pinCode}
-                        onChange={(e) => setEditingApplication({
-                          ...editingApplication,
-                          pinCode: e.target.value
-                        })}
-                        placeholder="6-digit PIN"
+                        onChange={async (e) => {
+                          const pincode = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setEditingApplication({
+                            ...editingApplication,
+                            pinCode: pincode
+                          });
+                          
+                          // Auto-fetch city and state when PIN code is complete
+                          if (pincode.length === 6) {
+                            try {
+                              const response = await fetch(`/api/pincode/location/${pincode}`);
+                              const result = await response.json();
+                              
+                              if (result.success && result.data) {
+                                setEditingApplication(prev => ({
+                                  ...prev,
+                                  city: result.data.city,
+                                  state: result.data.state
+                                }));
+                              }
+                            } catch (error) {
+                              console.error('PIN code lookup failed:', error);
+                            }
+                          }
+                        }}
+                        placeholder="6-digit PIN (e.g., 380059)"
                         maxLength={6}
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        City and state will be auto-filled when you enter a valid PIN code
+                      </p>
+                    </div>
+                    
+                    {/* Auto-populated City and State fields */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          City * (Auto-filled from PIN)
+                        </label>
+                        <Input
+                          value={editingApplication.city || ''}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            city: e.target.value
+                          })}
+                          placeholder="City will be auto-filled"
+                          className="bg-gray-50"
+                          readOnly={!!editingApplication.pinCode && editingApplication.pinCode.length === 6}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-rich-black mb-2">
+                          State * (Auto-filled from PIN)
+                        </label>
+                        <Input
+                          value={editingApplication.state || ''}
+                          onChange={(e) => setEditingApplication({
+                            ...editingApplication,
+                            state: e.target.value
+                          })}
+                          placeholder="State will be auto-filled"
+                          className="bg-gray-50"
+                          readOnly={!!editingApplication.pinCode && editingApplication.pinCode.length === 6}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

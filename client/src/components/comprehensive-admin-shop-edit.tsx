@@ -208,27 +208,85 @@ export default function ComprehensiveAdminShopEdit({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-4">
+                      {/* PIN Code with Auto-complete */}
                       <div>
-                        <label className="block text-sm font-medium text-rich-black mb-1">City</label>
-                        <Input
-                          value={editingShop.city}
-                          onChange={(e) => setEditingShop({ ...editingShop, city: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-rich-black mb-1">State</label>
-                        <Input
-                          value={editingShop.state}
-                          onChange={(e) => setEditingShop({ ...editingShop, state: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-rich-black mb-1">Pin Code</label>
+                        <label className="block text-sm font-medium text-rich-black mb-1">
+                          PIN Code * (Auto-fetches city & state)
+                        </label>
                         <Input
                           value={editingShop.pinCode}
-                          onChange={(e) => setEditingShop({ ...editingShop, pinCode: e.target.value })}
+                          onChange={async (e) => {
+                            const pincode = e.target.value.replace(/\D/g, '').slice(0, 6);
+                            setEditingShop({ ...editingShop, pinCode: pincode });
+                            
+                            // Auto-fetch city and state when PIN code is complete
+                            if (pincode.length === 6) {
+                              try {
+                                const response = await fetch(`/api/pincode/location/${pincode}`);
+                                const result = await response.json();
+                                
+                                if (result.success && result.data) {
+                                  setEditingShop(prev => ({
+                                    ...prev,
+                                    city: result.data.city,
+                                    state: result.data.state
+                                  }));
+                                  toast({
+                                    title: "Location Found",
+                                    description: `${result.data.city}, ${result.data.state}`,
+                                  });
+                                } else {
+                                  toast({
+                                    title: "PIN Code Not Found",
+                                    description: "Please verify the PIN code",
+                                    variant: "destructive",
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('PIN code lookup failed:', error);
+                                toast({
+                                  title: "Lookup Failed",
+                                  description: "Unable to fetch location data",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                          placeholder="6-digit PIN (e.g., 380059)"
+                          maxLength={6}
                         />
+                        <p className="text-xs text-gray-500 mt-1">
+                          City and state will be auto-filled when you enter a valid PIN code
+                        </p>
+                      </div>
+                      
+                      {/* Auto-populated City and State */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-rich-black mb-1">
+                            City * (Auto-filled from PIN)
+                          </label>
+                          <Input
+                            value={editingShop.city}
+                            onChange={(e) => setEditingShop({ ...editingShop, city: e.target.value })}
+                            placeholder="City will be auto-filled"
+                            className={editingShop.pinCode && editingShop.pinCode.length === 6 ? "bg-gray-50" : ""}
+                            readOnly={editingShop.pinCode && editingShop.pinCode.length === 6}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-rich-black mb-1">
+                            State * (Auto-filled from PIN)
+                          </label>
+                          <Input
+                            value={editingShop.state}
+                            onChange={(e) => setEditingShop({ ...editingShop, state: e.target.value })}
+                            placeholder="State will be auto-filled"
+                            className={editingShop.pinCode && editingShop.pinCode.length === 6 ? "bg-gray-50" : ""}
+                            readOnly={editingShop.pinCode && editingShop.pinCode.length === 6}
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>

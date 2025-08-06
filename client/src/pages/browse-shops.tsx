@@ -53,6 +53,7 @@ export default function BrowseShops() {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [filterCity, setFilterCity] = useState('');
+  const [filterPincode, setFilterPincode] = useState('');
   const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
 
   // Fetch all shops
@@ -68,12 +69,14 @@ export default function BrowseShops() {
       shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.pinCode.includes(searchQuery) ||
       shop.services?.some(service => service.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesCity = !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
+    const matchesPincode = !filterPincode || shop.pinCode.includes(filterPincode);
     const matchesOnline = filterOnline === null || shop.isOnline === filterOnline;
 
-    return matchesSearch && matchesCity && matchesOnline;
+    return matchesSearch && matchesCity && matchesPincode && matchesOnline;
   });
 
   // Extract unique cities for filter
@@ -101,6 +104,7 @@ export default function BrowseShops() {
   const clearFilters = () => {
     setSearchQuery('');
     setFilterCity('');
+    setFilterPincode('');
     setFilterOnline(null);
   };
 
@@ -140,11 +144,11 @@ export default function BrowseShops() {
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Main Search */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search shops, cities, services..."
+                  placeholder="Search shops, cities, PIN codes, services..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -153,7 +157,7 @@ export default function BrowseShops() {
             </div>
             
             {/* City Filter */}
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-2">
               <select
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
@@ -164,6 +168,38 @@ export default function BrowseShops() {
                   <option key={city} value={city}>{city}</option>
                 ))}
               </select>
+            </div>
+            
+            {/* PIN Code Filter */}
+            <div className="lg:col-span-2">
+              <Input
+                placeholder="PIN Code"
+                value={filterPincode}
+                onChange={async (e) => {
+                  const pincode = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setFilterPincode(pincode);
+                  
+                  // Auto-fetch and set city filter when PIN code is complete
+                  if (pincode.length === 6) {
+                    try {
+                      const response = await fetch(`/api/pincode/location/${pincode}`);
+                      const result = await response.json();
+                      
+                      if (result.success && result.data) {
+                        setFilterCity(result.data.city);
+                        toast({
+                          title: "Location Found",
+                          description: `Filtering by ${result.data.city}, ${result.data.state}`,
+                        });
+                      }
+                    } catch (error) {
+                      console.error('PIN code lookup failed:', error);
+                    }
+                  }
+                }}
+                maxLength={6}
+                className="text-sm"
+              />
             </div>
             
             {/* Online Status Filter */}
@@ -191,6 +227,16 @@ export default function BrowseShops() {
               </Button>
             </div>
           </div>
+          
+          {/* Advanced Location Search Helper */}
+          {filterPincode && filterPincode.length === 6 && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-700">
+                📍 Searching in PIN code area: <strong>{filterPincode}</strong>
+                {filterCity && ` • ${filterCity}`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Loading State */}
