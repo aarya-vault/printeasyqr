@@ -435,12 +435,12 @@ export default function AnonymousVisitorBrowseShops() {
                   </div>
                 )}
 
-                {selectedShop.equipment && selectedShop.equipment.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Award className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Equipment Available
-                    </h4>
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center text-black">
+                    <Award className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                    Equipment Available
+                  </h4>
+                  {selectedShop.equipment && selectedShop.equipment.length > 0 ? (
                     <div className="space-y-2">
                       {selectedShop.equipment.map((item: string, index: number) => (
                         <div key={index} className="flex items-center">
@@ -449,8 +449,12 @@ export default function AnonymousVisitorBrowseShops() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-gray-500 text-sm bg-gray-50 p-3 rounded-lg">
+                      No specific equipment details available. Contact shop for equipment information.
+                    </p>
+                  )}
+                </div>
               </div>
 
               <Separator />
@@ -462,7 +466,14 @@ export default function AnonymousVisitorBrowseShops() {
                     <Timer className="w-4 h-4 mr-2 text-[#FFBF00]" />
                     Experience
                   </h4>
-                  <p className="text-gray-900">{selectedShop.yearsOfExperience || 0} years in printing business</p>
+                  <div className="space-y-2">
+                    <div className="text-center p-4 bg-[#FFBF00]/10 rounded-lg">
+                      <div className="text-2xl font-bold text-[#FFBF00]">
+                        {selectedShop.yearsOfExperience || 0} years
+                      </div>
+                      <p className="text-gray-700 text-sm">Professional printing experience</p>
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-600 mt-1">
                     Successfully completed {selectedShop.totalOrders || 0} orders
                   </p>
@@ -473,11 +484,34 @@ export default function AnonymousVisitorBrowseShops() {
                     <Calendar className="w-4 h-4 mr-2 text-[#FFBF00]" />
                     Working Hours
                   </h4>
-                  <p className="text-gray-900">
-                    {selectedShop.workingHours ? 'Custom working hours' : 'Standard business hours'}
-                  </p>
+                  {selectedShop.workingHours ? (
+                    <div className="space-y-2">
+                      {Object.entries(selectedShop.workingHours).map(([day, hours]: [string, any]) => (
+                        <div key={day} className="flex justify-between items-center py-1">
+                          <span className="capitalize font-medium text-gray-700 min-w-[90px]">
+                            {day}:
+                          </span>
+                          {hours?.is24Hours ? (
+                            <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                              24/7 Open
+                            </span>
+                          ) : hours?.closed ? (
+                            <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                              Closed
+                            </span>
+                          ) : (
+                            <span className="text-sm text-gray-900 font-medium">
+                              {hours?.open || '09:00'} - {hours?.close || '18:00'}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">Standard business hours</p>
+                  )}
                   {selectedShop.acceptsWalkinOrders && (
-                    <p className="text-sm text-green-600 mt-1">✓ Accepts walk-in orders</p>
+                    <p className="text-sm text-green-600 mt-3 bg-green-50 p-2 rounded">✓ Accepts walk-in orders</p>
                   )}
                 </div>
               </div>
