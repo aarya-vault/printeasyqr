@@ -34,7 +34,7 @@ const ShopApplication = sequelize.define('ShopApplication', {
   },
   publicContactNumber: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
     field: 'public_contact_number'
   },
   // Internal Details
@@ -69,11 +69,11 @@ const ShopApplication = sequelize.define('ShopApplication', {
   // Location
   city: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   state: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   pinCode: {
     type: DataTypes.STRING,

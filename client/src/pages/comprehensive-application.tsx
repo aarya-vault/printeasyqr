@@ -16,6 +16,7 @@ import {
   ArrowLeft, ArrowRight, Store, User, Mail, Phone, MapPin, 
   Clock, Briefcase, Settings, CheckCircle, Loader2, Plus, X
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Form validation schema
 const applicationSchema = z.object({
@@ -23,7 +24,7 @@ const applicationSchema = z.object({
   publicShopName: z.string().min(1, 'Public shop name is required'),
   publicOwnerName: z.string().optional(),
   publicAddress: z.string().min(1, 'Public address is required'),
-  publicContactNumber: z.string().optional(),
+  publicContactNumber: z.string().min(10, 'Public contact number is required'),
   
   // Internal Information
   internalShopName: z.string().min(1, 'Internal shop name is required'),
@@ -123,10 +124,17 @@ export default function ComprehensiveApplicationPage() {
   const onSubmit = async (data: ApplicationForm) => {
     setIsSubmitting(true);
     try {
+      // Generate shop slug from public shop name
+      const shopSlug = data.publicShopName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
       const response = await fetch('/api/shop-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, shopSlug }),
       });
 
       if (!response.ok) {
@@ -273,9 +281,9 @@ export default function ComprehensiveApplicationPage() {
               name="publicContactNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Public Contact Number</FormLabel>
+                  <FormLabel>Public Contact Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contact number for customers (optional)" {...field} />
+                    <Input placeholder="Contact number for customers" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -423,9 +431,22 @@ export default function ComprehensiveApplicationPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Years of Experience *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 5 years" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your experience level" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Less than 1 year">Less than 1 year</SelectItem>
+                      <SelectItem value="1-2 years">1-2 years</SelectItem>
+                      <SelectItem value="3-5 years">3-5 years</SelectItem>
+                      <SelectItem value="6-10 years">6-10 years</SelectItem>
+                      <SelectItem value="11-15 years">11-15 years</SelectItem>
+                      <SelectItem value="16-20 years">16-20 years</SelectItem>
+                      <SelectItem value="20+ years">20+ years</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
