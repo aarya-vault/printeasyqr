@@ -685,6 +685,16 @@ export default function RedesignedShopOwnerDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => setShowAnalytics(true)}
+                  className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                  {analyticsLoading && <div className="ml-2 w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setShowQRModal(true)}
                   className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
                 >
@@ -700,7 +710,6 @@ export default function RedesignedShopOwnerDashboard() {
                   <History className="w-4 h-4 mr-2" />
                   Order History
                 </Button>
-                {/* Analytics button removed - now integrated in dashboard */}
                 <Button
                   variant="outline"
                   size="sm"
@@ -798,18 +807,7 @@ export default function RedesignedShopOwnerDashboard() {
           />
         </div>
 
-        {/* Business Analytics - Minimal Button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => setShowAnalytics(true)}
-            variant="outline"
-            className="w-full md:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            View Business Analytics
-            {analyticsLoading && <LoadingSpinner size="sm" className="ml-2" />}
-          </Button>
-        </div>
+
 
         {/* Business Analytics Modal */}
         <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
