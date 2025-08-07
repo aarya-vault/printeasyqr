@@ -325,25 +325,7 @@ export default function NewHomepage() {
             </div>
           </div>
 
-          {/* Enhanced Trust Indicators */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="text-center p-4 bg-white/50 rounded-2xl backdrop-blur-sm">
-              <div className="text-3xl font-bold text-brand-yellow mb-1">500MB</div>
-              <div className="text-sm text-gray-600 font-medium">Max File Size</div>
-            </div>
-            <div className="text-center p-4 bg-white/50 rounded-2xl backdrop-blur-sm">
-              <div className="text-3xl font-bold text-brand-yellow mb-1">100+</div>
-              <div className="text-sm text-gray-600 font-medium">File Formats</div>
-            </div>
-            <div className="text-center p-4 bg-white/50 rounded-2xl backdrop-blur-sm">
-              <div className="text-3xl font-bold text-brand-yellow mb-1">24/7</div>
-              <div className="text-sm text-gray-600 font-medium">Shop Support</div>
-            </div>
-            <div className="text-center p-4 bg-white/50 rounded-2xl backdrop-blur-sm">
-              <div className="text-3xl font-bold text-brand-yellow mb-1">10k+</div>
-              <div className="text-sm text-gray-600 font-medium">Happy Customers</div>
-            </div>
-          </div>
+          
 
           {/* Mobile CTA Section */}
           <div className="mt-12 text-center lg:hidden">
