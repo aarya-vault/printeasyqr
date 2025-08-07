@@ -277,45 +277,78 @@ export default function NewHomepage() {
                 </CardContent>
               </Card>
 
-              {/* Customer Dashboard - Theme Compliant Design */}
-              <Card className="bg-black border-2 border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-brand-yellow">
-                <CardContent className="p-7">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-brand-yellow rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <User className="w-8 h-8 text-black" />
+              {/* Customer Dashboard - Premium Connected Design */}
+              <Card className="bg-rich-black border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-1 relative overflow-hidden group">
+                {/* Animated Golden Border Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-yellow via-brand-yellow to-brand-yellow opacity-100 group-hover:opacity-100 transition-opacity duration-300" style={{padding: '3px'}}>
+                  <div className="bg-rich-black w-full h-full rounded-lg"></div>
+                </div>
+                
+                {/* Premium Golden Accent */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-brand-yellow"></div>
+                <div className="absolute top-0 right-0 w-20 h-20 bg-brand-yellow opacity-10 rounded-bl-full"></div>
+                
+                <CardContent className="relative p-8 z-10">
+                  <div className="text-center mb-7">
+                    {/* Enhanced Icon with Glow Effect */}
+                    <div className="relative mx-auto mb-5">
+                      <div className="w-20 h-20 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto shadow-2xl relative">
+                        <div className="absolute inset-0 bg-brand-yellow rounded-2xl blur-lg opacity-30 animate-pulse"></div>
+                        <User className="w-10 h-10 text-rich-black relative z-10" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-rich-black rounded-full"></div>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-brand-yellow mb-2">Customer Dashboard</h3>
-                    <p className="text-white text-sm leading-relaxed">
-                      Access your personal dashboard to track orders, manage prints, and view order history
+                    
+                    <h3 className="text-2xl font-black text-brand-yellow mb-3 tracking-tight">
+                      Customer Portal
+                    </h3>
+                    <p className="text-white/90 text-sm leading-relaxed font-medium">
+                      Your premium dashboard for order tracking, print management, and seamless experiences
                     </p>
                   </div>
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-lg p-4 border border-brand-yellow/30">
-                      <PhoneInput
-                        value={customerPhone}
-                        onChange={setCustomerPhone}
-                        placeholder="Enter your mobile number"
-                        className="w-full bg-white rounded-lg text-black placeholder-gray-500 border-none focus:ring-0"
-                      />
+                  
+                  <div className="space-y-5">
+                    {/* Enhanced Phone Input with Golden Styling */}
+                    <div className="relative">
+                      <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 border-2 border-brand-yellow/20 hover:border-brand-yellow/40 transition-all duration-300 shadow-lg">
+                        <PhoneInput
+                          value={customerPhone}
+                          onChange={setCustomerPhone}
+                          placeholder="Enter your mobile number"
+                          className="w-full bg-transparent text-rich-black placeholder-gray-500 border-none focus:ring-0 font-medium"
+                        />
+                      </div>
+                      <div className="absolute -top-2 left-4 bg-rich-black px-2">
+                        <span className="text-brand-yellow text-xs font-bold">SECURE LOGIN</span>
+                      </div>
                     </div>
+                    
+                    {/* Premium Access Button */}
                     <Button 
                       onClick={handleCustomerLogin}
                       disabled={loginLoading}
-                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-bold py-3 rounded-lg"
+                      className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-black py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg tracking-wide"
                     >
                       {loginLoading ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-3 border-rich-black border-t-transparent"></div>
                       ) : (
                         <>
-                          <User className="w-5 h-5 mr-3" />
-                          Access Your Dashboard
+                          <User className="w-6 h-6 mr-3" />
+                          ACCESS DASHBOARD
                         </>
                       )}
                     </Button>
+                    
+                    {/* Security Badge */}
                     <div className="text-center">
-                      <p className="text-xs text-brand-yellow/70">
-                        For existing customers only • Secure login
-                      </p>
+                      <div className="inline-flex items-center bg-brand-yellow/10 px-4 py-2 rounded-full">
+                        <div className="w-2 h-2 bg-brand-yellow rounded-full mr-2 animate-pulse"></div>
+                        <p className="text-xs text-brand-yellow font-bold">
+                          VERIFIED CUSTOMERS • BANK-LEVEL SECURITY
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -328,6 +361,116 @@ export default function NewHomepage() {
           
         </div>
       </section>
+      
+      {/* How It Works - Mobile Simplified */}
+      <section className="py-8 lg:py-16 bg-white">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-4xl font-bold text-rich-black mb-3">
+              How It Works
+            </h2>
+            <p className="text-gray-600 text-sm lg:text-lg">
+              Three simple steps to print anything
+            </p>
+          </div>
+
+          <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">1</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Scan QR Code</h3>
+              <p className="text-gray-600 text-sm">Find a print shop and scan their QR code to unlock ordering</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">2</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Upload & Order</h3>
+              <p className="text-gray-600 text-sm">Upload files or book walk-in appointments with specifications</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-rich-black">3</span>
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-2">Collect & Pay</h3>
+              <p className="text-gray-600 text-sm">Get notified when ready and collect your prints</p>
+            </div>
+          </div>
+
+          
+        </div>
+      </section>
+      
+      {/* Customer Quick Guide - Simplified */}
+      <section id="how-it-works" className="py-8 lg:py-16 bg-gray-50">
+        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
+              Customer Quick Guide
+            </h2>
+            <p className="text-gray-600 mb-6 text-sm lg:text-base">
+              Simple steps to get started with PrintEasy
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Guide 1: Upload & Print */}
+            <div id="upload-print" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
+                <Upload className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Upload & Print</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Upload any file type and get it printed at nearby shops
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Scan shop QR code to unlock ordering</li>
+                <li>• Upload any file - no restrictions!</li>
+                <li>• Add printing specifications</li>
+                <li>• Chat directly with shop owners</li>
+              </ul>
+            </div>
+
+            {/* Guide 2: Walk-in Booking */}
+            <div id="walk-in-booking" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Walk-in Booking</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Book your visit to avoid waiting in long queues
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Pre-book your printing session</li>
+                <li>• Skip the waiting lines</li>
+                <li>• Real-time status updates</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Order Tracking */}
+          <div id="order-tracking" className="mt-6 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-6 h-6 text-brand-yellow" />
+              </div>
+              <h3 className="text-lg font-semibold text-rich-black mb-3">Order Tracking</h3>
+              <p className="text-sm text-gray-600">
+                Track your orders in real-time from placement to completion with live chat support
+              </p>
+            </div>
+          </div>
+
+          
+        </div>
+      </section>
+      
       {/* Enhanced Features Section - PrintEasy QR Focus */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
@@ -448,113 +591,6 @@ export default function NewHomepage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* How It Works - Mobile Simplified */}
-      <section className="py-8 lg:py-16 bg-white">
-        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-7xl lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl lg:text-4xl font-bold text-rich-black mb-3">
-              How It Works
-            </h2>
-            <p className="text-gray-600 text-sm lg:text-lg">
-              Three simple steps to print anything
-            </p>
-          </div>
-
-          <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-rich-black">1</span>
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Scan QR Code</h3>
-              <p className="text-gray-600 text-sm">Find a print shop and scan their QR code to unlock ordering</p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-rich-black">2</span>
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Upload & Order</h3>
-              <p className="text-gray-600 text-sm">Upload files or book walk-in appointments with specifications</p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-rich-black">3</span>
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-2">Collect & Pay</h3>
-              <p className="text-gray-600 text-sm">Get notified when ready and collect your prints</p>
-            </div>
-          </div>
-
-          
-        </div>
-      </section>
-      {/* Customer Quick Guide - Simplified */}
-      <section id="how-it-works" className="py-8 lg:py-16 bg-gray-50">
-        <div className="max-w-lg mx-auto px-4 sm:max-w-2xl lg:max-w-4xl lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold text-rich-black mb-4">
-              Customer Quick Guide
-            </h2>
-            <p className="text-gray-600 mb-6 text-sm lg:text-base">
-              Simple steps to get started with PrintEasy
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Guide 1: Upload & Print */}
-            <div id="upload-print" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
-                <Upload className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Upload & Print</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Upload any file type and get it printed at nearby shops
-              </p>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Scan shop QR code to unlock ordering</li>
-                <li>• Upload any file - no restrictions!</li>
-                <li>• Add printing specifications</li>
-                <li>• Chat directly with shop owners</li>
-              </ul>
-            </div>
-
-            {/* Guide 2: Walk-in Booking */}
-            <div id="walk-in-booking" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mb-4">
-                <Clock className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Walk-in Booking</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Book your visit to avoid waiting in long queues
-              </p>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Pre-book your printing session</li>
-                <li>• Skip the waiting lines</li>
-                <li>• Real-time status updates</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Order Tracking */}
-          <div id="order-tracking" className="mt-6 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-brand-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Eye className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Order Tracking</h3>
-              <p className="text-sm text-gray-600">
-                Track your orders in real-time from placement to completion with live chat support
-              </p>
-            </div>
-          </div>
-
-          
         </div>
       </section>
       {/* Beautiful Redesigned Footer */}
