@@ -72,9 +72,21 @@ export default function RedesignedShopSettings() {
     }
   });
 
-  // Initialize form data when shop data loads
+  // Initialize form data when shop data loads - Enhanced debugging
   useEffect(() => {
+    console.log('🔍 REDESIGNED SHOP SETTINGS - Raw API data:', shop);
+    console.log('🔍 REDESIGNED SHOP SETTINGS - Processed currentShop:', currentShop);
+    
     if (currentShop) {
+      console.log('🔍 REDESIGNED SHOP SETTINGS - Setting form data with:', {
+        name: currentShop.name,
+        address: currentShop.address,
+        phone: currentShop.phone,
+        email: currentShop.email,
+        services: currentShop.services,
+        workingHours: currentShop.workingHours
+      });
+
       setFormData({
         name: currentShop.name || '',
         description: currentShop.description || '',
@@ -91,8 +103,11 @@ export default function RedesignedShopSettings() {
           customerMessages: true
         }
       });
+      console.log('🔍 REDESIGNED SHOP SETTINGS - Form data updated successfully');
+    } else {
+      console.log('🔍 REDESIGNED SHOP SETTINGS - No currentShop data available');
     }
-  }, [currentShop]);
+  }, [currentShop, shop]);
 
   // Save settings mutation
   const saveSettingsMutation = useMutation({
