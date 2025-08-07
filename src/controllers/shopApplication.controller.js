@@ -224,7 +224,28 @@ class ShopApplicationController {
           }, { transaction });
         }
         
-        // Create shop
+        // 🔥 COMPREHENSIVE SHOP CREATION - FIXING ALL DATA LOSS ISSUES
+        // Combine all services (standard + custom)
+        const allServices = [
+          ...(Array.isArray(application.services) ? application.services : []),
+          ...(Array.isArray(application.customServices) ? application.customServices : [])
+        ].filter(service => service && service.trim() !== '');
+
+        // Combine all equipment (standard + custom)
+        const allEquipment = [
+          ...(Array.isArray(application.equipment) ? application.equipment : []),
+          ...(Array.isArray(application.customEquipment) ? application.customEquipment : [])
+        ].filter(equipment => equipment && equipment.trim() !== '');
+
+        console.log('🔧 Creating shop with data:', {
+          name: application.publicShopName,
+          services: allServices,
+          equipment: allEquipment,
+          workingHours: application.workingHours,
+          yearsOfExperience: application.yearsOfExperience
+        });
+
+        // Create shop with COMPLETE data mapping
         const shop = await Shop.create({
           ownerId: owner.id,
           // Public info
@@ -242,13 +263,17 @@ class ShopApplicationController {
           email: application.email,
           ownerPhone: application.phoneNumber,
           completeAddress: application.completeAddress || application.publicAddress,
-          // Services
-          services: application.services,
-          equipment: application.equipment,
-          yearsOfExperience: application.formationYear ? (new Date().getFullYear() - application.formationYear).toString() : '0',
+          // 🔥 CRITICAL FIX: Complete services and equipment
+          services: allServices,
+          equipment: allEquipment,
+          // 🔥 CRITICAL FIX: Proper years of experience mapping
+          yearsOfExperience: application.yearsOfExperience || (application.formationYear ? (new Date().getFullYear() - application.formationYear).toString() : '0'),
           formationYear: application.formationYear,
-          workingHours: application.workingHours,
-          acceptsWalkinOrders: application.acceptsWalkinOrders,
+          // 🔥 CRITICAL FIX: Ensure working hours is proper JSON
+          workingHours: typeof application.workingHours === 'string' 
+            ? JSON.parse(application.workingHours) 
+            : application.workingHours,
+          acceptsWalkinOrders: application.acceptsWalkinOrders !== undefined ? application.acceptsWalkinOrders : true,
           // Status
           isApproved: true,
           isPublic: true,

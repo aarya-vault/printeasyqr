@@ -142,7 +142,7 @@ export default function ShopSettings() {
   // Update shop mutation
   const updateShop = useMutation({
     mutationFn: async (data: ShopSettingsForm) => {
-      const response = await fetch(`/api/shops/${shop.id}`, {
+      const response = await fetch(`/api/shops/settings`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
