@@ -32,8 +32,8 @@ interface Shop {
   publicContactNumber?: string;
   // Status and availability
   isOpen?: boolean;
-  isOnline?: boolean;
-  acceptsWalkinOrders?: boolean;
+  isOnline: boolean;
+  acceptsWalkinOrders: boolean;
   // Working hours
   workingHours?: Record<string, {
     open?: string;
@@ -347,14 +347,16 @@ export default function CustomerBrowseShops() {
                                   {isUnlocked ? (
                                     <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 px-3 py-1">
                                       <Unlock className="w-3 h-3 mr-1" />
-                                  Unlocked
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="bg-gray-200 text-gray-600">
-                                  <Lock className="w-3 h-3 mr-1" />
-                                  Locked
-                                </Badge>
-                              )}
+                                      Unlocked
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="secondary" className="bg-gray-200 text-gray-600">
+                                      <Lock className="w-3 h-3 mr-1" />
+                                      Locked
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             
                             {/* Availability Badge */}
@@ -393,7 +395,7 @@ export default function CustomerBrowseShops() {
                     </div>
 
                     {/* Services */}
-                    {(shop.servicesOffered || shop.services) && (shop.servicesOffered || shop.services).length > 0 && (
+                    {((shop.servicesOffered && shop.servicesOffered.length > 0) || (shop.services && shop.services.length > 0)) && (
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-1">
                           <Printer className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
@@ -465,59 +467,6 @@ export default function CustomerBrowseShops() {
                           </Badge>
                         )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                            >
-                              +{((shop.servicesOffered || shop.services) || []).length - 3} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      {isUnlocked ? (
-                        <>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-medium"
-                            onClick={() => handleOrderClick(shop, 'upload')}
-                          >
-                            <Upload className="w-4 h-4 mr-1.5" />
-                            Login to Print
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
-                            onClick={() => handleShopClick(shop)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled
-                            className="flex-1 opacity-50"
-                          >
-                            <Lock className="w-3 h-3 mr-1" />
-                            Scan QR to Unlock
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="opacity-70"
-                            onClick={() => handleShopClick(shop)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
