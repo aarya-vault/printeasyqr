@@ -867,46 +867,7 @@ export default function RedesignedShopOwnerDashboard() {
                   </div>
                 </div>
 
-                {/* Customer Activity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Activity className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Customer Activity
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Active (Last 7 Days)</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active7Days || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Active (Last 30 Days)</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.customerStats?.active30Days || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Repeat Rate</span>
-                        <span className="font-bold text-black text-lg">{analytics.summary?.repeatCustomerRate || 0}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <CheckCircle2 className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Order Completion
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Completion Rate</span>
-                        <span className="font-bold text-[#FFBF00] text-lg">{analytics.summary?.completionRate || 0}%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm">Avg. Completion Time</span>
-                        <span className="font-bold text-black text-lg">{analytics.summary?.avgCompletionTime || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
