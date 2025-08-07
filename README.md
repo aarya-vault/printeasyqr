@@ -1,70 +1,76 @@
-# PrintEasy QR - QR-Powered Print Management Platform
+# PrintEasy QR - Print Management Platform
 
-A comprehensive B2B2C digital platform connecting customers with local print shops through QR code technology.
+## Quick Start
 
-## 🚀 Quick Start
-
-### Local Development
+**Development:**
 ```bash
-# Clone and navigate to project
-cd PrintEasy-QR
+node server/start-unified.cjs
+```
+Access at: http://localhost:5000
 
-# Start development server
-node -r tsx/esm server/index-fixed.ts
-
-# Access at: http://localhost:5000
+**Production:**
+```bash
+NODE_ENV=production node server/start-unified.cjs
 ```
 
-### Alternative Commands
-```bash
-# Production server
-node server/production.js
+## Testing
 
-# Simple server
-node server/simple-dev.js
+Run comprehensive endpoint tests:
+```bash
+node test-endpoints.cjs
 ```
 
-## 🛠 Tech Stack
+## Architecture
 
-- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend:** Express.js + Sequelize ORM 
-- **Database:** PostgreSQL (Neon serverless)
-- **Authentication:** JWT tokens
-- **File Handling:** Multer + local storage
-- **QR Generation:** Built-in with branding
-- **Real-time:** WebSocket connections
+- **Server:** Pure CommonJS architecture (`server/app-unified.cjs`)
+- **Database:** PostgreSQL with Sequelize ORM
+- **Authentication:** JWT-based
+- **Design:** Golden yellow (#FFBF00) and black theme
 
-## 🌟 Features
+## Core Features
 
-- **QR Code System:** Unique branded QR codes for each shop
-- **Dual Order Flows:** Digital file uploads & walk-in bookings
-- **Real-time Chat:** Customer-shop owner communication
-- **Admin Dashboard:** Complete user and shop management
-- **Mobile-First Design:** Golden yellow (#FFBF00) and black theme
-- **File Support:** All formats, up to 500MB per file
-- **Indian Pincode DB:** 19,583+ locations with auto-complete
+- QR code generation for shops
+- Customer and shop owner authentication
+- Order management system
+- File upload support
+- Real-time chat capabilities
+- Admin dashboard
 
-## 📱 User Roles
+## API Endpoints
 
-- **Customers:** Phone-based authentication, order management
-- **Shop Owners:** Email/password login, order processing  
-- **Admins:** Complete platform management
+- `GET /api/health` - Server status
+- `POST /api/generate-qr` - Generate QR codes
+- `POST /api/auth/customer/login` - Customer authentication
+- `POST /api/auth/shop-owner/login` - Shop owner authentication
+- `GET /api/shops` - List shops
+- `GET /api/orders` - List orders
+- `POST /api/orders` - Create order
 
-## 🗄️ Database
+## Deployment
 
-Pure Sequelize ORM system with PostgreSQL backend:
-- Users, Shops, Orders, Messages, Shop Applications
-- JWT authentication with 24h expiry
-- Comprehensive audit trails
+### Netlify
+- Build command: `cp server/app-unified.cjs netlify/functions/server.js`
+- Publish directory: `client`
+- Functions directory: `netlify/functions`
 
-## 🚀 Deployment
+### Environment Variables
+```
+DATABASE_URL=postgresql://...
+JWT_SECRET=your-secret-key
+NODE_ENV=production
+```
 
-Production-ready with Netlify configuration:
-- Serverless functions
-- Environment variables documented
-- CDN-optimized assets
-- Database migrations
+## Project Structure
 
-## 📞 Support
+```
+server/
+  ├── app-unified.cjs      # Main Express application
+  └── start-unified.cjs     # Startup script
+client/                     # Frontend files
+netlify/                    # Deployment configuration
+test-endpoints.cjs          # API testing suite
+```
 
-For technical issues, refer to `FINAL_DEVELOPER_GUIDE.md` for comprehensive setup instructions.
+## License
+
+MIT
