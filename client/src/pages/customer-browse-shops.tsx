@@ -84,10 +84,13 @@ export default function CustomerBrowseShops() {
     }
   }, [user, navigate]);
 
-  // Fetch active shops
+  // Fetch active shops with performance optimization
   const { data: shops = [], isLoading } = useQuery<Shop[]>({
     queryKey: ['/api/shops'],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    refetchOnMount: false, // Use cached data when available
   });
 
   // Fetch customer's unlocked shops - need to get current user ID first
@@ -225,7 +228,37 @@ export default function CustomerBrowseShops() {
   });
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/')}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <h1 className="text-xl font-bold text-rich-black">Browse Shops</h1>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        {/* Loading Content */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFBF00] mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading print shops...</p>
+            <p className="text-gray-500 text-sm mt-2">Finding the best shops near you</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -283,33 +316,37 @@ export default function CustomerBrowseShops() {
               return (
                 <Card 
                   key={shop.id} 
-                  className={`transition-all cursor-pointer ${
+                  className={`group transition-all duration-300 cursor-pointer overflow-hidden ${
                     isUnlocked 
-                      ? 'border-2 border-brand-yellow/50 hover:border-brand-yellow bg-gradient-to-br from-white to-brand-yellow/5 hover:shadow-lg' 
-                      : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 opacity-75'
+                      ? 'border-2 border-brand-yellow/40 hover:border-brand-yellow bg-gradient-to-br from-white via-brand-yellow/5 to-brand-yellow/10 hover:shadow-xl transform hover:-translate-y-1' 
+                      : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:shadow-md opacity-80'
                   }`}
                   onClick={() => handleShopClick(shop)}
                 >
-                  <CardContent className="p-4 sm:p-5">
+                  <CardContent className="p-6">
                     {/* Shop Header */}
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {/* Shop Icon */}
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            isUnlocked ? 'bg-brand-yellow' : 'bg-gray-300'
+                        <div className="flex items-start gap-4 mb-3">
+                          {/* Enhanced Shop Icon */}
+                          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
+                            isUnlocked 
+                              ? 'bg-gradient-to-br from-brand-yellow to-yellow-400 group-hover:shadow-xl' 
+                              : 'bg-gradient-to-br from-gray-300 to-gray-400'
                           }`}>
-                            <Store className={`w-6 h-6 ${isUnlocked ? 'text-rich-black' : 'text-gray-600'}`} />
+                            <Store className={`w-8 h-8 ${isUnlocked ? 'text-black' : 'text-gray-600'}`} />
                           </div>
                           
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className={`font-bold text-lg ${isUnlocked ? 'text-rich-black' : 'text-gray-700'}`}>
-                                {shop.name}
-                              </h3>
-                              {isUnlocked ? (
-                                <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30">
-                                  <Unlock className="w-3 h-3 mr-1" />
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className={`font-bold text-xl mb-1 ${isUnlocked ? 'text-rich-black' : 'text-gray-700'}`}>
+                                  {shop.name}
+                                </h3>
+                                <div className="flex items-center gap-2 mb-2">
+                                  {isUnlocked ? (
+                                    <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 px-3 py-1">
+                                      <Unlock className="w-3 h-3 mr-1" />
                                   Unlocked
                                 </Badge>
                               ) : (
@@ -386,6 +423,51 @@ export default function CustomerBrowseShops() {
                                   ? 'border-gray-300 bg-gray-50' 
                                   : 'border-gray-200 bg-gray-100 text-gray-500'
                               }`}
+                            >
+                              +{((shop.servicesOffered || shop.services) || []).length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Footer */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-3">
+                        {shop.rating && (
+                          <div className="flex items-center gap-1">
+                            <Star className={`w-4 h-4 fill-current ${isUnlocked ? 'text-yellow-400' : 'text-gray-300'}`} />
+                            <span className={`text-sm font-medium ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
+                              {shop.rating}
+                            </span>
+                          </div>
+                        )}
+                        {shop.totalOrders && (
+                          <div className="flex items-center gap-1">
+                            <Package className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
+                            <span className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
+                              {shop.totalOrders} orders
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {isUnlocked ? (
+                          <Badge className="bg-brand-yellow text-black px-3 py-1 font-medium">
+                            <Eye className="w-3 h-3 mr-1" />
+                            View Details
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-gray-200 text-gray-600 px-3 py-1">
+                            <Lock className="w-3 h-3 mr-1" />
+                            Scan QR to Unlock
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                             >
                               +{((shop.servicesOffered || shop.services) || []).length - 3} more
                             </Badge>
