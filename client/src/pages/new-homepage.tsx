@@ -280,31 +280,31 @@ export default function NewHomepage() {
                 </CardContent>
               </Card>
 
-              {/* Customer Dashboard - Enhanced Design */}
-              <Card className="bg-gradient-to-br from-black via-gray-900 to-black border border-brand-yellow/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-brand-yellow/40">
+              {/* Customer Dashboard - Theme Compliant Design */}
+              <Card className="bg-black border-2 border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-brand-yellow">
                 <CardContent className="p-7">
                   <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <div className="w-16 h-16 bg-brand-yellow rounded-lg flex items-center justify-center mx-auto mb-4">
                       <User className="w-8 h-8 text-black" />
                     </div>
                     <h3 className="text-2xl font-bold text-brand-yellow mb-2">Customer Dashboard</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                    <p className="text-white text-sm leading-relaxed">
                       Access your personal dashboard to track orders, manage prints, and view order history
                     </p>
                   </div>
                   <div className="space-y-4">
-                    <div className="bg-white/10 rounded-lg p-4 border border-white/10">
+                    <div className="bg-white rounded-lg p-4 border border-brand-yellow/30">
                       <PhoneInput
                         value={customerPhone}
                         onChange={setCustomerPhone}
                         placeholder="Enter your mobile number"
-                        className="w-full bg-white rounded-lg text-black placeholder-gray-500"
+                        className="w-full bg-white rounded-lg text-black placeholder-gray-500 border-none focus:ring-0"
                       />
                     </div>
                     <Button 
                       onClick={handleCustomerLogin}
                       disabled={loginLoading}
-                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-bold py-3 rounded-lg shadow-lg"
+                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-bold py-3 rounded-lg"
                     >
                       {loginLoading ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
@@ -316,7 +316,7 @@ export default function NewHomepage() {
                       )}
                     </Button>
                     <div className="text-center">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-brand-yellow/70">
                         For existing customers only • Secure login
                       </p>
                     </div>
