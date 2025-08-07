@@ -204,110 +204,125 @@ export default function NewHomepage() {
           }}
         />
       )}
-      {/* Massive Hero Section */}
-      <section className="relative bg-gradient-to-br from-brand-yellow/10 via-white to-brand-yellow/20 pt-16 pb-20">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-white via-brand-yellow/5 to-white pt-8 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* MASSIVE Hero Title */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black leading-tight mb-8 whitespace-nowrap">
-              Welcome to <span className="text-brand-yellow">Print</span><span className="text-black">Easy</span> <span className="text-brand-yellow">QR</span>
+          {/* Hero Title */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+              <span className="block sm:inline whitespace-nowrap">Welcome to </span>
+              <span className="text-brand-yellow whitespace-nowrap">Print</span>
+              <span className="text-black whitespace-nowrap">Easy</span>
+              <span className="text-black"> </span>
+              <span className="text-brand-yellow whitespace-nowrap">QR</span>
             </h1>
-            <div className="space-y-4">
-              <p className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 whitespace-nowrap">
+            <div className="space-y-2 max-w-4xl mx-auto">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
                 India's first QR-powered printing revolution
               </p>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-700 whitespace-nowrap">
+              <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700">
                 Scan QR codes at print shops for instant ordering
               </p>
             </div>
           </div>
 
-          {/* 80% QR FOCUS - Massive Central Section */}
-          <div className="mb-12">
-            <div className="bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl p-16 shadow-2xl max-w-6xl mx-auto relative overflow-hidden">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-black rounded-full -translate-y-48 translate-x-48"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-black rounded-full translate-y-32 -translate-x-32"></div>
-              </div>
-              
-              <div className="text-center relative z-10">
-                <div className="w-40 h-40 bg-black rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl">
-                  <QrCode className="w-20 h-20 text-brand-yellow" />
-                </div>
-                <h2 className="text-6xl lg:text-7xl font-black text-black mb-8">
-                  SCAN QR CODE
-                </h2>
-                <p className="text-2xl lg:text-3xl text-black/90 mb-12 leading-relaxed max-w-4xl mx-auto font-semibold">
-                  Found a PrintEasy QR at any print shop? Simply scan it to instantly unlock printing services and place orders without any registration!
-                </p>
-                <Button 
-                  onClick={() => setShowQRScanner(true)}
-                  className="bg-black text-brand-yellow hover:bg-gray-800 px-20 py-8 rounded-3xl font-black text-3xl shadow-2xl transform hover:scale-105 transition-all duration-300"
-                >
-                  <QrCode className="w-12 h-12 mr-6" />
-                  START SCANNING NOW
-                </Button>
-                <div className="mt-8 flex items-center justify-center text-2xl text-black/80 font-bold">
-                  <Zap className="w-8 h-8 mr-3" />
-                  Instant shop unlock • No registration required
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 20% Secondary Actions - Small Bottom Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Main Actions Grid - Responsive */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl mx-auto mb-12">
             
-            {/* Browse Shops - 10% */}
-            <Card className="bg-white border-2 border-gray-200 hover:border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" 
-                  onClick={() => navigate('/browse-shops')}>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Store className="w-6 h-6 text-gray-600" />
+            {/* PRIMARY: QR Scanner - Emphasized through design, position, and interaction */}
+            <div className="lg:col-span-7">
+              <Card className="bg-gradient-to-br from-brand-yellow to-yellow-400 border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer group relative overflow-hidden" 
+                    onClick={() => setShowQRScanner(true)}>
+                {/* Animated background elements */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-black rounded-full animate-pulse"></div>
+                  <div className="absolute -bottom-5 -left-5 w-20 h-20 bg-black rounded-full animate-bounce delay-300"></div>
                 </div>
-                <h3 className="text-lg font-bold text-black mb-2">Browse All Shops</h3>
-                <p className="text-gray-600 text-sm mb-3">Explore 500+ verified print shops across India</p>
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:border-brand-yellow hover:text-brand-yellow w-full text-sm">
-                  <Search className="w-4 h-4 mr-2" />
-                  Explore Shops
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Customer Dashboard Login - 10% */}
-            <Card className="bg-black border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-3">
-                  <User className="w-6 h-6 text-black" />
-                </div>
-                <h3 className="text-lg font-bold text-brand-yellow mb-1">Customer Dashboard</h3>
-                <p className="text-gray-300 text-sm mb-3">Track your orders & manage prints</p>
-                <div className="space-y-3">
-                  <PhoneInput
-                    value={customerPhone}
-                    onChange={setCustomerPhone}
-                    placeholder="Your mobile number"
-                    className="w-full bg-white text-sm"
-                  />
+                
+                <CardContent className="p-8 text-center relative z-10">
+                  <div className="w-24 h-24 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                    <QrCode className="w-12 h-12 text-brand-yellow animate-pulse" />
+                  </div>
+                  <h2 className="text-3xl lg:text-4xl font-black text-black mb-4 group-hover:scale-105 transition-transform duration-300">
+                    QR Scanner
+                  </h2>
+                  <p className="text-lg text-black/90 mb-6 font-semibold leading-relaxed">
+                    Point your camera at any PrintEasy QR code to instantly unlock shop services and start ordering
+                  </p>
                   <Button 
-                    onClick={handleCustomerLogin}
-                    disabled={loginLoading}
-                    className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 text-sm"
+                    className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-xl shadow-xl group-hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                   >
-                    {loginLoading ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
-                    ) : (
-                      <>
-                        <User className="w-4 h-4 mr-2" />
-                        Access Dashboard
-                      </>
-                    )}
+                    <Camera className="w-6 h-6 mr-3" />
+                    Start Scanning
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="mt-4 flex items-center justify-center text-sm text-black/80 font-medium">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Instant • No registration required
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* SECONDARY: Other options - Smaller but accessible */}
+            <div className="lg:col-span-5 space-y-4">
+              {/* Browse Shops */}
+              <Card className="bg-white border-2 border-gray-200 hover:border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" 
+                    onClick={() => navigate('/browse-shops')}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Store className="w-7 h-7 text-gray-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-black mb-1">Browse All Shops</h3>
+                      <p className="text-gray-600 text-sm mb-3">Explore 500+ verified print shops</p>
+                      <Button variant="outline" className="border-gray-300 text-gray-700 hover:border-brand-yellow hover:text-brand-yellow text-sm">
+                        <Search className="w-4 h-4 mr-2" />
+                        Explore
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Customer Dashboard */}
+              <Card className="bg-black border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4 mb-4">
+                    <div className="w-14 h-14 bg-brand-yellow rounded-xl flex items-center justify-center flex-shrink-0">
+                      <User className="w-7 h-7 text-black" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-brand-yellow mb-1">Customer Dashboard</h3>
+                      <p className="text-gray-300 text-sm">Track orders & manage prints</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <PhoneInput
+                      value={customerPhone}
+                      onChange={setCustomerPhone}
+                      placeholder="Enter mobile number"
+                      className="w-full bg-white"
+                    />
+                    <Button 
+                      onClick={handleCustomerLogin}
+                      disabled={loginLoading}
+                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-semibold"
+                    >
+                      {loginLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                      ) : (
+                        <>
+                          <User className="w-4 h-4 mr-2" />
+                          Access Dashboard
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Enhanced Trust Indicators */}
