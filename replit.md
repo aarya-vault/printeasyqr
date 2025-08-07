@@ -2,11 +2,7 @@
 
 ## Overview
 
-PrintEasy QR (PrintEasy) is a production-ready B2B2C digital platform connecting customers with local print shops. It supports two order flows: digital file uploads for pre-planned needs and walk-in orders for immediate service. The platform streamlines order management and communication for print shops, offering customers convenient access to printing services. PrintEasy is a comprehensive solution with robust admin management, revolutionary QR generation system, and clean architecture, focusing on connecting users without handling financial transactions.
-
-**Production Status: MICROSERVICE ARCHITECTURE DEPLOYED** - Hybrid QR generation with Vercel serverless functions (1-2s) and local fallback (11s). All technical debt eliminated, comprehensive admin dashboard completed, enterprise-grade scalability implemented.
-
-**Recent Fixes (August 2025)**: **COMPLETE SYSTEM RESTORATION ACHIEVED + COMPREHENSIVE TESTING COMPLETED (August 7, 2025)** - Systematically resolved all critical API issues from root causes. Fixed database schema mismatches (order type/status constraints), eliminated JWT token handling issues, restored order creation functionality (digital, anonymous, upload orders). Comprehensive test results: 19/21 APIs passing (90% success rate). **CRITICAL DATABASE ALIGNMENT** - Updated PostgreSQL constraints to support all application order types ('digital', 'upload', 'walkin', 'file_upload') and statuses ('new', 'pending', 'processing', 'ready', 'completed', 'cancelled'). **COMPREHENSIVE 24/7 SHOP FUNCTIONALITY IMPLEMENTED** - Added individual day 24/7 toggle switches across all components (admin dashboard, shop settings, shop applications). Fixed authentication issues in shop management modal. Equipment selection made optional in shop applications. Created reusable 24/7 components with consistent UI feedback. **DELETED ORDER VISIBILITY FIXED** - Resolved order history visibility issues. Deleted/canceled orders now appear in order history for both customers and shop owners with proper visual indicators (grayed out styling, red deleted badges, deletion timestamps). Backend API endpoints updated to include deleted orders rather than filtering them out. Added robust date validation to prevent formatting errors. **MOBILE RESPONSIVE USER GUIDES IMPLEMENTED** - Completely redesigned user guide modal system with mobile-first responsive design. Features horizontal scrolling navigation on mobile, adaptive layout switching to sidebar on desktop, touch-optimized scrolling, and dynamic sizing for all screen sizes. Enhanced accessibility with proper breakpoint handling and smooth scroll behavior. **CUSTOMER DASHBOARD REDESIGNED** - Transformed dashboard to show ALL active orders instead of just most recent one. Replaced active order count with unlocked shops count and "View All" button. Smart action buttons adapt based on order status (processing orders, ready for pickup). Mobile-first responsive design with proper empty states. **ANALYTICS SYSTEM REDESIGNED** - Completely restructured analytics from standalone page to integrated modal popup within shop owner dashboard. Focused exclusively on business metrics (unique customers, total customers, repeating customers) without revenue tracking. Follows strict golden yellow (#FFBF00) and black color scheme with minimal but powerful design. **BROWSE SHOPS FUNCTIONALITY ENHANCED** - Moved browse shops from homepage collapsible to dedicated inner page (/browse-shops) with comprehensive search functionality. Features advanced filtering (city, online status), detailed shop information modals, mobile-responsive design, and direct ordering integration. Anonymous users can discover shops before login. **COMPREHENSIVE INDIAN PINCODE DATABASE IMPLEMENTED** - Created the most complete Indian pincode database with 19,583 unique pincodes covering all 37 states and 743 districts. Full Gujarat coverage with 1,007 pincodes including complete Ahmedabad with 75+ pincodes. Proper data cleaning and mapping implemented: major cities correctly identified (Ahmedabad, Mumbai, Bangalore, Delhi) with accurate district information. Eliminated all postal office suffixes (B.O, S.O, H.O) and numbering. Pincode auto-complete integrated into shop application forms with instant location population. API endpoints: /api/pincode/location/{pincode}, /search, /states, /state/{name}. **ICON-FREE UI DESIGN IMPLEMENTATION (August 2025)** - Completely eliminated ALL icons from detailed-shop-modal.tsx and shop-view-modal.tsx components per user feedback that icons constitute "poor UI design". Achieved clean, professional interface focusing purely on content hierarchy and golden yellow (#FFBF00) brand colors. Removed all Lucide React icon imports, simplified component structures, maintained full functionality while delivering superior visual clarity. Both modals now feature minimalist design with improved readability and reduced visual clutter. **DETAILED SHOP MODALS REDESIGNED (August 2025)** - Completely rebuilt both detailed-shop-modal.tsx and shop-view-modal.tsx with beautiful, consistent UI following strict golden yellow (#FFBF00) and black design principles. Removed all gradient backgrounds (violating "no gradients" rule), unified service/equipment data handling (combines services/servicesOffered and equipment/equipmentAvailable), and added comprehensive null safety checks. Fixed critical JavaScript parsing errors that caused modal crashes. Both modals now display comprehensive shop information including contact details, working hours, performance metrics, and complete service listings. **HOMEPAGE UI DESIGN COMPLIANCE (August 2025)** - Fixed homepage welcome text section to follow design principles. Removed gradient backgrounds, implemented clean black and golden yellow color scheme, improved three-line welcome structure with proper hierarchy. Welcome text now displays: "Welcome to PrintEasy" with two descriptive lines about QR-powered printing revolution, maintaining consistent brand colors throughout. **ADMIN ANALYTICS TRANSFORMATION COMPLETED (February 2025)** - Successfully transformed admin dashboard analytics from traditional revenue/ratings focus to QR Customer Acquisition metrics. Replaced "Total Revenue Potential" with "QR Customer Acquisition", removed rating columns and replaced with "QR Unlocks" showing unique customer acquisition counts. Updated "Top Performing Shops" to rank by customer acquisition via QR scanning instead of order volume. Fixed backend analytics API issues with Promise handling, implemented QR-focused data structure, and updated frontend components accordingly. Analytics now emphasize customer discovery efficiency over financial metrics. **PRODUCTION READY STATUS (100% Deployment Ready - August 7, 2025) + ALL TECHNICAL ISSUES RESOLVED + DRIZZLE CONFLICTS ELIMINATED** - Comprehensive testing completed with all core functionality operational: customer authentication (100%), shop owner authentication (100%), order management with file uploads (100%), shop operations with full 24/7 support (100%), comprehensive pincode auto-complete (100%), and icon-free detailed shop modals. Database operations and JWT authentication systems fully validated. **ALL DEPLOYMENT BLOCKERS ELIMINATED**: 1) **DRIZZLE COMPLETELY REMOVED** - All conflicting Drizzle imports eliminated, pure Sequelize system restored, 2) Node.js compatibility standardized with .nvmrc file (v20.19.3), 3) Clean development server created (server/index-fixed.ts), 4) Module architecture unified (ES modules throughout), 5) Single-command development experience implemented. **ONE-COMMAND STARTUP ACHIEVED**: `node -r tsx/esm server/index-fixed.ts` provides reliable local development, bypasses all Vite configuration issues. **DEPLOYMENT SOLUTIONS PROVIDED**: Clean architecture ready for production deployment, comprehensive documentation updated. **CORE BUSINESS LOGIC CONFIRMED WORKING**: Customer registration, shop discovery, order placement, file management, real-time tracking, QR unlocking, shop owner management.
+PrintEasy QR is a production-ready B2B2C digital platform connecting customers with local print shops. Its main purpose is to streamline order management and communication for print shops while offering customers convenient access to printing services through two primary order flows: digital file uploads for pre-planned needs and walk-in orders for immediate service. The platform features robust admin management and a revolutionary QR generation system, focusing on connecting users without handling financial transactions.
 
 ## User Preferences
 
@@ -15,55 +11,54 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Design Philosophy
-The platform adheres to a strict design policy centered around golden yellow (`#FFBF00`) and black, with a "no gradients" rule to ensure a clean, professional, and consistent visual identity. All UI elements, including icons, badges, and status indicators, comply with this color scheme. The design prioritizes mobile-first responsiveness, scaling elegantly from small mobile devices to large desktops.
+The platform adheres to a strict design policy centered around golden yellow (`#FFBF00`) and black, with a "no gradients" rule to ensure a clean, professional, and consistent visual identity. All UI elements comply with this color scheme. The design prioritizes mobile-first responsiveness, scaling elegantly across various device sizes.
 
 ### Technology Stack
 - **Frontend**: React 18.3.1 with TypeScript (Vite), Tailwind CSS, shadcn/ui, Radix UI.
-- **Backend**: Express.js with Sequelize ORM (production system), hybrid TypeScript/JavaScript architecture.
-- **Database**: PostgreSQL with Sequelize ORM, hosted on Neon Database (serverless).
+- **Backend**: Express.js with Sequelize ORM.
+- **Database**: PostgreSQL with Sequelize ORM.
 - **Real-time**: WebSocket connections.
 - **File Handling**: Multer for local storage file uploads.
 - **State Management**: React Context API, TanStack Query.
-- **Authentication**: Pure JWT tokens (24h expiry). Phone-based for customers, email/password for shop owners and admins.
+- **Authentication**: Pure JWT tokens.
 
 ### Architectural Patterns
 - **Monorepo Structure**: Clear separation between client, server, and shared code.
 - **Component-Based UI**: Reusable and modular React components.
 - **RESTful API with WebSockets**: For data exchange and real-time updates.
-- **Clean Architecture**: Minimized technical debt, unified components across dashboards (Customer, Shop Owner, Admin). Fixed fundamental routing conflicts between Vite middleware and API endpoints.
+- **Clean Architecture**: Minimized technical debt, unified components across dashboards (Customer, Shop Owner, Admin).
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin roles.
 
 ### Core Features & Implementations
-- **Revolutionary QR Generation**: Hybrid microservice architecture. Primary: Vercel serverless functions for scalable QR generation (1-2s response). Fallback: Puppeteer-core with @sparticuz/chromium for Netlify deployment. Client captures fully-rendered HTML, server takes pixel-perfect screenshot. Guarantees WYSIWYG fidelity with optimized JPG downloads for reduced server load.
+- **Revolutionary QR Generation**: Hybrid microservice architecture leveraging Vercel serverless functions for primary generation and Puppeteer-core as a fallback. Generates unique, branded QR codes for each shop, enabling automatic shop unlocking and direct order page redirection.
 - **Order Flows**: Supports digital file upload and walk-in order booking.
-- **Unified Chat System**: Single component handles all customer-shop owner communications, including file attachments and real-time updates. All timestamps use India Ahmedabad timezone.
-- **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD operations, application review, status management, password handling). **QR Customer Acquisition Analytics** - Revolutionary analytics system focused on QR scan customer acquisition metrics, tracking unique customers who first discovered shops through QR scanning, conversion rates from QR to orders, and customer acquisition efficiency rather than traditional revenue/rating analytics.
-- **Enhanced QR Code System**: Generates unique, branded QR codes for each shop with automatic shop unlocking and direct order page redirection. Features step-by-step customer guide, verified shop badges, and PrintEasy branding with USP messaging (500MB files, 100+ formats, 24/7 support).
-- **Dynamic Homepage**: Mobile-first design prioritizing QR scanning and login, showcasing key features like real-time chat, order tracking, and secure file handling.
-- **File Management**: Supports all file types with no restrictions. Unlimited file uploads (up to 500MB per file, 100 files per order). Files are stored locally and automatically deleted upon order completion. Print functionality supports various file types directly from the browser.
-- **Smart Order Logic**: Customer dashboards dynamically adapt UI based on order status (e.g., "Add More Files" for processing orders). Order numbering system for queue management.
-- **24/7 Shop Support**: Logic to handle shops operating 24 hours or overnight, reflected across all platform components and QR codes.
-- **Pure JWT Authentication**: Bcrypt hashing for all passwords, stateless JWT tokens (24h expiry), environment variables for admin credentials (ADMIN_EMAIL: its.harshthakar@gmail.com, ADMIN_PASSWORD: 2004@Harsh), and protected API routes with JWT middleware (`requireAuth`, `requireAdmin`, `requireShopOwner`).
+- **Unified Chat System**: Handles all customer-shop owner communications, including file attachments and real-time updates, with timestamps in India Ahmedabad timezone.
+- **Comprehensive Admin Dashboard**: Full user and shop management capabilities (CRUD, application review, status management). Features QR Customer Acquisition Analytics, tracking unique customers who discovered shops via QR scans.
+- **Dynamic Homepage**: Mobile-first design focusing on QR scanning and login, highlighting features like real-time chat and order tracking.
+- **File Management**: Supports all file types with unlimited file uploads (up to 500MB per file, 100 files per order). Files are stored locally and automatically deleted upon order completion.
+- **Smart Order Logic**: Customer dashboards dynamically adapt UI based on order status.
+- **24/7 Shop Support**: Logic to handle shops operating 24 hours or overnight across all platform components and QR codes.
+- **Pure JWT Authentication**: Bcrypt hashing for passwords, stateless JWT tokens (24h expiry), and protected API routes with role-based middleware.
 - **Comprehensive Order/Chat History**: Dedicated read-only sections for completed orders and their associated chat logs.
-- **Order Deletion System**: Soft delete implementation with role-based permissions. Customers can delete pending orders, shop owners can delete processing/ready orders, admins can delete any order. Deleted orders are hidden from all views but retained in database with deletion tracking.
-- **Shop Slug System**: Manual shop slug entry during application with validation. No auto-generation from shop name.
-- **Optimized Shop Dashboard**: Streamlined dashboard with 4 vital cards showing essential metrics (Today's Orders, Pending Orders, Completed Today, Average Processing Time) in a single row for better usability.
-- **Technical Debt Elimination**: Cleaned all duplicate code, unified component architecture, consistent TypeScript typing, proper error handling, clean separation of concerns.
+- **Order Deletion System**: Soft delete implementation with role-based permissions, retaining deleted orders in the database for tracking.
+- **Shop Slug System**: Manual shop slug entry during application with validation.
+- **Optimized Shop Dashboard**: Streamlined dashboard with key metrics (Today's Orders, Pending Orders, Completed Today, Average Processing Time).
+- **Technical Debt Elimination**: Cleaned duplicate code, unified component architecture, consistent TypeScript typing, proper error handling, and separation of concerns.
 
 ## External Dependencies
 
-- **sequelize**: Production PostgreSQL ORM with association management.
+- **sequelize**: PostgreSQL ORM.
 - **@tanstack/react-query**: Server state management.
-- **ws**: WebSocket implementation for real-time features.
-- **multer**: Middleware for handling `multipart/form-data` (file uploads).
+- **ws**: WebSocket implementation.
+- **multer**: File upload middleware.
 - **zod**: Runtime type validation.
 - **@radix-ui/***: Headless UI components.
 - **tailwindcss**: Utility-first CSS framework.
 - **lucide-react**: Icon library.
 - **date-fns**: Date manipulation utility.
-- **vite**: Frontend build tool and dev server.
-- **tsx**: TypeScript execution for development.
+- **vite**: Frontend build tool.
+- **tsx**: TypeScript execution.
 - **esbuild**: Production bundling.
 - **bcrypt**: Password hashing.
 - **qrcode**: QR code generation.
-- **html2canvas**: HTML to canvas rendering for QR code export.
+- **html2canvas**: HTML to canvas rendering.

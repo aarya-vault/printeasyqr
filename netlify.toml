@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --production && node build-production.js"
+  command = "cp server/app-unified.cjs netlify/functions/server.js && node build-production.js"
   publish = "client"  
   functions = "netlify/functions"
 
