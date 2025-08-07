@@ -204,25 +204,25 @@ export default function NewHomepage() {
           }}
         />
       )}
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-white via-brand-yellow/5 to-white pt-8 pb-16">
+      {/* Hero Section - No Gradients, Pure Brand Colors */}
+      <section className="relative bg-white pt-8 pb-16 border-b-4 border-brand-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Title */}
+          {/* Hero Title - Clean Design Following Brand Principles */}
           <div className="text-center mb-16">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 px-4">
-              <span className="block sm:inline whitespace-nowrap">Welcome to </span>
-              <span className="text-brand-yellow whitespace-nowrap">Print</span>
-              <span className="text-black whitespace-nowrap">Easy</span>
-              <span className="text-black"> </span>
-              <span className="text-brand-yellow whitespace-nowrap">QR</span>
+              <span className="block sm:inline text-black">Welcome to </span>
+              <span className="text-brand-yellow">PrintEasy</span>
             </h1>
-            <div className="space-y-4 max-w-5xl mx-auto px-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-[#000000]">
+            <div className="space-y-3 max-w-5xl mx-auto px-4">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-black">
                 India's first QR-powered printing revolution
               </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-[#000000]">
+              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-black">
                 Scan QR codes at print shops for instant ordering
+              </p>
+              <p className="text-base sm:text-lg md:text-xl font-medium leading-relaxed text-gray-700 mt-4">
+                Connect with 500+ verified print shops across India
               </p>
             </div>
           </div>

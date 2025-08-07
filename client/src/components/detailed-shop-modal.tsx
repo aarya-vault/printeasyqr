@@ -67,6 +67,11 @@ interface DetailedShopModalProps {
 }
 
 export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick }: DetailedShopModalProps) {
+  // Early return if shop is null or undefined
+  if (!shop) {
+    return null;
+  }
+
   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   
   const formatDetailedWorkingHours = () => {
@@ -112,7 +117,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
 
   // Check if shop is currently open
   const isShopOpen = () => {
-    if (!shop.isOnline) return false;
+    if (!shop || !shop.isOnline) return false;
     if (!shop.workingHours) return true;
     
     const now = new Date();
@@ -134,20 +139,22 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
   };
 
   const handleOrderNow = () => {
-    onOrderClick?.(shop.slug);
+    if (shop?.slug) {
+      onOrderClick?.(shop.slug);
+    }
     onClose();
   };
 
   // Combine all services from different fields
   const allServices = [
-    ...(shop.services || []),
-    ...(shop.servicesOffered || [])
+    ...(shop?.services || []),
+    ...(shop?.servicesOffered || [])
   ].filter((service, index, array) => array.indexOf(service) === index); // Remove duplicates
 
   // Combine all equipment from different fields
   const allEquipment = [
-    ...(shop.equipment || []),
-    ...(shop.equipmentAvailable || [])
+    ...(shop?.equipment || []),
+    ...(shop?.equipmentAvailable || [])
   ].filter((equipment, index, array) => array.indexOf(equipment) === index); // Remove duplicates
 
   return (
