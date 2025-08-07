@@ -5,9 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
-  MapPin, Phone, Clock, CheckCircle2, X, 
-  Printer, Settings2, Building2, Star, Store, Calendar,
-  Mail, User, Award, Briefcase
+  CheckCircle2, X
 } from 'lucide-react';
 import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
@@ -37,6 +35,8 @@ interface Shop {
   equipment?: string[];
   servicesOffered?: string[];
   equipmentAvailable?: string[];
+  customServices?: string[];
+  customEquipment?: string[];
   // Experience
   yearsOfExperience?: string;
   formationYear?: number;
@@ -163,21 +163,16 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full mx-auto">
         <DialogHeader className="pb-4">
-          <DialogTitle className="flex items-center gap-3 text-2xl">
-            <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
-              <Store className="w-5 h-5 text-black" />
-            </div>
+          <DialogTitle className="text-2xl">
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                {shop.name}
+                <span className="text-2xl font-bold">{shop.name}</span>
                 {isShopOpen() ? (
                   <Badge className="bg-green-100 text-green-800 border-green-200">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
                     Open Now
                   </Badge>
                 ) : (
                   <Badge variant="secondary">
-                    <X className="w-3 h-3 mr-1" />
                     Closed
                   </Badge>
                 )}
@@ -202,51 +197,38 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
             {/* Contact Information Card */}
             <Card className="border-l-4 border-l-brand-yellow">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Phone className="w-5 h-5 text-brand-yellow" />
+                <CardTitle className="text-lg">
                   Contact Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-gray-500 mt-1" />
-                  <div>
-                    <p className="font-medium text-gray-900">Address</p>
-                    <p className="text-sm text-gray-600">{shop.address}</p>
-                    <LocationDisplay 
-                      city={shop.city} 
-                      state={shop.state} 
-                      pincode={shop.pinCode}
-                      className="text-sm text-gray-500 mt-1"
-                    />
-                  </div>
+                <div>
+                  <p className="font-medium text-gray-900">Address</p>
+                  <p className="text-sm text-gray-600">{shop.address}</p>
+                  <LocationDisplay 
+                    city={shop.city} 
+                    state={shop.state} 
+                    pincode={shop.pinCode}
+                    className="text-sm text-gray-500 mt-1"
+                  />
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-gray-500" />
-                  <div>
-                    <p className="font-medium text-gray-900">Phone</p>
-                    <p className="text-sm text-gray-600">{shop.publicContactNumber || shop.phone}</p>
-                  </div>
+                <div>
+                  <p className="font-medium text-gray-900">Phone</p>
+                  <p className="text-sm text-gray-600">{shop.publicContactNumber || shop.phone}</p>
                 </div>
 
                 {shop.publicOwnerName && (
-                  <div className="flex items-center gap-3">
-                    <User className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <p className="font-medium text-gray-900">Owner</p>
-                      <p className="text-sm text-gray-600">{shop.publicOwnerName}</p>
-                    </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Owner</p>
+                    <p className="text-sm text-gray-600">{shop.publicOwnerName}</p>
                   </div>
                 )}
 
                 {shop.email && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-gray-500" />
-                    <div>
-                      <p className="font-medium text-gray-900">Email</p>
-                      <p className="text-sm text-gray-600">{shop.email}</p>
-                    </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Email</p>
+                    <p className="text-sm text-gray-600">{shop.email}</p>
                   </div>
                 )}
               </CardContent>
@@ -255,8 +237,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
             {/* Shop Statistics */}
             <Card className="border-l-4 border-l-brand-yellow">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Award className="w-5 h-5 text-brand-yellow" />
+                <CardTitle className="text-lg">
                   Shop Performance
                 </CardTitle>
               </CardHeader>
@@ -277,13 +258,11 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {shop.acceptsWalkinOrders && (
                     <Badge className="bg-green-100 text-green-800 border-green-200">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
                       Walk-in Orders
                     </Badge>
                   )}
                   {shop.isOnline && (
                     <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
                       Online Available
                     </Badge>
                   )}
@@ -297,8 +276,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
             {/* Working Hours */}
             <Card className="border-l-4 border-l-brand-yellow">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-brand-yellow" />
+                <CardTitle className="text-lg">
                   Working Hours
                 </CardTitle>
               </CardHeader>
@@ -330,8 +308,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
             {(allServices.length > 0 || allEquipment.length > 0) && (
               <Card className="border-l-4 border-l-brand-yellow">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-brand-yellow" />
+                  <CardTitle className="text-lg">
                     Services & Equipment
                   </CardTitle>
                 </CardHeader>
@@ -339,16 +316,12 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   {/* Services Section */}
                   {allServices.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                        <Printer className="w-4 h-4 text-brand-yellow" />
+                      <h4 className="font-medium text-gray-900 mb-3">
                         Services Offered
                       </h4>
                       <div className="grid gap-2">
                         {allServices.map((service, index) => (
-                          <div key={index} className="flex items-center gap-3 p-2 bg-brand-yellow/5 rounded-lg border border-brand-yellow/20">
-                            <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
-                              <Printer className="w-3 h-3 text-black" />
-                            </div>
+                          <div key={index} className="p-3 bg-brand-yellow/5 rounded-lg border border-brand-yellow/20">
                             <span className="text-sm font-medium text-gray-900">{service}</span>
                           </div>
                         ))}
@@ -360,16 +333,12 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   {allEquipment.length > 0 && (
                     <div>
                       {allServices.length > 0 && <Separator className="my-4" />}
-                      <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                        <Settings2 className="w-4 h-4 text-brand-yellow" />
+                      <h4 className="font-medium text-gray-900 mb-3">
                         Equipment Available
                       </h4>
                       <div className="grid gap-2">
                         {allEquipment.map((equipment, index) => (
-                          <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
-                            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                              <Settings2 className="w-3 h-3 text-gray-600" />
-                            </div>
+                          <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <span className="text-sm font-medium text-gray-900">{equipment}</span>
                           </div>
                         ))}
@@ -380,7 +349,6 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   {/* Empty State */}
                   {allServices.length === 0 && allEquipment.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
-                      <Building2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
                       <p>Services and equipment information will be available soon</p>
                     </div>
                   )}
@@ -396,7 +364,6 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
             onClick={handleOrderNow}
             className="flex-1 bg-brand-yellow text-black hover:bg-brand-yellow/90 font-medium py-3"
           >
-            <Printer className="w-4 h-4 mr-2" />
             Order Now
           </Button>
           <Button 

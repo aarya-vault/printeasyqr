@@ -3,10 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Store, User, Mail, Phone, MapPin, Clock, Briefcase, 
-  Settings2, CheckCircle2, X, Star, Printer, Award, Building2
-} from 'lucide-react';
+// No icons imported - clean design per user request
 
 interface ShopViewModalProps {
   shop: any;
@@ -50,26 +47,21 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
         {/* Header - No Gradients, Pure Brand Colors */}
         <div className="bg-brand-yellow p-6 relative">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center shadow-lg">
-                <Store className="w-6 h-6 text-brand-yellow" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-black">{shop.name}</h2>
-                <p className="text-black/80 text-sm">
-                  {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
-                    ? `${shop.city}, ${shop.state}${shop.pinCode ? ` - ${shop.pinCode}` : ''}`
-                    : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
-                  }
-                </p>
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold text-black">{shop.name}</h2>
+              <p className="text-black/80 text-sm">
+                {shop.city && shop.state && shop.city !== 'Unknown' && shop.state !== 'Unknown' 
+                  ? `${shop.city}, ${shop.state}${shop.pinCode ? ` - ${shop.pinCode}` : ''}`
+                  : shop.pinCode ? `PIN: ${shop.pinCode}` : 'Location not available'
+                }
+              </p>
             </div>
             <Button 
               variant="ghost" 
               onClick={onClose} 
               className="text-black hover:bg-black/10 rounded-full w-10 h-10 p-0"
             >
-              <X className="w-5 h-5" />
+              ×
             </Button>
           </div>
         </div>
@@ -90,13 +82,11 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
             )}
             {shop.acceptsWalkinOrders && (
               <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-4 py-2">
-                <User className="w-3 h-3 mr-1" />
                 Walk-in Orders
               </Badge>
             )}
             {shop.rating && (
               <Badge className="bg-brand-yellow/20 text-black border-brand-yellow/30 px-4 py-2">
-                <Star className="w-3 h-3 mr-1 fill-current" />
                 {shop.rating}/5
               </Badge>
             )}
@@ -108,10 +98,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               {/* Contact & Location */}
               <Card className="border-l-4 border-l-brand-yellow shadow-sm hover:shadow-md transition-shadow duration-200">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-3 text-xl text-gray-800">
-                    <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                      <MapPin className="w-4 h-4 text-black" />
-                    </div>
+                  <CardTitle className="text-xl text-gray-800">
                     Contact & Location
                   </CardTitle>
                 </CardHeader>
@@ -149,8 +136,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               {/* Services & Equipment */}
               <Card className="border-l-4 border-l-brand-yellow">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Briefcase className="w-5 h-5 text-brand-yellow" />
+                  <CardTitle className="text-lg">
                     Services & Equipment
                   </CardTitle>
                 </CardHeader>
@@ -159,16 +145,12 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                     {/* Services */}
                     {allServices.length > 0 ? (
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <Printer className="w-4 h-4 text-brand-yellow" />
+                        <h4 className="font-medium text-gray-900 mb-3">
                           Services Offered
                         </h4>
                         <div className="grid gap-2">
                           {allServices.map((service: string, index: number) => (
-                            <div key={index} className="flex items-center gap-3 p-3 bg-brand-yellow/5 rounded-lg border border-brand-yellow/20">
-                              <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
-                                <Printer className="w-3 h-3 text-black" />
-                              </div>
+                            <div key={index} className="p-3 bg-brand-yellow/5 rounded-lg border border-brand-yellow/20">
                               <span className="text-sm font-medium text-gray-900">{service}</span>
                             </div>
                           ))}
@@ -176,7 +158,6 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                       </div>
                     ) : (
                       <div className="text-center py-6 text-gray-500">
-                        <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
                         <p>Services information not available</p>
                       </div>
                     )}
@@ -184,16 +165,12 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                     {/* Equipment */}
                     {allEquipment.length > 0 && (
                       <div className="mt-4 pt-4 border-t">
-                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <Settings2 className="w-4 h-4 text-brand-yellow" />
+                        <h4 className="font-medium text-gray-900 mb-3">
                           Equipment Available
                         </h4>
                         <div className="grid gap-2">
                           {allEquipment.map((item: string, index: number) => (
-                            <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
-                              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                                <Settings2 className="w-3 h-3 text-gray-600" />
-                              </div>
+                            <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                               <span className="text-sm text-gray-700">{item}</span>
                             </div>
                           ))}
@@ -210,8 +187,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               {/* Experience & Performance */}
               <Card className="border-l-4 border-l-brand-yellow">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Award className="w-5 h-5 text-brand-yellow" />
+                  <CardTitle className="text-lg">
                     Shop Performance
                   </CardTitle>
                 </CardHeader>
@@ -236,8 +212,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               {/* Working Hours */}
               <Card className="border-l-4 border-l-brand-yellow">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Clock className="w-5 h-5 text-brand-yellow" />
+                  <CardTitle className="text-lg">
                     Working Hours
                   </CardTitle>
                 </CardHeader>
@@ -270,7 +245,6 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                     </div>
                   ) : (
                     <div className="text-center py-6 text-gray-500">
-                      <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
                       <p>Working hours information not available</p>
                     </div>
                   )}
@@ -280,7 +254,6 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
               {/* Additional Features */}
               {shop.acceptsWalkinOrders && (
                 <div className="flex items-center justify-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 mr-2" />
                   <span className="text-green-800 font-medium">Accepts walk-in orders</span>
                 </div>
               )}
@@ -292,7 +265,6 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
             <Button 
               className="flex-1 bg-brand-yellow text-black hover:bg-brand-yellow/90 font-medium py-3"
             >
-              <Printer className="w-4 h-4 mr-2" />
               Login to Print
             </Button>
             <Button 
