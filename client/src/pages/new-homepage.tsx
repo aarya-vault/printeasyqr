@@ -209,19 +209,19 @@ export default function NewHomepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Hero Title */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          <div className="text-center mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 px-4">
               <span className="block sm:inline whitespace-nowrap">Welcome to </span>
               <span className="text-brand-yellow whitespace-nowrap">Print</span>
               <span className="text-black whitespace-nowrap">Easy</span>
               <span className="text-black"> </span>
               <span className="text-brand-yellow whitespace-nowrap">QR</span>
             </h1>
-            <div className="space-y-2 max-w-4xl mx-auto">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+            <div className="space-y-4 max-w-5xl mx-auto px-4">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-relaxed">
                 India's first QR-powered printing revolution
               </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700">
+              <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 leading-relaxed">
                 Scan QR codes at print shops for instant ordering
               </p>
             </div>
@@ -230,28 +230,22 @@ export default function NewHomepage() {
           {/* Main Actions Grid - Responsive */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl mx-auto mb-12">
             
-            {/* PRIMARY: QR Scanner - Emphasized through design, position, and interaction */}
+            {/* PRIMARY: QR Scanner - Clean Design with Theme Colors Only */}
             <div className="lg:col-span-7">
-              <Card className="bg-gradient-to-br from-brand-yellow to-yellow-400 border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer group relative overflow-hidden" 
+              <Card className="bg-brand-yellow border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer" 
                     onClick={() => setShowQRScanner(true)}>
-                {/* Animated background elements */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-black rounded-full animate-pulse"></div>
-                  <div className="absolute -bottom-5 -left-5 w-20 h-20 bg-black rounded-full animate-bounce delay-300"></div>
-                </div>
-                
-                <CardContent className="p-8 text-center relative z-10">
-                  <div className="w-24 h-24 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                    <QrCode className="w-12 h-12 text-brand-yellow animate-pulse" />
+                <CardContent className="p-8 text-center">
+                  <div className="w-24 h-24 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <QrCode className="w-12 h-12 text-brand-yellow" />
                   </div>
-                  <h2 className="text-3xl lg:text-4xl font-black text-black mb-4 group-hover:scale-105 transition-transform duration-300">
+                  <h2 className="text-3xl lg:text-4xl font-black text-black mb-4">
                     QR Scanner
                   </h2>
                   <p className="text-lg text-black/90 mb-6 font-semibold leading-relaxed">
                     Point your camera at any PrintEasy QR code to instantly unlock shop services and start ordering
                   </p>
                   <Button 
-                    className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-xl shadow-xl group-hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                    className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-4 rounded-xl font-bold text-xl shadow-lg w-full sm:w-auto"
                   >
                     <Camera className="w-6 h-6 mr-3" />
                     Start Scanning
@@ -286,39 +280,46 @@ export default function NewHomepage() {
                 </CardContent>
               </Card>
 
-              {/* Customer Dashboard */}
-              <Card className="bg-black border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4 mb-4">
-                    <div className="w-14 h-14 bg-brand-yellow rounded-xl flex items-center justify-center flex-shrink-0">
-                      <User className="w-7 h-7 text-black" />
+              {/* Customer Dashboard - Enhanced Design */}
+              <Card className="bg-gradient-to-br from-black via-gray-900 to-black border border-brand-yellow/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-brand-yellow/40">
+                <CardContent className="p-7">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <User className="w-8 h-8 text-black" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-brand-yellow mb-1">Customer Dashboard</h3>
-                      <p className="text-gray-300 text-sm">Track orders & manage prints</p>
-                    </div>
+                    <h3 className="text-2xl font-bold text-brand-yellow mb-2">Customer Dashboard</h3>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Access your personal dashboard to track orders, manage prints, and view order history
+                    </p>
                   </div>
-                  <div className="space-y-3">
-                    <PhoneInput
-                      value={customerPhone}
-                      onChange={setCustomerPhone}
-                      placeholder="Enter mobile number"
-                      className="w-full bg-white"
-                    />
+                  <div className="space-y-4">
+                    <div className="bg-white/10 rounded-lg p-4 border border-white/10">
+                      <PhoneInput
+                        value={customerPhone}
+                        onChange={setCustomerPhone}
+                        placeholder="Enter your mobile number"
+                        className="w-full bg-white rounded-lg text-black placeholder-gray-500"
+                      />
+                    </div>
                     <Button 
                       onClick={handleCustomerLogin}
                       disabled={loginLoading}
-                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-semibold"
+                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-bold py-3 rounded-lg shadow-lg"
                     >
                       {loginLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                       ) : (
                         <>
-                          <User className="w-4 h-4 mr-2" />
-                          Access Dashboard
+                          <User className="w-5 h-5 mr-3" />
+                          Access Your Dashboard
                         </>
                       )}
                     </Button>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">
+                        For existing customers only • Secure login
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
