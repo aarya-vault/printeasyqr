@@ -208,19 +208,49 @@ export default function NewHomepage() {
       <section className="relative bg-white pt-8 pb-16 border-b-4 border-brand-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Title - Clean Design Following Brand Principles */}
+          {/* Hero Title - Mobile-First Professional Design */}
           <div className="text-center mb-16">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 px-4">
-              <span className="block sm:inline text-black">Welcome to </span>
-              <span className="text-brand-yellow">PrintEasy</span>
-            </h1>
-            <div className="space-y-3 max-w-5xl mx-auto px-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-black">
-                India's first QR-powered printing revolution
-              </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-black">
-                Scan QR codes at print shops for instant ordering
-              </p>
+            {/* Main Brand Title with Mobile Priority */}
+            <div className="mb-8">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-2">
+                <span className="block text-black font-light">Welcome to</span>
+                <span className="block text-brand-yellow tracking-tight">PrintEasy QR</span>
+              </h1>
+            </div>
+            
+            {/* Attention-Seeking Mobile-First Content */}
+            <div className="max-w-6xl mx-auto px-4 space-y-6">
+              {/* Gujarati Hook - Mobile Optimized */}
+              <div className="bg-rich-black rounded-2xl p-6 sm:p-8 shadow-2xl border-4 border-brand-yellow">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-yellow leading-tight tracking-wide">
+                  Printing માં... જલસો!
+                </p>
+                <div className="mt-4 h-1 bg-brand-yellow mx-auto w-24 rounded-full"></div>
+              </div>
+              
+              {/* Call to Action - Hindi/English Mix */}
+              <div className="bg-brand-yellow rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-rich-black leading-tight">
+                  Bas QR scan karo.
+                </p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-rich-black mt-2">
+                  Ready thai jase!
+                </p>
+              </div>
+              
+              {/* Professional Subtitle */}
+              <div className="mt-8">
+                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 leading-relaxed">
+                  India's first QR-powered printing revolution
+                </p>
+                <div className="flex items-center justify-center mt-4 space-x-2">
+                  <div className="w-3 h-3 bg-brand-yellow rounded-full animate-pulse"></div>
+                  <p className="text-base sm:text-lg font-medium text-gray-600">
+                    Instant • Simple • Professional
+                  </p>
+                  <div className="w-3 h-3 bg-brand-yellow rounded-full animate-pulse"></div>
+                </div>
+              </div>
             </div>
           </div>
 
