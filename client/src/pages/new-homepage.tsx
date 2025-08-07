@@ -218,10 +218,10 @@ export default function NewHomepage() {
               <span className="text-brand-yellow whitespace-nowrap">QR</span>
             </h1>
             <div className="space-y-4 max-w-5xl mx-auto px-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-relaxed">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-[#000000]">
                 India's first QR-powered printing revolution
               </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-[#000000]">
                 Scan QR codes at print shops for instant ordering
               </p>
             </div>
