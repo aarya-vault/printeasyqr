@@ -204,9 +204,6 @@ export default function NewHomepage() {
           
           {/* Brand Identity & Hero Title */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-brand-yellow rounded-full mb-6 shadow-lg">
-              <Printer className="w-10 h-10 text-rich-black" />
-            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-rich-black leading-tight mb-4">
               Welcome to <span className="text-brand-yellow">PrintEasy</span>
             </h1>
