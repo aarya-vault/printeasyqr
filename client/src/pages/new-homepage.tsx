@@ -221,9 +221,6 @@ export default function NewHomepage() {
               <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-black">
                 Scan QR codes at print shops for instant ordering
               </p>
-              <p className="text-base sm:text-lg md:text-xl font-medium leading-relaxed text-gray-700 mt-4">
-                Connect with 500+ verified print shops across India
-              </p>
             </div>
           </div>
 
