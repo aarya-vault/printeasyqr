@@ -579,37 +579,7 @@ export default function NewHomepage() {
             </div>
           </div>
 
-          {/* Call to Action */}
-          <div className="mt-8 text-center">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-rich-black mb-3">Ready to Start Printing?</h3>
-              <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 sm:justify-center">
-                <Button 
-                  onClick={() => setShowQRScanner(true)}
-                  className="w-full sm:w-auto bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-6 py-3 font-bold"
-                >
-                  <QrCode className="w-5 h-5 mr-2" />
-                  Scan QR Code Now
-                </Button>
-                <Button 
-                  onClick={handleCustomerLogin}
-                  variant="outline"
-                  className="w-full sm:w-auto border-rich-black text-rich-black hover:bg-rich-black hover:text-white px-6 py-3"
-                >
-                  <User className="w-5 h-5 mr-2" />
-                  Customer Login
-                </Button>
-                <Button 
-                  onClick={() => navigate('/browse-shops')}
-                  variant="outline"
-                  className="w-full sm:w-auto border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black px-6 py-3"
-                >
-                  <Store className="w-5 h-5 mr-2" />
-                  Browse Shops
-                </Button>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </section>
       {/* Beautiful Redesigned Footer */}
