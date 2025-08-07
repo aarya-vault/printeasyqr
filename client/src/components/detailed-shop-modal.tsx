@@ -145,17 +145,19 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     onClose();
   };
 
-  // Combine all services from different fields
+  // Combine services: standard + custom, removing duplicates
   const allServices = [
     ...(shop?.services || []),
-    ...(shop?.servicesOffered || [])
-  ].filter((service, index, array) => array.indexOf(service) === index); // Remove duplicates
+    ...(shop?.servicesOffered || []),
+    ...(shop?.customServices || [])
+  ].filter((service, index, array) => array.indexOf(service) === index && service); // Remove duplicates and empty values
 
-  // Combine all equipment from different fields
+  // Combine equipment: standard + custom, removing duplicates
   const allEquipment = [
     ...(shop?.equipment || []),
-    ...(shop?.equipmentAvailable || [])
-  ].filter((equipment, index, array) => array.indexOf(equipment) === index); // Remove duplicates
+    ...(shop?.equipmentAvailable || []),
+    ...(shop?.customEquipment || [])
+  ].filter((equipment, index, array) => array.indexOf(equipment) === index && equipment); // Remove duplicates and empty values
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

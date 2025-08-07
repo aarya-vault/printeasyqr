@@ -24,17 +24,19 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     { key: 'sunday', label: 'Sunday' },
   ];
 
-  // Combine all services from different fields
+  // Combine services: standard + custom from different fields
   const allServices = [
     ...(shop.services || []),
-    ...(shop.servicesOffered || [])
-  ].filter((service: string, index: number, array: string[]) => array.indexOf(service) === index);
+    ...(shop.servicesOffered || []),
+    ...(shop.customServices || [])
+  ].filter((service: string, index: number, array: string[]) => service && array.indexOf(service) === index);
 
-  // Combine all equipment from different fields
+  // Combine equipment: standard + custom from different fields
   const allEquipment = [
     ...(shop.equipment || []),
-    ...(shop.equipmentAvailable || [])
-  ].filter((equipment: string, index: number, array: string[]) => array.indexOf(equipment) === index);
+    ...(shop.equipmentAvailable || []),
+    ...(shop.customEquipment || [])
+  ].filter((equipment: string, index: number, array: string[]) => equipment && array.indexOf(equipment) === index);
 
   const calculateYearsOfExperience = (formationYear: number | string): number => {
     const currentYear = new Date().getFullYear();

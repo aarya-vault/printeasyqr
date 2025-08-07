@@ -88,6 +88,18 @@ const Shop = sequelize.define('Shop', {
     allowNull: false,
     defaultValue: []
   },
+  customServices: {
+    type: DataTypes.JSONB,
+    allowNull: false,
+    defaultValue: [],
+    field: 'custom_services'
+  },
+  customEquipment: {
+    type: DataTypes.JSONB,
+    allowNull: false,
+    defaultValue: [],
+    field: 'custom_equipment'
+  },
   yearsOfExperience: {
     type: DataTypes.STRING,
     allowNull: true, // Keep for backward compatibility

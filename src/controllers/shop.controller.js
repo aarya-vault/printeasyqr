@@ -30,6 +30,8 @@ class ShopController {
       // Business Details - Ensure arrays for frontend
       services: Array.isArray(shopData.services) ? shopData.services : [],
       equipment: Array.isArray(shopData.equipment) ? shopData.equipment : [],
+      customServices: Array.isArray(shopData.customServices) ? shopData.customServices : [],
+      customEquipment: Array.isArray(shopData.customEquipment) ? shopData.customEquipment : [],
       servicesOffered: Array.isArray(shopData.services) ? shopData.services : [], // Alias
       equipmentAvailable: Array.isArray(shopData.equipment) ? shopData.equipment : [], // Alias
       yearsOfExperience: shopData.yearsOfExperience,

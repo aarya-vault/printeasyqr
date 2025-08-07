@@ -44,6 +44,8 @@ export default function RedesignedShopSettings() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('general');
+  const [customServiceInput, setCustomServiceInput] = useState('');
+  const [customEquipmentInput, setCustomEquipmentInput] = useState('');
 
   // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shop, isLoading } = useQuery({
@@ -62,6 +64,9 @@ export default function RedesignedShopSettings() {
     phone: '',
     email: '',
     services: [] as string[],
+    customServices: [] as string[],
+    equipment: [] as string[],
+    customEquipment: [] as string[],
     workingHours: {} as Record<string, { open: string; close: string; closed: boolean; is24Hours: boolean }>,
     isOnline: true,
     acceptsWalkinOrders: true,
@@ -94,6 +99,9 @@ export default function RedesignedShopSettings() {
         phone: currentShop.phone || '',
         email: currentShop.email || '',
         services: currentShop.services || [],
+        customServices: currentShop.customServices || [],
+        equipment: currentShop.equipment || [],
+        customEquipment: currentShop.customEquipment || [],
         workingHours: currentShop.workingHours || {},
         isOnline: currentShop.isOnline ?? true,
         acceptsWalkinOrders: currentShop.acceptsWalkinOrders ?? true,
@@ -112,7 +120,13 @@ export default function RedesignedShopSettings() {
   // Save settings mutation
   const saveSettingsMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/shops/settings', 'PATCH', formData);
+      const dataToSave = {
+        ...formData,
+        customServices: formData.customServices || [],
+        customEquipment: formData.customEquipment || []
+      };
+      console.log('🔍 REDESIGNED SHOP SETTINGS - Saving form data:', dataToSave);
+      return await apiRequest('/api/shops/settings', 'PATCH', dataToSave);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
@@ -156,6 +170,58 @@ export default function RedesignedShopSettings() {
           [field]: value
         }
       }
+    }));
+  };
+
+  const addCustomService = () => {
+    const trimmedInput = customServiceInput.trim();
+    if (!trimmedInput || formData.customServices.length >= 10) return;
+    if (formData.customServices.includes(trimmedInput)) {
+      toast({
+        title: "Duplicate Service",
+        description: "This custom service already exists",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      customServices: [...prev.customServices, trimmedInput]
+    }));
+    setCustomServiceInput('');
+  };
+
+  const removeCustomService = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      customServices: prev.customServices.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addCustomEquipment = () => {
+    const trimmedInput = customEquipmentInput.trim();
+    if (!trimmedInput || formData.customEquipment.length >= 10) return;
+    if (formData.customEquipment.includes(trimmedInput)) {
+      toast({
+        title: "Duplicate Equipment",
+        description: "This custom equipment already exists",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      customEquipment: [...prev.customEquipment, trimmedInput]
+    }));
+    setCustomEquipmentInput('');
+  };
+
+  const removeCustomEquipment = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      customEquipment: prev.customEquipment.filter((_, i) => i !== index)
     }));
   };
 
@@ -218,7 +284,7 @@ export default function RedesignedShopSettings() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           {/* Tab Navigation */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2">
-            <TabsList className="grid w-full grid-cols-4 gap-2">
+            <TabsList className="grid w-full grid-cols-5 gap-2">
               <TabsTrigger 
                 value="general" 
                 className="data-[state=active]:bg-brand-yellow data-[state=active]:text-rich-black font-medium py-3"
@@ -231,7 +297,7 @@ export default function RedesignedShopSettings() {
                 className="data-[state=active]:bg-brand-yellow data-[state=active]:text-rich-black font-medium py-3"
               >
                 <Clock className="w-4 h-4 mr-2" />
-                Hours & Availability
+                Hours
               </TabsTrigger>
               <TabsTrigger 
                 value="services" 
@@ -239,6 +305,13 @@ export default function RedesignedShopSettings() {
               >
                 <Package className="w-4 h-4 mr-2" />
                 Services
+              </TabsTrigger>
+              <TabsTrigger 
+                value="equipment" 
+                className="data-[state=active]:bg-brand-yellow data-[state=active]:text-rich-black font-medium py-3"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Equipment
               </TabsTrigger>
               <TabsTrigger 
                 value="notifications" 
@@ -506,16 +579,167 @@ export default function RedesignedShopSettings() {
                   ))}
                 </div>
                 
+                {/* Custom Services Section */}
+                <Separator className="my-8" />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-semibold text-rich-black">Custom Services</h3>
+                    <Badge variant="outline" className="text-xs">Up to 10</Badge>
+                  </div>
+                  
+                  <div className="flex gap-2 mb-4">
+                    <Input
+                      placeholder="Add custom service..."
+                      value={customServiceInput}
+                      onChange={(e) => setCustomServiceInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addCustomService()}
+                      className="flex-1"
+                      maxLength={50}
+                    />
+                    <Button 
+                      onClick={addCustomService}
+                      disabled={!customServiceInput.trim() || formData.customServices.length >= 10}
+                      className="bg-brand-yellow hover:bg-yellow-600 text-black"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  {formData.customServices.length > 0 && (
+                    <div className="grid gap-2">
+                      {formData.customServices.map((service, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <span className="font-medium text-blue-900">{service}</span>
+                          <Button
+                            onClick={() => removeCustomService(index)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                   <p className="font-semibold text-rich-black mb-2">
-                    Selected Services: {formData.services.length}
+                    Total Services: {formData.services.length + formData.customServices.length}
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.services.map((service) => (
-                      <Badge key={service} className="bg-brand-yellow text-rich-black">
-                        {service}
-                      </Badge>
-                    ))}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Standard Services ({formData.services.length}):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.services.map((service) => (
+                          <Badge key={service} className="bg-brand-yellow text-rich-black">
+                            {service}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    {formData.customServices.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Custom Services ({formData.customServices.length}):</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.customServices.map((service) => (
+                            <Badge key={service} variant="outline" className="border-blue-300 text-blue-700">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Equipment Tab */}
+          <TabsContent value="equipment" className="space-y-6">
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-white">
+                <CardTitle className="flex items-center gap-3">
+                  <Settings className="w-6 h-6 text-brand-yellow" />
+                  Equipment Available
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Add equipment your shop has available for various printing needs
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-semibold text-rich-black">Custom Equipment</h3>
+                    <Badge variant="outline" className="text-xs">Up to 10</Badge>
+                  </div>
+                  
+                  <div className="flex gap-2 mb-4">
+                    <Input
+                      placeholder="Add custom equipment..."
+                      value={customEquipmentInput}
+                      onChange={(e) => setCustomEquipmentInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addCustomEquipment()}
+                      className="flex-1"
+                      maxLength={50}
+                    />
+                    <Button 
+                      onClick={addCustomEquipment}
+                      disabled={!customEquipmentInput.trim() || formData.customEquipment.length >= 10}
+                      className="bg-brand-yellow hover:bg-yellow-600 text-black"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  {formData.customEquipment.length > 0 && (
+                    <div className="grid gap-2">
+                      {formData.customEquipment.map((equipment, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                          <span className="font-medium text-green-900">{equipment}</span>
+                          <Button
+                            onClick={() => removeCustomEquipment(index)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <p className="font-semibold text-rich-black mb-2">
+                    Total Equipment: {formData.equipment.length + formData.customEquipment.length}
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Standard Equipment ({formData.equipment.length}):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.equipment.map((equipment) => (
+                          <Badge key={equipment} className="bg-brand-yellow text-rich-black">
+                            {equipment}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    {formData.customEquipment.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Custom Equipment ({formData.customEquipment.length}):</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.customEquipment.map((equipment) => (
+                            <Badge key={equipment} variant="outline" className="border-green-300 text-green-700">
+                              {equipment}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

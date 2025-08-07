@@ -224,23 +224,21 @@ class ShopApplicationController {
           }, { transaction });
         }
         
-        // 🔥 COMPREHENSIVE SHOP CREATION - FIXING ALL DATA LOSS ISSUES
-        // Combine all services (standard + custom)
-        const allServices = [
-          ...(Array.isArray(application.services) ? application.services : []),
-          ...(Array.isArray(application.customServices) ? application.customServices : [])
-        ].filter(service => service && service.trim() !== '');
+        // 🔥 COMPREHENSIVE SHOP CREATION - PRESERVING CUSTOM SERVICES/EQUIPMENT
+        // Keep standard and custom services separate
+        const standardServices = Array.isArray(application.services) ? application.services.filter(s => s && s.trim() !== '') : [];
+        const customServices = Array.isArray(application.customServices) ? application.customServices.filter(s => s && s.trim() !== '') : [];
+        
+        // Keep standard and custom equipment separate  
+        const standardEquipment = Array.isArray(application.equipment) ? application.equipment.filter(e => e && e.trim() !== '') : [];
+        const customEquipment = Array.isArray(application.customEquipment) ? application.customEquipment.filter(e => e && e.trim() !== '') : [];
 
-        // Combine all equipment (standard + custom)
-        const allEquipment = [
-          ...(Array.isArray(application.equipment) ? application.equipment : []),
-          ...(Array.isArray(application.customEquipment) ? application.customEquipment : [])
-        ].filter(equipment => equipment && equipment.trim() !== '');
-
-        console.log('🔧 Creating shop with data:', {
+        console.log('🔧 Creating shop with separate custom data:', {
           name: application.publicShopName,
-          services: allServices,
-          equipment: allEquipment,
+          services: standardServices,
+          customServices: customServices,
+          equipment: standardEquipment,
+          customEquipment: customEquipment,
           workingHours: application.workingHours,
           yearsOfExperience: application.yearsOfExperience
         });
@@ -263,9 +261,11 @@ class ShopApplicationController {
           email: application.email,
           ownerPhone: application.phoneNumber,
           completeAddress: application.completeAddress || application.publicAddress,
-          // 🔥 CRITICAL FIX: Complete services and equipment
-          services: allServices,
-          equipment: allEquipment,
+          // 🔥 CRITICAL FIX: Separate standard and custom services/equipment
+          services: standardServices,
+          equipment: standardEquipment,
+          customServices: customServices,
+          customEquipment: customEquipment,
           // 🔥 CRITICAL FIX: Proper years of experience mapping
           yearsOfExperience: application.yearsOfExperience || (application.formationYear ? (new Date().getFullYear() - application.formationYear).toString() : '0'),
           formationYear: application.formationYear,
