@@ -325,29 +325,7 @@ export default function NewHomepage() {
 
           
 
-          {/* Mobile CTA Section */}
-          <div className="mt-12 text-center lg:hidden">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-brand-yellow/20">
-              <h3 className="text-lg font-bold text-rich-black mb-4">Ready to Start Printing?</h3>
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => setShowQRScanner(true)}
-                  className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 px-6 py-4 rounded-xl font-bold"
-                >
-                  <QrCode className="w-5 h-5 mr-2" />
-                  Scan QR Code
-                </Button>
-                <Button 
-                  onClick={() => navigate('/browse-shops')}
-                  variant="outline"
-                  className="w-full border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black px-6 py-4 rounded-xl font-bold"
-                >
-                  <Store className="w-5 h-5 mr-2" />
-                  Browse Shops
-                </Button>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </section>
       {/* Enhanced Features Section - PrintEasy QR Focus */}
