@@ -59,8 +59,8 @@ try {
 </body>
 </html>`;
 
-  fs.writeFileSync(path.join(clientDir, 'index.html'), indexHtml);
-  console.log('✅ Created production index.html');
+  // Skip creating index.html - preserve React entry point
+  console.log('✅ Skipping index.html creation - preserving React app');
 
   // 4. Copy netlify functions
   const netlifyDir = path.join(__dirname, 'netlify');
