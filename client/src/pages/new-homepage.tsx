@@ -208,19 +208,37 @@ export default function NewHomepage() {
       <section className="relative bg-white pt-8 pb-16 border-b-4 border-brand-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Title - Clean Simple Design */}
+          {/* Hero Title - High Impact Mobile-First Design */}
           <div className="text-center mb-16">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 px-4">
-              <span className="block sm:inline text-black">Welcome to </span>
-              <span className="text-brand-yellow font-black">PrintEasy</span>
-            </h1>
-            <div className="space-y-3 max-w-5xl mx-auto px-4">
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-black">
-                In a <span className="text-brand-yellow">hurry</span>? Print it <span className="text-brand-yellow">fast</span>.
-              </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-black">
-                Just <span className="text-brand-yellow">scan the QR</span> at any shop.
-              </p>
+            {/* Main Brand Title - Maximum Impact */}
+            <div className="mb-12">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none mb-4">
+                <span className="block text-rich-black mb-2">Welcome to</span>
+                <span className="block text-brand-yellow tracking-tight drop-shadow-lg">PrintEasy</span>
+              </h1>
+            </div>
+            
+            {/* High-Impact Value Propositions */}
+            <div className="max-w-4xl mx-auto px-4 space-y-8">
+              {/* Primary Hook */}
+              <div className="bg-rich-black p-8 rounded-3xl shadow-2xl border-4 border-brand-yellow">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+                  In a <span className="text-brand-yellow bg-rich-black px-2 py-1 rounded-lg">hurry</span>?
+                </p>
+                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-yellow mt-2">
+                  Print it FAST.
+                </p>
+              </div>
+              
+              {/* Call to Action */}
+              <div className="bg-brand-yellow p-8 rounded-3xl shadow-2xl border-4 border-rich-black">
+                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-rich-black leading-tight">
+                  Just <span className="bg-rich-black text-brand-yellow px-4 py-2 rounded-lg">scan the QR</span>
+                </p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-rich-black mt-2">
+                  at any shop.
+                </p>
+              </div>
             </div>
           </div>
 
