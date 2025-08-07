@@ -38,16 +38,53 @@ class ShopApplicationController {
         return res.status(400).json({ message: 'This shop URL is already taken.' });
       }
       
-      // Create or find applicant user
+      // 🔥 ROBUST PHONE CONFLICT PREVENTION: Check for conflicts before creating applicant
       let applicant = await User.findOne({
         where: { phone: applicationData.phoneNumber }
       });
       
-      if (!applicant) {
+      if (applicant) {
+        // If user already exists as shop owner, prevent duplicate application
+        if (applicant.role === 'shop_owner') {
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'This phone number is already registered as a shop owner. Each phone number can only be associated with one shop.',
+            errorCode: 'PHONE_ALREADY_SHOP_OWNER'
+          });
+        }
+        
+        // If user is admin, prevent shop application
+        if (applicant.role === 'admin') {
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'Admin accounts cannot apply for shop ownership.',
+            errorCode: 'ADMIN_CANNOT_APPLY'
+          });
+        }
+        
+        // If user is customer, check if they already have pending/approved application
+        const existingApplication = await ShopApplication.findOne({
+          where: { 
+            applicantId: applicant.id,
+            status: { [Op.in]: ['pending', 'approved'] }
+          }
+        });
+        
+        if (existingApplication) {
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'You already have a shop application that is pending or approved.',
+            errorCode: 'APPLICATION_ALREADY_EXISTS',
+            existingApplicationStatus: existingApplication.status
+          });
+        }
+      } else {
+        // Create new user only if no conflicts found
         applicant = await User.create({
           phone: applicationData.phoneNumber,
           name: applicationData.ownerFullName,
-          role: 'customer'
+          role: 'customer', // Start as customer, will be upgraded when approved
+          isActive: true
         }, { transaction });
       }
       
@@ -141,14 +178,32 @@ class ShopApplicationController {
       
       // If approved, create shop and owner account
       if (status === 'approved') {
-        // 🔥 PHONE CONFLICT RESOLUTION: Check for existing user with same phone
+        // 🔥 COMPREHENSIVE APPROVAL CONFLICT RESOLUTION
         let owner = await User.findOne({
           where: { phone: application.phoneNumber },
           transaction
         });
         
         if (owner) {
-          // Update existing user to shop owner (let model handle password hashing)
+          // Double-check: Ensure we're not trying to convert an existing shop owner
+          if (owner.role === 'shop_owner') {
+            await transaction.rollback();
+            return res.status(400).json({ 
+              message: 'Cannot approve application: Phone number already belongs to an existing shop owner.',
+              errorCode: 'PHONE_CONFLICT_ON_APPROVAL'
+            });
+          }
+          
+          // Ensure we're not converting admin accounts
+          if (owner.role === 'admin') {
+            await transaction.rollback();
+            return res.status(400).json({ 
+              message: 'Cannot approve application: Phone number belongs to admin account.',
+              errorCode: 'ADMIN_CONFLICT_ON_APPROVAL'
+            });
+          }
+          
+          // Update existing customer to shop owner (let model handle password hashing)
           await owner.update({
             email: application.email,
             name: application.ownerFullName,
@@ -157,7 +212,8 @@ class ShopApplicationController {
             isActive: true
           }, { transaction });
         } else {
-          // Create new shop owner (let model handle password hashing)
+          // This should rarely happen since applicant was created during application
+          // But create new shop owner as fallback (let model handle password hashing)
           owner = await User.create({
             phone: application.phoneNumber,
             email: application.email,

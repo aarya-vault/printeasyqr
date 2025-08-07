@@ -13,38 +13,66 @@ class AuthController {
         return res.status(400).json({ message: 'Invalid phone number' });
       }
 
-      // 🔥 PHONE CONFLICT RESOLUTION: Block customer creation if shop owner exists
-      const existingShopOwner = await User.findOne({ 
-        where: { 
-          phone,
-          role: 'shop_owner'
+      // 🔥 COMPREHENSIVE PHONE CONFLICT RESOLUTION
+      const existingUser = await User.findOne({ where: { phone } });
+      
+      if (existingUser) {
+        // Check if user is a shop owner
+        if (existingUser.role === 'shop_owner') {
+          return res.status(400).json({ 
+            message: 'This phone number is registered as a shop owner. Please use shop owner login with email and password.',
+            errorCode: 'PHONE_BELONGS_TO_SHOP_OWNER',
+            redirectTo: '/shop-login'
+          });
         }
+        
+        // Check if user is admin
+        if (existingUser.role === 'admin') {
+          return res.status(400).json({ 
+            message: 'This phone number is registered as admin. Please use admin login.',
+            errorCode: 'PHONE_BELONGS_TO_ADMIN'
+          });
+        }
+        
+        // If user is already a customer, proceed with login
+        if (existingUser.role === 'customer') {
+          // Ensure user is active
+          if (!existingUser.isActive) {
+            return res.status(403).json({ 
+              message: 'Your account has been deactivated. Please contact support.',
+              errorCode: 'ACCOUNT_DEACTIVATED'
+            });
+          }
+          
+          // Generate JWT token and proceed
+          const token = generateToken(existingUser.toJSON());
+          
+          const userResponse = {
+            ...existingUser.toJSON(),
+            needsNameUpdate: !existingUser.name || existingUser.name === 'Customer',
+            token
+          };
+          
+          return res.json(userResponse);
+        }
+      }
+      
+      // Create new customer if no existing user found
+      const newUser = await User.create({
+        phone,
+        role: 'customer',
+        name: 'Customer', // Default name
+        isActive: true
       });
-      
-      if (existingShopOwner) {
-        return res.status(400).json({ 
-          message: 'This phone number is registered as a shop owner. Please use email login or contact support.' 
-        });
-      }
-      
-      // Find or create user
-      let user = await User.findOne({ where: { phone } });
-      
-      if (!user) {
-        user = await User.create({
-          phone,
-          role: 'customer'
-        });
-      }
 
       // Generate JWT token (no session creation)
-      const token = generateToken(user.toJSON());
+      const token = generateToken(newUser.toJSON());
       
       // Add needsNameUpdate flag for customers without names
       const userResponse = {
-        ...user.toJSON(),
-        needsNameUpdate: user.role === 'customer' && (!user.name || user.name === 'Customer'),
-        token // Include JWT token
+        ...newUser.toJSON(),
+        needsNameUpdate: true, // New customers always need name update
+        token
       };
       
       res.json(userResponse);
