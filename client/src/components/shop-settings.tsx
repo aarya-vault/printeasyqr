@@ -81,13 +81,20 @@ export default function ShopSettings() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  // 🔥 FIXED: Proper authentication guard
+  // 🔥 FIXED: Proper authentication guard and debugging
   const { data: shopResponse, isLoading } = useQuery({
-    queryKey: ['/api/shops/owner', user?.id],
+    queryKey: [`/api/shops/owner/${user?.id}`],
     enabled: Boolean(user?.id && user?.role === 'shop_owner' && isSessionVerified),
   });
 
-  const shop = (shopResponse as any)?.shop; // Extract shop from response
+  // Debug: Log the response structure to console
+  React.useEffect(() => {
+    if (shopResponse) {
+      console.log('🔍 SHOP SETTINGS - Raw API Response:', shopResponse);
+    }
+  }, [shopResponse]);
+
+  const shop = (shopResponse as any)?.shop; // Extract shop from response format { shop: ... }
 
   const form = useForm<ShopSettingsForm>({
     resolver: zodResolver(shopSettingsSchema),
@@ -117,10 +124,25 @@ export default function ShopSettings() {
     },
   });
 
-  // Update form when shop data loads
+  // Update form when shop data loads - Enhanced debugging
   React.useEffect(() => {
     if (shop) {
-      form.reset({
+      console.log('🔍 SHOP SETTINGS - Processing shop data for form:', shop);
+      console.log('🔍 SHOP SETTINGS - Shop fields:', {
+        name: shop.name,
+        address: shop.address,
+        phone: shop.phone,
+        publicOwnerName: shop.publicOwnerName,
+        internalName: shop.internalName,
+        ownerFullName: shop.ownerFullName,
+        email: shop.email,
+        ownerPhone: shop.ownerPhone,
+        completeAddress: shop.completeAddress,
+        yearsOfExperience: shop.yearsOfExperience,
+        workingHours: shop.workingHours
+      });
+
+      const formData = {
         name: shop.name || '',
         address: shop.address || '',
         phone: shop.phone || '',
@@ -135,7 +157,15 @@ export default function ShopSettings() {
         acceptsWalkinOrders: shop.acceptsWalkinOrders ?? true,
         isPublic: shop.isPublic ?? true,
         autoAvailability: shop.autoAvailability ?? true,
-      });
+      };
+
+      console.log('🔍 SHOP SETTINGS - Final form data being set:', formData);
+
+      form.reset(formData);
+      
+      console.log('🔍 SHOP SETTINGS - Form reset completed');
+    } else {
+      console.log('🔍 SHOP SETTINGS - No shop data available for form reset');
     }
   }, [shop, form]);
 
@@ -156,7 +186,7 @@ export default function ShopSettings() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/shops/owner'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
       setIsEditing(false);
       toast({
         title: 'Settings Updated',
