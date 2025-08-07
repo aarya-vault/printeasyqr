@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrintEasy QR - Print Management Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    :root { --primary-color: #FFBF00; --text-color: #000000; }
+    .golden { color: var(--primary-color); }
+    .bg-golden { background-color: var(--primary-color); }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="min-h-screen bg-white flex items-center justify-center">
+      <div class="text-center">
+        <h1 class="text-6xl font-bold mb-4">PrintEasy QR</h1>
+        <p class="text-xl golden mb-8">QR-Powered Print Management Platform</p>
+        <div class="space-y-4">
+          <button class="bg-golden text-black px-8 py-3 rounded-lg font-semibold">Customer Login</button>
+          <br>
+          <button class="bg-black text-white px-8 py-3 rounded-lg font-semibold">Shop Owner Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    console.log('PrintEasy QR - Production Build Loaded');
+    // Basic SPA routing will be handled by Netlify redirects
+  </script>
+</body>
 </html>
