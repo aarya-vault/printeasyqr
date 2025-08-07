@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import OrderController from '../controllers/order.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
+import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 
@@ -23,7 +24,23 @@ router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop)
 router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getOrdersByShop); // History alias
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
 router.get('/orders/:id', requireAuth, OrderController.getOrder);
-router.get('/orders/:id/details', requireAuth, OrderController.getOrder); // Protected endpoint for order confirmation
+// Add middleware for optional auth - tries to authenticate but doesn't fail if no token
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+    } catch (err) {
+      // Invalid token, but continue without authentication
+      req.user = null;
+    }
+  }
+  next();
+};
+
+router.get('/orders/:id/details', optionalAuth, OrderController.getOrder); // Public endpoint with optional auth
 router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
 router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);

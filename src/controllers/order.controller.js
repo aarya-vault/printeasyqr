@@ -366,7 +366,7 @@ class OrderController {
     }
   }
 
-  // Get single order
+  // Get single order - allows access for recent orders without auth for confirmation page
   static async getOrder(req, res) {
     try {
       const orderId = parseInt(req.params.id);
@@ -379,6 +379,32 @@ class OrderController {
       
       if (!order) {
         return res.status(404).json({ message: 'Order not found' });
+      }
+      
+      // Allow access without authentication for recent orders (within 30 minutes)
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      const isRecentOrder = new Date(order.createdAt) > thirtyMinutesAgo;
+      
+      // If user is authenticated, allow any order access based on permissions
+      if (req.user) {
+        const userId = req.user.id;
+        const userRole = req.user.role;
+        
+        let hasAccess = false;
+        if (userRole === 'admin') {
+          hasAccess = true;
+        } else if (userRole === 'customer' && order.customerId === userId) {
+          hasAccess = true;
+        } else if (userRole === 'shop_owner' && order.shop && order.shop.ownerId === userId) {
+          hasAccess = true;
+        }
+        
+        if (!hasAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      } else if (!isRecentOrder) {
+        // For unauthenticated users, only allow access to recent orders
+        return res.status(401).json({ message: 'Authentication required for older orders' });
       }
       
       const transformedOrder = OrderController.transformOrderData(order);
