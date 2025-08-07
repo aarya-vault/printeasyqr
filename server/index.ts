@@ -24,10 +24,21 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
   // TODO: Implement WebSocket on a separate port if needed
   console.log('🔌 WebSocket server setup skipped (avoiding Vite HMR conflicts)');
   
-  // 🔥 CRITICAL FIX: Add API route protection middleware BEFORE Vite setup
-  sequelizeApp.use('/api*', (req: any, res: any, next: any) => {
-    // Mark API requests to prevent Vite from intercepting them
-    req.isApiRequest = true;
+  // 🔥 CRITICAL FIX: Add comprehensive API route protection BEFORE Vite setup
+  sequelizeApp.use((req: any, res: any, next: any) => {
+    // Skip all Vite middleware for API routes
+    if (req.url.startsWith('/api/') || req.path.startsWith('/api/')) {
+      req.isApiRequest = true;
+      res.setHeader('X-API-Response', 'true');
+      // Ensure no HTML is returned for API routes
+      const originalSend = res.send;
+      res.send = function(body: any) {
+        if (typeof body === 'string' && body.includes('<!DOCTYPE html>')) {
+          return res.status(500).json({ error: 'API route error - unexpected HTML response' });
+        }
+        return originalSend.call(this, body);
+      };
+    }
     next();
   });
 

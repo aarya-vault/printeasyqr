@@ -6,10 +6,75 @@ class QRController {
   // Generate QR code with professional design
   static async generateQR(req, res) {
     try {
-      const { htmlContent, filename = 'PrintEasy_QR.jpg' } = req.body;
+      const { shopSlug, shopName, htmlContent, filename } = req.body;
 
-      if (!htmlContent) {
-        return res.status(400).json({ message: 'htmlContent is required' });
+      // Support both new API (shopSlug/shopName) and legacy (htmlContent)
+      if (!shopSlug && !shopName && !htmlContent) {
+        return res.status(400).json({ 
+          message: 'Either shopSlug and shopName, or htmlContent is required' 
+        });
+      }
+
+      // If shopSlug and shopName provided, generate professional QR HTML
+      let finalHtmlContent = htmlContent;
+      let finalFilename = filename || 'PrintEasy_QR.jpg';
+      
+      if (shopSlug && shopName) {
+        finalFilename = `PrintEasy_${shopName.replace(/\s+/g, '_')}_QR.jpg`;
+        
+        // Generate professional QR HTML with shop details
+        finalHtmlContent = `
+          <div class="w-full h-auto bg-white p-6 flex flex-col items-center">
+            <!-- PrintEasy Branding -->
+            <div class="text-center mb-4">
+              <h1 class="text-2xl font-bold text-black mb-1">PrintEasy</h1>
+              <p class="text-sm text-gray-600">QR-Powered Printing Revolution</p>
+            </div>
+            
+            <!-- QR Code Container -->
+            <div class="bg-white p-4 rounded-lg border-2 border-[#FFBF00] mb-4">
+              <div id="qrcode" class="w-48 h-48 mx-auto"></div>
+            </div>
+            
+            <!-- Shop Information -->
+            <div class="text-center mb-4">
+              <h2 class="text-xl font-semibold text-black mb-1">${shopName}</h2>
+              <p class="text-sm text-gray-600 mb-2">Scan to unlock this shop</p>
+              <div class="bg-[#FFBF00] text-black px-4 py-2 rounded-lg text-sm font-medium">
+                ✓ Verified PrintEasy Partner
+              </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="text-center text-xs text-gray-500 space-y-1">
+              <p>🚀 500MB Files • 100+ Formats</p>
+              <p>💬 Real-time Chat • 📍 Order Tracking</p>
+              <p>🕐 24/7 Support • 🔒 Secure Platform</p>
+            </div>
+            
+            <!-- Footer -->
+            <div class="text-center mt-4 text-xs text-gray-400">
+              <p>printeasy.com • Made in India</p>
+            </div>
+          </div>
+          
+          <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+          <script>
+            // Generate QR code pointing to shop URL
+            QRCode.toCanvas(document.getElementById('qrcode'), 'https://printeasy.com/shop/${shopSlug}', {
+              width: 192,
+              margin: 2,
+              color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+              }
+            });
+          </script>
+        `;
+      }
+
+      if (!finalHtmlContent) {
+        return res.status(400).json({ message: 'Unable to generate QR content' });
       }
 
       // Launch Puppeteer-Core with @sparticuz/chromium for Netlify deployment
@@ -122,7 +187,7 @@ class QRController {
               .opacity-80 { opacity: 0.8 !important; }
             </style>
           </head>
-          <body>${htmlContent}</body>
+          <body>${finalHtmlContent}</body>
           </html>
         `;
 
@@ -175,7 +240,7 @@ class QRController {
         res.json({
           success: true,
           image: base64Image,
-          filename: filename,
+          filename: finalFilename,
           size: screenshot.length
         });
 
