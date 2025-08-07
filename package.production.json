@@ -1,0 +1,33 @@
+{
+  "name": "printeasy-qr",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.5.0"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development node --loader tsx/esm server/production.js",
+    "build": "vite build -c vite.config.production.ts && node scripts/build-server.js",
+    "start": "NODE_ENV=production node dist/server.js",
+    "preview": "npm run build && npm start"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "sequelize": "^6.37.7",
+    "pg": "^8.16.3",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.4.19",
+    "typescript": "5.6.3"
+  }
+}

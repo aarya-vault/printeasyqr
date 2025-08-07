@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 // Import the comprehensive pincode utilities (complete Indian database with Gujarat/Ahmedabad coverage)
-const { getPincodeData, isValidIndianPincode, searchPincodesByCity, getAllStates, getPincodesByState } = require('../../shared/indian-pincode-data.js');
+import { getPincodeData, isValidIndianPincode, searchPincodesByCity, getAllStates, getPincodesByState } from '../../shared/indian-pincode-data.js';
 
 // Auto-fetch location from pincode
 router.get('/location/:pincode', async (req, res) => {
@@ -148,4 +148,4 @@ router.get('/state/:stateName', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
-const express = require('express');
-const { Shop } = require('../models');
+import express from 'express';
+import { Shop } from '../models/index.js';
 const router = express.Router();
 
 // Check slug availability
@@ -46,4 +46,4 @@ router.get('/check-slug/:slug', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
