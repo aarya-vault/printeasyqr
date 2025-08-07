@@ -1,64 +1,70 @@
-# PrintEasy QR - Business Printing Platform
+# PrintEasy QR - QR-Powered Print Management Platform
 
-A production-ready QR-based printing service platform connecting customers with local print shops.
+A comprehensive B2B2C digital platform connecting customers with local print shops through QR code technology.
 
-## Quick Start
+## 🚀 Quick Start
 
-### Prerequisites
-- Node.js >= 20.5.0
-- PostgreSQL database
-
-### Installation
+### Local Development
 ```bash
-npm install
+# Clone and navigate to project
+cd PrintEasy-QR
+
+# Start development server
+node -r tsx/esm server/index-fixed.ts
+
+# Access at: http://localhost:5000
 ```
 
-### Environment Setup
-Create `.env` file with:
-```
-DATABASE_URL=your_postgresql_url
-JWT_SECRET=your_jwt_secret
-ADMIN_EMAIL=admin@yourdomain.com  
-ADMIN_PASSWORD=your_secure_password
-```
-
-### Development
+### Alternative Commands
 ```bash
-npm run dev
+# Production server
+node server/production.js
+
+# Simple server
+node server/simple-dev.js
 ```
 
-### Production Build
-```bash
-npm run build
-npm start
-```
+## 🛠 Tech Stack
 
-## Features
-- QR code generation for shops
-- Customer & shop owner authentication  
-- Order management with file uploads
-- Real-time messaging
-- Admin dashboard
-- Indian pincode database (19,583+ locations)
+- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend:** Express.js + Sequelize ORM 
+- **Database:** PostgreSQL (Neon serverless)
+- **Authentication:** JWT tokens
+- **File Handling:** Multer + local storage
+- **QR Generation:** Built-in with branding
+- **Real-time:** WebSocket connections
 
-## Architecture
-- Frontend: React 18 + TypeScript + Tailwind CSS
-- Backend: Express.js + Sequelize ORM
-- Database: PostgreSQL
-- Authentication: JWT tokens
+## 🌟 Features
 
-## API Endpoints
-- Customer Auth: `/api/auth/phone-login`
-- Shop Owner Auth: `/api/auth/email-login` 
-- QR Generation: `/api/generate-qr`
-- Order Management: `/api/orders/*`
-- Admin: `/api/admin/*`
+- **QR Code System:** Unique branded QR codes for each shop
+- **Dual Order Flows:** Digital file uploads & walk-in bookings
+- **Real-time Chat:** Customer-shop owner communication
+- **Admin Dashboard:** Complete user and shop management
+- **Mobile-First Design:** Golden yellow (#FFBF00) and black theme
+- **File Support:** All formats, up to 500MB per file
+- **Indian Pincode DB:** 19,583+ locations with auto-complete
 
-## Deployment Ready
-All core functionality tested and operational:
-- ✅ Customer registration & authentication
-- ✅ Shop owner login & management
-- ✅ QR generation with branding
-- ✅ Order placement & tracking
-- ✅ File uploads & management
-- ✅ Admin dashboard & controls
+## 📱 User Roles
+
+- **Customers:** Phone-based authentication, order management
+- **Shop Owners:** Email/password login, order processing  
+- **Admins:** Complete platform management
+
+## 🗄️ Database
+
+Pure Sequelize ORM system with PostgreSQL backend:
+- Users, Shops, Orders, Messages, Shop Applications
+- JWT authentication with 24h expiry
+- Comprehensive audit trails
+
+## 🚀 Deployment
+
+Production-ready with Netlify configuration:
+- Serverless functions
+- Environment variables documented
+- CDN-optimized assets
+- Database migrations
+
+## 📞 Support
+
+For technical issues, refer to `FINAL_DEVELOPER_GUIDE.md` for comprehensive setup instructions.

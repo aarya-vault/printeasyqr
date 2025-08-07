@@ -1,5 +1,6 @@
-// This file is not used in the current Sequelize-based system
+// SEQUELIZE SYSTEM - Drizzle completely removed
 // Database configuration is handled by src/config/database.js
-// This file exists for future Drizzle migration compatibility only
+// This file maintains compatibility only
 
-export const placeholder = "Sequelize system active - db.ts not used";
+console.log("✅ Sequelize ORM active - no Drizzle dependencies");
+export const sequelizeActive = true;
