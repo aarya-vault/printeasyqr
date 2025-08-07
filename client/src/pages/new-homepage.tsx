@@ -208,49 +208,19 @@ export default function NewHomepage() {
       <section className="relative bg-white pt-8 pb-16 border-b-4 border-brand-yellow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Title - Mobile-First Professional Design */}
+          {/* Hero Title - Clean Simple Design */}
           <div className="text-center mb-16">
-            {/* Main Brand Title with Mobile Priority */}
-            <div className="mb-8">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-2">
-                <span className="block text-black font-light">Welcome to</span>
-                <span className="block text-brand-yellow tracking-tight">PrintEasy QR</span>
-              </h1>
-            </div>
-            
-            {/* Attention-Seeking Mobile-First Content */}
-            <div className="max-w-6xl mx-auto px-4 space-y-6">
-              {/* Gujarati Hook - Mobile Optimized */}
-              <div className="bg-rich-black rounded-2xl p-6 sm:p-8 shadow-2xl border-4 border-brand-yellow">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-yellow leading-tight tracking-wide">
-                  Printing માં... જલસો!
-                </p>
-                <div className="mt-4 h-1 bg-brand-yellow mx-auto w-24 rounded-full"></div>
-              </div>
-              
-              {/* Call to Action - Hindi/English Mix */}
-              <div className="bg-brand-yellow rounded-2xl p-6 sm:p-8 shadow-2xl">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-rich-black leading-tight">
-                  Bas QR scan karo.
-                </p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-rich-black mt-2">
-                  Ready thai jase!
-                </p>
-              </div>
-              
-              {/* Professional Subtitle */}
-              <div className="mt-8">
-                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 leading-relaxed">
-                  India's first QR-powered printing revolution
-                </p>
-                <div className="flex items-center justify-center mt-4 space-x-2">
-                  <div className="w-3 h-3 bg-brand-yellow rounded-full animate-pulse"></div>
-                  <p className="text-base sm:text-lg font-medium text-gray-600">
-                    Instant • Simple • Professional
-                  </p>
-                  <div className="w-3 h-3 bg-brand-yellow rounded-full animate-pulse"></div>
-                </div>
-              </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 px-4">
+              <span className="block sm:inline text-black">Welcome to </span>
+              <span className="text-brand-yellow font-black">PrintEasy</span>
+            </h1>
+            <div className="space-y-3 max-w-5xl mx-auto px-4">
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold leading-relaxed text-black">
+                In a <span className="text-brand-yellow">hurry</span>? Print it <span className="text-brand-yellow">fast</span>.
+              </p>
+              <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-relaxed text-black">
+                Just <span className="text-brand-yellow">scan the QR</span> at any shop.
+              </p>
             </div>
           </div>
 
@@ -307,78 +277,45 @@ export default function NewHomepage() {
                 </CardContent>
               </Card>
 
-              {/* Customer Dashboard - Premium Connected Design */}
-              <Card className="bg-rich-black border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-1 relative overflow-hidden group">
-                {/* Animated Golden Border Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-yellow via-brand-yellow to-brand-yellow opacity-100 group-hover:opacity-100 transition-opacity duration-300" style={{padding: '3px'}}>
-                  <div className="bg-rich-black w-full h-full rounded-lg"></div>
-                </div>
-                
-                {/* Premium Golden Accent */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-brand-yellow"></div>
-                <div className="absolute top-0 right-0 w-20 h-20 bg-brand-yellow opacity-10 rounded-bl-full"></div>
-                
-                <CardContent className="relative p-8 z-10">
-                  <div className="text-center mb-7">
-                    {/* Enhanced Icon with Glow Effect */}
-                    <div className="relative mx-auto mb-5">
-                      <div className="w-20 h-20 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto shadow-2xl relative">
-                        <div className="absolute inset-0 bg-brand-yellow rounded-2xl blur-lg opacity-30 animate-pulse"></div>
-                        <User className="w-10 h-10 text-rich-black relative z-10" />
-                      </div>
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-rich-black rounded-full"></div>
-                      </div>
+              {/* Customer Dashboard - Clean Professional Design */}
+              <Card className="bg-white border-2 border-gray-200 hover:border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-brand-yellow rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <User className="w-8 h-8 text-black" />
                     </div>
-                    
-                    <h3 className="text-2xl font-black text-brand-yellow mb-3 tracking-tight">
-                      Customer Portal
-                    </h3>
-                    <p className="text-white/90 text-sm leading-relaxed font-medium">
-                      Your premium dashboard for order tracking, print management, and seamless experiences
+                    <h3 className="text-xl font-bold text-black mb-2">Customer Dashboard</h3>
+                    <p className="text-gray-600 text-sm">
+                      Access your orders and printing history
                     </p>
                   </div>
-                  
-                  <div className="space-y-5">
-                    {/* Enhanced Phone Input with Golden Styling */}
-                    <div className="relative">
-                      <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 border-2 border-brand-yellow/20 hover:border-brand-yellow/40 transition-all duration-300 shadow-lg">
-                        <PhoneInput
-                          value={customerPhone}
-                          onChange={setCustomerPhone}
-                          placeholder="Enter your mobile number"
-                          className="w-full bg-transparent text-rich-black placeholder-gray-500 border-none focus:ring-0 font-medium"
-                        />
-                      </div>
-                      <div className="absolute -top-2 left-4 bg-rich-black px-2">
-                        <span className="text-brand-yellow text-xs font-bold">SECURE LOGIN</span>
-                      </div>
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                      <PhoneInput
+                        value={customerPhone}
+                        onChange={setCustomerPhone}
+                        placeholder="Enter your mobile number"
+                        className="w-full bg-transparent text-black placeholder-gray-500 border-none focus:ring-0"
+                      />
                     </div>
-                    
-                    {/* Premium Access Button */}
                     <Button 
                       onClick={handleCustomerLogin}
                       disabled={loginLoading}
-                      className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 font-black py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg tracking-wide"
+                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-bold py-3 rounded-lg"
                     >
                       {loginLoading ? (
-                        <div className="animate-spin rounded-full h-6 w-6 border-3 border-rich-black border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                       ) : (
                         <>
-                          <User className="w-6 h-6 mr-3" />
-                          ACCESS DASHBOARD
+                          <User className="w-5 h-5 mr-2" />
+                          Access Dashboard
                         </>
                       )}
                     </Button>
-                    
-                    {/* Security Badge */}
                     <div className="text-center">
-                      <div className="inline-flex items-center bg-brand-yellow/10 px-4 py-2 rounded-full">
-                        <div className="w-2 h-2 bg-brand-yellow rounded-full mr-2 animate-pulse"></div>
-                        <p className="text-xs text-brand-yellow font-bold">
-                          VERIFIED CUSTOMERS • BANK-LEVEL SECURITY
-                        </p>
-                      </div>
+                      <p className="text-xs text-gray-500">
+                        For existing customers • Secure login
+                      </p>
                     </div>
                   </div>
                 </CardContent>
