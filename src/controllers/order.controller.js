@@ -106,6 +106,52 @@ class OrderController {
       // Get customer ID from authenticated user (JWT sets req.user)
       const customerId = req.user.id;
       
+      // 🔥 ROLE-BASED ORDER CREATION SAFEGUARD
+      if (req.user.role !== 'customer') {
+        if (req.user.role === 'shop_owner') {
+          // Check if shop owner is trying to order from their own shop
+          const ownedShop = await Shop.findOne({
+            where: { ownerId: customerId }
+          });
+          
+          if (ownedShop && ownedShop.id === parseInt(shopId)) {
+            return res.status(400).json({ 
+              message: 'Shop owners cannot place orders on their own shop. Please use the shop dashboard to manage orders.',
+              errorCode: 'SELF_ORDER_FORBIDDEN',
+              redirectTo: '/shop-dashboard'
+            });
+          }
+          
+          // Shop owner trying to order from another shop - allow but with warning
+          return res.status(400).json({ 
+            message: 'Shop owners should use their phone number to login as a customer for placing orders. Please logout and login with customer phone login.',
+            errorCode: 'SHOP_OWNER_ORDER_ATTEMPT',
+            redirectTo: '/',
+            suggestion: 'Use customer phone login instead'
+          });
+        }
+        
+        if (req.user.role === 'admin') {
+          return res.status(400).json({ 
+            message: 'Admin accounts cannot place orders. Please use a customer account.',
+            errorCode: 'ADMIN_ORDER_FORBIDDEN'
+          });
+        }
+        
+        return res.status(403).json({ 
+          message: 'Only customers can place orders.',
+          errorCode: 'INVALID_ROLE_FOR_ORDER'
+        });
+      }
+      
+      // Additional validation: Ensure customer account is active
+      if (!req.user.isActive) {
+        return res.status(403).json({ 
+          message: 'Your account has been deactivated. Please contact support.',
+          errorCode: 'ACCOUNT_DEACTIVATED'
+        });
+      }
+      
       // Get next order number for the shop
       const lastOrder = await Order.findOne({
         where: { shopId: parseInt(shopId) },
@@ -302,16 +348,41 @@ class OrderController {
         return res.status(400).json({ message: 'Invalid phone number format. Please use 10-digit number starting with 6-9' });
       }
 
-      // Find or create customer
+      // 🔥 PREVENT SHOP OWNER PHONE COLLISION IN ANONYMOUS ORDERS
       let customer = await User.findOne({ 
         where: { phone: customerPhone } 
       });
       
-      if (!customer) {
+      if (customer) {
+        // If phone belongs to shop owner or admin, prevent order creation
+        if (customer.role === 'shop_owner') {
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'This phone number belongs to a shop owner. Shop owners cannot place walk-in orders. Please use the shop dashboard to manage orders.',
+            errorCode: 'SHOP_OWNER_PHONE_IN_WALKIN',
+            suggestion: 'Use shop dashboard for order management'
+          });
+        }
+        
+        if (customer.role === 'admin') {
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'This phone number belongs to an admin account. Admins cannot place orders.',
+            errorCode: 'ADMIN_PHONE_IN_WALKIN'
+          });
+        }
+        
+        // If customer exists, update name if provided
+        if (customerName && customer.name !== customerName) {
+          await customer.update({ name: customerName }, { transaction });
+        }
+      } else {
+        // Create new customer
         customer = await User.create({
           phone: customerPhone,
           name: customerName,
-          role: 'customer'
+          role: 'customer',
+          isActive: true
         }, { transaction });
       }
       
