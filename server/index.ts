@@ -24,6 +24,13 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
   // TODO: Implement WebSocket on a separate port if needed
   console.log('🔌 WebSocket server setup skipped (avoiding Vite HMR conflicts)');
   
+  // 🔥 CRITICAL FIX: Add API route protection middleware BEFORE Vite setup
+  sequelizeApp.use('/api*', (req: any, res: any, next: any) => {
+    // Mark API requests to prevent Vite from intercepting them
+    req.isApiRequest = true;
+    next();
+  });
+
   // Setup Vite for development or static serving for production
   if (process.env.NODE_ENV === "development") {
     await setupVite(sequelizeApp, server);
@@ -33,14 +40,11 @@ console.log('🚀 PrintEasy Server - SEQUELIZE PRODUCTION SYSTEM Starting...');
     console.log('📁 Static file serving configured');
   }
 
-  // 🔥 CRITICAL FIX: Add catch-all for non-API routes ONLY
-  // This ensures API routes aren't intercepted by Vite middleware
-  sequelizeApp.use((req: any, res: any, next: any) => {
-    // If it's an API route that wasn't handled, show 404
-    if (req.url.startsWith('/api')) {
+  // Add catch-all for unhandled API routes only
+  sequelizeApp.use('/api*', (req: any, res: any, next: any) => {
+    if (!res.headersSent) {
       return notFoundHandler(req, res);
     }
-    // For non-API routes, let Vite handle them (already done above)
     next();
   });
   
