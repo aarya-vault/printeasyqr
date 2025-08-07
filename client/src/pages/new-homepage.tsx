@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import PrintEasyLogoNav from '@/components/common/printeasy-logo-nav';
+import printEasyQRLogo from '@assets/PrintEasy QR Logo (1)_1754542428551.png';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
@@ -203,86 +204,104 @@ export default function NewHomepage() {
           }}
         />
       )}
-      {/* Main Hero Section */}
-      <section className="relative bg-white pt-8 pb-12">
+      {/* Massive Hero Section */}
+      <section className="relative bg-gradient-to-br from-brand-yellow/10 via-white to-brand-yellow/20 pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Title with Proper Branding */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight mb-3 whitespace-nowrap">
+          {/* MASSIVE Hero Title */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black leading-tight mb-8 whitespace-nowrap">
               Welcome to <span className="text-brand-yellow">Print</span><span className="text-black">Easy</span> <span className="text-brand-yellow">QR</span>
             </h1>
-            <div className="space-y-1">
-              <p className="text-lg sm:text-xl text-gray-700 whitespace-nowrap overflow-hidden">
+            <div className="space-y-4">
+              <p className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 whitespace-nowrap">
                 India's first QR-powered printing revolution
               </p>
-              <p className="text-base sm:text-lg text-gray-600 whitespace-nowrap overflow-hidden">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-700 whitespace-nowrap">
                 Scan QR codes at print shops for instant ordering
               </p>
             </div>
           </div>
 
-          {/* Three Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto mb-8">
-            
-            {/* QR Scanner Card */}
-            <Card className="bg-brand-yellow border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" 
-                  onClick={() => setShowQRScanner(true)}>
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
-                  <QrCode className="w-8 h-8 text-brand-yellow" />
+          {/* 80% QR FOCUS - Massive Central Section */}
+          <div className="mb-12">
+            <div className="bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl p-16 shadow-2xl max-w-6xl mx-auto relative overflow-hidden">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-black rounded-full -translate-y-48 translate-x-48"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-black rounded-full translate-y-32 -translate-x-32"></div>
+              </div>
+              
+              <div className="text-center relative z-10">
+                <div className="w-40 h-40 bg-black rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl">
+                  <QrCode className="w-20 h-20 text-brand-yellow" />
                 </div>
-                <h3 className="text-xl font-bold text-black mb-2">QR Scanner</h3>
-                <p className="text-black/80 text-sm mb-4">Scan shop QR codes for instant access</p>
-                <Button className="bg-black text-brand-yellow hover:bg-gray-800 w-full">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Scan Now
+                <h2 className="text-6xl lg:text-7xl font-black text-black mb-8">
+                  SCAN QR CODE
+                </h2>
+                <p className="text-2xl lg:text-3xl text-black/90 mb-12 leading-relaxed max-w-4xl mx-auto font-semibold">
+                  Found a PrintEasy QR at any print shop? Simply scan it to instantly unlock printing services and place orders without any registration!
+                </p>
+                <Button 
+                  onClick={() => setShowQRScanner(true)}
+                  className="bg-black text-brand-yellow hover:bg-gray-800 px-20 py-8 rounded-3xl font-black text-3xl shadow-2xl transform hover:scale-105 transition-all duration-300"
+                >
+                  <QrCode className="w-12 h-12 mr-6" />
+                  START SCANNING NOW
                 </Button>
-              </CardContent>
-            </Card>
+                <div className="mt-8 flex items-center justify-center text-2xl text-black/80 font-bold">
+                  <Zap className="w-8 h-8 mr-3" />
+                  Instant shop unlock • No registration required
+                </div>
+              </div>
+            </div>
+          </div>
 
-            {/* Browse Shops Card */}
-            <Card className="bg-white border-gray-200 hover:border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" 
+          {/* 20% Secondary Actions - Small Bottom Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            
+            {/* Browse Shops - 10% */}
+            <Card className="bg-white border-2 border-gray-200 hover:border-brand-yellow shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" 
                   onClick={() => navigate('/browse-shops')}>
               <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Store className="w-8 h-8 text-gray-600" />
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Store className="w-6 h-6 text-gray-600" />
                 </div>
-                <h3 className="text-xl font-bold text-black mb-2">Browse All Shops</h3>
-                <p className="text-gray-600 text-sm mb-4">Explore 500+ verified print shops</p>
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:border-brand-yellow hover:text-brand-yellow w-full">
+                <h3 className="text-lg font-bold text-black mb-2">Browse All Shops</h3>
+                <p className="text-gray-600 text-sm mb-3">Explore 500+ verified print shops across India</p>
+                <Button variant="outline" className="border-gray-300 text-gray-700 hover:border-brand-yellow hover:text-brand-yellow w-full text-sm">
                   <Search className="w-4 h-4 mr-2" />
-                  Explore
+                  Explore Shops
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Mobile Login Card */}
+            {/* Customer Dashboard Login - 10% */}
             <Card className="bg-black border-0 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Smartphone className="w-8 h-8 text-black" />
+                <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-3">
+                  <User className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="text-xl font-bold text-brand-yellow mb-2">Enter PrintEasy World</h3>
-                <p className="text-gray-300 text-sm mb-4">Access your dashboard</p>
+                <h3 className="text-lg font-bold text-brand-yellow mb-1">Customer Dashboard</h3>
+                <p className="text-gray-300 text-sm mb-3">Track your orders & manage prints</p>
                 <div className="space-y-3">
                   <PhoneInput
                     value={customerPhone}
                     onChange={setCustomerPhone}
-                    placeholder="Mobile number"
-                    className="w-full bg-white"
+                    placeholder="Your mobile number"
+                    className="w-full bg-white text-sm"
                   />
                   <Button 
                     onClick={handleCustomerLogin}
                     disabled={loginLoading}
-                    className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90"
+                    className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 text-sm"
                   >
                     {loginLoading ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
                     ) : (
                       <>
                         <User className="w-4 h-4 mr-2" />
-                        Login
+                        Access Dashboard
                       </>
                     )}
                   </Button>
