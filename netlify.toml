@@ -3,6 +3,9 @@
   publish = "dist/client"
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api"
@@ -15,3 +18,10 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Environment variables for production
+[context.production.environment]
+  NODE_ENV = "production"
+  DATABASE_URL = ""
+  JWT_SECRET = ""

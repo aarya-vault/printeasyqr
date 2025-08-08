@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
+import SEOHead from '../components/SEOHead';
 import { 
   Printer, ArrowRight, CheckCircle, Clock, Shield, 
   Users, MapPin, Smartphone, FileText, Star,
@@ -183,6 +184,15 @@ export default function NewHomepage() {
 
   return (
     <div className="min-h-screen bg-white">
+      
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="PrintEasy QR - Instant Print Shop Discovery & Ordering Platform"
+        description="Discover local print shops instantly with QR codes. Upload files, place orders, and get real-time updates. No more WhatsApp or email hassles - just scan and print across India."
+        keywords="print shop, QR code printing, online printing India, document printing, local print services, instant printing, file upload printing, print near me, digital printing"
+        canonicalUrl="https://printeasyqr.com/"
+      />
+      
       <Navbar 
         onShopLogin={() => navigate('/shop-login')}
         additionalActions={
