@@ -208,40 +208,39 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Clean & Elegant */}
-          <div className="text-center max-w-4xl mx-auto mb-16">
+          {/* Hero Content - Professional Design */}
+          <div className="text-center max-w-4xl mx-auto mb-20">
             
-            <div className="space-y-6">
+            {/* Main Message Block */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 mb-12">
               
-              {/* Main Question */}
-              <h1 className="text-2xl md:text-3xl text-gray-900 font-medium leading-relaxed">
-                Rushing for a print?
-              </h1>
-              
-              {/* Bold Answer */}
-              <h2 className="text-3xl md:text-4xl text-brand-yellow font-bold leading-tight">
-                We made it calm.
-              </h2>
-              
-              {/* Problem Solved */}
-              <div className="pt-4">
-                <p className="text-xl md:text-2xl text-gray-800 font-semibold">
-                  The hassles of printing, <span className="text-brand-yellow">gone</span>.
-                </p>
-              </div>
-              
-              {/* Solution */}
-              <div className="pt-2">
-                <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-                  No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
-                </p>
-              </div>
-              
-              {/* Benefits */}
-              <div className="pt-4 border-t border-gray-100 mt-8">
-                <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                  No queues, no last-minute panic, and complete privacy for your files.
-                </p>
+              <div className="space-y-8">
+                
+                {/* Primary Headline */}
+                <div className="space-y-4">
+                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                    Rushing for a print?
+                  </h1>
+                  <h2 className="text-4xl md:text-5xl font-bold text-brand-yellow leading-tight">
+                    We made it calm.
+                  </h2>
+                </div>
+                
+                {/* Supporting Statement */}
+                <div className="pt-6 border-t border-gray-100">
+                  <p className="text-2xl md:text-3xl text-gray-800 font-semibold leading-relaxed">
+                    The hassles of printing, <span className="text-brand-yellow">gone</span>.
+                  </p>
+                </div>
+                
+                {/* Call to Action */}
+                <div className="bg-brand-yellow/5 rounded-2xl p-6 border border-brand-yellow/20">
+                  <p className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
+                    No more WhatsApp or Emails. <br className="hidden md:block" />
+                    Just <span className="bg-brand-yellow text-black px-3 py-1 rounded-lg font-bold">scan a QR</span>.
+                  </p>
+                </div>
+                
               </div>
               
             </div>
@@ -263,7 +262,7 @@ export default function NewHomepage() {
                   </div>
                   <h2 className="text-3xl font-bold text-black mb-4">QR Scanner</h2>
                   <p className="text-lg text-black/80 mb-6">
-                    Scan shop QR codes for instant access to services, pricing, and ordering
+                    No queues, no last-minute panic, and complete privacy for your files.
                   </p>
                   <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
                     <Camera className="w-5 h-5 mr-2" />
