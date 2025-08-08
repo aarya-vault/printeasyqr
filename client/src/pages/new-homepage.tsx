@@ -208,39 +208,34 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Professional Design */}
-          <div className="text-center max-w-4xl mx-auto mb-20">
+          {/* Hero Content - Clean Text Only */}
+          <div className="text-center max-w-5xl mx-auto mb-24">
             
-            {/* Main Message Block */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 mb-12">
+            <div className="space-y-12">
               
-              <div className="space-y-8">
-                
-                {/* Primary Headline */}
-                <div className="space-y-4">
-                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                    Rushing for a print?
-                  </h1>
-                  <h2 className="text-4xl md:text-5xl font-bold text-brand-yellow leading-tight">
-                    We made it calm.
-                  </h2>
-                </div>
-                
-                {/* Supporting Statement */}
-                <div className="pt-6 border-t border-gray-100">
-                  <p className="text-2xl md:text-3xl text-gray-800 font-semibold leading-relaxed">
-                    The hassles of printing, <span className="text-brand-yellow">gone</span>.
-                  </p>
-                </div>
-                
-                {/* Call to Action */}
-                <div className="bg-brand-yellow/5 rounded-2xl p-6 border border-brand-yellow/20">
-                  <p className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
-                    No more WhatsApp or Emails. <br className="hidden md:block" />
-                    Just <span className="bg-brand-yellow text-black px-3 py-1 rounded-lg font-bold">scan a QR</span>.
-                  </p>
-                </div>
-                
+              {/* Main Headlines */}
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight tracking-tight">
+                  Rushing for a print?
+                </h1>
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-yellow leading-tight tracking-tight">
+                  We made it calm.
+                </h2>
+              </div>
+              
+              {/* Problem Statement */}
+              <div className="pt-8">
+                <p className="text-2xl md:text-4xl lg:text-5xl text-gray-800 font-semibold leading-relaxed">
+                  The hassles of printing, <span className="text-brand-yellow">gone</span>.
+                </p>
+              </div>
+              
+              {/* Solution Statement */}
+              <div className="pt-6">
+                <p className="text-xl md:text-3xl lg:text-4xl text-gray-700 font-medium leading-relaxed">
+                  No more WhatsApp or Emails. <br className="block" />
+                  Just <span className="text-brand-yellow font-bold">scan a QR</span>.
+                </p>
               </div>
               
             </div>
