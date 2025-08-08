@@ -224,44 +224,85 @@ export default function NewHomepage() {
               </p>
             </div>
             
-            {/* Solution Statement - Redesigned */}
-            <div className="text-center max-w-2xl mx-auto">
-              <div className="relative">
+            {/* Solution Statement - Mobile Optimized */}
+            <div className="text-center max-w-xl mx-auto">
+              
+              {/* Mobile Layout */}
+              <div className="block md:hidden space-y-8">
                 
-                {/* Before/After Comparison */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
+                {/* Before Section - Mobile */}
+                <div className="bg-gray-100 rounded-2xl p-6">
+                  <div className="text-base font-semibold text-gray-700 mb-4">Before</div>
+                  <div className="grid grid-cols-3 gap-3 text-xs text-gray-600">
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div>📱</div>
+                      <div className="mt-1">WhatsApp</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div>📧</div>
+                      <div className="mt-1">Emails</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div>📞</div>
+                      <div className="mt-1">Calls</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Arrow - Mobile */}
+                <div className="flex justify-center">
+                  <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-black transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* After Section - Mobile */}
+                <div className="bg-brand-yellow rounded-2xl p-8">
+                  <div className="text-lg font-bold text-black mb-3">Now, just</div>
+                  <div className="bg-black text-brand-yellow px-8 py-4 rounded-xl font-bold text-xl inline-block shadow-lg">
+                    Scan QR
+                  </div>
+                </div>
+                
+              </div>
+              
+              {/* Desktop Layout */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-3 gap-8 items-center">
                   
-                  {/* Before */}
-                  <div className="text-center opacity-60">
-                    <div className="text-lg font-medium text-gray-600 mb-2">Before</div>
-                    <div className="text-sm text-gray-500 space-y-1">
-                      <div>WhatsApp messages</div>
-                      <div>Email attachments</div>
-                      <div>Phone calls</div>
+                  {/* Before - Desktop */}
+                  <div className="text-center opacity-70">
+                    <div className="text-lg font-medium text-gray-600 mb-3">Before</div>
+                    <div className="text-sm text-gray-500 space-y-2">
+                      <div className="bg-gray-100 rounded-lg py-2 px-3">WhatsApp messages</div>
+                      <div className="bg-gray-100 rounded-lg py-2 px-3">Email attachments</div>
+                      <div className="bg-gray-100 rounded-lg py-2 px-3">Phone calls</div>
                     </div>
                   </div>
                   
-                  {/* Arrow/Transition */}
+                  {/* Arrow - Desktop */}
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-2">
-                      <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-20 h-20 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-3">
+                      <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
                     </div>
-                    <div className="text-xs font-medium text-gray-500">Now</div>
+                    <div className="text-sm font-medium text-gray-500">Now</div>
                   </div>
                   
-                  {/* After */}
+                  {/* After - Desktop */}
                   <div className="text-center">
-                    <div className="text-lg font-bold text-brand-yellow mb-2">Just</div>
-                    <div className="bg-black text-brand-yellow px-6 py-3 rounded-2xl font-bold text-lg inline-block shadow-lg">
+                    <div className="text-xl font-bold text-brand-yellow mb-3">Just</div>
+                    <div className="bg-black text-brand-yellow px-8 py-4 rounded-2xl font-bold text-xl inline-block shadow-lg">
                       Scan QR
                     </div>
                   </div>
                   
                 </div>
-                
               </div>
+              
             </div>
             
           </div>
