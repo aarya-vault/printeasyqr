@@ -137162,8 +137162,8 @@ function getPincodesByState(stateName) {
   return results;
 }
 
-// CommonJS exports
-module.exports = {
+// ES6 exports
+export {
   getPincodeData,
   isValidIndianPincode,
   searchPincodesByCity,

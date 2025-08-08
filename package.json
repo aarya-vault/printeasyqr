@@ -10,6 +10,7 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
@@ -20,6 +21,7 @@
     "nanoid": "^5.0.4",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
+    "puppeteer-core": "^24.16.0",
     "qrcode": "^1.5.3",
     "sequelize": "^6.35.0",
     "serverless-http": "^3.2.0",
