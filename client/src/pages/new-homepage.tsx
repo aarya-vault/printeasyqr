@@ -6,7 +6,8 @@ import {
   Building2, Award, Zap, HeadphonesIcon, Upload,
   MessageCircle, Search, Camera, Download, Eye,
   ChevronRight, Phone, Mail, Globe, CheckCircle2,
-  Timer, Headphones, QrCode, User, Store, ExternalLink
+  Timer, Headphones, QrCode, User, Store, ExternalLink,
+  ArrowDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -224,82 +225,26 @@ export default function NewHomepage() {
               </p>
             </div>
             
-            {/* Solution Statement - Mobile Optimized */}
-            <div className="text-center max-w-xl mx-auto">
+            {/* Solution Statement - Redesigned for Flow */}
+            <div className="text-center">
               
-              {/* Mobile Layout */}
-              <div className="block md:hidden space-y-6">
+              {/* Simple & Clean Message */}
+              <div className="space-y-6">
                 
-                {/* Before - Mobile Flow */}
-                <div className="space-y-4">
-                  <div className="text-lg font-semibold text-gray-700 text-center">No more</div>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
-                      <MessageCircle className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700 font-medium">WhatsApp messages</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
-                      <Mail className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700 font-medium">Email attachments</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
-                      <Phone className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700 font-medium">Phone calls</span>
-                    </div>
-                  </div>
+                <div className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
+                  No more WhatsApp or Emails.
                 </div>
                 
-                {/* Transition - Mobile */}
-                <div className="text-center py-4">
-                  <div className="inline-flex items-center space-x-2 bg-brand-yellow rounded-full px-6 py-3">
-                    <span className="text-black font-bold text-lg">Just</span>
-                    <ArrowDown className="w-5 h-5 text-black" />
+                <div className="flex items-center justify-center space-x-4">
+                  <div className="text-xl md:text-2xl text-gray-700 font-medium">
+                    Just
                   </div>
-                </div>
-                
-                {/* Solution - Mobile */}
-                <div className="bg-black rounded-2xl p-8 text-center">
-                  <div className="bg-brand-yellow text-black px-8 py-4 rounded-xl font-bold text-2xl inline-block shadow-lg">
-                    <QrCode className="w-6 h-6 inline mr-2" />
+                  <div className="bg-brand-yellow text-black px-6 py-3 rounded-xl font-bold text-xl md:text-2xl shadow-lg">
+                    <QrCode className="w-5 h-5 md:w-6 md:h-6 inline mr-2" />
                     Scan QR
                   </div>
                 </div>
                 
-              </div>
-              
-              {/* Desktop Layout */}
-              <div className="hidden md:block">
-                <div className="grid grid-cols-3 gap-8 items-center">
-                  
-                  {/* Before - Desktop */}
-                  <div className="text-center opacity-70">
-                    <div className="text-lg font-medium text-gray-600 mb-3">Before</div>
-                    <div className="text-sm text-gray-500 space-y-2">
-                      <div className="bg-gray-100 rounded-lg py-2 px-3">WhatsApp messages</div>
-                      <div className="bg-gray-100 rounded-lg py-2 px-3">Email attachments</div>
-                      <div className="bg-gray-100 rounded-lg py-2 px-3">Phone calls</div>
-                    </div>
-                  </div>
-                  
-                  {/* Arrow - Desktop */}
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-3">
-                      <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </div>
-                    <div className="text-sm font-medium text-gray-500">Now</div>
-                  </div>
-                  
-                  {/* After - Desktop */}
-                  <div className="text-center">
-                    <div className="text-xl font-bold text-brand-yellow mb-3">Just</div>
-                    <div className="bg-black text-brand-yellow px-8 py-4 rounded-2xl font-bold text-xl inline-block shadow-lg">
-                      Scan QR
-                    </div>
-                  </div>
-                  
-                </div>
               </div>
               
             </div>
