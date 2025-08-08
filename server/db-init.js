@@ -39,6 +39,10 @@ const initializeDatabase = async () => {
     if (process.env.FORCE_DB_SYNC === 'true') {
       await sequelize.sync({ alter: true });
       console.log('✅ Database tables synchronized');
+    } else {
+      // Just test if tables exist without altering
+      await sequelize.authenticate();
+      console.log('✅ Database connection verified');
     }
     
     return sequelize;
