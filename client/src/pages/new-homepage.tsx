@@ -208,28 +208,66 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Clean Typography Hierarchy */}
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="text-gray-900">Welcome to</span><br />
-              <span className="text-brand-yellow font-black">PrintEasy</span>
-            </h1>
+          {/* Hero Content - Emotional Impact Design */}
+          <div className="text-center max-w-5xl mx-auto mb-16">
             
-            <div className="space-y-6 mb-12">
-              <p className="text-3xl md:text-4xl font-semibold text-gray-800 leading-tight">
-                Rushing for a print? We made it <span className="text-brand-yellow font-bold">calm</span>.
-              </p>
-              <div className="space-y-4">
-                <p className="text-xl md:text-2xl text-gray-700 font-medium">
-                  The hassles of printing, <span className="text-brand-yellow font-semibold">gone</span>.
-                </p>
-                <p className="text-lg md:text-xl text-gray-600">
-                  No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
-                </p>
-                <p className="text-base md:text-lg text-gray-500">
-                  No queues, no last-minute panic, and complete privacy for your files.
+            {/* Primary Headline - Immediate Impact */}
+            <div className="mb-12">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-gray-900 leading-tight mb-8">
+                Rushing for a print?
+              </h1>
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-yellow leading-tight">
+                We made it <span className="relative">
+                  calm
+                  <span className="absolute -bottom-2 left-0 w-full h-1 bg-brand-yellow/30 rounded-full block"></span>
+                </span>.
+              </h2>
+            </div>
+
+            {/* Value Propositions - Progressive Revelation */}
+            <div className="space-y-8 max-w-4xl mx-auto">
+              
+              {/* Main Promise */}
+              <div className="bg-gray-50 rounded-2xl p-8 border-l-4 border-brand-yellow">
+                <p className="text-2xl md:text-3xl font-semibold text-gray-800 leading-relaxed">
+                  The hassles of printing, <span className="text-brand-yellow font-bold relative">
+                    gone
+                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-brand-yellow rounded-full block"></span>
+                  </span>.
                 </p>
               </div>
+
+              {/* Solution Statement */}
+              <div className="bg-brand-yellow/5 rounded-2xl p-8 border border-brand-yellow/20">
+                <p className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
+                  No more WhatsApp or Emails. Just <span className="bg-brand-yellow text-black px-3 py-1 rounded-lg font-bold">scan a QR</span>.
+                </p>
+              </div>
+
+              {/* Benefits Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:border-brand-yellow/30 transition-colors">
+                  <div className="w-12 h-12 bg-brand-yellow/10 rounded-lg flex items-center justify-center mb-4">
+                    <Clock className="w-6 h-6 text-brand-yellow" />
+                  </div>
+                  <p className="text-gray-700 font-medium">No queues</p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:border-brand-yellow/30 transition-colors">
+                  <div className="w-12 h-12 bg-brand-yellow/10 rounded-lg flex items-center justify-center mb-4">
+                    <CheckCircle className="w-6 h-6 text-brand-yellow" />
+                  </div>
+                  <p className="text-gray-700 font-medium">No last-minute panic</p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:border-brand-yellow/30 transition-colors">
+                  <div className="w-12 h-12 bg-brand-yellow/10 rounded-lg flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-brand-yellow" />
+                  </div>
+                  <p className="text-gray-700 font-medium">Complete privacy for your files</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
