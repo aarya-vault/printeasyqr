@@ -4,10 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx server/index.ts",
+    "dev": "tsx server/dev-server.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node dist/server.js"
+    "start": "node server/production.js"
   },
   "dependencies": {
     "@sparticuz/chromium": "^138.0.2",
