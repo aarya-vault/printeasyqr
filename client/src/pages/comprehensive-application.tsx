@@ -428,7 +428,7 @@ export default function ComprehensiveApplicationPage() {
                     <div className="space-y-2">
                       <div className="flex">
                         <span className="inline-flex items-center px-3 text-sm text-gray-500 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
-                          printease.com/shop/
+                          printeasyqr.com/shop/
                         </span>
                         <Input 
                           placeholder="your-shop-name"
