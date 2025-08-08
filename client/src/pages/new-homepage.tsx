@@ -209,31 +209,33 @@ export default function NewHomepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Hero Content - Clean Text Only */}
-          <div className="text-center max-w-5xl mx-auto mb-24">
+          <div className="text-center max-w-4xl mx-auto mb-16">
             
-            <div className="space-y-12">
+            <div className="space-y-6">
               
               {/* Main Headlines */}
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight tracking-tight">
+              <div className="space-y-2">
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
                   Rushing for a print?
                 </h1>
-                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-yellow leading-tight tracking-tight">
+                <h2 className="text-3xl md:text-5xl font-bold text-brand-yellow leading-tight">
                   We made it calm.
                 </h2>
               </div>
               
               {/* Problem Statement */}
-              <div className="pt-8">
-                <p className="text-2xl md:text-4xl lg:text-5xl text-gray-800 font-semibold leading-relaxed">
+              <div className="pt-4">
+                <p className="text-xl md:text-3xl text-gray-800 font-semibold leading-relaxed">
                   The hassles of printing, <span className="text-brand-yellow">gone</span>.
                 </p>
               </div>
               
               {/* Solution Statement */}
-              <div className="pt-6">
-                <p className="text-xl md:text-3xl lg:text-4xl text-gray-700 font-medium leading-relaxed">
-                  No more WhatsApp or Emails. <br className="block" />
+              <div className="pt-3">
+                <p className="text-lg md:text-2xl text-gray-700 font-medium leading-relaxed">
+                  No more WhatsApp or Emails.
+                </p>
+                <p className="text-lg md:text-2xl text-gray-700 font-medium leading-relaxed mt-1">
                   Just <span className="text-brand-yellow font-bold">scan a QR</span>.
                 </p>
               </div>
