@@ -208,25 +208,37 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Clean & Simple */}
-          <div className="text-center max-w-4xl mx-auto mb-16">
+          {/* Hero Content - Beautiful Typography */}
+          <div className="text-center max-w-5xl mx-auto mb-20">
             
-            <div className="space-y-8">
-              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-                Rushing for a print? We made it <span className="text-brand-yellow">calm</span>.
+            {/* Primary Message */}
+            <div className="mb-16">
+              <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-4">
+                <span className="text-gray-900">Rushing for a print?</span>
+                <br />
+                <span className="text-brand-yellow">We made it calm.</span>
               </h1>
+            </div>
+
+            {/* Supporting Messages - Elegant Spacing */}
+            <div className="space-y-12 max-w-4xl mx-auto">
               
-              <p className="text-2xl md:text-3xl text-gray-700 leading-relaxed">
-                The hassles of printing, <span className="text-brand-yellow font-semibold">gone</span>.
-              </p>
+              <h2 className="text-3xl md:text-5xl font-semibold text-gray-800 leading-tight">
+                The hassles of printing, <span className="text-brand-yellow">gone</span>.
+              </h2>
               
-              <p className="text-xl md:text-2xl text-gray-600">
-                No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
-              </p>
+              <h3 className="text-2xl md:text-4xl font-medium text-gray-700 leading-relaxed">
+                No more WhatsApp or Emails. <br className="hidden md:block" />
+                Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
+              </h3>
               
-              <p className="text-lg md:text-xl text-gray-500">
-                No queues, no last-minute panic, and complete privacy for your files.
-              </p>
+              <div className="pt-8 border-t border-gray-100">
+                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
+                  No queues, no last-minute panic, <br className="hidden md:block" />
+                  and complete privacy for your files.
+                </p>
+              </div>
+              
             </div>
             
           </div>
