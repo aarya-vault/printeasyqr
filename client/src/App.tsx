@@ -11,6 +11,7 @@ import { DashboardLoading } from "@/components/ui/loading-spinner";
 // Lazy load all pages for better performance
 const NotFound = lazy(() => import("@/pages/not-found"));
 const NewHomepage = lazy(() => import("@/pages/new-homepage"));
+const RedesignedHomepage = lazy(() => import("@/pages/redesigned-homepage"));
 const UnifiedCustomerDashboard = lazy(() => import("@/pages/unified-customer-dashboard"));
 const CustomerNotifications = lazy(() => import("@/pages/customer-notifications"));
 const CustomerAccountSettings = lazy(() => import("@/pages/customer-account-settings"));
@@ -38,7 +39,7 @@ function Router() {
   return (
     <Suspense fallback={<DashboardLoading title="Loading..." subtitle="Please wait while we load the page" />}>
       <Switch>
-        <Route path="/" component={NewHomepage} />
+        <Route path="/" component={RedesignedHomepage} />
         <Route path="/customer-dashboard" component={UnifiedCustomerDashboard} />
         <Route path="/customer-notifications" component={CustomerNotifications} />
         <Route path="/customer-account-settings" component={CustomerAccountSettings} />
