@@ -228,40 +228,39 @@ export default function NewHomepage() {
             <div className="text-center max-w-xl mx-auto">
               
               {/* Mobile Layout */}
-              <div className="block md:hidden space-y-8">
+              <div className="block md:hidden space-y-6">
                 
-                {/* Before Section - Mobile */}
-                <div className="bg-gray-100 rounded-2xl p-6">
-                  <div className="text-base font-semibold text-gray-700 mb-4">Before</div>
-                  <div className="grid grid-cols-3 gap-3 text-xs text-gray-600">
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div>📱</div>
-                      <div className="mt-1">WhatsApp</div>
+                {/* Before - Mobile Flow */}
+                <div className="space-y-4">
+                  <div className="text-lg font-semibold text-gray-700 text-center">No more</div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
+                      <MessageCircle className="w-5 h-5 text-gray-600" />
+                      <span className="text-gray-700 font-medium">WhatsApp messages</span>
                     </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div>📧</div>
-                      <div className="mt-1">Emails</div>
+                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
+                      <Mail className="w-5 h-5 text-gray-600" />
+                      <span className="text-gray-700 font-medium">Email attachments</span>
                     </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div>📞</div>
-                      <div className="mt-1">Calls</div>
+                    <div className="flex items-center justify-center space-x-3 bg-gray-100 rounded-xl py-4 px-6">
+                      <Phone className="w-5 h-5 text-gray-600" />
+                      <span className="text-gray-700 font-medium">Phone calls</span>
                     </div>
                   </div>
                 </div>
                 
-                {/* Arrow - Mobile */}
-                <div className="flex justify-center">
-                  <div className="w-12 h-12 bg-brand-yellow rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-black transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                {/* Transition - Mobile */}
+                <div className="text-center py-4">
+                  <div className="inline-flex items-center space-x-2 bg-brand-yellow rounded-full px-6 py-3">
+                    <span className="text-black font-bold text-lg">Just</span>
+                    <ArrowDown className="w-5 h-5 text-black" />
                   </div>
                 </div>
                 
-                {/* After Section - Mobile */}
-                <div className="bg-brand-yellow rounded-2xl p-8">
-                  <div className="text-lg font-bold text-black mb-3">Now, just</div>
-                  <div className="bg-black text-brand-yellow px-8 py-4 rounded-xl font-bold text-xl inline-block shadow-lg">
+                {/* Solution - Mobile */}
+                <div className="bg-black rounded-2xl p-8 text-center">
+                  <div className="bg-brand-yellow text-black px-8 py-4 rounded-xl font-bold text-2xl inline-block shadow-lg">
+                    <QrCode className="w-6 h-6 inline mr-2" />
                     Scan QR
                   </div>
                 </div>
