@@ -208,30 +208,30 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Clean Text Only */}
-          <div className="text-center max-w-4xl mx-auto mb-16">
+          {/* Hero Content - Mobile-First Design */}
+          <div className="text-center px-4 max-w-4xl mx-auto mb-12">
             
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
               
               {/* First Block: Main Headlines */}
-              <div className="space-y-1">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+              <div className="space-y-3 md:space-y-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
                   Rushing for a print?
                 </h1>
-                <h2 className="text-3xl md:text-4xl font-bold text-brand-yellow leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-yellow leading-snug">
                   We made it calm.
                 </h2>
-                <p className="text-xl md:text-2xl text-gray-800 font-semibold leading-tight mt-2">
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-800 font-semibold leading-snug mt-4">
                   The hassles of printing, <span className="text-brand-yellow">gone</span>.
                 </p>
               </div>
               
               {/* Second Block: Solution */}
-              <div className="space-y-2">
-                <p className="text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
+              <div className="space-y-3 md:space-y-4">
+                <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
                   No more WhatsApp or Emails.
                 </p>
-                <p className="text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
                   Just <span className="text-brand-yellow font-bold">scan a QR</span>.
                 </p>
               </div>
