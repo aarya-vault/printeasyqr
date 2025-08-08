@@ -1,30 +1,27 @@
-const express = require('express');
-const serverless = require('serverless-http');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// CORS headers
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
 
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: 'netlify-production'
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -52,7 +49,7 @@ app.post('/api/auth/customer/login', (req, res) => {
   
   res.json({
     success: true,
-    token: 'netlify-jwt-customer',
+    token: 'jwt-token-customer',
     user: {
       id: 1,
       phone,
@@ -71,7 +68,7 @@ app.post('/api/auth/shop-owner/login', (req, res) => {
   
   res.json({
     success: true,
-    token: 'netlify-jwt-shop-owner',
+    token: 'jwt-token-shop-owner',
     user: {
       id: 2,
       email,
@@ -95,7 +92,13 @@ app.get('/api/shops', (req, res) => {
         isOnline: true,
         services: ['Color Printing', 'B&W Printing', 'Scanning'],
         workingHours: {
-          monday: { open: '09:00', close: '21:00', closed: false }
+          monday: { open: '09:00', close: '21:00', closed: false },
+          tuesday: { open: '09:00', close: '21:00', closed: false },
+          wednesday: { open: '09:00', close: '21:00', closed: false },
+          thursday: { open: '09:00', close: '21:00', closed: false },
+          friday: { open: '09:00', close: '21:00', closed: false },
+          saturday: { open: '10:00', close: '20:00', closed: false },
+          sunday: { open: '10:00', close: '18:00', closed: false }
         }
       }
     ]
@@ -122,14 +125,38 @@ app.post('/api/orders', (req, res) => {
   });
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error('API Error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: err.message
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+  });
+}
+
+// Create HTTP server
+const server = createServer(app);
+
+// WebSocket server for real-time features
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+wss.on('connection', (ws) => {
+  console.log('WebSocket client connected');
+  
+  ws.on('message', (message) => {
+    console.log('Received:', message.toString());
+    ws.send(JSON.stringify({ type: 'echo', data: message.toString() }));
+  });
+  
+  ws.on('close', () => {
+    console.log('WebSocket client disconnected');
   });
 });
 
-// Export for Netlify
-exports.handler = serverless(app);
+// Start server
+server.listen(PORT, () => {
+  console.log(`🚀 PrintEasy server running on port ${PORT}`);
+  console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+export default app;

@@ -1,6 +1,6 @@
 [build]
-  command = "npm install && npm run build"
-  publish = "dist/client"
+  command = "node build-production.js"
+  publish = "client"  
   functions = "netlify/functions"
 
 [[redirects]]
@@ -14,4 +14,8 @@
   status = 200
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[functions]
+  node_bundler = "esbuild"
