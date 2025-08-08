@@ -211,31 +211,27 @@ export default function NewHomepage() {
           {/* Hero Content - Clean Text Only */}
           <div className="text-center max-w-4xl mx-auto mb-16">
             
-            <div className="space-y-6">
+            <div className="space-y-8">
               
-              {/* Main Headlines */}
-              <div className="space-y-2">
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
+              {/* First Block: Main Headlines */}
+              <div className="space-y-1">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
                   Rushing for a print?
                 </h1>
-                <h2 className="text-3xl md:text-5xl font-bold text-brand-yellow leading-tight">
+                <h2 className="text-3xl md:text-4xl font-bold text-brand-yellow leading-tight">
                   We made it calm.
                 </h2>
-              </div>
-              
-              {/* Problem Statement */}
-              <div className="pt-4">
-                <p className="text-xl md:text-3xl text-gray-800 font-semibold leading-relaxed">
+                <p className="text-xl md:text-2xl text-gray-800 font-semibold leading-tight mt-2">
                   The hassles of printing, <span className="text-brand-yellow">gone</span>.
                 </p>
               </div>
               
-              {/* Solution Statement */}
-              <div className="pt-3">
-                <p className="text-lg md:text-2xl text-gray-700 font-medium leading-relaxed">
+              {/* Second Block: Solution */}
+              <div className="space-y-2">
+                <p className="text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
                   No more WhatsApp or Emails.
                 </p>
-                <p className="text-lg md:text-2xl text-gray-700 font-medium leading-relaxed mt-1">
+                <p className="text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
                   Just <span className="text-brand-yellow font-bold">scan a QR</span>.
                 </p>
               </div>
