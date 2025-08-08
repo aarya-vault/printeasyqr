@@ -39,7 +39,7 @@ console.log('✅ Pure Sequelize system');
     const server = createServer(sequelizeApp);
     console.log('🌐 HTTP server created with Sequelize routes');
 
-    const PORT = process.env.PORT || 5000;
+    const PORT = parseInt(process.env.PORT || '5000', 10);
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ PrintEasy running on port ${PORT}`);
@@ -58,11 +58,8 @@ console.log('✅ Pure Sequelize system');
       process.exit(1);
     });
 
-    // Graceful shutdown
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
-
-    async function shutdown() {
+    // Graceful shutdown function
+    const shutdown = async () => {
       console.log('Shutting down gracefully...');
       try {
         server.close(() => {
@@ -73,7 +70,11 @@ console.log('✅ Pure Sequelize system');
         console.error('Error during shutdown:', error);
         process.exit(1);
       }
-    }
+    };
+
+    // Graceful shutdown
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
 
   } catch (error) {
     console.error('❌ Failed to start development server:', error);
