@@ -225,28 +225,11 @@ export default function NewHomepage() {
               </p>
             </div>
             
-            {/* Solution Statement - Redesigned for Flow */}
+            {/* Solution Statement - Clean & Simple */}
             <div className="text-center">
-              
-              {/* Simple & Clean Message */}
-              <div className="space-y-6">
-                
-                <div className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
-                  No more WhatsApp or Emails.
-                </div>
-                
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="text-xl md:text-2xl text-gray-700 font-medium">
-                    Just
-                  </div>
-                  <div className="bg-brand-yellow text-black px-6 py-3 rounded-xl font-bold text-xl md:text-2xl shadow-lg">
-                    <QrCode className="w-5 h-5 md:w-6 md:h-6 inline mr-2" />
-                    Scan QR
-                  </div>
-                </div>
-                
+              <div className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
+                No more WhatsApp or Emails.
               </div>
-              
             </div>
             
           </div>
@@ -264,7 +247,7 @@ export default function NewHomepage() {
                   <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <QrCode className="w-10 h-10 text-brand-yellow" />
                   </div>
-                  <h2 className="text-3xl font-bold text-black mb-4">QR Scanner</h2>
+                  <h2 className="text-3xl font-bold text-black mb-4">Just Scan QR</h2>
                   <p className="text-lg text-black/80 mb-6">
                     No queues, no last-minute panic, and complete privacy for your files.
                   </p>
