@@ -208,48 +208,60 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Professional Typography */}
-          <div className="max-w-3xl mx-auto px-6 mb-20">
+          {/* Hero Content - Clean & Impactful */}
+          <div className="max-w-4xl mx-auto px-4 mb-16">
             
-            <div className="text-center space-y-10">
-              
-              {/* Hero Message */}
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">
-                    Rushing for a print?
-                  </h1>
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-brand-yellow tracking-tight">
-                    We made it calm.
-                  </h2>
+            {/* Main Headlines */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-3">
+                Rushing for a print?
+              </h1>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-yellow leading-tight mb-8">
+                We made it calm.
+              </h2>
+              <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-800 leading-tight">
+                The hassles of printing, <span className="text-brand-yellow">gone</span>.
+              </p>
+            </div>
+            
+            {/* Solution Statement - Redesigned */}
+            <div className="text-center max-w-2xl mx-auto">
+              <div className="relative">
+                
+                {/* Before/After Comparison */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-8">
+                  
+                  {/* Before */}
+                  <div className="text-center opacity-60">
+                    <div className="text-lg font-medium text-gray-600 mb-2">Before</div>
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <div>WhatsApp messages</div>
+                      <div>Email attachments</div>
+                      <div>Phone calls</div>
+                    </div>
+                  </div>
+                  
+                  {/* Arrow/Transition */}
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-brand-yellow rounded-full flex items-center justify-center mx-auto mb-2">
+                      <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </div>
+                    <div className="text-xs font-medium text-gray-500">Now</div>
+                  </div>
+                  
+                  {/* After */}
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-brand-yellow mb-2">Just</div>
+                    <div className="bg-black text-brand-yellow px-6 py-3 rounded-2xl font-bold text-lg inline-block shadow-lg">
+                      Scan QR
+                    </div>
+                  </div>
+                  
                 </div>
                 
-                <div className="mt-8 mb-6 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                
-                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">
-                  The hassles of printing,{' '}
-                  <span className="text-brand-yellow relative">
-                    gone
-                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-brand-yellow opacity-50"></span>
-                  </span>.
-                </h3>
               </div>
-              
-              {/* Solution Block */}
-              <div className="bg-gray-50 rounded-2xl p-8 md:p-10 border border-gray-200">
-                <div className="space-y-4">
-                  <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 leading-tight">
-                    No more WhatsApp or Emails.
-                  </p>
-                  <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 leading-tight">
-                    Just{' '}
-                    <span className="inline-block bg-brand-yellow text-black px-4 py-2 rounded-xl font-black text-xl md:text-2xl lg:text-3xl transform -rotate-1 shadow-md">
-                      scan a QR
-                    </span>.
-                  </p>
-                </div>
-              </div>
-              
             </div>
             
           </div>
