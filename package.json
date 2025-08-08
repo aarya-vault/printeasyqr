@@ -42,22 +42,9 @@
     "serverless-http": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.14.2",
-    "zod": "^3.22.4"
-  },
-  "devDependencies": {
+    "zod": "^3.22.4",
     "@hookform/resolvers": "^3.3.2",
     "@tanstack/react-query": "^5.8.4",
-    "@types/bcrypt": "^5.0.2",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.5",
-    "@types/lodash": "^4.14.202",
-    "@types/multer": "^1.4.11",
-    "@types/node": "^20.10.0",
-    "@types/qrcode": "^1.5.5",
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@types/ws": "^8.5.10",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.0",
@@ -73,5 +60,18 @@
     "typescript": "^5.9.2",
     "vite": "^5.4.19",
     "wouter": "^2.12.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/lodash": "^4.14.202",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/ws": "^8.5.10"
   }
 }
