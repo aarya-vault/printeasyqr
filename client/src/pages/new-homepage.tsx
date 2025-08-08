@@ -217,10 +217,13 @@ export default function NewHomepage() {
             
             <div className="space-y-4 mb-12">
               <p className="text-2xl md:text-3xl font-semibold text-gray-800">
-                In a <strong className="text-brand-yellow">hurry</strong>? Print it <strong className="text-brand-yellow">fast</strong>.
+                India's smartest way to get professional printing done
               </p>
               <p className="text-xl md:text-2xl text-gray-700">
-                Just <strong className="text-brand-yellow">scan the QR</strong> at any shop.
+                Connect with local print shops instantly through <strong className="text-brand-yellow">QR codes</strong>
+              </p>
+              <p className="text-lg text-gray-600">
+                Upload files, track orders, and chat with shop owners in real-time
               </p>
             </div>
           </div>
@@ -240,7 +243,7 @@ export default function NewHomepage() {
                   </div>
                   <h2 className="text-3xl font-bold text-black mb-4">QR Scanner</h2>
                   <p className="text-lg text-black/80 mb-6">
-                    Scan QR codes at print shops for instant ordering
+                    Scan shop QR codes for instant access to services, pricing, and ordering
                   </p>
                   <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
                     <Camera className="w-5 h-5 mr-2" />
@@ -264,7 +267,7 @@ export default function NewHomepage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-black">Browse Shops</h3>
-                      <p className="text-sm text-gray-600">Find nearby print shops</p>
+                      <p className="text-sm text-gray-600">Discover verified print shops near you</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm" className="w-full">
@@ -281,8 +284,8 @@ export default function NewHomepage() {
                       <User className="w-6 h-6 text-black" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-black">Customer Login</h3>
-                      <p className="text-sm text-gray-600">Access your dashboard</p>
+                      <h3 className="text-lg font-semibold text-black">Customer Access</h3>
+                      <p className="text-sm text-gray-600">Login to manage your orders</p>
                     </div>
                   </div>
                   <div className="space-y-3">

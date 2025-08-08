@@ -39,7 +39,7 @@ function Router() {
   return (
     <Suspense fallback={<DashboardLoading title="Loading..." subtitle="Please wait while we load the page" />}>
       <Switch>
-        <Route path="/" component={RedesignedHomepage} />
+        <Route path="/" component={NewHomepage} />
         <Route path="/customer-dashboard" component={UnifiedCustomerDashboard} />
         <Route path="/customer-notifications" component={CustomerNotifications} />
         <Route path="/customer-account-settings" component={CustomerAccountSettings} />
