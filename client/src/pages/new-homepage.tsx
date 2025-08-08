@@ -208,8 +208,10 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Clean & Elegant */}
-          <div className="text-center max-w-4xl mx-auto mb-16">
+
+
+          {/* Main Content Section - Your Message */}
+          <div className="max-w-4xl mx-auto text-center">
             
             <div className="space-y-6">
               
@@ -248,30 +250,29 @@ export default function NewHomepage() {
             
           </div>
 
-          {/* Main Action Cards - Clean Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Action Section - Clean Design */}
+          <div className="max-w-2xl mx-auto mt-16">
             
             {/* QR Scanner - Primary Action */}
-            <div className="lg:col-span-2">
-              <Card 
-                className="bg-brand-yellow hover:shadow-xl transition-shadow duration-300 cursor-pointer border-0" 
-                onClick={() => setShowQRScanner(true)}
-              >
-                <CardContent className="p-8 text-center">
-                  <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <QrCode className="w-10 h-10 text-brand-yellow" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-black mb-4">QR Scanner</h2>
-                  <p className="text-lg text-black/80 mb-6">
-                    Scan shop QR codes for instant access to services, pricing, and ordering
-                  </p>
-                  <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
-                    <Camera className="w-5 h-5 mr-2" />
-                    Start Scanning
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <Card 
+              className="bg-brand-yellow hover:shadow-xl transition-shadow duration-300 cursor-pointer border-0" 
+              onClick={() => setShowQRScanner(true)}
+            >
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <QrCode className="w-8 h-8 text-brand-yellow" />
+                </div>
+                <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
+                  <Camera className="w-5 h-5 mr-2" />
+                  Start Scanning
+                </Button>
+              </CardContent>
+            </Card>
+            
+          </div>
+
+          {/* Secondary Actions Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">
 
             {/* Secondary Actions */}
             <div className="space-y-6">
