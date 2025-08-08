@@ -215,16 +215,21 @@ export default function NewHomepage() {
               <span className="text-brand-yellow font-black">PrintEasy</span>
             </h1>
             
-            <div className="space-y-4 mb-12">
-              <p className="text-2xl md:text-3xl font-semibold text-gray-800">
-                India's smartest way to get professional printing done
+            <div className="space-y-6 mb-12">
+              <p className="text-3xl md:text-4xl font-semibold text-gray-800 leading-tight">
+                Rushing for a print? We made it <span className="text-brand-yellow font-bold">calm</span>.
               </p>
-              <p className="text-xl md:text-2xl text-gray-700">
-                Connect with local print shops instantly through <strong className="text-brand-yellow">QR codes</strong>
-              </p>
-              <p className="text-lg text-gray-600">
-                Upload files, track orders, and chat with shop owners in real-time
-              </p>
+              <div className="space-y-4">
+                <p className="text-xl md:text-2xl text-gray-700 font-medium">
+                  The hassles of printing, <span className="text-brand-yellow font-semibold">gone</span>.
+                </p>
+                <p className="text-lg md:text-xl text-gray-600">
+                  No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
+                </p>
+                <p className="text-base md:text-lg text-gray-500">
+                  No queues, no last-minute panic, and complete privacy for your files.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -404,28 +409,89 @@ export default function NewHomepage() {
         </div>
       </section>
       
-      {/* Simple Footer */}
-      <footer className="bg-gray-900 py-12">
+      {/* Professional Footer - Brand Colors Only */}
+      <footer className="bg-black py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-brand-yellow mb-4">PrintEasy</h3>
-            <p className="text-gray-400 mb-6">India's QR-powered printing revolution</p>
-            <div className="flex justify-center space-x-6 mb-6">
-              <Button 
-                onClick={() => setShowQRScanner(true)}
-                className="bg-brand-yellow text-black hover:bg-brand-yellow/90"
-              >
-                Scan QR Code
-              </Button>
-              <Button 
-                onClick={() => navigate('/browse-shops')}
-                variant="outline"
-                className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-black"
-              >
-                Browse Shops
-              </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            
+            {/* Brand Section */}
+            <div className="md:col-span-1">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-brand-yellow rounded-lg flex items-center justify-center mr-4">
+                  <Printer className="w-6 h-6 text-black" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-brand-yellow">PrintEasy</h3>
+                  <p className="text-white text-sm">QR Print Platform</p>
+                </div>
+              </div>
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                Revolutionary QR-powered printing platform connecting customers with local print shops across India.
+              </p>
             </div>
-            <p className="text-gray-500 text-sm">© 2025 PrintEasy. All rights reserved.</p>
+
+            {/* Quick Actions */}
+            <div className="md:col-span-1">
+              <h4 className="text-lg font-semibold text-brand-yellow mb-6">Quick Actions</h4>
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => setShowQRScanner(true)}
+                  className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-semibold justify-start"
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  Scan QR Code
+                </Button>
+                <Button 
+                  onClick={() => navigate('/browse-shops')}
+                  variant="outline"
+                  className="w-full border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-black justify-start"
+                >
+                  <Store className="w-4 h-4 mr-2" />
+                  Browse Shops
+                </Button>
+              </div>
+            </div>
+
+            {/* Contact & Links */}
+            <div className="md:col-span-1">
+              <h4 className="text-lg font-semibold text-brand-yellow mb-6">Platform</h4>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/shop-login" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    Shop Owner Login
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/apply-shop" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center">
+                    <Building2 className="w-4 h-4 mr-2" />
+                    Register Your Shop
+                  </Link>
+                </li>
+                <li className="text-gray-300 flex items-center">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Secure & Private
+                </li>
+                <li className="text-gray-300 flex items-center">
+                  <Headphones className="w-4 h-4 mr-2" />
+                  24/7 Support
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 text-sm mb-4 md:mb-0">
+                © 2025 PrintEasy QR Platform. All rights reserved.
+              </p>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-400 text-sm">Made in India</span>
+                <div className="w-2 h-2 bg-brand-yellow rounded-full"></div>
+                <span className="text-gray-400 text-sm">For India</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
