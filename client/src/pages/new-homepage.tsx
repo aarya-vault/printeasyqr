@@ -212,30 +212,28 @@ export default function NewHomepage() {
           <div className="text-center max-w-5xl mx-auto mb-20">
             
             {/* Primary Message */}
-            <div className="mb-16">
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-4">
+            <div className="mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
                 <span className="text-gray-900">Rushing for a print?</span>
                 <br />
                 <span className="text-brand-yellow">We made it calm.</span>
               </h1>
             </div>
 
-            {/* Supporting Messages - Elegant Spacing */}
-            <div className="space-y-12 max-w-4xl mx-auto">
+            {/* Supporting Messages - Clean Spacing */}
+            <div className="space-y-8 max-w-3xl mx-auto">
               
-              <h2 className="text-3xl md:text-5xl font-semibold text-gray-800 leading-tight">
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-800 leading-relaxed">
                 The hassles of printing, <span className="text-brand-yellow">gone</span>.
               </h2>
               
-              <h3 className="text-2xl md:text-4xl font-medium text-gray-700 leading-relaxed">
-                No more WhatsApp or Emails. <br className="hidden md:block" />
-                Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
+              <h3 className="text-lg md:text-xl font-medium text-gray-700 leading-relaxed">
+                No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
               </h3>
               
-              <div className="pt-8 border-t border-gray-100">
-                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
-                  No queues, no last-minute panic, <br className="hidden md:block" />
-                  and complete privacy for your files.
+              <div className="pt-6 border-t border-gray-200">
+                <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                  No queues, no last-minute panic, and complete privacy for your files.
                 </p>
               </div>
               
