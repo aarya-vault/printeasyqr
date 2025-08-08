@@ -208,32 +208,46 @@ export default function NewHomepage() {
       <section className="bg-white pt-16 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Hero Content - Mobile-First Design */}
-          <div className="text-center px-4 max-w-4xl mx-auto mb-12">
+          {/* Hero Content - Professional Typography */}
+          <div className="max-w-3xl mx-auto px-6 mb-20">
             
-            <div className="space-y-6 md:space-y-8">
+            <div className="text-center space-y-10">
               
-              {/* First Block: Main Headlines */}
-              <div className="space-y-3 md:space-y-4">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-snug">
-                  Rushing for a print?
-                </h1>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-yellow leading-snug">
-                  We made it calm.
-                </h2>
-                <p className="text-lg sm:text-xl md:text-2xl text-gray-800 font-semibold leading-snug mt-4">
-                  The hassles of printing, <span className="text-brand-yellow">gone</span>.
-                </p>
+              {/* Hero Message */}
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">
+                    Rushing for a print?
+                  </h1>
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-brand-yellow tracking-tight">
+                    We made it calm.
+                  </h2>
+                </div>
+                
+                <div className="mt-8 mb-6 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">
+                  The hassles of printing,{' '}
+                  <span className="text-brand-yellow relative">
+                    gone
+                    <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-brand-yellow opacity-50"></span>
+                  </span>.
+                </h3>
               </div>
               
-              {/* Second Block: Solution */}
-              <div className="space-y-3 md:space-y-4">
-                <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
-                  No more WhatsApp or Emails.
-                </p>
-                <p className="text-base sm:text-lg md:text-xl text-gray-700 font-medium leading-relaxed">
-                  Just <span className="text-brand-yellow font-bold">scan a QR</span>.
-                </p>
+              {/* Solution Block */}
+              <div className="bg-gray-50 rounded-2xl p-8 md:p-10 border border-gray-200">
+                <div className="space-y-4">
+                  <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 leading-tight">
+                    No more WhatsApp or Emails.
+                  </p>
+                  <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-900 leading-tight">
+                    Just{' '}
+                    <span className="inline-block bg-brand-yellow text-black px-4 py-2 rounded-xl font-black text-xl md:text-2xl lg:text-3xl transform -rotate-1 shadow-md">
+                      scan a QR
+                    </span>.
+                  </p>
+                </div>
               </div>
               
             </div>
