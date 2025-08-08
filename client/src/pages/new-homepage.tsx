@@ -205,121 +205,161 @@ export default function NewHomepage() {
           }}
         />
       )}
-      {/* Clean Hero Section - Professional UI/UX */}
-      <section className="bg-white pt-16 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section - World-Class Design */}
+      <section className="relative bg-white overflow-hidden">
+        
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-yellow/5 rounded-full blur-3xl transform translate-x-48 -translate-y-48"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-brand-yellow/3 rounded-full blur-3xl transform -translate-x-40 translate-y-40"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
           
-          {/* Hero Content - Clean & Impactful */}
-          <div className="max-w-4xl mx-auto px-4 mb-16">
+          {/* Hero Content - Premium Typography */}
+          <div className="text-center max-w-5xl mx-auto mb-20">
             
-            {/* Main Headlines */}
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-3">
-                Rushing for a print?
-              </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-yellow leading-tight mb-8">
-                We made it calm.
-              </h2>
-              <p className="text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-800 leading-tight">
-                The hassles of printing, <span className="text-brand-yellow">gone</span>.
-              </p>
-            </div>
-            
-            {/* Solution Statement - Clean & Simple */}
-            <div className="text-center">
-              <div className="text-xl md:text-2xl text-gray-700 font-medium leading-relaxed">
-                No more WhatsApp or Emails.
+            {/* Main Message Block */}
+            <div className="space-y-8 mb-16">
+              
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight tracking-tight">
+                  Rushing for a print?
+                </h1>
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-brand-yellow leading-tight tracking-tight">
+                  We made it calm.
+                </h2>
               </div>
+              
+              {/* Elegant Separator */}
+              <div className="flex items-center justify-center my-12">
+                <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent w-32"></div>
+                <div className="mx-8 w-3 h-3 bg-brand-yellow rounded-full"></div>
+                <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent w-32"></div>
+              </div>
+              
+              <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 leading-tight">
+                The hassles of printing, <span className="text-brand-yellow relative">gone</span>.
+              </p>
+              
+              <p className="text-xl md:text-2xl text-gray-600 font-medium leading-relaxed mt-8">
+                No more WhatsApp or Emails.
+              </p>
+              
             </div>
             
           </div>
 
-          {/* Main Action Cards - Clean Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            
-            {/* QR Scanner - Primary Action */}
-            <div className="lg:col-span-2">
-              <Card 
-                className="bg-brand-yellow hover:shadow-xl transition-shadow duration-300 cursor-pointer border-0" 
-                onClick={() => setShowQRScanner(true)}
-              >
-                <CardContent className="p-8 text-center">
-                  <div className="w-20 h-20 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <QrCode className="w-10 h-10 text-brand-yellow" />
+          {/* Action Section - Premium Cards */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              
+              {/* Primary QR Scanner - Hero Card */}
+              <div className="lg:col-span-8">
+                <div 
+                  className="relative group cursor-pointer transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl"
+                  onClick={() => setShowQRScanner(true)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative bg-brand-yellow rounded-3xl p-12 shadow-xl">
+                    
+                    {/* QR Icon - Premium Design */}
+                    <div className="flex justify-center mb-8">
+                      <div className="relative">
+                        <div className="w-24 h-24 bg-black rounded-2xl flex items-center justify-center shadow-2xl transform -rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                          <QrCode className="w-12 h-12 text-brand-yellow" />
+                        </div>
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                          <Zap className="w-3 h-3 text-brand-yellow" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="text-center">
+                      <h2 className="text-4xl md:text-5xl font-black text-black mb-6 tracking-tight">
+                        Just Scan QR
+                      </h2>
+                      <p className="text-lg md:text-xl text-black/80 mb-8 leading-relaxed font-medium max-w-2xl mx-auto">
+                        No queues, no last-minute panic, and complete privacy for your files.
+                      </p>
+                      <Button 
+                        size="lg" 
+                        className="bg-black text-brand-yellow hover:bg-gray-900 px-10 py-4 text-lg font-bold rounded-2xl shadow-xl transform transition-all hover:scale-105"
+                      >
+                        <Camera className="w-6 h-6 mr-3" />
+                        Start Scanning
+                      </Button>
+                    </div>
+                    
                   </div>
-                  <h2 className="text-3xl font-bold text-black mb-4">Just Scan QR</h2>
-                  <p className="text-lg text-black/80 mb-6">
-                    No queues, no last-minute panic, and complete privacy for your files.
-                  </p>
-                  <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
-                    <Camera className="w-5 h-5 mr-2" />
-                    Start Scanning
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </div>
 
-            {/* Secondary Actions */}
-            <div className="space-y-6">
-              {/* Browse Shops */}
-              <Card 
-                className="bg-white border border-gray-200 hover:border-brand-yellow hover:shadow-lg transition-all duration-300 cursor-pointer" 
-                onClick={() => navigate('/browse-shops')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                      <Store className="w-6 h-6 text-gray-600" />
+              {/* Secondary Actions - Premium Design */}
+              <div className="lg:col-span-4 space-y-6">
+                
+                {/* Browse Shops */}
+                <div 
+                  className="group cursor-pointer transform transition-all duration-300 hover:scale-105"
+                  onClick={() => navigate('/browse-shops')}
+                >
+                  <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:border-brand-yellow/30 hover:shadow-xl transition-all">
+                    <div className="flex items-start space-x-4 mb-6">
+                      <div className="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-brand-yellow/10 transition-colors">
+                        <Store className="w-7 h-7 text-gray-700 group-hover:text-brand-yellow transition-colors" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-black mb-2">Browse Shops</h3>
+                        <p className="text-gray-600 leading-relaxed">Discover verified print shops near you</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-2 hover:bg-brand-yellow hover:text-black hover:border-brand-yellow font-semibold"
+                    >
+                      Explore Shops
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Customer Access */}
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                  <div className="flex items-start space-x-4 mb-6">
+                    <div className="w-14 h-14 bg-brand-yellow rounded-xl flex items-center justify-center shadow-md">
+                      <User className="w-7 h-7 text-black" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-black">Browse Shops</h3>
-                      <p className="text-sm text-gray-600">Discover verified print shops near you</p>
+                      <h3 className="text-xl font-bold text-black mb-2">Customer Access</h3>
+                      <p className="text-gray-600 leading-relaxed">Login to manage your orders</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Explore Shops
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Customer Login */}
-              <Card className="bg-white border border-gray-200 hover:border-brand-yellow hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-brand-yellow rounded-lg flex items-center justify-center mr-4">
-                      <User className="w-6 h-6 text-black" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-black">Customer Access</h3>
-                      <p className="text-sm text-gray-600">Login to manage your orders</p>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <PhoneInput
                       value={customerPhone}
                       onChange={setCustomerPhone}
                       placeholder="Mobile number"
-                      className="w-full p-3 border border-gray-200 rounded-lg text-black"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl text-black focus:border-brand-yellow"
                     />
                     <Button 
                       onClick={handleCustomerLogin}
                       disabled={loginLoading}
-                      className="w-full bg-brand-yellow text-black hover:bg-brand-yellow/90 font-semibold"
+                      className="w-full bg-brand-yellow text-black hover:bg-yellow-400 font-bold py-4 rounded-xl shadow-md transform transition-all hover:scale-[1.02]"
                     >
                       {loginLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                       ) : (
                         "Login"
                       )}
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+              </div>
+              
             </div>
           </div>
-
-          
-
           
         </div>
       </section>
