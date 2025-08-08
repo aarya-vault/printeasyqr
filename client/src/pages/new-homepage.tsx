@@ -210,69 +210,47 @@ export default function NewHomepage() {
           
 
 
-          {/* Main Content Section - Your Message */}
-          <div className="max-w-4xl mx-auto text-center">
+          {/* Simple Content - Clean Typography */}
+          <div className="max-w-3xl mx-auto text-center space-y-12">
             
-            <div className="space-y-6">
-              
-              {/* Main Question */}
-              <h1 className="text-2xl md:text-3xl text-gray-900 font-medium leading-relaxed">
+            {/* Your Content - Simple & Clean */}
+            <div className="space-y-8">
+              <h1 className="text-4xl font-bold text-gray-900">
                 Rushing for a print?
               </h1>
               
-              {/* Bold Answer */}
-              <h2 className="text-3xl md:text-4xl text-brand-yellow font-bold leading-tight">
+              <h2 className="text-4xl font-bold text-brand-yellow">
                 We made it calm.
               </h2>
               
-              {/* Problem Solved */}
-              <div className="pt-4">
-                <p className="text-xl md:text-2xl text-gray-800 font-semibold">
-                  The hassles of printing, <span className="text-brand-yellow">gone</span>.
-                </p>
-              </div>
+              <p className="text-2xl text-gray-800 font-medium">
+                The hassles of printing, <span className="text-brand-yellow font-bold">gone</span>.
+              </p>
               
-              {/* Solution */}
-              <div className="pt-2">
-                <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-                  No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
-                </p>
-              </div>
+              <p className="text-xl text-gray-700">
+                No more WhatsApp or Emails. Just <span className="text-brand-yellow font-semibold">scan a QR</span>.
+              </p>
               
-              {/* Benefits */}
-              <div className="pt-4 border-t border-gray-100 mt-8">
-                <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                  No queues, no last-minute panic, and complete privacy for your files.
-                </p>
-              </div>
-              
+              <p className="text-lg text-gray-600 border-t border-gray-200 pt-8 mt-12">
+                No queues, no last-minute panic, and complete privacy for your files.
+              </p>
             </div>
-            
+
+            {/* Simple QR Button */}
+            <div className="pt-8">
+              <Button 
+                onClick={() => setShowQRScanner(true)}
+                className="bg-brand-yellow text-black hover:bg-brand-yellow/90 px-12 py-4 text-lg font-semibold rounded-lg"
+              >
+                <QrCode className="w-6 h-6 mr-3" />
+                Scan QR Code
+              </Button>
+            </div>
+
           </div>
 
-          {/* Action Section - Clean Design */}
-          <div className="max-w-2xl mx-auto mt-16">
-            
-            {/* QR Scanner - Primary Action */}
-            <Card 
-              className="bg-brand-yellow hover:shadow-xl transition-shadow duration-300 cursor-pointer border-0" 
-              onClick={() => setShowQRScanner(true)}
-            >
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <QrCode className="w-8 h-8 text-brand-yellow" />
-                </div>
-                <Button className="bg-black text-brand-yellow hover:bg-gray-800 px-8 py-3 rounded-lg font-semibold">
-                  <Camera className="w-5 h-5 mr-2" />
-                  Start Scanning
-                </Button>
-              </CardContent>
-            </Card>
-            
-          </div>
-
-          {/* Secondary Actions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">
+          {/* Secondary Actions - Simple Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-20">
 
             {/* Secondary Actions */}
             <div className="space-y-6">
