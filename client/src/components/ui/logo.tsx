@@ -1,16 +1,16 @@
 import React from 'react';
 
-interface PrintEasyLogoProps {
+interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'full' | 'icon' | 'text';
   className?: string;
 }
 
-export default function PrintEasyLogo({ 
+export const Logo: React.FC<LogoProps> = ({ 
   size = 'md', 
   variant = 'full', 
   className = '' 
-}: PrintEasyLogoProps) {
+}) => {
   const sizeClasses = {
     sm: 'w-24 h-6',
     md: 'w-32 h-8', 
@@ -56,16 +56,9 @@ export default function PrintEasyLogo({
   }
 
   if (variant === 'text') {
-    const textSizes = {
-      sm: 'text-sm',
-      md: 'text-lg', 
-      lg: 'text-xl',
-      xl: 'text-2xl'
-    };
-    
     return (
       <div className={`flex flex-col ${className}`}>
-        <span className={`font-poppins font-semibold text-black ${textSizes[size]}`}>PrintEasy</span>
+        <span className="font-poppins font-semibold text-black text-lg">PrintEasy</span>
         <span className="font-poppins font-medium text-brand-yellow text-sm">QR</span>
       </div>
     );
@@ -105,13 +98,4 @@ export default function PrintEasyLogo({
       </svg>
     </div>
   );
-}
-
-// Export variants for backward compatibility  
-export function PrintEasyLogoText({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) {
-  return <PrintEasyLogo size={size} variant="text" className={className} />;
-}
-
-export function PrintEasyLogoIcon({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) {
-  return <PrintEasyLogo size={size} variant="icon" className={className} />;
-}
+};
