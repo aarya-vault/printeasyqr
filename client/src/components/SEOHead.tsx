@@ -11,8 +11,8 @@ interface SEOHeadProps {
 export const SEOHead: React.FC<SEOHeadProps> = ({
   title = "PrintEasy QR - Instant Print Shop Discovery & Ordering Platform",
   description = "Discover local print shops instantly with QR codes. Upload files, place orders, and get real-time updates. No more WhatsApp or email hassles - just scan and print across India.",
-  keywords = "print shop, QR code printing, online printing India, document printing, local print services, instant printing, file upload printing",
-  ogImage = "https://printeasyqr.com/og-image.jpg",
+  keywords = "PrintEasy QR, Print Easy QR, PrintEasy, Print Easy, QR code printing, online printing India, instant printing, document printing, local print services, print shop near me, digital printing, file upload printing, print ordering, QR scanner, print shops India, business printing platform",
+  ogImage = "https://printeasyqr.com/social-thumbnail.svg",
   canonicalUrl = "https://printeasyqr.com"
 }) => {
   React.useEffect(() => {

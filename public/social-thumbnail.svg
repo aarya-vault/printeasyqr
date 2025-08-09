@@ -1,0 +1,28 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- White Background -->
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  
+  <!-- Center Logo Container -->
+  <g transform="translate(500, 215)">
+    <!-- Golden Yellow Circle -->
+    <circle cx="100" cy="100" r="100" fill="#FFBF00"/>
+    
+    <!-- Printer Icon (Scaled) -->
+    <g transform="translate(50, 50)">
+      <!-- Printer Body -->
+      <rect x="15" y="45" width="70" height="35" rx="3" fill="#000000"/>
+      <!-- Paper Tray -->
+      <rect x="20" y="80" width="60" height="12" rx="2" fill="#000000"/>
+      <!-- Top Paper -->
+      <rect x="25" y="15" width="50" height="25" rx="2" fill="#000000"/>
+      <!-- Control Panel -->
+      <circle cx="30" cy="60" r="5" fill="#FFBF00"/>
+      <rect x="45" y="55" width="25" height="7" rx="2" fill="#FFBF00"/>
+    </g>
+  </g>
+  
+  <!-- Text Below Logo -->
+  <text x="600" y="400" text-anchor="middle" font-family="Poppins, sans-serif" font-size="48" font-weight="600" fill="#000000">PrintEasy QR</text>
+  <text x="600" y="450" text-anchor="middle" font-family="Poppins, sans-serif" font-size="24" font-weight="400" fill="#666666">Instant Print Shop Discovery Platform</text>
+  <text x="600" y="490" text-anchor="middle" font-family="Poppins, sans-serif" font-size="20" font-weight="400" fill="#FFBF00">Just Scan • Upload • Print</text>
+</svg>
