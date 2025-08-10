@@ -7,20 +7,31 @@ import path from 'path';
 
 const router = Router();
 
-// Configure multer for file uploads - Use memory storage for serverless environments
-const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
-const storage = isServerless
-  ? multer.memoryStorage() // Use memory storage for Netlify/serverless
-  : multer.diskStorage({   // Use disk storage for development
-      destination: 'uploads/',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-      }
-    });
+// Configure multer for file uploads - Lazy initialization to prevent module load failures
+function createStorage() {
+  const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
+  
+  if (isServerless) {
+    return multer.memoryStorage(); // Use memory storage for Netlify/serverless
+  } else {
+    // Only create disk storage if we're not in serverless environment
+    try {
+      return multer.diskStorage({
+        destination: 'uploads/',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        }
+      });
+    } catch (error) {
+      console.log('⚠️ Falling back to memory storage due to disk storage error:', error.message);
+      return multer.memoryStorage();
+    }
+  }
+}
 
 const upload = multer({
-  storage: storage,
+  storage: createStorage(),
   limits: {
     fileSize: 500 * 1024 * 1024, // 500MB per file
     files: 100 // Up to 100 files at once
