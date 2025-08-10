@@ -25,8 +25,7 @@ console.log('✅ Vite + Sequelize integration');
     await setupVite(sequelizeApp, server);
     console.log('🔧 Vite development server configured');
 
-    // Force port to 3001 as requested by user (Replit overrides PORT env var)
-    const PORT = 3001;
+    const PORT = parseInt(process.env.PORT || '3001', 10);
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ PrintEasy QR running on port ${PORT}`);

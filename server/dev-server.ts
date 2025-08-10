@@ -43,8 +43,7 @@ console.log('✅ Pure Sequelize system');
     const server = createServer(sequelizeApp);
     console.log('🌐 HTTP server created with Sequelize routes');
 
-    // Force port to 3001 as requested by user (Replit overrides PORT env var)
-    const PORT = 3001;
+    const PORT = parseInt(process.env.PORT || '3001', 10);
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ PrintEasy running on port ${PORT}`);

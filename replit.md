@@ -21,7 +21,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **File Handling**: Multer for local storage file uploads.
 - **State Management**: React Context API, TanStack Query.
 - **Authentication**: Pure JWT tokens.
-- **Development Server**: Vite development server on port 3001.
+- **Development Server**: Vite development server (port 5000 on Replit, defaults to 3001 elsewhere).
 - **Deployment**: Netlify with serverless functions.
 
 ### Architectural Patterns
