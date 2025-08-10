@@ -15,16 +15,18 @@ const __dirname = path.dirname(__filename);
 
 console.log('🚀 PrintEasy QR - Production Server');
 
-// Load the Sequelize app
-const appModule = await import("../src/app.js");
-const sequelizeApp = appModule.default || appModule;
+// Wrap in async function for ES module compatibility
+async function startProductionServer() {
+  // Load the Sequelize app
+  const appModule = await import("../src/app.js");
+  const sequelizeApp = appModule.default || appModule;
 
-// Production static serving
-const distPath = path.join(__dirname, '..', 'dist', 'client');
-sequelizeApp.use(express.static(distPath));
+  // Production static serving
+  const distPath = path.join(__dirname, '..', 'dist', 'client');
+  sequelizeApp.use(express.static(distPath));
 
-// SEO Routes - Add before SPA routing
-sequelizeApp.get('/sitemap.xml', (req, res) => {
+  // SEO Routes - Add before SPA routing
+  sequelizeApp.get('/sitemap.xml', (req, res) => {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -55,9 +57,9 @@ sequelizeApp.get('/sitemap.xml', (req, res) => {
   
   res.set('Content-Type', 'text/xml');
   res.send(sitemap);
-});
+  });
 
-sequelizeApp.get('/robots.txt', (req, res) => {
+  sequelizeApp.get('/robots.txt', (req, res) => {
   const robots = `User-agent: *
 Allow: /
 Allow: /browse-shops
@@ -68,25 +70,32 @@ Sitemap: https://printeasyqr.com/sitemap.xml`;
   
   res.set('Content-Type', 'text/plain');
   res.send(robots);
-});
+  });
 
-// SPA routing for React
-sequelizeApp.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return next();
+  // SPA routing for React
+  sequelizeApp.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+
+  // For serverless/netlify functions - export the app
+  if (process.env.NETLIFY) {
+    return sequelizeApp;
   }
-  res.sendFile(path.join(distPath, 'index.html'));
-});
 
-// For serverless/netlify functions - export the app
-export default sequelizeApp;
-
-// For standalone server (development/docker)
-if (process.env.NODE_ENV !== 'production' || !process.env.NETLIFY) {
+  // For standalone server (development/docker)
   const server = createServer(sequelizeApp);
-        const PORT = parseInt(process.env.PORT || '3001', 10);
+  const PORT = parseInt(process.env.PORT || '3001', 10);
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ PrintEasy QR running on port ${PORT}`);
     console.log(`🌐 Production: http://localhost:${PORT}`);
   });
 }
+
+// Start the production server
+const serverApp = await startProductionServer();
+
+// Export for serverless/netlify functions
+export default serverApp || {};

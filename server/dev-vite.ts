@@ -14,7 +14,8 @@ console.log('✅ Vite + Sequelize integration');
 (async () => {
   try {
     // Load the Sequelize app
-    const sequelizeApp = require("../src/app.js").default;
+    const appModule = await import("../src/app.js");
+    const sequelizeApp = appModule.default;
     console.log('📦 Sequelize app loaded successfully');
 
     // Create HTTP server
