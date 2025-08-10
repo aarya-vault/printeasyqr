@@ -1,9 +1,12 @@
 import { createServer } from "http";
+import { createRequire } from "module";
 import { setupVite } from "./vite.js";
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
+
+const require = createRequire(import.meta.url);
 
 console.log('🚀 PrintEasy QR - Vite Development Server');
 console.log('✅ Vite + Sequelize integration');
@@ -11,7 +14,7 @@ console.log('✅ Vite + Sequelize integration');
 (async () => {
   try {
     // Load the Sequelize app
-    const { default: sequelizeApp } = await import("../src/app.js");
+    const sequelizeApp = require("../src/app.js").default;
     console.log('📦 Sequelize app loaded successfully');
 
     // Create HTTP server

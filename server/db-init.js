@@ -70,6 +70,3 @@ const initializeDatabase = async () => {
 };
 
 export { initializeDatabase };
-
-// Module export for CommonJS compatibility  
-export default initializeDatabase;
