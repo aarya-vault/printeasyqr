@@ -51,12 +51,12 @@ async function createApp() {
       });
     });
     
-    // All other API requests
-    app.use('/api/*', (req, res) => {
-      console.error('API Request to failed endpoint:', req.method, req.url);
-      res.status(500).json({ 
-        error: 'Server configuration error',
-        message: 'Unable to load backend application - check environment variables',
+    // 404 handler for unmatched routes
+    app.use('*', (req, res) => {
+      console.error('API Request to unmatched route:', req.method, req.url);
+      res.status(404).json({ 
+        error: 'Route not found',
+        message: 'The requested API endpoint does not exist',
         path: req.url,
         method: req.method,
         timestamp: new Date().toISOString()
