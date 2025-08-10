@@ -83,7 +83,8 @@ export default sequelizeApp;
 // For standalone server (development/docker)
 if (process.env.NODE_ENV !== 'production' || !process.env.NETLIFY) {
   const server = createServer(sequelizeApp);
-        const PORT = parseInt(process.env.PORT || '3001', 10);
+  // Force port to 3001 as requested by user (Replit overrides PORT env var)  
+  const PORT = 3001;
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ PrintEasy QR running on port ${PORT}`);
     console.log(`🌐 Production: http://localhost:${PORT}`);

@@ -21,6 +21,8 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **File Handling**: Multer for local storage file uploads.
 - **State Management**: React Context API, TanStack Query.
 - **Authentication**: Pure JWT tokens.
+- **Development Server**: Vite development server on port 3001.
+- **Deployment**: Netlify with serverless functions.
 
 ### Architectural Patterns
 - **Monorepo Structure**: Clear separation between client, server, and shared code.
@@ -47,6 +49,26 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **SEO Optimization**: Complete SEO implementation with meta tags, Open Graph, Twitter Cards, structured data (JSON-LD), dynamic sitemap.xml, robots.txt, and canonical URLs.
 - **Production Deployment**: Fixed Netlify serverless functions, improved error handling, database initialization scripts, and comprehensive deployment guide.
 - **Professional UI Design**: Clean, mobile-first design removing gimmicky elements while maintaining brand consistency with golden yellow (#FFBF00) and black color scheme.
+
+## Development Setup
+
+### Active Entry Points
+- **Development**: `server/dev-vite.ts` (Port 3001, Vite + Sequelize)
+- **Production**: `server/production.js` (Netlify deployment)
+
+### Environment Variables Required
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: JWT token signing secret
+- `ADMIN_EMAIL`: Admin user email
+- `ADMIN_PASSWORD`: Admin user password
+- `SESSION_SECRET`: Session encryption secret
+
+### Recent Architectural Cleanup (January 2025)
+- Removed legacy entry points: `src/server.js`, `src/server.mjs`, `src/index.js`
+- Fixed Netlify deployment configuration conflicts
+- Standardized port configuration to 3001
+- Cleaned up duplicate configuration files
+- Updated Netlify redirects to use single API function
 
 ## External Dependencies
 
