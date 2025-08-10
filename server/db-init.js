@@ -1,19 +1,35 @@
 // Production Database Initialization for Netlify
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Database configuration with better error handling
 const initializeDatabase = async () => {
   console.log('🔄 Initializing production database...');
   
   try {
-    // Check if DATABASE_URL exists
-    if (!process.env.DATABASE_URL) {
+    // Check for DATABASE_URL in multiple ways for Netlify compatibility
+    const databaseUrl = process.env.DATABASE_URL || 
+                       process.env.NEON_DATABASE_URL ||
+                       `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?sslmode=require`;
+    
+    console.log('Environment check:', {
+      DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+      PGUSER: process.env.PGUSER ? 'SET' : 'NOT_SET',
+      PGHOST: process.env.PGHOST ? 'SET' : 'NOT_SET',
+      NODE_ENV: process.env.NODE_ENV
+    });
+    
+    if (!databaseUrl || databaseUrl.includes('undefined')) {
       console.error('❌ DATABASE_URL environment variable is not set');
+      console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('PG') || key.includes('DATABASE')));
       return null;
     }
     
     // Create Sequelize instance
-    const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    const sequelize = new Sequelize(databaseUrl, {
       dialect: 'postgres',
       protocol: 'postgres',
       logging: console.log,
