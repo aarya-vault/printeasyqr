@@ -66,9 +66,10 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 ### Recent Architectural Cleanup (January 2025)
 - Removed legacy entry points: `src/server.js`, `src/server.mjs`, `src/index.js`
 - Fixed Netlify deployment configuration conflicts
-- Standardized port configuration to 3001
+- Standardized port configuration (Replit port 5000, defaults to 3001 elsewhere)
 - Cleaned up duplicate configuration files
 - Updated Netlify redirects to use single API function
+- Updated SEO and favicon implementation with user-provided branding assets
 
 ## External Dependencies
 

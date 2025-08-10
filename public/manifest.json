@@ -9,20 +9,20 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/favicon.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon-16x16.svg",
+      "src": "/favicon-16x16.png",
       "sizes": "16x16",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/favicon-32x32.svg",
+      "src": "/favicon-32x32.png",
       "sizes": "32x32",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ],
   "categories": ["business", "productivity", "utilities"]
