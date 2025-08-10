@@ -1,8 +1,7 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+import { getPincodeData, isValidIndianPincode } from '../../shared/indian-pincode-data.js';
 
-// Import the pincode utilities
-const { getPincodeData, isValidIndianPincode } = require('../../shared/indian-pincode-data.js');
+const router = express.Router();
 
 // Auto-fetch location from pincode
 router.get('/location/:pincode', async (req, res) => {
@@ -62,4 +61,4 @@ router.get('/validate/:pincode', (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

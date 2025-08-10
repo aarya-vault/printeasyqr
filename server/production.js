@@ -11,7 +11,7 @@ dotenv.config();
 // Node.js compatibility
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const require = createRequire(import.meta.url);
+// ES modules only - no CommonJS require needed
 
 console.log('🚀 PrintEasy QR - Production Server');
 

@@ -1,7 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { Shop, ShopApplication } from '../models/index.js';
+import * as indianPincodeData from '../../shared/indian-pincode-data.js';
+import { Op } from 'sequelize';
+
 const router = express.Router();
-const { Shop, ShopApplication } = require('../models');
-const indianPincodeData = require('../../shared/indian-pincode-data');
 
 /**
  * Fix location data for all shops
@@ -12,7 +14,7 @@ router.post('/fix-all-shops', async (req, res) => {
     const shops = await Shop.findAll({
       where: {
         pinCode: {
-          [require('sequelize').Op.not]: null
+          [Op.not]: null
         }
       }
     });
@@ -127,4 +129,4 @@ router.post('/fix-shop/:shopId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

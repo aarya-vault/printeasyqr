@@ -1,13 +1,14 @@
 // Production Database Initialization for Netlify
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import logger from './utils/logger.js';
 
 // Load environment variables
 dotenv.config();
 
 // Database configuration with better error handling
 const initializeDatabase = async () => {
-  console.log('🔄 Initializing production database...');
+  logger.info('🔄 Initializing production database...');
   
   try {
     // Check for DATABASE_URL in multiple ways for Netlify compatibility
@@ -15,7 +16,7 @@ const initializeDatabase = async () => {
                        process.env.NEON_DATABASE_URL ||
                        `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?sslmode=require`;
     
-    console.log('Environment check:', {
+    logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
       PGUSER: process.env.PGUSER ? 'SET' : 'NOT_SET',
       PGHOST: process.env.PGHOST ? 'SET' : 'NOT_SET',
@@ -23,8 +24,9 @@ const initializeDatabase = async () => {
     });
     
     if (!databaseUrl || databaseUrl.includes('undefined')) {
-      console.error('❌ DATABASE_URL environment variable is not set');
-      console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('PG') || key.includes('DATABASE')));
+      logger.error('❌ DATABASE_URL environment variable is not set', null, {
+        availableEnvVars: Object.keys(process.env).filter(key => key.includes('PG') || key.includes('DATABASE'))
+      });
       return null;
     }
     
@@ -49,22 +51,22 @@ const initializeDatabase = async () => {
     
     // Test the connection
     await sequelize.authenticate();
-    console.log('✅ Database connection established successfully');
+    logger.info('✅ Database connection established successfully');
     
     // Sync database (be careful in production)
     if (process.env.FORCE_DB_SYNC === 'true') {
       await sequelize.sync({ alter: true });
-      console.log('✅ Database tables synchronized');
+      logger.info('✅ Database tables synchronized');
     } else {
       // Just test if tables exist without altering
       await sequelize.authenticate();
-      console.log('✅ Database connection verified');
+      logger.info('✅ Database connection verified');
     }
     
     return sequelize;
     
   } catch (error) {
-    console.error('❌ Database initialization failed:', error);
+    logger.error('❌ Database initialization failed', error);
     return null;
   }
 };
