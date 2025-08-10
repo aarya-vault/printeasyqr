@@ -69,14 +69,14 @@ async function createApp() {
 let appPromise = createApp();
 
 // Export serverless handler with async support
-module.exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // Ensure app is initialized
   const app = await appPromise;
   
   // Create serverless handler
-  const handler = serverless(app, {
+  const serverlessHandler = serverless(app, {
     binary: ['image/*', 'application/pdf', 'application/octet-stream']
   });
   
-  return handler(event, context);
+  return serverlessHandler(event, context);
 };

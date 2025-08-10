@@ -208,37 +208,8 @@ class AdminController {
     }
   }
 
-  // Get complete shop data for admin
-  static async getShopComplete(req, res) {
-    try {
-      const shopId = parseInt(req.params.id);
-      
-      const shop = await Shop.findByPk(shopId, {
-        include: [{ model: User, as: 'owner' }]
-      });
-      
-      if (!shop) {
-        return res.status(404).json({ message: 'Shop not found' });
-      }
-      
-      // Get shop statistics
-      const totalOrders = await Order.count({ where: { shopId } });
-      const completedOrders = await Order.count({ 
-        where: { shopId, status: 'completed' } 
-      });
-      
-      res.json({
-        shop,
-        statistics: {
-          totalOrders,
-          completedOrders
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching complete shop data:', error);
-      res.status(500).json({ message: 'Failed to fetch shop data' });
-    }
-  }
+  // Get complete shop data for admin (removed duplicate method)
+  // This method already exists at line 103
 }
 
 export default AdminController;

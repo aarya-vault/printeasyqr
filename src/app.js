@@ -14,8 +14,9 @@ dotenv.config();
 // Import database sync function
 import { syncDatabase } from './models/index.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// ES Module compatibility fix for serverless environments
+const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
+const __dirname = import.meta ? dirname(__filename) : __dirname;
 
 // Initialize database tables (development only)
 if (process.env.NODE_ENV === 'development') {
