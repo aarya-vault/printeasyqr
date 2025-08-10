@@ -73,6 +73,7 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - Fixed Netlify deployment issues: module format conflicts, missing assets, duplicate methods
 - Created production build script for proper asset copying and deployment preparation
 - Configured all production environment variables for Netlify deployment (January 2025)
+- Fixed Netlify function import/export issues by converting to pure ES modules (.mjs)
 
 ## External Dependencies
 

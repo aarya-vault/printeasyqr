@@ -1,6 +1,6 @@
-const serverless = require('serverless-http');
-const path = require('path');
-const { initializeDatabase } = require('../../server/db-init.js');
+import serverless from 'serverless-http';
+import path from 'path';
+import { initializeDatabase } from '../../server/db-init.js';
 
 let app;
 
@@ -13,7 +13,7 @@ async function createApp() {
     }
     
     // Load the Express app
-    const appModule = require('../../src/app.js');
+    const appModule = await import('../../src/app.js');
     app = appModule.default || appModule;
     console.log('✅ Express app loaded successfully');
     
@@ -24,8 +24,8 @@ async function createApp() {
     console.error('❌ Failed to create app:', error);
     
     // Create fallback Express app
-    const express = require('express');
-    const cors = require('cors');
+    const express = (await import('express')).default;
+    const cors = (await import('cors')).default;
     
     app = express();
     app.use(cors({
