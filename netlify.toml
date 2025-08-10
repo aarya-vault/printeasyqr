@@ -25,7 +25,7 @@
 # Environment variables for production
 [context.production.environment]
   NODE_ENV = "production"
-  DATABASE_URL = "postgresql://neondb_owner:npg_yACL0m5BGutI@ep-still-sound-aez4tryb.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require"
+  DATABASE_URL = "postgresql://neondb_owner:npg_A0bXz5yWBHdL@ep-blue-lake-aewd56f1-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
   JWT_SECRET = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
   SESSION_SECRET = "FcNpnO61ku19+vdeP9oxeclT1Yp9gFecmbcn+1s5ygSjsQ2zhZMkadFHf90rQkqjgbYkphWk2tM2WCnbIN9pQw=="
   ADMIN_EMAIL = "its.harshthakar@gmail.com"

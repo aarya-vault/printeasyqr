@@ -13,11 +13,15 @@ const initializeDatabase = async () => {
   try {
     // Check for DATABASE_URL in multiple ways for Netlify compatibility
     const databaseUrl = process.env.DATABASE_URL || 
+                       process.env.NETLIFY_DATABASE_URL ||
+                       process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
                        process.env.NEON_DATABASE_URL ||
                        `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?sslmode=require`;
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+      NETLIFY_DATABASE_URL: process.env.NETLIFY_DATABASE_URL ? 'SET' : 'NOT_SET',
+      NETLIFY_DATABASE_URL_UNPOOLED: process.env.NETLIFY_DATABASE_URL_UNPOOLED ? 'SET' : 'NOT_SET',
       PGUSER: process.env.PGUSER ? 'SET' : 'NOT_SET',
       PGHOST: process.env.PGHOST ? 'SET' : 'NOT_SET',
       NODE_ENV: process.env.NODE_ENV
@@ -25,7 +29,11 @@ const initializeDatabase = async () => {
     
     if (!databaseUrl || databaseUrl.includes('undefined')) {
       logger.error('❌ DATABASE_URL environment variable is not set', null, {
-        availableEnvVars: Object.keys(process.env).filter(key => key.includes('PG') || key.includes('DATABASE'))
+        availableEnvVars: Object.keys(process.env).filter(key => 
+          key.includes('PG') || 
+          key.includes('DATABASE') || 
+          key.includes('NETLIFY_DATABASE')
+        )
       });
       return null;
     }

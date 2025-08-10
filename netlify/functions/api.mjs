@@ -43,6 +43,8 @@ async function createApp() {
         environment: {
           NODE_ENV: process.env.NODE_ENV,
           DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+          NETLIFY_DATABASE_URL: process.env.NETLIFY_DATABASE_URL ? 'SET' : 'NOT_SET',
+          NETLIFY_DATABASE_URL_UNPOOLED: process.env.NETLIFY_DATABASE_URL_UNPOOLED ? 'SET' : 'NOT_SET',
           JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT_SET',
         },
         timestamp: new Date().toISOString() 
