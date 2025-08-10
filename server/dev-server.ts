@@ -3,6 +3,10 @@ import { createRequire } from "module";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Node.js compatibility for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -39,7 +43,7 @@ console.log('✅ Pure Sequelize system');
     const server = createServer(sequelizeApp);
     console.log('🌐 HTTP server created with Sequelize routes');
 
-    const PORT = parseInt(process.env.PORT || '5000', 10);
+    const PORT = parseInt(process.env.PORT || '3001', 10);
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ PrintEasy running on port ${PORT}`);

@@ -5,7 +5,7 @@ console.log('🚀 Starting PrintEasy unified development server...');
 
 const server = spawn('npx', ['tsx', 'server/index-unified.ts'], {
   stdio: 'inherit',
-  env: { ...process.env, NODE_ENV: 'development' }
+  env: { ...process.env, NODE_ENV: 'development', PORT: '3001' }
 });
 
 server.on('error', (err) => {
