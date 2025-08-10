@@ -8,7 +8,8 @@ import path from 'path';
 const router = Router();
 
 // Configure multer for file uploads - Use memory storage for serverless environments
-const storage = process.env.NODE_ENV === 'production' 
+const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
+const storage = isServerless
   ? multer.memoryStorage() // Use memory storage for Netlify/serverless
   : multer.diskStorage({   // Use disk storage for development
       destination: 'uploads/',

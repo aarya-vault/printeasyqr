@@ -49,7 +49,8 @@ import { setupWebSocket } from './utils/websocket.js';
 const app = express();
 
 // Create uploads directory if it doesn't exist (skip in serverless environments)
-if (process.env.NODE_ENV !== 'production') {
+const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
+if (!isServerless) {
   const uploadDir = path.join(__dirname, '..', 'uploads');
   if (!fs.existsSync(uploadDir)) {
     try {
@@ -175,8 +176,9 @@ app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.get('/api/download/:filename', requireAuth, (req, res) => {
   const filename = req.params.filename;
   
-  // In production (serverless), files are stored in memory and can't be downloaded after request
-  if (process.env.NODE_ENV === 'production') {
+  // In serverless environments, files are stored in memory and can't be downloaded after request
+  const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
+  if (isServerless) {
     return res.status(404).json({ 
       message: 'File downloads not available in serverless environment. Files are stored temporarily during processing.' 
     });
@@ -198,8 +200,9 @@ app.get('/api/download/:filename', requireAuth, (req, res) => {
 app.get('/uploads/:filename', (req, res) => {
   const filename = req.params.filename;
   
-  // In production (serverless), files are stored in memory and can't be served after request
-  if (process.env.NODE_ENV === 'production') {
+  // In serverless environments, files are stored in memory and can't be served after request
+  const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
+  if (isServerless) {
     return res.status(404).json({ 
       message: 'File serving not available in serverless environment. Files are processed in memory during upload.' 
     });
