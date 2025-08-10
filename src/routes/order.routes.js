@@ -7,9 +7,19 @@ import path from 'path';
 
 const router = Router();
 
-// Configure multer for file uploads
+// Configure multer for file uploads - Use memory storage for serverless environments
+const storage = process.env.NODE_ENV === 'production' 
+  ? multer.memoryStorage() // Use memory storage for Netlify/serverless
+  : multer.diskStorage({   // Use disk storage for development
+      destination: 'uploads/',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+      }
+    });
+
 const upload = multer({
-  dest: 'uploads/',
+  storage: storage,
   limits: {
     fileSize: 500 * 1024 * 1024, // 500MB per file
     files: 100 // Up to 100 files at once

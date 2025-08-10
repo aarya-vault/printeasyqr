@@ -48,10 +48,17 @@ import { setupWebSocket } from './utils/websocket.js';
 // Create Express app
 const app = express();
 
-// Create uploads directory if it doesn't exist
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Create uploads directory if it doesn't exist (skip in serverless environments)
+if (process.env.NODE_ENV !== 'production') {
+  const uploadDir = path.join(__dirname, '..', 'uploads');
+  if (!fs.existsSync(uploadDir)) {
+    try {
+      fs.mkdirSync(uploadDir, { recursive: true });
+      console.log('✅ Uploads directory created');
+    } catch (error) {
+      console.log('⚠️ Could not create uploads directory (serverless environment)');
+    }
+  }
 }
 
 // FINAL CORS FIX - Ensure credentials work properly
@@ -167,6 +174,14 @@ app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 // File download route - Protected with authentication
 app.get('/api/download/:filename', requireAuth, (req, res) => {
   const filename = req.params.filename;
+  
+  // In production (serverless), files are stored in memory and can't be downloaded after request
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ 
+      message: 'File downloads not available in serverless environment. Files are stored temporarily during processing.' 
+    });
+  }
+  
   const filePath = path.join(__dirname, '..', 'uploads', filename);
   
   if (fs.existsSync(filePath)) {
@@ -182,6 +197,14 @@ app.get('/api/download/:filename', requireAuth, (req, res) => {
 // Note: Browser img tags can't send auth headers, so we use a more permissive approach
 app.get('/uploads/:filename', (req, res) => {
   const filename = req.params.filename;
+  
+  // In production (serverless), files are stored in memory and can't be served after request
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ 
+      message: 'File serving not available in serverless environment. Files are processed in memory during upload.' 
+    });
+  }
+  
   const filePath = path.join(__dirname, '..', 'uploads', filename);
   
   // Basic security check - ensure file exists and path is safe
