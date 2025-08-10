@@ -16,7 +16,8 @@ const __dirname = path.dirname(__filename);
 console.log('🚀 PrintEasy QR - Production Server');
 
 // Load the Sequelize app
-const sequelizeApp = require("../src/app.js").default || require("../src/app.js");
+const appModule = await import("../src/app.js");
+const sequelizeApp = appModule.default || appModule;
 
 // Production static serving
 const distPath = path.join(__dirname, '..', 'dist', 'client');
