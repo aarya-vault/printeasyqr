@@ -240,7 +240,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                         {shop.totalOrders || 0}
                       </div>
                       <p className="text-sm text-gray-600">
-                        Successfully completed {shop.totalOrders || 0} orders
+                        Successfully completed {shop.totalOrders || 0} {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}
                       </p>
                     </div>
                   </div>
