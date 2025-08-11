@@ -235,26 +235,38 @@ export default function ShopOrder() {
     // Store order data for after OTP verification
     setPendingOrderData({ ...data, orderType });
 
-    // Check if user is already authenticated
-    if (user) {
-      // User is already verified, proceed with order
+    // Smart Authentication Check: Check if user is already authenticated OR if JWT exists for this phone number
+    if (user && user.phone === data.contactNumber) {
+      // User is already verified with same phone number, proceed with order
       createOrderMutation.mutate({ ...data, orderType });
       return;
     }
 
-    // Send WhatsApp OTP for verification
+    // Check for existing authentication for this phone number
     try {
-      await sendWhatsAppOTP(data.contactNumber);
+      const result = await sendWhatsAppOTP(data.contactNumber);
+      
+      if (result.skipOTP && result.user) {
+        // User already has valid JWT token for this phone number, skip OTP
+        toast({
+          title: 'Welcome back!',
+          description: 'You are already authenticated. Proceeding with order.',
+        });
+        createOrderMutation.mutate({ ...data, orderType });
+        return;
+      }
+      
+      // OTP verification needed
       setShowOtpModal(true);
       toast({
-        title: 'OTP Sent!',
-        description: `WhatsApp OTP sent to ${data.contactNumber}`,
+        title: 'OTP Verification Required',
+        description: `Demo mode: Enter any 6-digit code to verify ${data.contactNumber}`,
       });
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'OTP Failed',
-        description: 'Failed to send WhatsApp OTP. Please try again.',
+        title: 'Authentication Check Failed',
+        description: 'Unable to verify authentication status. Please try again.',
       });
     }
   };

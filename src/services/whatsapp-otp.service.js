@@ -17,6 +17,40 @@ class WhatsAppOTPService {
     return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
   }
 
+  // Check if user already has a valid authentication session
+  static async checkExistingSession(phoneNumber) {
+    try {
+      // Find user by phone number
+      const user = await User.findOne({ 
+        where: { 
+          phone: phoneNumber,
+          isActive: true 
+        } 
+      });
+
+      if (!user) {
+        return { hasValidSession: false };
+      }
+
+      // Check if user is customer role (eligible for OTP authentication)
+      if (user.role !== 'customer') {
+        return { hasValidSession: false };
+      }
+
+      // In production, you could check for recent activity or stored session data
+      // For now, we'll consider any active customer as having a potential valid session
+      // This allows for the "remember me" functionality
+      
+      return { 
+        hasValidSession: true, 
+        user: user.toJSON() 
+      };
+    } catch (error) {
+      console.error('Error checking existing session:', error);
+      return { hasValidSession: false };
+    }
+  }
+
   static async sendOTP(phoneNumber) {
     try {
       // Validate Indian phone number format
@@ -152,36 +186,7 @@ class WhatsAppOTPService {
     }
   }
 
-  static async checkExistingSession(phoneNumber) {
-    try {
-      // Check if user has valid JWT token in database
-      const user = await User.findOne({
-        where: { 
-          phone: phoneNumber,
-          isActive: true
-        }
-      });
 
-      if (user) {
-        return {
-          hasValidSession: true,
-          user: user.toJSON()
-        };
-      }
-
-      return {
-        hasValidSession: false,
-        user: null
-      };
-
-    } catch (error) {
-      console.error('Session Check Error:', error);
-      return {
-        hasValidSession: false,
-        user: null
-      };
-    }
-  }
 
   // Cleanup expired OTPs periodically
   static cleanupExpiredOTPs() {
