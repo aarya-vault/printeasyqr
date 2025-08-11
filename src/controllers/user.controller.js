@@ -23,21 +23,36 @@ class UserController {
   // Update user
   static async updateUser(req, res) {
     try {
+      console.log('🔧 UpdateUser: Request received:', {
+        params: req.params,
+        body: req.body,
+        user: req.user ? { id: req.user.id, role: req.user.role } : 'No user'
+      });
+
       const userId = parseInt(req.params.id);
       const updates = req.body;
       
+      // Authorization check: Users can only update their own profile (unless admin)
+      if (req.user.role !== 'admin' && req.user.id !== userId) {
+        console.log('❌ UpdateUser: Authorization denied - user', req.user.id, 'trying to update user', userId);
+        return res.status(403).json({ message: 'You can only update your own profile' });
+      }
+      
       const user = await User.findByPk(userId);
       if (!user) {
+        console.log('❌ UpdateUser: User not found:', userId);
         return res.status(404).json({ message: 'User not found' });
       }
 
+      console.log('🔧 UpdateUser: Updating user', userId, 'with:', updates);
       await user.update(updates);
       
       // Transform user data for consistent response
       const transformedUser = UserController.transformUserData(user);
+      console.log('✅ UpdateUser: Success, returning:', { id: transformedUser.id, name: transformedUser.name });
       res.json(transformedUser);
     } catch (error) {
-      console.error('Update user error:', error);
+      console.error('❌ UpdateUser error:', error);
       res.status(500).json({ message: 'Update failed' });
     }
   }

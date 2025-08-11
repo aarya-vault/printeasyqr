@@ -29,12 +29,17 @@ export default function CustomerAccount() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { name: string; phone: string }) => {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) throw new Error('No authentication token found');
+      
       const response = await fetch(`/api/users/${user?.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to update profile');
       return response.json();
