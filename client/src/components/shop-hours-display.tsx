@@ -15,12 +15,12 @@ interface ShopHoursDisplayProps {
   showToday?: boolean;
 }
 
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function ShopHoursDisplay({ workingHours, compact = false, showToday = false }: ShopHoursDisplayProps) {
   const today = new Date().getDay();
-  const todayKey = DAYS[today === 0 ? 6 : today - 1]; // Adjust for Sunday = 0
+  const todayKey = DAYS[today]; // Sunday = 0 maps to DAYS[0] = 'sunday'
   
   const formatTime = (time: string) => {
     if (!time) return '';

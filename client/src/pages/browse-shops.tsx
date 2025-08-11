@@ -280,12 +280,12 @@ export default function AnonymousVisitorBrowseShops() {
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleStartOrdering(shop);
+                        window.open(`tel:${shop.phone}`, '_self');
                       }}
                       className="w-full bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium text-xs sm:text-sm py-2"
                     >
                       <Printer className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                      Login to Print
+                      Call the Shop
                     </Button>
                     <Button
                       onClick={(e) => {
@@ -522,13 +522,13 @@ export default function AnonymousVisitorBrowseShops() {
                 <Button
                   onClick={() => {
                     setShowDetails(false);
-                    handleStartOrdering(selectedShop);
+                    window.open(`tel:${selectedShop.phone}`, '_self');
                   }}
                   className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-medium text-sm sm:text-base py-2.5 sm:py-3"
                   size="lg"
                 >
                   <Printer className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
-                  Login to Print
+                  Call the Shop
                 </Button>
                 <Button
                   onClick={() => setShowDetails(false)}
