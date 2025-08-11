@@ -512,6 +512,12 @@ export default function NewHomepage() {
           }}
         />
       )}
+
+      {/* Name Collection Modal */}
+      <NameCollectionModal
+        isOpen={showNameModal}
+        onComplete={handleNameUpdate}
+      />
     </div>
   );
 }
