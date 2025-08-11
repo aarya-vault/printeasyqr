@@ -32,6 +32,7 @@ const OrderConfirmation = lazy(() => import("@/pages/order-confirmation"));
 const ShopNotifications = lazy(() => import("@/pages/shop-notifications"));
 const ShopLoginPage = lazy(() => import("@/pages/shop-login"));
 const PincodeTestPage = lazy(() => import("@/pages/pincode-test"));
+const OTPDemo = lazy(() => import("@/pages/otp-demo"));
 // ShopOwnerAnalytics removed - analytics now integrated into dashboard
 
 
@@ -61,6 +62,7 @@ function Router() {
         <Route path="/order-confirmation/:orderId" component={OrderConfirmation} />
         <Route path="/shop-notifications" component={ShopNotifications} />
         <Route path="/pincode-test" component={PincodeTestPage} />
+        <Route path="/otp-demo" component={OTPDemo} />
         {/* /shop-analytics route removed - analytics integrated into dashboard */}
 
         <Route component={NotFound} />

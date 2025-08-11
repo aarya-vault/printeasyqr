@@ -7,6 +7,7 @@ const GUPSHUP_API_BASE = 'https://api.gupshup.io';
 const OTP_TEMPLATE_ID = 'otp_verification'; // You may need to create this template in Gupshup
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 3;
+const DEMO_MODE = process.env.NODE_ENV === 'development'; // Enable demo mode in development
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStorage = new Map();
@@ -45,33 +46,44 @@ class WhatsAppOTPService {
         lastSentAt: Date.now()
       });
 
-      // Send WhatsApp OTP via Gupshup API
-      const response = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/template/msg`, {
-        method: 'POST',
-        headers: {
-          'apikey': process.env.GUPSHUP_API_KEY,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          channel: 'whatsapp',
-          source: process.env.GUPSHUP_SOURCE_PHONE,
-          destination: fullPhoneNumber,
-          'src.name': process.env.GUPSHUP_APP_NAME,
-          template: JSON.stringify({
-            id: OTP_TEMPLATE_ID,
-            params: [otp, otp] // OTP twice for body and button component
+      // Demo mode or actual Gupshup API call
+      let result;
+      if (DEMO_MODE) {
+        // Demo mode - simulate successful OTP send
+        result = {
+          status: 'success',
+          messageId: `demo-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        };
+        console.log(`🔧 DEMO MODE: WhatsApp OTP simulated for ${phoneNumber}, actual OTP: ${otp}`);
+      } else {
+        // Production mode - actual Gupshup API call
+        const response = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/template/msg`, {
+          method: 'POST',
+          headers: {
+            'apikey': process.env.GUPSHUP_API_KEY,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            channel: 'whatsapp',
+            source: process.env.GUPSHUP_SOURCE_PHONE,
+            destination: fullPhoneNumber,
+            'src.name': process.env.GUPSHUP_APP_NAME,
+            template: JSON.stringify({
+              id: OTP_TEMPLATE_ID,
+              params: [otp, otp] // OTP twice for body and button component
+            })
           })
-        })
-      });
+        });
 
-      const result = await response.json();
-      
-      if (response.status !== 202) {
-        console.error('Gupshup API Error:', result);
-        throw new Error(result.message || 'Failed to send OTP');
+        result = await response.json();
+        
+        if (response.status !== 202) {
+          console.error('Gupshup API Error:', result);
+          throw new Error(result.message || 'Failed to send OTP');
+        }
+
+        console.log(`✅ WhatsApp OTP sent to ${phoneNumber}:`, result.messageId);
       }
-
-      console.log(`✅ WhatsApp OTP sent to ${phoneNumber}:`, result.messageId);
       
       return {
         success: true,
@@ -109,9 +121,18 @@ class WhatsAppOTPService {
       storedData.attempts += 1;
       otpStorage.set(phoneNumber, storedData);
 
-      // Verify OTP
-      if (storedData.otp !== submittedOTP.toString()) {
-        throw new Error('Invalid OTP');
+      // Verify OTP - Demo mode accepts any 6-digit code
+      if (DEMO_MODE) {
+        // Demo mode - accept any 6-digit OTP
+        if (submittedOTP.length !== 6 || !/^\d{6}$/.test(submittedOTP)) {
+          throw new Error('Invalid OTP format');
+        }
+        console.log(`🔧 DEMO MODE: OTP ${submittedOTP} accepted for ${phoneNumber} (actual was ${storedData.otp})`);
+      } else {
+        // Production mode - verify actual OTP
+        if (storedData.otp !== submittedOTP.toString()) {
+          throw new Error('Invalid OTP');
+        }
       }
 
       // OTP verified successfully - clean up

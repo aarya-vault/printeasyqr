@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { fileValidation } from '@/lib/validation';
 import { Shop, OrderFormData } from '@/types';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/auth-context';
 
 interface UploadOrderModalProps {
   isOpen: boolean;
