@@ -109,8 +109,8 @@ export default function RedesignedHomepage() {
     if (!tempUser || !name.trim()) return;
     
     try {
-      const updatedUser = await updateUser(tempUser.id, { name: name.trim() });
-      login(updatedUser);
+      // Use the auth context updateUser function correctly
+      await updateUser({ name: name.trim() });
       setShowNameModal(false);
       navigate('/customer-dashboard');
     } catch (error) {
