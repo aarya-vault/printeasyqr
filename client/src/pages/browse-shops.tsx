@@ -271,7 +271,7 @@ export default function AnonymousVisitorBrowseShops() {
                     </div>
                     <div className="flex items-center">
                       <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                      <span>{shop.totalOrders === 1 ? 'order' : 'orders'}</span>
+                      <span>{shop.totalOrders || 0} {shop.totalOrders === 1 ? 'order' : 'orders'}</span>
                     </div>
                   </div>
 
@@ -494,7 +494,7 @@ export default function AnonymousVisitorBrowseShops() {
                       </div>
                       <p className="text-gray-700 text-sm">Professional printing experience</p>
                       <p className="text-sm text-gray-600 mt-2">
-                        Successfully completed {(selectedShop.totalOrders || 0) === 1 ? 'order' : 'orders'}
+                        Successfully completed {selectedShop.totalOrders || 0} {(selectedShop.totalOrders || 0) === 1 ? 'order' : 'orders'}
                       </p>
                     </div>
                   </div>
