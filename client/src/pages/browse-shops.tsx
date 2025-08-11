@@ -417,42 +417,64 @@ export default function AnonymousVisitorBrowseShops() {
 
               {/* Services & Equipment */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {selectedShop.services && selectedShop.services.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-black">
-                      <Printer className="w-4 h-4 mr-2 text-[#FFBF00]" />
-                      Services Offered
-                    </h4>
-                    <div className="space-y-2">
-                      {selectedShop.services.map((service: string, index: number) => (
-                        <div key={index} className="flex items-center">
-                          <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-                          <span className="text-gray-900">{service}</span>
-                        </div>
-                      ))}
+                {(() => {
+                  // Combine all services: standard + custom
+                  const allServices = [
+                    ...(selectedShop.services || []),
+                    ...(selectedShop.servicesOffered || []),
+                    ...(selectedShop.customServices || [])
+                  ].filter((service: string, index: number, array: string[]) => {
+                    return service && service.trim() && array.indexOf(service) === index;
+                  });
+
+                  return allServices.length > 0 ? (
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center text-black">
+                        <Printer className="w-4 h-4 mr-2 text-[#FFBF00]" />
+                        Services Offered
+                      </h4>
+                      <div className="space-y-2">
+                        {allServices.map((service: string, index: number) => (
+                          <div key={index} className="flex items-center">
+                            <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                            <span className="text-gray-900">{service}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ) : null;
+                })()}
 
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center text-black">
                     <Award className="w-4 h-4 mr-2 text-[#FFBF00]" />
                     Equipment Available
                   </h4>
-                  {selectedShop.equipment && selectedShop.equipment.length > 0 ? (
-                    <div className="space-y-2">
-                      {selectedShop.equipment.map((item: string, index: number) => (
-                        <div key={index} className="flex items-center">
-                          <Shield className="w-4 h-4 mr-2 text-blue-500" />
-                          <span className="text-gray-900">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm bg-gray-50 p-3 rounded-lg">
-                      No specific equipment details available. Contact shop for equipment information.
-                    </p>
-                  )}
+                  {(() => {
+                    // Combine all equipment: standard + custom
+                    const allEquipment = [
+                      ...(selectedShop.equipment || []),
+                      ...(selectedShop.equipmentAvailable || []),
+                      ...(selectedShop.customEquipment || [])
+                    ].filter((equipment: string, index: number, array: string[]) => {
+                      return equipment && equipment.trim() && array.indexOf(equipment) === index;
+                    });
+
+                    return allEquipment.length > 0 ? (
+                      <div className="space-y-2">
+                        {allEquipment.map((item: string, index: number) => (
+                          <div key={index} className="flex items-center">
+                            <Shield className="w-4 h-4 mr-2 text-blue-500" />
+                            <span className="text-gray-900">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm bg-gray-50 p-3 rounded-lg">
+                        No specific equipment details available. Contact shop for equipment information.
+                      </p>
+                    );
+                  })()}
                 </div>
               </div>
 
