@@ -72,8 +72,11 @@ export default function UnifiedCustomerDashboard() {
 
   // Customer name consistency check - prompt for name if missing
   useEffect(() => {
-    if (user && user.role === 'customer' && (!user.name || user.name.trim() === '')) {
+    if (user && user.role === 'customer' && (!user.name || user.name.trim() === '' || user.name.trim() === 'Customer')) {
+      console.log('🔍 Name Modal Check - User:', user.name, 'Should show modal:', true);
       setShowNameModal(true);
+    } else if (user) {
+      console.log('🔍 Name Modal Check - User:', user.name, 'Should show modal:', false);
     }
   }, [user]);
 

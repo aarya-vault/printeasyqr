@@ -16,7 +16,7 @@ import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button
 import BottomNavigation from '@/components/common/bottom-navigation';
 
 export default function CustomerAccount() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -45,11 +45,19 @@ export default function CustomerAccount() {
       return response.json();
     },
     onSuccess: (updatedUser) => {
+      console.log('✅ Profile Update Success - Updated user:', updatedUser);
+      
       // Update local form state immediately
       setFormData({
         name: updatedUser.name || '',
         phone: updatedUser.phone || '',
       });
+      
+      // Update auth context state directly
+      if (updateUser && user) {
+        updateUser({ name: updatedUser.name });
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['/api/auth/session'] });
       setIsEditing(false);
       toast({
