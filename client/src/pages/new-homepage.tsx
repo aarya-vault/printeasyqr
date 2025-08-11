@@ -17,7 +17,7 @@ import PhoneInput from '@/components/phone-input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
-import { NameCollectionModal } from '@/components/auth/name-collection-modal';
+
 import { useToast } from '@/hooks/use-toast';
 import QRScanner from '@/components/qr-scanner';
 import { useQuery } from '@tanstack/react-query';
@@ -29,11 +29,9 @@ import printEasyQRLogo from '@assets/PrintEasy QR Logo (1)_1754542428551.png';
 
 export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
-  const [showNameModal, setShowNameModal] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
-  const [tempUser, setTempUser] = useState<any>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const { user, login, updateUser, getPersistentUserData } = useAuth();
+  const { user, login, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -85,13 +83,9 @@ export default function NewHomepage() {
     }
 
     try {
-      const user = await login({ phone: customerPhone });
-      if (user.needsNameUpdate) {
-        setShowNameModal(true);
-        setTempUser(user);
-      } else {
-        navigate('/customer-dashboard');
-      }
+      await login({ phone: customerPhone });
+      // Navigate to dashboard - name modal will show there if needed
+      navigate('/customer-dashboard');
       toast({
         title: "Login Successful",
         description: "Welcome to PrintEasy!",
@@ -107,13 +101,7 @@ export default function NewHomepage() {
     }
   };
 
-  const handleNameUpdate = async (name: string) => {
-    if (tempUser && updateUser) {
-      await updateUser({ name });
-      setShowNameModal(false);
-      navigate('/customer-dashboard');
-    }
-  };
+  // Name collection is handled in customer dashboard, not homepage
 
   // Critical USPs from the platform
   const usps = [
@@ -206,15 +194,7 @@ export default function NewHomepage() {
           </Button>
         }
       />
-      {showNameModal && (
-        <NameCollectionModal
-          isOpen={showNameModal}
-          onComplete={(name: string) => {
-            handleNameUpdate(name);
-            setShowNameModal(false);
-          }}
-        />
-      )}
+
       {/* Hero Section - Clean Professional */}
       <section className="bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
@@ -513,11 +493,7 @@ export default function NewHomepage() {
         />
       )}
 
-      {/* Name Collection Modal */}
-      <NameCollectionModal
-        isOpen={showNameModal}
-        onComplete={handleNameUpdate}
-      />
+
     </div>
   );
 }

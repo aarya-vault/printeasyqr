@@ -44,7 +44,12 @@ export default function CustomerAccount() {
       if (!response.ok) throw new Error('Failed to update profile');
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      // Update local form state immediately
+      setFormData({
+        name: updatedUser.name || '',
+        phone: updatedUser.phone || '',
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/auth/session'] });
       setIsEditing(false);
       toast({

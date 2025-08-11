@@ -75,6 +75,13 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - Configured all production environment variables for Netlify deployment (January 2025)
 - Fixed Netlify function import/export issues by converting to pure ES modules (.mjs)
 
+### Authentication & User Management Fixes (January 2025)
+- **Critical Race Condition Fix**: Resolved authentication flow where setUser() was preventing name collection modal from appearing
+- **Authorization Security**: Added user permission checks in updateUser controller to prevent unauthorized profile modifications
+- **Frontend State Management**: Fixed customer account page to properly update local form state after successful API mutations
+- **Technical Debt Elimination**: Removed duplicate name collection modal from homepage, preserved original implementation in customer dashboard
+- **JWT Authentication**: Enhanced authentication headers across all profile update operations for proper authorization
+
 ## External Dependencies
 
 - **sequelize**: PostgreSQL ORM.
