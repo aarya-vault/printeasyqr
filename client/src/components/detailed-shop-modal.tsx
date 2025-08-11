@@ -361,10 +361,10 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
         {/* Action Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 pt-6 border-t">
           <Button 
-            onClick={handleOrderNow}
+            onClick={() => window.open(`tel:${shop.phone}`, '_self')}
             className="flex-1 bg-brand-yellow text-black hover:bg-brand-yellow/90 font-medium py-3"
           >
-            Order Now
+            Call the Shop
           </Button>
           <Button 
             variant="outline" 

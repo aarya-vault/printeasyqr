@@ -90,6 +90,14 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Backend Authorization**: Enhanced user update controller with proper permission checks and detailed logging
 - **Cross-Component Consistency**: Ensured all customer dashboard pages use consistent authentication patterns
 
+### Shop Modal UI/Data Synchronization Fixes (August 2025)
+- **Working Hours Chronology**: Fixed both shop modals to display working hours in proper chronological order (Sunday → Saturday)
+- **Real-time Order Count**: Implemented Shop.increment('totalOrders') in order creation process for live order count synchronization
+- **Modal Button Updates**: Replaced "Order Now" and "Login to Print" buttons with "Call the Shop" functionality across all shop modals
+- **Custom Services/Equipment**: Verified proper visibility of custom services and equipment in both detailed-shop-modal.tsx and shop-view-modal.tsx
+- **Order Count Display**: Updated order count text to "Successfully completed X orders" format for better user understanding
+- **Database Sync**: Ensured real-time updates between order placement and shop statistics display in modals
+
 ## External Dependencies
 
 - **sequelize**: PostgreSQL ORM.

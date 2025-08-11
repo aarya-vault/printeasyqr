@@ -12,13 +12,13 @@ interface ShopViewModalProps {
 
 export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
   const dayNames = [
+    { key: 'sunday', label: 'Sunday' },
     { key: 'monday', label: 'Monday' },
     { key: 'tuesday', label: 'Tuesday' },
     { key: 'wednesday', label: 'Wednesday' },
     { key: 'thursday', label: 'Thursday' },
     { key: 'friday', label: 'Friday' },
     { key: 'saturday', label: 'Saturday' },
-    { key: 'sunday', label: 'Sunday' },
   ];
 
   // Combine services: standard + custom from different fields
@@ -203,7 +203,9 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                       <div className="text-2xl font-bold text-brand-yellow mb-1">
                         {shop.totalOrders || 0}
                       </div>
-                      <p className="text-sm text-gray-600">Completed Orders</p>
+                      <p className="text-sm text-gray-600">
+                        Successfully completed {shop.totalOrders || 0} orders
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -263,9 +265,10 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
           {/* Action Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4 pt-6 border-t">
             <Button 
+              onClick={() => window.open(`tel:${shop.phone}`, '_self')}
               className="flex-1 bg-brand-yellow text-black hover:bg-brand-yellow/90 font-medium py-3"
             >
-              Login to Print
+              Call the Shop
             </Button>
             <Button 
               variant="outline" 
