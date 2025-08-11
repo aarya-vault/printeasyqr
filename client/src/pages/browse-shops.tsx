@@ -485,26 +485,29 @@ export default function AnonymousVisitorBrowseShops() {
                   </h4>
                   {selectedShop.workingHours ? (
                     <div className="space-y-2">
-                      {Object.entries(selectedShop.workingHours).map(([day, hours]: [string, any]) => (
-                        <div key={day} className="flex justify-between items-center py-1">
-                          <span className="capitalize font-medium text-gray-700 min-w-[90px]">
-                            {day}:
-                          </span>
-                          {hours?.is24Hours ? (
-                            <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
-                              24/7 Open
+                      {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => {
+                        const hours = selectedShop.workingHours[day];
+                        return (
+                          <div key={day} className="flex justify-between items-center py-1">
+                            <span className="capitalize font-medium text-gray-700 min-w-[90px]">
+                              {day.charAt(0).toUpperCase() + day.slice(1)}:
                             </span>
-                          ) : hours?.closed ? (
-                            <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                              Closed
-                            </span>
-                          ) : (
-                            <span className="text-sm text-gray-900 font-medium">
-                              {hours?.open || '09:00'} - {hours?.close || '18:00'}
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                            {hours?.is24Hours ? (
+                              <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                                24/7 Open
+                              </span>
+                            ) : hours?.closed ? (
+                              <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                Closed
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-900 font-medium">
+                                {hours?.open || '09:00'} - {hours?.close || '18:00'}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-gray-500">Standard business hours</p>
