@@ -52,7 +52,7 @@ export default function ShopOrder() {
   } | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingOrderData, setPendingOrderData] = useState<any>(null);
-  const { getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP, isAuthenticated } = useAuth();
+  const { getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP, user } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<Shop>({
@@ -236,7 +236,7 @@ export default function ShopOrder() {
     setPendingOrderData({ ...data, orderType });
 
     // Check if user is already authenticated
-    if (isAuthenticated()) {
+    if (user) {
       // User is already verified, proceed with order
       createOrderMutation.mutate({ ...data, orderType });
       return;
@@ -539,7 +539,7 @@ export default function ShopOrder() {
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      {isAuthenticated() ? 'Submit Order' : 'Submit Order with OTP'}
+                      {user ? 'Submit Order' : 'Submit Order with OTP'}
                     </>
                   )}
                 </Button>
