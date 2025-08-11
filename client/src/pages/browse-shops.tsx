@@ -471,11 +471,11 @@ export default function AnonymousVisitorBrowseShops() {
                         {selectedShop.yearsOfExperience || 0} years
                       </div>
                       <p className="text-gray-700 text-sm">Professional printing experience</p>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Successfully completed {selectedShop.totalOrders || 0} orders
+                      </p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Successfully completed {selectedShop.totalOrders || 0} orders
-                  </p>
                 </div>
 
                 <div>

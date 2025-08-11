@@ -26,14 +26,34 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     ...(shop.services || []),
     ...(shop.servicesOffered || []),
     ...(shop.customServices || [])
-  ].filter((service: string, index: number, array: string[]) => service && array.indexOf(service) === index);
+  ].filter((service: string, index: number, array: string[]) => {
+    // Keep non-empty strings and remove duplicates
+    return service && service.trim() && array.indexOf(service) === index;
+  });
 
-  // Combine equipment: standard + custom from different fields
+  // Combine equipment: standard + custom from different fields  
   const allEquipment = [
     ...(shop.equipment || []),
     ...(shop.equipmentAvailable || []),
     ...(shop.customEquipment || [])
-  ].filter((equipment: string, index: number, array: string[]) => equipment && array.indexOf(equipment) === index);
+  ].filter((equipment: string, index: number, array: string[]) => {
+    // Keep non-empty strings and remove duplicates
+    return equipment && equipment.trim() && array.indexOf(equipment) === index;
+  });
+
+  // Debug logging to help identify the issue
+  console.log('🔍 Shop Data Debug:', {
+    shopId: shop.id,
+    shopName: shop.name,
+    services: shop.services,
+    servicesOffered: shop.servicesOffered, 
+    customServices: shop.customServices,
+    allServices: allServices,
+    equipment: shop.equipment,
+    equipmentAvailable: shop.equipmentAvailable,
+    customEquipment: shop.customEquipment, 
+    allEquipment: allEquipment
+  });
 
   const calculateYearsOfExperience = (formationYear: number | string): number => {
     const currentYear = new Date().getFullYear();
