@@ -236,11 +236,8 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                       <p className="text-sm text-gray-600">Years Experience</p>
                     </div>
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
-                      <div className="text-2xl font-bold text-brand-yellow mb-1">
-                        {shop.totalOrders || 0}
-                      </div>
                       <p className="text-sm text-gray-600">
-                        Successfully completed {shop.totalOrders || 0} {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}
+                        Successfully completed {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}
                       </p>
                     </div>
                   </div>
