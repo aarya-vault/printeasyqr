@@ -446,7 +446,8 @@ export default function CustomerBrowseShops() {
                         )}
                         {shop.totalOrders > 0 && (
                           <div className="flex items-center gap-1">
-                            
+                            <Package className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
+                            <span className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
                               {shop.totalOrders} {shop.totalOrders === 1 ? 'order' : 'orders'}
                             </span>
                           </div>
