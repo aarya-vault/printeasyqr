@@ -565,18 +565,27 @@ export default function AnonymousVisitorBrowseShops() {
                   </h4>
                   <div className="space-y-2">
                     <div className="text-center p-4 bg-[#FFBF00]/10 rounded-lg">
-                      <div className="text-2xl font-bold text-[#FFBF00]">
-                        {selectedShop.yearsOfExperience || 0} years
-                      </div>
-                      <p className="text-gray-700 text-sm">
-                        Professional printing experience
-                      </p>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Successfully completed {selectedShop.totalOrders || 0}{" "}
-                        {(selectedShop.totalOrders || 0) === 1
-                          ? "order"
-                          : "orders"}
-                      </p>
+                      {selectedShop.yearsOfExperience > 0 && (
+                        <>
+                          <div className="text-2xl font-bold text-[#FFBF00]">
+                            {selectedShop.yearsOfExperience} years
+                          </div>
+                          <p className="text-gray-700 text-sm">
+                            Professional printing experience
+                          </p>
+                        </>
+                      )}
+                      {selectedShop.totalOrders > 0 && (
+                        <p className="text-sm text-gray-600 mt-2">
+                          Successfully completed {selectedShop.totalOrders}{" "}
+                          {selectedShop.totalOrders === 1 ? "order" : "orders"}
+                        </p>
+                      )}
+                      {selectedShop.yearsOfExperience <= 0 && selectedShop.totalOrders <= 0 && (
+                        <p className="text-gray-700 text-sm">
+                          New shop - Contact for experience details
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
