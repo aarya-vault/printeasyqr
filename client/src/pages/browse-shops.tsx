@@ -265,18 +265,14 @@ export default function AnonymousVisitorBrowseShops() {
 
                   {/* Experience & Orders */}
                   <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
-                    {(shop.yearsOfExperience && shop.yearsOfExperience > 0) && (
-                      <div className="flex items-center">
-                        <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        <span>{shop.yearsOfExperience} years exp.</span>
-                      </div>
-                    )}
-                    {(shop.totalOrders && shop.totalOrders > 0) && (
-                      <div className="flex items-center">
-                        <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        <span>{shop.totalOrders} {shop.totalOrders === 1 ? 'order' : 'orders'}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center">
+                      <Award className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span>{shop.yearsOfExperience || 0} years exp.</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span>{shop.totalOrders || 0} {shop.totalOrders === 1 ? 'order' : 'orders'}</span>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
