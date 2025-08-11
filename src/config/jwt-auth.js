@@ -13,7 +13,20 @@ export function generateToken(user) {
       role: user.role
     },
     JWT_SECRET,
-    { expiresIn: '24h' }
+    { expiresIn: '90d' } // Extended to 90 days for maximum session persistence
+  );
+}
+
+// Generate refresh token for even longer persistence
+export function generateRefreshToken(user) {
+  return jwt.sign(
+    {
+      userId: user.id,
+      phone: user.phone,
+      tokenType: 'refresh'
+    },
+    JWT_SECRET,
+    { expiresIn: '180d' } // 6 months refresh token
   );
 }
 

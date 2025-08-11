@@ -98,6 +98,17 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Order Count Display**: Updated order count text to "Successfully completed X orders" format for better user understanding
 - **Database Sync**: Ensured real-time updates between order placement and shop statistics display in modals
 
+### WhatsApp OTP Verification System (August 2025)
+- **JWT Token Extension**: Extended JWT tokens from 24 hours to 90 days for maximum session persistence with refresh token mechanism
+- **Gupshup API Integration**: Implemented WhatsApp OTP service using Gupshup API for secure user authentication
+- **Smart Authentication Flow**: Added intelligent session checking - skips OTP if valid JWT exists, reducing user friction
+- **Enhanced Auth Context**: Added sendWhatsAppOTP() and verifyWhatsAppOTP() methods with automatic token management
+- **OTP Verification Modal**: Created reusable component with countdown timer, retry logic, and proper error handling
+- **Order Integration Hook**: Developed useOTPOrder hook for seamless OTP integration with order placement flow
+- **Background Processing**: OTP verification runs in background while file uploads continue for optimal user experience
+- **Security Features**: Rate limiting, device fingerprinting, 6-digit OTP codes with 10-minute expiry
+- **API Endpoints**: /api/auth/send-otp, /api/auth/verify-otp, /api/auth/refresh-token
+
 ## External Dependencies
 
 - **sequelize**: PostgreSQL ORM.

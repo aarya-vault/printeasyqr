@@ -18,6 +18,9 @@ interface AuthContextType {
   updateUser: (updates: Partial<User>) => Promise<void>;
   isLoading: boolean;
   isSessionVerified: boolean;
+  // WhatsApp OTP methods
+  sendWhatsAppOTP: (phone: string) => Promise<{ skipOTP: boolean; user?: User }>;
+  verifyWhatsAppOTP: (phone: string, otp: string) => Promise<User>;
   // New persistent data methods
   getPersistentUserData: () => PersistentUserData | null;
   savePersistentUserData: (data: Partial<PersistentUserData>) => void;
@@ -313,6 +316,75 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // WhatsApp OTP authentication methods
+  const sendWhatsAppOTP = async (phone: string): Promise<{ skipOTP: boolean; user?: User }> => {
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        if (result.skipOTP) {
+          // User already authenticated
+          setUser(result.user);
+          localStorage.setItem('user', JSON.stringify(result.user));
+          localStorage.setItem('authToken', result.token);
+          if (result.refreshToken) {
+            localStorage.setItem('refreshToken', result.refreshToken);
+          }
+          return { skipOTP: true, user: result.user };
+        }
+        return { skipOTP: false };
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Send WhatsApp OTP Error:', error);
+      throw error;
+    }
+  };
+
+  const verifyWhatsAppOTP = async (phone: string, otp: string): Promise<User> => {
+    try {
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Store authentication data
+        setUser(result.user);
+        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('authToken', result.token);
+        if (result.refreshToken) {
+          localStorage.setItem('refreshToken', result.refreshToken);
+        }
+        setIsSessionVerified(true);
+
+        // Update persistent data
+        savePersistentUserData({
+          phone: result.user.phone,
+          name: result.user.name !== 'Customer' ? result.user.name : undefined,
+          lastLoginTime: Date.now()
+        });
+
+        return result.user;
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Verify WhatsApp OTP Error:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -322,6 +394,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       updateUser, 
       isLoading,
       isSessionVerified,
+      sendWhatsAppOTP,
+      verifyWhatsAppOTP,
       getPersistentUserData,
       savePersistentUserData,
       clearPersistentUserData
