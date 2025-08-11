@@ -22,6 +22,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
 import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
+import { OTPVerificationModal } from '@/components/otp-verification-modal';
+import { DemoBanner } from '@/components/demo-banner';
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -48,7 +50,9 @@ export default function ShopOrder() {
     uploadSpeed: number;
     estimatedTime: number;
   } | null>(null);
-  const { getPersistentUserData } = useAuth();
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
+  const { getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP, isAuthenticated } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<Shop>({
@@ -198,7 +202,7 @@ export default function ShopOrder() {
     },
   });
 
-  const onSubmit = (data: OrderForm) => {
+  const onSubmit = async (data: OrderForm) => {
     // Check if shop is accepting orders
     if (!shop || !shop.isOnline) {
       toast({
@@ -227,8 +231,40 @@ export default function ShopOrder() {
       });
       return;
     }
-    
-    createOrderMutation.mutate({ ...data, orderType });
+
+    // Store order data for after OTP verification
+    setPendingOrderData({ ...data, orderType });
+
+    // Check if user is already authenticated
+    if (isAuthenticated()) {
+      // User is already verified, proceed with order
+      createOrderMutation.mutate({ ...data, orderType });
+      return;
+    }
+
+    // Send WhatsApp OTP for verification
+    try {
+      await sendWhatsAppOTP(data.contactNumber);
+      setShowOtpModal(true);
+      toast({
+        title: 'OTP Sent!',
+        description: `WhatsApp OTP sent to ${data.contactNumber}`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'OTP Failed',
+        description: 'Failed to send WhatsApp OTP. Please try again.',
+      });
+    }
+  };
+
+  const handleOtpVerified = (userData: any) => {
+    setShowOtpModal(false);
+    if (pendingOrderData) {
+      createOrderMutation.mutate(pendingOrderData);
+      setPendingOrderData(null);
+    }
   };
 
   if (isLoading) {
@@ -484,7 +520,7 @@ export default function ShopOrder() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00] transition-all duration-300"
-                  disabled={createOrderMutation.isPending}
+                  disabled={createOrderMutation.isPending || showOtpModal}
                 >
                   {createOrderMutation.isPending ? (
                     <>
@@ -495,10 +531,15 @@ export default function ShopOrder() {
                         <span>Creating Order...</span>
                       )}
                     </>
+                  ) : showOtpModal ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <span>Verifying OTP...</span>
+                    </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Submit Order
+                      {isAuthenticated() ? 'Submit Order' : 'Submit Order with OTP'}
                     </>
                   )}
                 </Button>
@@ -506,7 +547,21 @@ export default function ShopOrder() {
             </Form>
           </CardContent>
         </Card>
+
+        {/* WhatsApp OTP Verification Modal */}
+        <OTPVerificationModal
+          isOpen={showOtpModal}
+          onClose={() => {
+            setShowOtpModal(false);
+            setPendingOrderData(null);
+          }}
+          phoneNumber={pendingOrderData?.contactNumber || ''}
+          onVerificationSuccess={handleOtpVerified}
+        />
       </div>
+
+      {/* Demo Banner */}
+      <DemoBanner />
     </div>
   );
 }
