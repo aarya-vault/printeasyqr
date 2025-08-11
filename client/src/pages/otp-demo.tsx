@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DemoBanner } from '@/components/demo-banner';
-import { OTPUploadOrderModal } from '@/components/order/otp-upload-order-modal';
+import { SimpleOrderModal } from '@/components/order/simple-order-modal';
 import { useQuery } from '@tanstack/react-query';
 import { Shop } from '@/types';
 import { Upload, Smartphone, ShoppingCart } from 'lucide-react';
 
 export default function OTPDemo() {
-  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   
   // Fetch shops for demo
   const { data: shops = [], isLoading } = useQuery<Shop[]>({
     queryKey: ['/api/shops'],
   });
 
-  // Demo shops if no real data
-  const demoShops: Shop[] = shops.length > 0 ? shops : [
+  // Demo shops if no real data - cast to Shop[] to fix TypeScript
+  const demoShops = shops.length > 0 ? shops : [
     {
       id: 1,
       name: "Quick Print Center",
@@ -134,19 +134,19 @@ export default function OTPDemo() {
               <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  Multiple file upload (PDF, DOC, images)
+                  Simple form: Name, Phone, Order Type
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  Real-time shop selection
+                  Upload or Walk-in selection
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  Print specifications (color, size, binding)
+                  Printing description field
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  Background file processing during OTP
+                  Urgency checkbox
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -163,33 +163,33 @@ export default function OTPDemo() {
 
         <div className="text-center">
           <Button
-            onClick={() => setShowUploadModal(true)}
+            onClick={() => setShowOrderModal(true)}
             className="bg-[#FFBF00] hover:bg-[#E6AC00] text-black px-8 py-3 text-lg"
             disabled={isLoading}
           >
             <Upload className="w-5 h-5 mr-2" />
-            {isLoading ? "Loading..." : "Test WhatsApp OTP Order"}
+            {isLoading ? "Loading..." : "Test Simple Order Form"}
           </Button>
         </div>
 
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-medium text-gray-900 mb-2">Testing Instructions:</h3>
           <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-            <li>Click the button above to open the order modal</li>
-            <li>Select a shop from the available options</li>
-            <li>Upload any test files (optional - you can use dummy files)</li>
-            <li>Enter phone number: <code className="bg-white px-1 rounded">9876543210</code></li>
-            <li>Fill in order details and click "Place Order with OTP"</li>
+            <li>Click the button above to open the simple order form</li>
+            <li>Fill in: Name, Phone Number, Order Type, Upload/Walk-in</li>
+            <li>Enter printing description and check urgency if needed</li>
+            <li>Use phone number: <code className="bg-white px-1 rounded">9876543210</code></li>
+            <li>Click "Submit Order with OTP"</li>
             <li>In the OTP modal, enter any 6-digit code: <code className="bg-white px-1 rounded">123456</code></li>
             <li>Order will be successfully placed after verification</li>
           </ol>
         </div>
 
-        {/* OTP Upload Order Modal */}
-        <OTPUploadOrderModal
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          shops={demoShops}
+        {/* Simple Order Modal */}
+        <SimpleOrderModal
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          shopId={1}
         />
       </div>
     </div>

@@ -29,11 +29,12 @@ class WhatsAppOTPService {
       const otp = this.generateOTP();
       const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
-      // Check rate limiting
+      // Check rate limiting - Demo mode allows faster retries
+      const rateLimitMs = DEMO_MODE ? 5000 : 60000; // 5 seconds in demo, 60 seconds in production
       const existingOTP = otpStorage.get(phoneNumber);
       if (existingOTP && existingOTP.lastSentAt) {
         const timeSinceLastOTP = Date.now() - existingOTP.lastSentAt;
-        if (timeSinceLastOTP < 60000) { // 1 minute cooldown
+        if (timeSinceLastOTP < rateLimitMs) {
           throw new Error('Please wait before requesting another OTP');
         }
       }
