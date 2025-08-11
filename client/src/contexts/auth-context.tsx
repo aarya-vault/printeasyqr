@@ -143,9 +143,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('🔑 JWT Token stored');
       }
       
-      // 🔥 IMMEDIATE STATE UPDATE
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // 🔥 CONDITIONAL STATE UPDATE - Don't set user immediately if they need name update
+      // This prevents auto-redirect before modal can be shown
+      if (!userData.needsNameUpdate) {
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
       setIsSessionVerified(true);
       console.log('✅ Login Success:', userData.role, userData.email || userData.phone);
       
