@@ -62,7 +62,7 @@ interface Shop {
 interface DetailedShopModalProps {
   isOpen: boolean;
   onClose: () => void;
-  shop: Shop;
+  shop: Shop | null;
   onOrderClick?: (shopSlug: string) => void;
 }
 
@@ -243,7 +243,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  {shop.totalOrders > 0 && (
+                  {shop.totalOrders && shop.totalOrders > 0 && (
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                       <div className="text-2xl font-bold text-brand-yellow">{shop.totalOrders}</div>
                       <p className="text-sm text-gray-600 mt-1">Successfully completed {shop.totalOrders === 1 ? 'order' : 'orders'}</p>

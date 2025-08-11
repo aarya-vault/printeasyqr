@@ -444,9 +444,9 @@ export default function CustomerBrowseShops() {
                             </span>
                           </div>
                         )}
-                        {shop.totalOrders > 0 && (
+                        {shop.totalOrders && shop.totalOrders > 0 && (
                           <div className="flex items-center gap-1">
-                            
+                            <span className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
                               {shop.totalOrders} {shop.totalOrders === 1 ? 'order' : 'orders'}
                             </span>
                           </div>
