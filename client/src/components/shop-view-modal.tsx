@@ -21,38 +21,54 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     { key: 'saturday', label: 'Saturday' },
   ];
 
-  // Combine services: standard + custom from different fields
+  // AGGRESSIVE DEBUG - Log the entire shop object first
+  console.log('🚨 FULL SHOP OBJECT DEBUG:', shop);
+  console.log('🔍 CUSTOM SERVICES RAW:', shop.customServices);
+  console.log('🔍 CUSTOM EQUIPMENT RAW:', shop.customEquipment);
+
+  // More robust array handling with extensive logging
+  const baseServices = Array.isArray(shop.services) ? shop.services : [];
+  const offeredServices = Array.isArray(shop.servicesOffered) ? shop.servicesOffered : [];
+  const customServices = Array.isArray(shop.customServices) ? shop.customServices : [];
+  
+  const baseEquipment = Array.isArray(shop.equipment) ? shop.equipment : [];
+  const availableEquipment = Array.isArray(shop.equipmentAvailable) ? shop.equipmentAvailable : [];
+  const customEquipment = Array.isArray(shop.customEquipment) ? shop.customEquipment : [];
+
+  console.log('🔍 PROCESSED ARRAYS:', {
+    baseServices, offeredServices, customServices,
+    baseEquipment, availableEquipment, customEquipment
+  });
+
+  // Combine services with explicit logging for each step
   const allServices = [
-    ...(shop.services || []),
-    ...(shop.servicesOffered || []),
-    ...(shop.customServices || [])
+    ...baseServices,
+    ...offeredServices,
+    ...customServices
   ].filter((service: string, index: number, array: string[]) => {
-    // Keep non-empty strings and remove duplicates
-    return service && service.trim() && array.indexOf(service) === index;
+    const isValid = service && typeof service === 'string' && service.trim();
+    const isUnique = array.indexOf(service) === index;
+    console.log(`🔍 SERVICE FILTER: "${service}" -> valid: ${isValid}, unique: ${isUnique}`);
+    return isValid && isUnique;
   });
 
-  // Combine equipment: standard + custom from different fields  
+  // Combine equipment with explicit logging for each step  
   const allEquipment = [
-    ...(shop.equipment || []),
-    ...(shop.equipmentAvailable || []),
-    ...(shop.customEquipment || [])
+    ...baseEquipment,
+    ...availableEquipment, 
+    ...customEquipment
   ].filter((equipment: string, index: number, array: string[]) => {
-    // Keep non-empty strings and remove duplicates
-    return equipment && equipment.trim() && array.indexOf(equipment) === index;
+    const isValid = equipment && typeof equipment === 'string' && equipment.trim();
+    const isUnique = array.indexOf(equipment) === index;
+    console.log(`🔍 EQUIPMENT FILTER: "${equipment}" -> valid: ${isValid}, unique: ${isUnique}`);
+    return isValid && isUnique;
   });
 
-  // Debug logging to help identify the issue
-  console.log('🔍 Shop Data Debug:', {
-    shopId: shop.id,
-    shopName: shop.name,
-    services: shop.services,
-    servicesOffered: shop.servicesOffered, 
-    customServices: shop.customServices,
+  console.log('🎯 FINAL RESULTS:', {
     allServices: allServices,
-    equipment: shop.equipment,
-    equipmentAvailable: shop.equipmentAvailable,
-    customEquipment: shop.customEquipment, 
-    allEquipment: allEquipment
+    allEquipment: allEquipment,
+    servicesCount: allServices.length,
+    equipmentCount: allEquipment.length
   });
 
   const calculateYearsOfExperience = (formationYear: number | string): number => {
