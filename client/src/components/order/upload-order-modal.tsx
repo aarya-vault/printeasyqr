@@ -24,12 +24,11 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
-    title: '',
-    copies: 1,
-    colorType: 'bw' as 'bw' | 'color',
-    paperSize: 'A4',
-    binding: 'None',
-    specialInstructions: '',
+    name: '',
+    phoneNumber: '',
+    orderType: '',
+    uploadOrWalkin: 'upload',
+    printingDescription: '',
     isUrgent: false,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -41,12 +40,11 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
     setSelectedShop(null);
     setFiles([]);
     setFormData({
-      title: '',
-      copies: 1,
-      colorType: 'bw',
-      paperSize: 'A4',
-      binding: 'None',
-      specialInstructions: '',
+      name: '',
+      phoneNumber: '',
+      orderType: '',
+      uploadOrWalkin: 'upload',
+      printingDescription: '',
       isUrgent: false,
     });
   };
@@ -106,17 +104,42 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
   };
 
   const handleSubmit = async () => {
-    if (files.length === 0) {
+    // Validation for simple form
+    if (!formData.name.trim()) {
       toast({
-        title: "Please upload at least one file",
+        title: "Name is required",
         variant: "destructive",
       });
       return;
     }
 
-    if (!formData.title.trim()) {
+    if (!formData.phoneNumber || !/^[6-9][0-9]{9}$/.test(formData.phoneNumber)) {
       toast({
-        title: "Please enter a title for your order",
+        title: "Please enter a valid phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.orderType) {
+      toast({
+        title: "Please select an order type",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.uploadOrWalkin) {
+      toast({
+        title: "Please select upload or walk-in",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.printingDescription.trim()) {
+      toast({
+        title: "Please enter printing description",
         variant: "destructive",
       });
       return;
@@ -126,14 +149,14 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
     try {
       const orderData: OrderFormData = {
         shopId: selectedShop!,
-        type: 'upload',
-        title: formData.title,
+        type: formData.uploadOrWalkin as 'upload' | 'walkin',
+        title: formData.orderType,
+        description: formData.printingDescription,
         specifications: {
-          copies: formData.copies,
-          colorType: formData.colorType,
-          paperSize: formData.paperSize,
-          binding: formData.binding,
-          specialInstructions: formData.specialInstructions,
+          customerName: formData.name,
+          orderType: formData.orderType,
+          uploadOrWalkin: formData.uploadOrWalkin,
+          printingDescription: formData.printingDescription,
         },
         isUrgent: formData.isUrgent,
       };
@@ -160,7 +183,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-rich-black">
-            Upload Files Order
+            Simple Order Form
           </DialogTitle>
         </DialogHeader>
 
@@ -214,160 +237,99 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
 
         {step === 2 && (
           <div className="space-y-6">
+            {/* Name */}
             <div>
-              <Label htmlFor="orderTitle" className="text-sm font-medium text-rich-black mb-2 block">
-                Order Title
+              <Label htmlFor="name" className="text-sm font-medium text-rich-black mb-2 block">
+                Name *
               </Label>
               <Input
-                id="orderTitle"
-                placeholder="e.g., Assignment Documents"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                id="name"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 className="input-field"
               />
             </div>
 
+            {/* Phone Number */}
             <div>
-              <h3 className="text-lg font-medium text-rich-black mb-4">Upload Files</h3>
-              
-              {/* File Drop Zone */}
-              <div 
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-brand-yellow transition-colors"
-                onDrop={handleFileDrop}
-                onDragOver={(e) => e.preventDefault()}
-                onDragEnter={(e) => e.preventDefault()}
+              <Label htmlFor="phoneNumber" className="text-sm font-medium text-rich-black mb-2 block">
+                Phone Number *
+              </Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                placeholder="9876543210"
+                value={formData.phoneNumber}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  if (value.length <= 10) {
+                    setFormData(prev => ({ ...prev, phoneNumber: value }));
+                  }
+                }}
+                maxLength={10}
+                className="input-field"
+              />
+              <p className="text-xs text-medium-gray mt-1">
+                WhatsApp OTP will be sent for verification
+              </p>
+            </div>
+
+            {/* Order Type */}
+            <div>
+              <Label htmlFor="orderType" className="text-sm font-medium text-rich-black mb-2 block">
+                Order Type *
+              </Label>
+              <Select 
+                value={formData.orderType} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, orderType: value }))}
               >
-                <UploadCloud className="w-12 h-12 text-medium-gray mx-auto mb-4" />
-                <p className="text-medium-gray mb-2">Drag & drop files here, or</p>
-                <Button 
-                  type="button" 
-                  variant="link"
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                  className="text-brand-yellow hover:underline font-medium"
-                >
-                  Browse Files
-                </Button>
-                <input
-                  type="file"
-                  id="fileInput"
-                  multiple
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                <p className="text-xs text-medium-gray mt-2">
-                  Supported: PDF, DOC, JPG, PNG, TXT (Unlimited file size)
-                </p>
-              </div>
-              
-              {/* Uploaded Files List */}
-              {files.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-light-gray rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <FileText className="w-5 h-5 text-medium-gray" />
-                        <div>
-                          <p className="font-medium text-rich-black text-sm">{file.name}</p>
-                          <p className="text-xs text-medium-gray">
-                            {(file.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                        className="text-error-red hover:text-red-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                <SelectTrigger className="input-field">
+                  <SelectValue placeholder="Select order type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Document Printing">Document Printing</SelectItem>
+                  <SelectItem value="Photo Printing">Photo Printing</SelectItem>
+                  <SelectItem value="Business Cards">Business Cards</SelectItem>
+                  <SelectItem value="Flyers/Brochures">Flyers/Brochures</SelectItem>
+                  <SelectItem value="Binding Service">Binding Service</SelectItem>
+                  <SelectItem value="Lamination">Lamination</SelectItem>
+                  <SelectItem value="Scanning">Scanning</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-            {/* Print Specifications */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium text-rich-black mb-2 block">
-                  Number of Copies
-                </Label>
-                <Input
-                  type="number"
-                  min="1"
-                  value={formData.copies}
-                  onChange={(e) => setFormData(prev => ({ ...prev, copies: parseInt(e.target.value) || 1 }))}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-rich-black mb-2 block">
-                  Print Type
-                </Label>
-                <Select 
-                  value={formData.colorType} 
-                  onValueChange={(value: 'bw' | 'color') => setFormData(prev => ({ ...prev, colorType: value }))}
-                >
-                  <SelectTrigger className="input-field">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bw">Black & White</SelectItem>
-                    <SelectItem value="color">Color</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-rich-black mb-2 block">
-                  Paper Size
-                </Label>
-                <Select 
-                  value={formData.paperSize} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, paperSize: value }))}
-                >
-                  <SelectTrigger className="input-field">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="A4">A4</SelectItem>
-                    <SelectItem value="A3">A3</SelectItem>
-                    <SelectItem value="Letter">Letter</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-rich-black mb-2 block">
-                  Binding
-                </Label>
-                <Select 
-                  value={formData.binding} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, binding: value }))}
-                >
-                  <SelectTrigger className="input-field">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="None">None</SelectItem>
-                    <SelectItem value="Staple">Staple</SelectItem>
-                    <SelectItem value="Spiral">Spiral</SelectItem>
-                    <SelectItem value="Perfect Binding">Perfect Binding</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            {/* Special Instructions */}
+
+            {/* Upload or Walk-in */}
             <div>
-              <Label className="text-sm font-medium text-rich-black mb-2 block">
-                Special Instructions
+              <Label htmlFor="uploadOrWalkin" className="text-sm font-medium text-rich-black mb-2 block">
+                Upload or Walk-in *
+              </Label>
+              <Select 
+                value={formData.uploadOrWalkin} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, uploadOrWalkin: value }))}
+              >
+                <SelectTrigger className="input-field">
+                  <SelectValue placeholder="Select service type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="upload">Upload Files (Digital)</SelectItem>
+                  <SelectItem value="walkin">Walk-in Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Printing Description */}
+            <div>
+              <Label htmlFor="printingDescription" className="text-sm font-medium text-rich-black mb-2 block">
+                Printing Description *
               </Label>
               <Textarea
+                id="printingDescription"
                 rows={3}
-                placeholder="Any special requirements or instructions..."
-                value={formData.specialInstructions}
-                onChange={(e) => setFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
+                placeholder="Describe your printing requirements..."
+                value={formData.printingDescription}
+                onChange={(e) => setFormData(prev => ({ ...prev, printingDescription: e.target.value }))}
                 className="input-field"
               />
             </div>
@@ -380,7 +342,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isUrgent: !!checked }))}
               />
               <Label htmlFor="urgentOrder" className="text-sm text-rich-black">
-                Mark as urgent (additional charges may apply)
+                Is it really urgent?
               </Label>
             </div>
             
@@ -400,7 +362,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-rich-black border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  'Place Order'
+                  'Submit Order with OTP'
                 )}
               </Button>
             </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DemoBanner } from '@/components/demo-banner';
-import { SimpleOrderModal } from '@/components/order/simple-order-modal';
+import { UploadOrderModal } from '@/components/order/upload-order-modal';
 import { useQuery } from '@tanstack/react-query';
 import { Shop } from '@/types';
 import { Upload, Smartphone, ShoppingCart } from 'lucide-react';
@@ -185,11 +185,14 @@ export default function OTPDemo() {
           </ol>
         </div>
 
-        {/* Simple Order Modal */}
-        <SimpleOrderModal
+        {/* Upload Order Modal */}
+        <UploadOrderModal
           isOpen={showOrderModal}
           onClose={() => setShowOrderModal(false)}
-          shopId={1}
+          shops={demoShops}
+          onSubmit={async (orderData) => {
+            console.log('Order submitted:', orderData);
+          }}
         />
       </div>
     </div>
