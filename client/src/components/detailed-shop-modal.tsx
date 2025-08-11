@@ -72,7 +72,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     return null;
   }
 
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
   const formatDetailedWorkingHours = () => {
     if (!shop.workingHours) {
@@ -244,8 +244,8 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
-                    <div className="text-2xl font-bold text-brand-yellow">{shop.totalOrders || 0}</div>
-                    <p className="text-sm text-gray-600 mt-1">Total Orders</p>
+                    <div className="text-2xl font-bold text-brand-yellow">{shop.totalOrders ?? 0}</div>
+                    <p className="text-sm text-gray-600 mt-1">Successfully completed {shop.totalOrders ?? 0} orders</p>
                   </div>
                   <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                     <div className="text-2xl font-bold text-brand-yellow">

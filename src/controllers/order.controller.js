@@ -209,6 +209,17 @@ class OrderController {
           qrScanLocation: 'order_placement'
         }
       });
+
+      // 🔥 FIX: Update shop's total orders count for real-time sync
+      console.log(`🔄 Incrementing totalOrders for shop ID: ${shopId}`);
+      try {
+        await Shop.increment('totalOrders', {
+          where: { id: parseInt(shopId) }
+        });
+        console.log(`✅ Shop ${shopId} totalOrders incremented successfully`);
+      } catch (incrementError) {
+        console.error(`❌ Error incrementing totalOrders for shop ${shopId}:`, incrementError);
+      }
       
       const orderWithDetails = await Order.findByPk(newOrder.id, {
         include: [
