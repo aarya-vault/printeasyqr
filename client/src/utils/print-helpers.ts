@@ -1,4 +1,4 @@
-// Print function - opens window, waits for user to complete printing
+// Print function - simplified approach that just opens the file in new tab
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -17,104 +17,19 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     fileUrl = `/objects/.private/uploads/${file.filename || file}`;
   }
   
-  console.log('🖨️ Attempting to print file:', fileUrl);
+  console.log('🖨️ Opening file for printing:', fileUrl);
   
   return new Promise((resolve, reject) => {
-    // Open file in new window
+    // Open file in new window - let the user handle printing manually
     const printWindow = window.open(fileUrl, '_blank');
     
     if (printWindow) {
-      // Set up error handling for both load and security errors
-      let hasHandledError = false;
-      
-      const handleError = (errorMessage: string) => {
-        if (hasHandledError) return;
-        hasHandledError = true;
-        
-        try {
-          if (!printWindow.closed) {
-            printWindow.close();
-          }
-        } catch (e) {
-          // Ignore errors when closing cross-origin windows
-        }
-        
-        console.log(`❌ ${errorMessage}`);
-        reject(new Error(errorMessage));
-      };
-
-      // Handle window load
-      printWindow.onload = () => {
-        setTimeout(() => {
-          try {
-            printWindow.print();
-            console.log('🖨️ Print dialog opened');
-            
-            // Check if window is closed by user every 2 seconds
-            const checkInterval = setInterval(() => {
-              try {
-                if (printWindow.closed) {
-                  clearInterval(checkInterval);
-                  console.log('✅ Print window closed by user');
-                  resolve();
-                }
-              } catch (e) {
-                // Cross-origin access blocked - assume print completed
-                clearInterval(checkInterval);
-                console.log('✅ Print completed (cross-origin)');
-                resolve();
-              }
-            }, 2000);
-            
-            // Auto-resolve after 30 seconds
-            setTimeout(() => {
-              clearInterval(checkInterval);
-              try {
-                if (!printWindow.closed) {
-                  printWindow.close();
-                }
-              } catch (e) {
-                // Ignore cross-origin errors
-              }
-              console.log('⏰ Print auto-completed after timeout');
-              resolve();
-            }, 30000);
-          } catch (error) {
-            handleError('Cross-origin access blocked during print');
-          }
-        }, 2000);
-      };
-      
-      // Handle load errors
-      printWindow.onerror = () => {
-        handleError('Failed to load file for printing');
-      };
-      
-      // Fallback timeout for files that don't trigger onload
-      setTimeout(() => {
-        if (!hasHandledError) {
-          try {
-            printWindow.print();
-            console.log('🖨️ Print initiated (fallback)');
-            
-            // Simplified resolution for fallback case
-            setTimeout(() => {
-              try {
-                if (!printWindow.closed) {
-                  printWindow.close();
-                }
-              } catch (e) {
-                // Ignore cross-origin errors
-              }
-              resolve();
-            }, 10000);
-          } catch (error) {
-            handleError('File may not be available for printing');
-          }
-        }
-      }, 5000);
+      console.log('✅ File opened in new tab - user can print manually');
+      // Resolve immediately since we can't control cross-origin print behavior
+      resolve();
     } else {
-      reject(new Error('Popup blocked or window failed to open'));
+      console.error('❌ Popup blocked or window failed to open');
+      reject(new Error('Popup blocked - please allow popups and try again'));
     }
   });
 };
