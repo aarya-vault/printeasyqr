@@ -1,239 +1,175 @@
-// Working Hours Utilities for Real-time Shop Status Calculation
+// Working hours utility functions for real-time shop status calculations
+import { format, parse, isAfter, isBefore, isEqual } from 'date-fns';
 
-export interface ParsedWorkingHours {
-  open: string;      // 24-hour format: "10:00"
-  close: string;     // 24-hour format: "20:30"
-  closed: boolean;
+export interface WorkingHours {
+  [day: string]: {
+    open?: string;
+    close?: string;
+    closed?: boolean;
+    is24Hours?: boolean;
+  };
+}
+
+export interface ParsedTimeRange {
+  openTime: Date;
+  closeTime: Date;
   is24Hours: boolean;
-}
-
-export interface WorkingHoursData {
-  [day: string]: ParsedWorkingHours;
+  closed: boolean;
 }
 
 /**
- * Parse time string like "10 AM" or "8:30 PM" to 24-hour format
+ * Parse string format working hours to structured time objects
+ * Handles formats like "10 AM to 8:30 PM", "9:00 AM to 6:00 PM", "24/7", "Closed"
  */
-export function parseTimeString(timeStr: string): string {
-  if (!timeStr || typeof timeStr !== 'string') return '09:00';
-  
-  const cleanTime = timeStr.trim().toUpperCase();
-  
-  // Handle already 24-hour format
-  if (/^\d{1,2}:\d{2}$/.test(cleanTime)) {
-    return cleanTime.length === 4 ? `0${cleanTime}` : cleanTime;
-  }
-  
-  // Parse 12-hour format
-  const match = cleanTime.match(/^(\d{1,2}):?(\d{2})?\s*(AM|PM)$/);
-  if (!match) return '09:00';
-  
-  let hours = parseInt(match[1]);
-  const minutes = match[2] ? parseInt(match[2]) : 0;
-  const period = match[3];
-  
-  // Convert to 24-hour format
-  if (period === 'PM' && hours !== 12) hours += 12;
-  if (period === 'AM' && hours === 12) hours = 0;
-  
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-}
-
-/**
- * Parse string working hours like "10 AM to 8:30 PM" to structured format
- */
-export function parseWorkingHoursString(hoursStr: string): ParsedWorkingHours {
-  if (!hoursStr || typeof hoursStr !== 'string') {
-    return { open: '09:00', close: '18:00', closed: false, is24Hours: false };
-  }
-  
-  const cleanHours = hoursStr.trim();
-  
-  // Check for special cases
-  if (cleanHours.toLowerCase().includes('24') || cleanHours.toLowerCase().includes('24/7')) {
-    return { open: '00:00', close: '23:59', closed: false, is24Hours: true };
-  }
-  
-  if (cleanHours.toLowerCase().includes('closed')) {
-    return { open: '09:00', close: '18:00', closed: true, is24Hours: false };
-  }
-  
-  // Parse "10 AM to 8:30 PM" format
-  const timeParts = cleanHours.split(/\s*(?:to|-|–|—)\s*/i);
-  if (timeParts.length === 2) {
-    const openTime = parseTimeString(timeParts[0]);
-    const closeTime = parseTimeString(timeParts[1]);
-    
+export function parseWorkingHoursString(hoursString: string): ParsedTimeRange {
+  if (!hoursString || hoursString.toLowerCase().includes('closed')) {
     return {
-      open: openTime,
-      close: closeTime,
-      closed: false,
-      is24Hours: false
+      openTime: new Date(),
+      closeTime: new Date(),
+      is24Hours: false,
+      closed: true
     };
   }
-  
-  // Fallback
-  return { open: '09:00', close: '18:00', closed: false, is24Hours: false };
-}
 
-/**
- * Convert working hours from any format to structured format
- */
-export function normalizeWorkingHours(workingHours: any): WorkingHoursData {
-  if (!workingHours) return getDefaultWorkingHours();
+  if (hoursString.toLowerCase().includes('24') || hoursString.toLowerCase().includes('24/7')) {
+    return {
+      openTime: new Date(),
+      closeTime: new Date(),
+      is24Hours: true,
+      closed: false
+    };
+  }
+
+  // Parse "10 AM to 8:30 PM" format
+  const timePattern = /(\d{1,2}(?::\d{2})?\s*(?:AM|PM))\s*(?:to|-)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM))/i;
+  const match = hoursString.match(timePattern);
   
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const normalized: WorkingHoursData = {};
-  
-  days.forEach(day => {
-    const dayLower = day.toLowerCase();
-    const dayData = workingHours[day] || workingHours[dayLower] || workingHours[day.substring(0, 3).toLowerCase()];
-    
-    if (typeof dayData === 'string') {
-      // String format like "10 AM to 8:30 PM"
-      normalized[day] = parseWorkingHoursString(dayData);
-    } else if (typeof dayData === 'object' && dayData !== null) {
-      // Object format (legacy support)
-      normalized[day] = {
-        open: dayData.open || '09:00',
-        close: dayData.close || '18:00',
-        closed: dayData.closed || false,
-        is24Hours: dayData.is24Hours || false
+  if (match) {
+    try {
+      const [, openStr, closeStr] = match;
+      const today = new Date();
+      const openTime = parse(openStr.trim(), openStr.includes(':') ? 'h:mm a' : 'h a', today);
+      const closeTime = parse(closeStr.trim(), closeStr.includes(':') ? 'h:mm a' : 'h a', today);
+      
+      return {
+        openTime,
+        closeTime,
+        is24Hours: false,
+        closed: false
       };
-    } else {
-      // Default hours
-      normalized[day] = { open: '09:00', close: '18:00', closed: false, is24Hours: false };
+    } catch (error) {
+      console.warn('Failed to parse working hours:', hoursString, error);
     }
-  });
-  
-  return normalized;
-}
+  }
 
-/**
- * Get default working hours (9 AM to 6 PM, Monday to Saturday)
- */
-export function getDefaultWorkingHours(): WorkingHoursData {
+  // Default fallback for unparseable strings
   return {
-    'Sunday': { open: '10:00', close: '18:00', closed: false, is24Hours: false },
-    'Monday': { open: '09:00', close: '18:00', closed: false, is24Hours: false },
-    'Tuesday': { open: '09:00', close: '18:00', closed: false, is24Hours: false },
-    'Wednesday': { open: '09:00', close: '18:00', closed: false, is24Hours: false },
-    'Thursday': { open: '09:00', close: '18:00', closed: false, is24Hours: false },
-    'Friday': { open: '09:00', close: '18:00', closed: false, is24Hours: false },
-    'Saturday': { open: '09:00', close: '18:00', closed: false, is24Hours: false }
+    openTime: parse('9:00 AM', 'h:mm a', new Date()),
+    closeTime: parse('6:00 PM', 'h:mm a', new Date()),
+    is24Hours: false,
+    closed: false
   };
 }
 
 /**
  * Check if shop is currently open based on working hours
  */
-export function isShopCurrentlyOpen(workingHours: any, timezone = 'Asia/Kolkata'): boolean {
-  try {
-    const now = new Date();
-    const indiaTime = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      weekday: 'long',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolean {
+  const now = new Date();
+  const currentDay = format(now, 'EEEE').toLowerCase();
+  
+  let dayHours;
+  
+  if (typeof workingHours === 'string') {
+    // Handle string format working hours
+    const parsed = parseWorkingHoursString(workingHours);
+    if (parsed.closed) return false;
+    if (parsed.is24Hours) return true;
     
-    const parts = indiaTime.formatToParts(now);
-    const dayName = parts.find(p => p.type === 'weekday')?.value;
-    const currentTime = `${parts.find(p => p.type === 'hour')?.value}:${parts.find(p => p.type === 'minute')?.value}`;
-    
-    if (!dayName) return false;
-    
-    const normalizedHours = normalizeWorkingHours(workingHours);
-    const todayHours = normalizedHours[dayName];
-    
-    if (!todayHours || todayHours.closed) return false;
-    if (todayHours.is24Hours) return true;
-    
-    // Compare times
-    const current = timeToMinutes(currentTime);
-    const open = timeToMinutes(todayHours.open);
-    const close = timeToMinutes(todayHours.close);
-    
-    // Handle overnight hours (e.g., 22:00 to 06:00)
-    if (close < open) {
-      return current >= open || current <= close;
-    } else {
-      return current >= open && current <= close;
-    }
-  } catch (error) {
-    console.error('Error checking shop status:', error);
-    return false;
+    const currentTime = parse(format(now, 'h:mm a'), 'h:mm a', new Date());
+    return isAfter(currentTime, parsed.openTime) && isBefore(currentTime, parsed.closeTime);
   }
+  
+  if (typeof workingHours === 'object' && workingHours[currentDay]) {
+    dayHours = workingHours[currentDay];
+  } else {
+    return false; // No hours defined for today
+  }
+
+  if (dayHours.closed) return false;
+  if (dayHours.is24Hours) return true;
+
+  if (dayHours.open && dayHours.close) {
+    try {
+      const openTime = parse(dayHours.open, dayHours.open.includes(':') ? 'h:mm a' : 'h a', new Date());
+      const closeTime = parse(dayHours.close, dayHours.close.includes(':') ? 'h:mm a' : 'h a', new Date());
+      const currentTime = parse(format(now, 'h:mm a'), 'h:mm a', new Date());
+      
+      return isAfter(currentTime, openTime) && isBefore(currentTime, closeTime);
+    } catch (error) {
+      console.warn('Failed to parse working hours for', currentDay, dayHours, error);
+      return false;
+    }
+  }
+
+  return false;
 }
 
 /**
- * Convert time string to minutes since midnight for comparison
+ * Get display string for working hours
  */
-function timeToMinutes(timeStr: string): number {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  return hours * 60 + minutes;
+export function getWorkingHoursDisplay(workingHours: WorkingHours | string): string {
+  if (typeof workingHours === 'string') {
+    return workingHours;
+  }
+  
+  if (typeof workingHours === 'object') {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = format(new Date(), 'EEEE').toLowerCase();
+    const todayHours = workingHours[today];
+    
+    if (todayHours) {
+      if (todayHours.closed) return 'Closed Today';
+      if (todayHours.is24Hours) return '24/7 Open';
+      if (todayHours.open && todayHours.close) {
+        return `${todayHours.open} - ${todayHours.close}`;
+      }
+    }
+  }
+  
+  return 'Standard business hours';
 }
 
 /**
- * Format working hours for display
+ * Format working hours for display in chronological order
  */
-export function formatWorkingHoursDisplay(workingHours: any): Array<{day: string, schedule: string, status: string}> {
-  const normalizedHours = normalizeWorkingHours(workingHours);
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string): Array<{day: string, hours: string}> {
+  if (typeof workingHours === 'string') {
+    return [{
+      day: 'Daily',
+      hours: workingHours
+    }];
+  }
+  
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   
   return days.map(day => {
-    const hours = normalizedHours[day];
+    const dayHours = workingHours[day];
+    let hours = 'Standard hours';
     
-    if (hours.closed) {
-      return { day, schedule: 'Closed', status: 'closed' };
+    if (dayHours) {
+      if (dayHours.closed) {
+        hours = 'Closed';
+      } else if (dayHours.is24Hours) {
+        hours = '24/7 Open';
+      } else if (dayHours.open && dayHours.close) {
+        hours = `${dayHours.open} - ${dayHours.close}`;
+      }
     }
-    
-    if (hours.is24Hours) {
-      return { day, schedule: '24/7 Open', status: '24hours' };
-    }
-    
-    // Format times for display
-    const openDisplay = formatTimeForDisplay(hours.open);
-    const closeDisplay = formatTimeForDisplay(hours.close);
     
     return {
-      day,
-      schedule: `${openDisplay} to ${closeDisplay}`,
-      status: 'open'
+      day: day.charAt(0).toUpperCase() + day.slice(1),
+      hours
     };
   });
-}
-
-/**
- * Convert 24-hour time to 12-hour display format
- */
-function formatTimeForDisplay(time: string): string {
-  const [hours, minutes] = time.split(':').map(Number);
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-  const displayMinutes = minutes === 0 ? '' : `:${minutes.toString().padStart(2, '0')}`;
-  
-  return `${displayHours}${displayMinutes} ${period}`;
-}
-
-/**
- * Get shop status text with real-time calculation
- */
-export function getShopStatusText(workingHours: any): { text: string; isOpen: boolean; className: string } {
-  const isOpen = isShopCurrentlyOpen(workingHours);
-  
-  if (isOpen) {
-    return {
-      text: 'Open Now',
-      isOpen: true,
-      className: 'bg-green-100 text-green-800'
-    };
-  } else {
-    return {
-      text: 'Currently Closed',
-      isOpen: false,
-      className: 'bg-gray-100 text-gray-800'
-    };
-  }
 }

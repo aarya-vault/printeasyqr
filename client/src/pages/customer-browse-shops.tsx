@@ -1,79 +1,32 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useLocation, Link } from 'wouter';
 import { 
-  ArrowLeft, Search, MapPin, Clock, Star, Users, Upload,
-  Home, Package, ShoppingCart, User, Phone, Eye, Lock, Unlock, Store, Printer
+  ArrowLeft, Search, Store, X, CheckCircle, SlidersHorizontal
 } from 'lucide-react';
 import LoadingScreen from '@/components/loading-screen';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import BottomNavigation from '@/components/common/bottom-navigation';
 import UnifiedShopModal from '@/components/unified-shop-modal';
+import UnifiedShopCard from '@/components/unified-shop-card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { Shop } from '@/types/shop';
+import { isShopCurrentlyOpen } from '@/utils/working-hours';
 
-interface Shop {
-  id: number;
-  name: string;
-  slug: string;
-  address: string;
-  city: string;
-  state: string;
-  phone: string;
-  pinCode?: string;
-  // Public information
-  publicName?: string;
-  publicOwnerName?: string;
-  publicAddress?: string;
-  publicContactNumber?: string;
-  // Status and availability
-  isOpen?: boolean;
-  isOnline: boolean;
-  acceptsWalkinOrders: boolean;
-  // Working hours
-  workingHours?: Record<string, {
-    open?: string;
-    close?: string;
-    closed?: boolean;
-    is24Hours?: boolean;
-  }>;
-  // Business details with aliases
-  servicesOffered?: string[];
-  equipmentAvailable?: string[];
-  services?: string[];
-  equipment?: string[];
-  // Experience and details
-  yearsOfExperience?: string;
-  formationYear?: number;
-  ownerFullName?: string;
-  completeAddress?: string;
-  email?: string;
-  ownerPhone?: string;
-  // Statistics
-  totalOrders?: number;
-  rating?: number;
-  // Timestamps
-  createdAt?: string;
-  updatedAt?: string;
-  // Owner information
-  owner?: {
-    id: number;
-    name: string;
-    phone: string;
-    email: string;
-    role: string;
-  };
-}
+// Using imported Shop type from @/types/shop
 
 export default function CustomerBrowseShops() {
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showShopDetails, setShowShopDetails] = useState(false);
+  const [filterCity, setFilterCity] = useState('');
+  const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -112,62 +65,16 @@ export default function CustomerBrowseShops() {
     return unlockedShopIds.includes(shopId);
   };
 
-  // Enhanced shop availability calculation
-  const calculateShopAvailability = (shop: Shop) => {
-    // Handle shops with no working hours data
-    if (!shop.workingHours || typeof shop.workingHours !== 'object') {
-      return { isOpen: shop.isOnline !== false, status: 'Hours not available' };
-    }
-    
-    const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    const daySchedule = shop.workingHours[currentDay];
-    if (!daySchedule || daySchedule.closed) {
-      return { isOpen: false, status: 'Closed Today' };
-    }
-    
-    // Check for 24/7 operation
-    if (daySchedule.is24Hours) {
-      return { isOpen: true, status: 'Open 24 Hours' };
-    }
-    
-    // Ensure open and close times exist
-    if (!daySchedule.open || !daySchedule.close) {
-      return { isOpen: false, status: 'Hours not available' };
-    }
-    
-    const openTimeParts = daySchedule.open.split(':');
-    const closeTimeParts = daySchedule.close.split(':');
-    
-    if (openTimeParts.length !== 2 || closeTimeParts.length !== 2) {
-      return { isOpen: false, status: 'Invalid hours format' };
-    }
-    
-    const openTime = parseInt(openTimeParts[0]) * 60 + parseInt(openTimeParts[1]);
-    const closeTime = parseInt(closeTimeParts[0]) * 60 + parseInt(closeTimeParts[1]);
-    
-    // Handle 24/7 shops (open equals close time)
-    if (openTime === closeTime) {
-      return { isOpen: true, status: '24/7 Open' };
-    }
-    
-    // Handle overnight shops
-    if (openTime > closeTime) {
-      const isOpen = currentTime >= openTime || currentTime <= closeTime;
-      return { 
-        isOpen, 
-        status: isOpen ? 'Open Now' : `Opens at ${daySchedule.open}` 
-      };
-    }
-    
-    // Regular hours
-    const isOpen = currentTime >= openTime && currentTime <= closeTime;
-    return { 
-      isOpen, 
-      status: isOpen ? 'Open Now' : currentTime < openTime ? `Opens at ${daySchedule.open}` : 'Closed'
-    };
+  // Extract unique cities for filter
+  const cities = Array.from(
+    new Set(shops.map((shop: Shop) => shop.city)),
+  ).sort();
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterCity('');
+    setFilterOnline(null);
+    setFilterOpenNow(false);
   };
 
   const handleShopClick = (shop: Shop) => {
@@ -205,16 +112,28 @@ export default function CustomerBrowseShops() {
     }
   };
 
-  // Filter shops based on search
-  const filteredShops = shops.filter(shop => {
-    const search = searchQuery.toLowerCase();
-    return (
-      shop.name.toLowerCase().includes(search) ||
-      shop.address.toLowerCase().includes(search) ||
-      (shop.servicesOffered || shop.services || []).some(service => 
-        service.toLowerCase().includes(search)
-      )
-    );
+  // Filter shops based on search and filters
+  const filteredShops = shops.filter((shop: Shop) => {
+    const matchesSearch =
+      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.pinCode?.includes(searchQuery) ||
+      shop.services?.some((service) =>
+        service.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+
+    const matchesCity =
+      !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
+    const matchesOnline =
+      filterOnline === null || shop.isOnline === filterOnline;
+    
+    const matchesOpenNow = filterOpenNow 
+      ? isShopCurrentlyOpen(shop.workingHours) 
+      : true;
+
+    return matchesSearch && matchesCity && matchesOnline && matchesOpenNow;
   });
 
   // Sort shops - unlocked shops first
@@ -282,15 +201,73 @@ export default function CustomerBrowseShops() {
             </div>
           </div>
 
-          {/* Search */}
-          <div className="mt-4 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search shops by name, location, or services..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          {/* Search and Filters */}
+          <div className="mt-4 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search shops by name, location, or services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={filterCity}
+                onChange={(e) => setFilterCity(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
+              >
+                <option value="">All Cities</option>
+                {cities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+              
+              <select
+                value={filterOnline === null ? "" : filterOnline.toString()}
+                onChange={(e) =>
+                  setFilterOnline(
+                    e.target.value === "" ? null : e.target.value === "true",
+                  )
+                }
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
+              >
+                <option value="">All Status</option>
+                <option value="true">Online</option>
+                <option value="false">Offline</option>
+              </select>
+              
+              <Button
+                onClick={() => setFilterOpenNow(!filterOpenNow)}
+                variant={filterOpenNow ? "default" : "outline"}
+                size="sm"
+                className={`${
+                  filterOpenNow 
+                    ? "bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90" 
+                    : "border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                }`}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Open Now
+              </Button>
+              
+              {(searchQuery || filterCity || filterOnline !== null || filterOpenNow) && (
+                <Button
+                  onClick={clearFilters}
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00]"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -298,180 +275,37 @@ export default function CustomerBrowseShops() {
       {/* Shops List */}
       <div className="px-6 py-6">
         {filteredShops.length === 0 ? (
-          <Card className="bg-white">
-            <CardContent className="p-8 text-center">
-              <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No shops found</p>
-              <p className="text-sm text-gray-400 mt-1">
-                {searchQuery ? 'Try different search terms' : 'No print shops are currently available'}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="text-center py-16">
+            <Store className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-3">
+              No Shops Found
+            </h3>
+            <p className="text-gray-500 mb-6">
+              {searchQuery || filterCity || filterOnline !== null || filterOpenNow
+                ? "Try adjusting your search or filters"
+                : "No print shops are currently available"}
+            </p>
+            {(searchQuery || filterCity || filterOnline !== null || filterOpenNow) && (
+              <Button
+                onClick={clearFilters}
+                variant="outline"
+                className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sortedShops.map((shop) => {
-              const availability = calculateShopAvailability(shop);
-              const isUnlocked = isShopUnlocked(shop.id);
-              
-              return (
-                <Card 
-                  key={shop.id} 
-                  className={`group transition-all duration-300 cursor-pointer overflow-hidden ${
-                    isUnlocked 
-                      ? 'border-2 border-brand-yellow/40 hover:border-brand-yellow bg-gradient-to-br from-white via-brand-yellow/5 to-brand-yellow/10 hover:shadow-xl transform hover:-translate-y-1' 
-                      : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:shadow-md opacity-80'
-                  }`}
-                  onClick={() => handleShopClick(shop)}
-                >
-                  <CardContent className="p-6">
-                    {/* Shop Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-start gap-4 mb-3">
-                          {/* Enhanced Shop Icon */}
-                          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg transition-all duration-300 ${
-                            isUnlocked 
-                              ? 'bg-gradient-to-br from-brand-yellow to-yellow-400 group-hover:shadow-xl' 
-                              : 'bg-gradient-to-br from-gray-300 to-gray-400'
-                          }`}>
-                            <Store className={`w-8 h-8 ${isUnlocked ? 'text-black' : 'text-gray-600'}`} />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h3 className={`font-bold text-xl mb-1 ${isUnlocked ? 'text-rich-black' : 'text-gray-700'}`}>
-                                  {shop.name}
-                                </h3>
-                                <div className="flex items-center gap-2 mb-2">
-                                  {isUnlocked ? (
-                                    <Badge className="bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 px-3 py-1">
-                                      <Unlock className="w-3 h-3 mr-1" />
-                                      Unlocked
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="secondary" className="bg-gray-200 text-gray-600">
-                                      <Lock className="w-3 h-3 mr-1" />
-                                      Locked
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Availability Badge */}
-                            <div className="mt-1">
-                              <Badge 
-                                className={`text-xs ${
-                                  availability.isOpen 
-                                    ? 'bg-green-100 text-green-800 border-green-200' 
-                                    : 'bg-red-100 text-red-800 border-red-200'
-                                }`}
-                              >
-                                <Clock className="w-3 h-3 mr-1" />
-                                {availability.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Shop Details */}
-                    <div className="space-y-2 mb-3">
-                      <div className="flex items-start gap-2">
-                        <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                        <span className={`text-sm line-clamp-2 ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                          {shop.address || shop.publicAddress || 'Address not available'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Phone className={`w-4 h-4 flex-shrink-0 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                        <span className={`text-sm ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                          {shop.publicContactNumber || shop.phone || 'No phone'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Services */}
-                    {((shop.servicesOffered && shop.servicesOffered.length > 0) || (shop.services && shop.services.length > 0)) && (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Printer className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                          <span className={`text-xs font-medium ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                            Services Available
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {((shop.servicesOffered || shop.services) || []).slice(0, 3).map((service, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="outline" 
-                              className={`text-xs ${
-                                isUnlocked 
-                                  ? 'border-gray-300 bg-white' 
-                                  : 'border-gray-200 bg-gray-100 text-gray-500'
-                              }`}
-                            >
-                              {service}
-                            </Badge>
-                          ))}
-                          {((shop.servicesOffered || shop.services) || []).length > 3 && (
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${
-                                isUnlocked 
-                                  ? 'border-gray-300 bg-gray-50' 
-                                  : 'border-gray-200 bg-gray-100 text-gray-500'
-                              }`}
-                            >
-                              +{((shop.servicesOffered || shop.services) || []).length - 3} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-3">
-                        {shop.rating && (
-                          <div className="flex items-center gap-1">
-                            <Star className={`w-4 h-4 fill-current ${isUnlocked ? 'text-yellow-400' : 'text-gray-300'}`} />
-                            <span className={`text-sm font-medium ${isUnlocked ? 'text-gray-700' : 'text-gray-500'}`}>
-                              {shop.rating}
-                            </span>
-                          </div>
-                        )}
-                        {shop.totalOrders > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Package className={`w-4 h-4 ${isUnlocked ? 'text-brand-yellow' : 'text-gray-400'}`} />
-                            <span className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
-                              {shop.totalOrders} {shop.totalOrders === 1 ? 'order' : 'orders'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {isUnlocked ? (
-                          <Badge className="bg-brand-yellow text-black px-3 py-1 font-medium">
-                            <Eye className="w-3 h-3 mr-1" />
-                            View Details
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="bg-gray-200 text-gray-600 px-3 py-1">
-                            <Lock className="w-3 h-3 mr-1" />
-                            Scan QR to Unlock
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredShops.map((shop: Shop) => (
+              <UnifiedShopCard
+                key={shop.id}
+                shop={shop}
+                onClick={() => handleShopClick(shop)}
+                showUnlockStatus={true}
+                isUnlocked={isShopUnlocked(shop.id)}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -482,17 +316,11 @@ export default function CustomerBrowseShops() {
       {/* Floating Chat Button */}
       <UnifiedFloatingChatButton />
 
-      {/* Detailed Shop Modal */}
+      {/* Shop Details Modal */}
       <UnifiedShopModal
-        shop={selectedShop}
         isOpen={showShopDetails}
         onClose={() => setShowShopDetails(false)}
-        onOrderClick={(shopSlug: string) => {
-          if (selectedShop) {
-            navigate(`/shop/${shopSlug}`);
-            setShowShopDetails(false);
-          }
-        }}
+        shop={selectedShop}
       />
     </div>
   );

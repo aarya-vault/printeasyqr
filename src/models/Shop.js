@@ -161,6 +161,12 @@ const Shop = sequelize.define('Shop', {
     allowNull: false,
     defaultValue: 0,
     field: 'total_orders'
+  },
+  // Shop Exterior Image (Admin-only upload)
+  exteriorImage: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'exterior_image'
   }
 }, {
   tableName: 'shops',
