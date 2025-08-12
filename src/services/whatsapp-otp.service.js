@@ -94,7 +94,7 @@ class WhatsAppOTPService {
           'src.name': process.env.GUPSHUP_APP_NAME,
           template: JSON.stringify({
             id: OTP_TEMPLATE_ID,
-            params: [otp, otp] // OTP twice as required by Gupshup documentation for body and button component
+            params: [otp] // Single OTP parameter as shown in your working example
           })
         };
 
@@ -159,15 +159,6 @@ class WhatsAppOTPService {
           console.log(`✅ WhatsApp OTP sent via fallback to ${fullPhoneNumber}:`, result.messageId);
         } else {
           console.log(`✅ WhatsApp OTP sent successfully to ${fullPhoneNumber}:`, result.messageId);
-          
-          // Check delivery status after a few seconds
-          setTimeout(async () => {
-            try {
-              await this.checkDeliveryStatus(result.messageId, fullPhoneNumber);
-            } catch (error) {
-              console.error('Failed to check delivery status:', error);
-            }
-          }, 5000); // Check after 5 seconds
         }
       }
       
