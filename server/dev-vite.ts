@@ -31,7 +31,7 @@ console.log('✅ Vite + Sequelize integration');
     await setupVite(sequelizeApp, server);
     console.log('🔧 Vite development server configured');
 
-    const PORT = parseInt(process.env.PORT || '5000', 10);
+    const PORT = parseInt(process.env.PORT || '3001', 10);
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ PrintEasy QR running on port ${PORT}`);

@@ -43,9 +43,7 @@ export default function UnifiedShopCard({
           <div className="relative mb-4">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
               <img
-                src={shop.exteriorImage.includes('googleusercontent.com') || shop.exteriorImage.includes('gps-proxy') 
-                  ? `/api/proxy-image?url=${encodeURIComponent(shop.exteriorImage)}`
-                  : shop.exteriorImage}
+                src={shop.exteriorImage}
                 alt={`${shop.name} exterior`}
                 className={`w-full h-full object-cover transition-opacity ${
                   isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
@@ -55,25 +53,12 @@ export default function UnifiedShopCard({
                 }}
                 onError={(e) => {
                   console.error('❌ Image failed to load:', shop.exteriorImage);
-                  // Replace with a clean shop placeholder instead of hiding
+                  // Hide entire image section if fails to load
                   const target = e.target as HTMLImageElement;
-                  target.src = 'data:image/svg+xml;base64,' + btoa(`
-                    <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="100%" height="100%" fill="#f8f9fa"/>
-                      <rect x="20" y="60" width="360" height="80" fill="#FFBF00" rx="8"/>
-                      <text x="200" y="90" text-anchor="middle" fill="black" font-family="Arial, sans-serif" font-size="14" font-weight="bold">
-                        ${shop.name}
-                      </text>
-                      <text x="200" y="110" text-anchor="middle" fill="black" font-family="Arial, sans-serif" font-size="12">
-                        Print Shop
-                      </text>
-                      <text x="200" y="130" text-anchor="middle" fill="black" font-family="Arial, sans-serif" font-size="10">
-                        Image unavailable
-                      </text>
-                    </svg>
-                  `);
-                  target.style.backgroundColor = '#f8f9fa';
-                  target.style.border = '2px dashed #dee2e6';
+                  const imageContainer = target.closest('.relative');
+                  if (imageContainer) {
+                    (imageContainer as HTMLElement).style.display = 'none';
+                  }
                 }}
               />
             </div>
