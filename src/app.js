@@ -308,7 +308,6 @@ function handleImageResponse(response, res) {
     }
   }
 }
-});
 
 // Object Storage download proxy - bypass CORS restrictions
 app.get('/api/download/:objectPath(*)', async (req, res) => {
