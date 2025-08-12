@@ -179,10 +179,9 @@ app.get('/objects/*', async (req, res) => {
   try {
     const objectPath = req.path.replace('/objects/', '');
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
-    const privateDir = process.env.PRIVATE_OBJECT_DIR || `/replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f/.private`;
     
-    // Construct the full object path 
-    const fullObjectPath = `${privateDir}/${objectPath}`;
+    // Construct the full object path directly - objectPath already includes .private/uploads/...
+    const fullObjectPath = objectPath;
     
     // Generate a signed URL for accessing the object
     const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {

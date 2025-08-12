@@ -74,11 +74,27 @@ router.put('/shop-exterior-image', requireAuth, requireAdmin, async (req, res) =
     if (objectPath.startsWith('https://storage.googleapis.com/')) {
       // Extract the path after the bucket name for /objects/ serving
       const url = new URL(objectPath);
-      const pathParts = url.pathname.split('/');
-      // Skip the bucket name and get the actual object path
-      if (pathParts.length > 2) {
-        objectPath = `/objects/${pathParts.slice(2).join('/')}`;
+      let pathname = url.pathname;
+      
+      // Remove any double slashes and clean the path
+      pathname = pathname.replace(/\/+/g, '/');
+      
+      // Split and get path after bucket name
+      const pathParts = pathname.split('/').filter(part => part.length > 0);
+      
+      // The structure is: /bucket-name/rest-of-path
+      // We want to serve it as: /objects/rest-of-path (without bucket name)
+      if (pathParts.length > 1) {
+        const objectPathWithoutBucket = pathParts.slice(1).join('/');
+        objectPath = `/objects/${objectPathWithoutBucket}`;
       }
+      
+      console.log('🖼️ Image path conversion:', {
+        original: exteriorImageURL,
+        cleaned: pathname,
+        parts: pathParts,
+        final: objectPath
+      });
     }
     
     // Update the shop with the exterior image path
