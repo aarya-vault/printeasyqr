@@ -1,4 +1,4 @@
-// Print function - opens file and attempts to trigger print dialog
+// Print function - direct PDF opening for instant printing
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -7,21 +7,18 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   }
   
   // Handle both old format (filename) and new format (path)
-  // Files are stored in object storage - use path directly if it starts with /objects/
   let fileUrl;
   if (file.path) {
-    // If path already starts with /objects/, use it directly
-    fileUrl = file.path.startsWith('/objects/') ? file.path : `/objects/.private/${file.path}`;
+    fileUrl = file.path; // Use path as-is, object routes handle redirection
   } else {
-    // Fallback for old filename format
     fileUrl = `/objects/.private/uploads/${file.filename || file}`;
   }
   
   console.log('🖨️ Opening file for printing:', fileUrl);
   
   return new Promise((resolve, reject) => {
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
+    // Open PDF directly in new window - browsers handle PDF viewing and printing natively
+    const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
     
     if (!printWindow) {
       console.error('❌ Popup blocked or window failed to open');
@@ -29,82 +26,18 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
       return;
     }
 
-    // Write a simple HTML page that loads the PDF and triggers print
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Printing: ${file.originalName || file.filename || 'Document'}</title>
-          <style>
-            body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-            iframe { width: 100%; height: 100%; border: none; }
-            .loading { 
-              position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-              font-family: Arial, sans-serif; color: #333; text-align: center;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="loading" id="loading">
-            <p>Loading document for printing...</p>
-            <p><small>Print dialog should appear shortly</small></p>
-          </div>
-          <iframe id="printFrame" src="${fileUrl}" style="display: none;"></iframe>
-          <script>
-            const iframe = document.getElementById('printFrame');
-            const loading = document.getElementById('loading');
-            
-            // Show iframe and hide loading when loaded
-            iframe.onload = function() {
-              loading.style.display = 'none';
-              iframe.style.display = 'block';
-              
-              // Try to trigger print after a short delay
-              setTimeout(() => {
-                try {
-                  window.print();
-                  console.log('🖨️ Print dialog triggered');
-                } catch (e) {
-                  console.log('Print triggered via window.print()');
-                  // Fallback: try to print the iframe content
-                  try {
-                    iframe.contentWindow.print();
-                  } catch (e2) {
-                    console.log('Manual print required - use Ctrl+P or browser print button');
-                  }
-                }
-              }, 1000);
-            };
-            
-            // Error handling
-            iframe.onerror = function() {
-              loading.innerHTML = '<p>Document loaded. Use Ctrl+P or browser print button to print.</p>';
-              setTimeout(() => window.print(), 1000);
-            };
-            
-            // Also trigger print on window focus (in case iframe doesn't load properly)
-            let printTriggered = false;
-            window.onfocus = function() {
-              if (!printTriggered) {
-                printTriggered = true;
-                setTimeout(() => {
-                  try {
-                    window.print();
-                  } catch (e) {
-                    console.log('Print via focus trigger');
-                  }
-                }, 500);
-              }
-            };
-          </script>
-        </body>
-      </html>
-    `);
-    
-    printWindow.document.close();
-    
-    console.log('✅ Print window created with auto-print functionality');
-    resolve();
+    // Wait a moment then trigger print - let browser handle PDF loading
+    setTimeout(() => {
+      try {
+        printWindow.focus();
+        printWindow.print();
+        console.log('🖨️ Print dialog triggered for:', file.originalName || file.filename);
+        resolve();
+      } catch (error) {
+        console.error('Print error:', error);
+        resolve(); // Don't reject, just log the error
+      }
+    }, 2000); // Give PDF time to load
   });
 };
 
@@ -127,12 +60,17 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
     // Fallback for old filename format
     downloadPath = `/api/download/.private/uploads/${file.filename || file}`;
   }
-  const originalName = file.originalName || file.filename || 'file';
+  
+  // Use the original filename if available, otherwise fall back to the generated filename
+  const originalName = file.originalName || file.filename || 'document.pdf';
+  
+  // Add original filename as query parameter to help server set correct filename
+  const downloadUrl = `${downloadPath}?originalName=${encodeURIComponent(originalName)}`;
   
   // Create download link and trigger download immediately
   const link = document.createElement('a');
-  link.href = downloadPath;
-  link.download = originalName;
+  link.href = downloadUrl;
+  link.download = originalName; // Browser hint for filename
   link.style.display = 'none';
   
   // Add to DOM, click, and remove

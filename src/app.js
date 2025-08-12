@@ -185,11 +185,20 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
       objectPath = objectPath.replace('.private/', '');
     }
     
+    // Extract originalName from URL query parameter manually
+    const urlParts = req.url.split('?');
+    const queryString = urlParts[1] || '';
+    const urlParams = new URLSearchParams(queryString);
+    const originalName = urlParams.get('originalName');
+    
     console.log('📥 Download proxy request:', {
       requestPath: req.path,
       originalObjectPath: req.params.objectPath,
       correctedObjectPath: objectPath,
-      bucketName: bucketName
+      bucketName: bucketName,
+      queryString: queryString,
+      originalNameParam: originalName,
+      fullUrl: req.url
     });
     
     // Generate signed URL for downloading
@@ -219,8 +228,21 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
       return res.status(404).json({ error: 'File not found' });
     }
     
-    // Extract filename and set headers
-    const filename = objectPath.split('/').pop() || 'file';
+    // Extract filename - prioritize originalName from query parameter, then object path
+    let filename = originalName || objectPath.split('/').pop() || 'file';
+    
+    // Clean up filename to ensure it's safe for download
+    filename = filename.replace(/[\/\\:*?"<>|]/g, '_'); // Replace unsafe characters
+    
+    // Try to extract original filename from Content-Disposition header if available
+    const contentDisposition = fileResponse.headers.get('Content-Disposition');
+    if (!originalName && contentDisposition && contentDisposition.includes('filename=')) {
+      const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (matches && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '');
+      }
+    }
+    
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', fileResponse.headers.get('content-type') || 'application/octet-stream');
     res.setHeader('Content-Length', fileResponse.headers.get('content-length') || '');
