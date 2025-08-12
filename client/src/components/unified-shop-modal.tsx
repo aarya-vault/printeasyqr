@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   Store, MapPin, Phone, Mail, User, Building2, Clock, CheckCircle, 
-  AlertCircle, Star, Wrench, Package, Calendar
+  AlertCircle, Star, Wrench, Package, Calendar, ExternalLink
 } from 'lucide-react';
 import { formatWorkingHoursForDisplay, getWorkingHoursDisplay, isShopCurrentlyOpen } from '@/utils/working-hours';
 
@@ -47,6 +47,8 @@ interface Shop {
   // Statistics
   totalOrders?: number;
   rating?: number;
+  // Google Maps Integration
+  googleMapsLink?: string;
 }
 
 interface UnifiedShopModalProps {
@@ -58,6 +60,12 @@ interface UnifiedShopModalProps {
 
 export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }: UnifiedShopModalProps) {
   if (!shop) return null;
+
+  const handleGoogleMapsClick = () => {
+    if (shop.googleMapsLink) {
+      window.open(shop.googleMapsLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   // Combine all services from different sources
   const getAllServices = (): string[] => {
@@ -228,6 +236,21 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
                   )}
                 </div>
               </div>
+
+              {shop.googleMapsLink && (
+                <div className="mt-4">
+                  <Button
+                    onClick={handleGoogleMapsClick}
+                    variant="outline"
+                    size="sm"
+                    className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    View on Google Maps
+                    <ExternalLink className="w-3 h-3 ml-2" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
