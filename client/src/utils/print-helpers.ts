@@ -1,4 +1,4 @@
-// Print function - simple and effective for PDFs
+// Enhanced print function using hidden iframe approach to bypass popup blockers
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -14,36 +14,77 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     fileUrl = `/objects/.private/uploads/${file.filename || file}`;
   }
   
-  console.log('🖨️ Opening PDF for printing:', file.originalName || file.filename);
-  
-  return new Promise((resolve) => {
-    // Simple approach: Open PDF in new window
-    // Browser will display PDF with print button available
-    const printWindow = window.open(fileUrl, '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
+  const filename = file.originalName || file.filename || file;
+  const fileExtension = filename.split('.').pop()?.toLowerCase();
+
+  return new Promise((resolve, reject) => {
+    // Create a hidden iframe for printing to avoid popup blockers
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'absolute';
+    printFrame.style.top = '-9999px';
+    printFrame.style.left = '-9999px';
+    printFrame.style.width = '0px';
+    printFrame.style.height = '0px';
+    printFrame.style.border = 'none';
     
-    if (!printWindow) {
-      console.error('❌ Popup blocked - please allow popups and try again');
-      throw new Error('Popup blocked - please allow popups and try again');
+    document.body.appendChild(printFrame);
+    
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
+    const isPDF = fileExtension === 'pdf';
+
+    // Different content for different file types
+    const content = isImage
+      ? `<img src="${fileUrl}" onload="window.print()" style="width: 100%; height: auto;" />`
+      : isPDF
+        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" />`
+        : `<iframe src="${fileUrl}" onload="window.print()" style="width: 100%; height: 100%; border: none;"></iframe>`;
+
+    const frameDoc = printFrame.contentDocument || printFrame.contentWindow?.document;
+    if (!frameDoc) {
+      document.body.removeChild(printFrame);
+      reject(new Error('Unable to access frame document'));
+      return;
     }
-    
-    // Add message to help user
-    console.log('🖨️ PDF opened in new window. Use Ctrl+P or browser print button to print.');
-    
-    // Attempt to trigger print after PDF loads
-    printWindow.addEventListener('load', () => {
-      setTimeout(() => {
-        try {
-          printWindow.focus();
-          // Try to trigger print - may work depending on browser settings
-          printWindow.print();
-          console.log('🖨️ Print command sent');
-        } catch (error) {
-          console.log('🖨️ Print command blocked by browser - use Ctrl+P in the PDF window');
+
+    frameDoc.open();
+    frameDoc.write(`
+      <html>
+        <head>
+          <title>Print - ${filename}</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            img { max-width: 100%; height: auto; }
+            @media print {
+              html, body { margin: 0; padding: 0; }
+              img, embed, iframe { page-break-inside: avoid; }
+            }
+            @page { margin: 0.5in; }
+          </style>
+        </head>
+        <body>${content}</body>
+      </html>
+    `);
+    frameDoc.close();
+
+    // Wait for content to load, then print
+    const timer = setTimeout(() => {
+      try {
+        if (printFrame.contentWindow) {
+          printFrame.contentWindow.focus();
+          printFrame.contentWindow.print();
         }
-      }, 2000);
-    });
-    
-    resolve();
+      } catch (e) {
+        console.error('Print failed', e);
+      }
+      
+      // Clean up after a delay
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+        resolve();
+      }, 1000);
+    }, 2000);
   });
 };
 
