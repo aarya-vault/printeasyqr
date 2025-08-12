@@ -174,6 +174,80 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 
+// Object Storage download proxy - bypass CORS restrictions
+app.get('/api/download/:objectPath(*)', async (req, res) => {
+  try {
+    let objectPath = req.params.objectPath;
+    const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
+    
+    // Remove .private prefix if present
+    if (objectPath.startsWith('.private/')) {
+      objectPath = objectPath.replace('.private/', '');
+    }
+    
+    console.log('📥 Download proxy request:', {
+      requestPath: req.path,
+      originalObjectPath: req.params.objectPath,
+      correctedObjectPath: objectPath,
+      bucketName: bucketName
+    });
+    
+    // Generate signed URL for downloading
+    const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bucket_name: bucketName,
+        object_name: objectPath,
+        method: 'GET',
+        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      }),
+    });
+
+    if (!signedUrlResponse.ok) {
+      console.error('Failed to get signed URL for download:', signedUrlResponse.status);
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    const { signed_url: signedUrl } = await signedUrlResponse.json();
+    
+    // Fetch and stream the file
+    const fileResponse = await fetch(signedUrl);
+    
+    if (!fileResponse.ok) {
+      console.error('Failed to fetch file from storage:', fileResponse.status);
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    // Extract filename and set headers
+    const filename = objectPath.split('/').pop() || 'file';
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', fileResponse.headers.get('content-type') || 'application/octet-stream');
+    res.setHeader('Content-Length', fileResponse.headers.get('content-length') || '');
+    
+    console.log('✅ Streaming file download:', filename);
+    
+    // Stream the file to client
+    const reader = fileResponse.body.getReader();
+    const pump = () => {
+      return reader.read().then(({ done, value }) => {
+        if (done) return res.end();
+        res.write(value);
+        return pump();
+      });
+    };
+    
+    pump().catch(error => {
+      console.error('Stream error:', error);
+      if (!res.headersSent) res.status(500).json({ error: 'Download failed' });
+    });
+    
+  } catch (error) {
+    console.error('Download proxy error:', error);
+    if (!res.headersSent) res.status(500).json({ error: 'Download failed' });
+  }
+});
+
 // Object Storage serving routes - REDIRECT APPROACH  
 app.get('/objects/*', async (req, res) => {
   try {
@@ -222,27 +296,7 @@ app.get('/objects/*', async (req, res) => {
   }
 });
 
-// File download route - Protected with authentication
-app.get('/api/download/:filename', requireAuth, (req, res) => {
-  const filename = req.params.filename;
-  
-  // In serverless environments, files are stored in memory and can't be downloaded after request
-  const isServerless = process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production';
-  if (isServerless) {
-    return res.status(404).json({ 
-      message: 'File downloads not available in serverless environment. Files are stored temporarily during processing.' 
-    });
-  }
-  
-  const filePath = path.join(__dirname, '..', 'uploads', filename);
-  
-  if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.sendFile(path.resolve(filePath));
-  } else {
-    res.status(404).json({ message: 'File not found' });
-  }
-});
+// Remove old download route - moved above
 
 // 🔥 CRITICAL FIX: File serving route for viewing files (not downloading)
 // This allows frontend to display uploaded files in chat, order details, etc.

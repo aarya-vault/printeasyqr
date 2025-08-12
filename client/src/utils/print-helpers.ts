@@ -108,7 +108,7 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   });
 };
 
-// Simple, direct download function that downloads immediately  
+// Download function using server proxy to bypass CORS restrictions
 export const downloadFile = (file: any, orderStatus?: string): void => {
   // Check if file is accessible before attempting to download
   if (orderStatus === 'completed') {
@@ -117,20 +117,21 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   }
 
   // Handle both old format (filename) and new format (path)  
-  // Files are stored in object storage - use path directly if it starts with /objects/
-  let filePath;
+  // Use download proxy to bypass CORS restrictions
+  let downloadPath;
   if (file.path) {
-    // If path already starts with /objects/, use it directly
-    filePath = file.path.startsWith('/objects/') ? file.path : `/objects/.private/${file.path}`;
+    // Remove /objects/ prefix and use download proxy
+    const objectPath = file.path.startsWith('/objects/') ? file.path.substring(9) : file.path;
+    downloadPath = `/api/download/${objectPath}`;
   } else {
     // Fallback for old filename format
-    filePath = `/objects/.private/uploads/${file.filename || file}`;
+    downloadPath = `/api/download/.private/uploads/${file.filename || file}`;
   }
   const originalName = file.originalName || file.filename || 'file';
   
   // Create download link and trigger download immediately
   const link = document.createElement('a');
-  link.href = filePath;
+  link.href = downloadPath;
   link.download = originalName;
   link.style.display = 'none';
   
