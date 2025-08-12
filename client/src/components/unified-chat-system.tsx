@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { formatToIndiaTime, formatToIndiaDateTime, isToday } from '@/lib/time-utils';
+import { apiRequest } from '@/lib/queryClient';
 import { Message, Order } from '@shared/types';
 
 interface UnifiedChatSystemProps {
@@ -247,22 +248,10 @@ export default function UnifiedChatSystem({
     mutationFn: async (orderId: number) => {
       console.log('📬 Sending mark-as-read request for order:', orderId, 'User ID:', user?.id, 'Role:', effectiveUserRole);
       
-      const response = await fetch(`/api/messages/mark-read`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ orderId })
-      });
+      const response = await apiRequest('/api/messages/mark-read', 'PATCH', { orderId });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Mark as read failed:', response.status, errorText);
-        throw new Error('Failed to mark messages as read');
-      }
-      
-      const result = await response.json();
-      console.log('✅ Mark as read success:', result);
-      return result;
+      console.log('✅ Mark as read success:', response);
+      return response;
     },
     onSuccess: () => {
       // Invalidate both orders and messages to update unread counts

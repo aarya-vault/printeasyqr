@@ -30,40 +30,40 @@ export default function NotificationsModal({ isOpen, onClose }: NotificationsMod
 
   // Fetch notifications
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
-    queryKey: [`/api/notifications/user/${user?.id}`],
+    queryKey: [`/api/notifications/${user?.id}`],
     enabled: !!user?.id && isOpen,
   });
 
   // Mark notification as read
   const markAsReadMutation = useMutation({
-    mutationFn: (notificationId: number) => 
-      fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PATCH'
-      }),
+    mutationFn: async (notificationId: number) => {
+      const response = await apiRequest(`/api/notifications/${notificationId}/read`, 'PATCH');
+      return response.json();
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${user?.id}`] });
     }
   });
 
   // Mark all as read
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => 
-      fetch(`/api/notifications/user/${user?.id}/read-all`, {
-        method: 'PATCH'
-      }),
+    mutationFn: async () => {
+      const response = await apiRequest(`/api/notifications/user/${user?.id}/read-all`, 'PATCH');
+      return response.json();
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${user?.id}`] });
     }
   });
 
   // Delete notification
   const deleteNotificationMutation = useMutation({
-    mutationFn: (notificationId: number) => 
-      fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE'
-      }),
+    mutationFn: async (notificationId: number) => {
+      const response = await apiRequest(`/api/notifications/${notificationId}`, 'DELETE');
+      return response.json();
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/user/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${user?.id}`] });
     }
   });
 

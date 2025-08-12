@@ -30,7 +30,7 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
 
   // Fetch user notifications with real-time updates
   const { data: notifications = [], refetch } = useQuery<Notification[]>({
-    queryKey: [`/api/notifications/user/${user?.id}`],
+    queryKey: [`/api/notifications/${user?.id}`],
     enabled: !!user?.id,
     refetchInterval: 3000, // Refetch every 3 seconds for real-time feel
     refetchOnWindowFocus: true,

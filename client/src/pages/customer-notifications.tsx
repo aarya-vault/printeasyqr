@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { 
   Bell, Package, Info, Tag, ArrowLeft, CheckCircle2, 
   Clock, Store, AlertCircle
@@ -31,25 +32,16 @@ export default function CustomerNotifications() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
 
-  // Fetch notifications
-  const { data: notifications = [], isLoading, refetch } = useQuery({
-    queryKey: ['/api/notifications', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const response = await fetch(`/api/notifications/${user.id}`);
-      if (!response.ok) throw new Error('Failed to fetch notifications');
-      return response.json();
-    },
+  // Fetch notifications  
+  const { data: notifications = [], isLoading, refetch } = useQuery<Notification[]>({
+    queryKey: [`/api/notifications/${user?.id}`],
     enabled: !!user?.id
   });
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PATCH'
-      });
-      if (!response.ok) throw new Error('Failed to mark as read');
+      const response = await apiRequest(`/api/notifications/${notificationId}/read`, 'PATCH');
       return response.json();
     },
     onSuccess: () => {
@@ -60,10 +52,7 @@ export default function CustomerNotifications() {
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/notifications/user/${user?.id}/read-all`, {
-        method: 'PATCH'
-      });
-      if (!response.ok) throw new Error('Failed to mark all as read');
+      const response = await apiRequest(`/api/notifications/user/${user?.id}/read-all`, 'PATCH');
       return response.json();
     },
     onSuccess: () => {
