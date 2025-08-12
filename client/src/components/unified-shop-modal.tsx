@@ -139,17 +139,22 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
             <Store className="w-6 h-6 mr-3 text-brand-yellow" />
             {shop.name}
           </DialogTitle>
-          <DialogDescription className="mt-2">
-            <Badge className={`${shopStatus.className} text-sm px-3 py-1`}>
-              {shopStatus.isOpen ? (
-                <CheckCircle className="w-4 h-4 mr-2" />
-              ) : (
-                <AlertCircle className="w-4 h-4 mr-2" />
-              )}
-              {shopStatus.text}
-            </Badge>
+          <DialogDescription>
+            Complete shop information and services
           </DialogDescription>
         </DialogHeader>
+
+        {/* Shop Status Badge */}
+        <div className="flex justify-start -mt-2 mb-4">
+          <Badge className={`${shopStatus.className} text-sm px-3 py-1`}>
+            {shopStatus.isOpen ? (
+              <CheckCircle className="w-4 h-4 mr-2" />
+            ) : (
+              <AlertCircle className="w-4 h-4 mr-2" />
+            )}
+            {shopStatus.text}
+          </Badge>
+        </div>
 
         <div className="space-y-6">
           {/* Status and Overview */}
