@@ -22,6 +22,14 @@ class WhatsAppOTPService {
 
   static async sendOTP(phoneNumber) {
     console.log(`🚨 WhatsApp OTP Service: sendOTP called with phone: ${phoneNumber}`);
+    
+    // DEBUG CREDENTIALS
+    console.log('--- DEBUG CREDENTIALS ---');
+    console.log('API Key Loaded:', !!process.env.GUPSHUP_API_KEY);
+    console.log('Source Phone Loaded:', process.env.GUPSHUP_SOURCE_PHONE);
+    console.log('App Name Loaded:', process.env.GUPSHUP_APP_NAME);
+    console.log('-------------------------');
+    
     try {
       // Enhanced phone validation and formatting for Gupshup API
       const cleanPhone = phoneNumber.replace(/\D/g, '');
