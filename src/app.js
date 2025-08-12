@@ -180,10 +180,7 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
     let objectPath = req.params.objectPath;
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
     
-    // Remove .private prefix if present
-    if (objectPath.startsWith('.private/')) {
-      objectPath = objectPath.replace('.private/', '');
-    }
+    // Keep the full .private path as files are stored with this prefix in the bucket
     
     // Extract originalName from URL query parameter manually
     const urlParts = req.url.split('?');
@@ -276,15 +273,12 @@ app.get('/objects/*', async (req, res) => {
     let objectPath = req.path.replace('/objects/', '');
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
     
-    // 🔥 CRITICAL FIX: Remove .private prefix since files are stored without it
-    if (objectPath.startsWith('.private/')) {
-      objectPath = objectPath.replace('.private/', '');
-    }
+    // 🔥 CRITICAL FIX: Keep the .private prefix as files ARE stored with it in the bucket
+    // The files are uploaded to .private/uploads/ path, so we need to preserve this structure
     
-    console.log('🔍 Object request:', {
+    console.log('🔍 Object request (FIXED):', {
       requestPath: req.path,
-      originalObjectPath: req.path.replace('/objects/', ''),
-      correctedObjectPath: objectPath,
+      objectPathInBucket: objectPath,
       bucketName: bucketName
     });
     
