@@ -75,6 +75,14 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - Configured all production environment variables for Netlify deployment (January 2025)
 - Fixed Netlify function import/export issues by converting to pure ES modules (.mjs)
 
+### Object Storage File Access Fix (August 2025)
+- **Critical File URL Pattern Fix**: Resolved file access issues by correcting all file URLs from `/objects/{path}` to `/objects/.private/{path}` format
+- **Comprehensive Component Updates**: Fixed file URLs across all components (print-helpers, chat system, order details, shop dashboard, order history)
+- **Verified Object Storage Integration**: Confirmed files properly redirect to Google Cloud Storage signed URLs with 302 responses
+- **Real-time Notification System**: Implemented actual database query-based notification counts replacing empty array responses
+- **Status-Based File Upload Control**: Chat system now properly disables file uploads for completed orders while preserving access to existing files
+- **Consistent File Operations**: Print, download, and view functions now work correctly across all platform components
+
 ### Major Codebase Cleanup (August 2025)
 - **Complete Duplicate Backend Removal**: Eliminated entire duplicate backend structure in `client/` directory (controllers, routes, middleware, models, config)
 - **Backup File Cleanup**: Removed all 10 backup files (.backup extensions) with zero functionality impact

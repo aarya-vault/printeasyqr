@@ -610,10 +610,10 @@ export default function UnifiedChatSystem({
                                         <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
                                           {isImage ? (
                                             <img 
-                                              src={file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename}`} 
+                                              src={file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`} 
                                               alt={displayName} 
                                               className="w-32 h-20 object-cover rounded cursor-pointer"
-                                              onClick={() => window.open(file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename}`, '_blank')}
+                                              onClick={() => window.open(file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`, '_blank')}
                                             />
                                           ) : (
                                             <>
@@ -633,7 +633,7 @@ export default function UnifiedChatSystem({
                                                 size="sm"
                                                 onClick={() => {
                                                   const link = document.createElement('a');
-                                                  link.href = file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename}`;
+                                                  link.href = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`;
                                                   link.download = displayName;
                                                   link.click();
                                                 }}
