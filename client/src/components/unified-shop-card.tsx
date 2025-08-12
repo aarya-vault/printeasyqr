@@ -41,13 +41,15 @@ export default function UnifiedShopCard({
                 className={`w-full h-full object-cover transition-opacity ${
                   isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
                 }`}
+                onLoad={() => {
+                  console.log('✅ Image loaded successfully:', shop.exteriorImage);
+                }}
                 onError={(e) => {
-                  // Hide entire image section if fails to load
+                  console.error('❌ Image failed to load:', shop.exteriorImage);
+                  // Show broken image placeholder instead of hiding
                   const target = e.target as HTMLImageElement;
-                  const imageContainer = target.closest('.relative');
-                  if (imageContainer) {
-                    (imageContainer as HTMLElement).style.display = 'none';
-                  }
+                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZpbGw9IiM2QjcyODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pgo8L3N2Zz4K';
+                  target.className = 'w-full h-full object-cover opacity-50';
                 }}
               />
             </div>
