@@ -50,9 +50,9 @@ export default function ShopOrderDetails() {
     enabled: !!orderId,
   });
 
-  const handlePrintFile = (file: any) => {
+  const handlePrintFile = async (file: any) => {
     try {
-      printFile(file);
+      await printFile(file);
       toast({ title: 'File sent to print' });
     } catch (error) {
       console.error('Error printing file:', error);
@@ -70,12 +70,14 @@ export default function ShopOrderDetails() {
     }
   };
 
-  const handlePrintAll = () => {
+  const handlePrintAll = async () => {
     if (order?.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
         if (files.length > 0) {
-          printAllFiles(files, (current, total) => {
+          toast({ title: `Preparing ${files.length} files for printing...` });
+          
+          await printAllFiles(files, (current, total) => {
             if (current === total) {
               toast({ title: `All ${total} files sent to print` });
             }
