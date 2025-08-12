@@ -89,6 +89,20 @@
       </div>
     </noscript>
     <div id="root"></div>
+    <script>
+      // Fix WebSocket URL undefined port issue for Vite HMR
+      if (typeof window !== 'undefined' && window.location) {
+        const originalWebSocket = window.WebSocket;
+        window.WebSocket = function(url, protocols) {
+          if (url && typeof url === 'string' && url.includes('localhost:undefined')) {
+            const currentPort = window.location.port || '5000';
+            url = url.replace('localhost:undefined', `localhost:${currentPort}`);
+            console.log('🔧 Fixed WebSocket URL:', url);
+          }
+          return new originalWebSocket(url, protocols);
+        };
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
