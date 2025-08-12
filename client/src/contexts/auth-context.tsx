@@ -316,12 +316,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  // WhatsApp OTP authentication methods
+  // 🚀 SMART JWT-FIRST WhatsApp OTP authentication
   const sendWhatsAppOTP = async (phone: string): Promise<{ skipOTP: boolean; user?: User }> => {
     try {
+      console.log('🔍 Auth Context: Sending WhatsApp OTP for', phone);
+      
+      // Get current JWT token to include in request
+      const authToken = localStorage.getItem('authToken');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Include JWT token if available for validation
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+        console.log('🔍 Auth Context: Including JWT token in OTP request');
+      }
+      
       const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ phone }),
       });
 
@@ -329,14 +343,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (result.success) {
         if (result.skipOTP) {
-          // User already authenticated
+          // User already authenticated via valid JWT token
           setUser(result.user);
           localStorage.setItem('user', JSON.stringify(result.user));
           localStorage.setItem('authToken', result.token);
           if (result.refreshToken) {
             localStorage.setItem('refreshToken', result.refreshToken);
           }
+          console.log('🔑 Fresh JWT Token stored');
+          console.log('✅ Login Success via Token:', result.user.role, result.user.phone);
           return { skipOTP: true, user: result.user };
+        } else {
+          console.log('🔍 Auth Context: Valid token not found, OTP will be sent');
         }
         return { skipOTP: false };
       } else {

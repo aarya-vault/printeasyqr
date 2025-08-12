@@ -7,7 +7,7 @@ const GUPSHUP_API_BASE = 'https://api.gupshup.io';
 const OTP_TEMPLATE_ID = 'otp_verification'; // You may need to create this template in Gupshup
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 3;
-const DEMO_MODE = false; // Enable real WhatsApp OTP for production use
+const DEMO_MODE = false; // 🚀 REAL WHATSAPP OTP ENABLED - Using Gupshup API
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStorage = new Map();
@@ -86,7 +86,7 @@ class WhatsAppOTPService {
         lastSentAt: Date.now()
       });
 
-      // Demo mode or actual Gupshup API call
+      // 🚀 REAL WHATSAPP OTP SENDING VIA GUPSHUP API
       let result;
       if (DEMO_MODE) {
         // Demo mode - simulate successful OTP send
@@ -96,7 +96,7 @@ class WhatsAppOTPService {
         };
         console.log(`🔧 DEMO MODE: WhatsApp OTP simulated for ${phoneNumber}, actual OTP: ${otp}`);
       } else {
-        // Production mode - actual Gupshup API call
+        // 🚀 PRODUCTION MODE - REAL GUPSHUP API INTEGRATION
         const response = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/template/msg`, {
           method: 'POST',
           headers: {

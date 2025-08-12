@@ -19,25 +19,56 @@ class OTPController {
         });
       }
 
-      // Check if user already has a valid session
-      const sessionCheck = await WhatsAppOTPService.checkExistingSession(cleanPhone);
-      
-      if (sessionCheck.hasValidSession) {
-        // User already authenticated, generate new token
-        const token = generateToken(sessionCheck.user);
-        const refreshToken = generateRefreshToken(sessionCheck.user);
+      // 🚀 SMART JWT TOKEN VALIDATION
+      // First check if user exists in database
+      const user = await User.findOne({ 
+        where: { 
+          phone: cleanPhone,
+          isActive: true,
+          role: 'customer'
+        } 
+      });
+
+      if (user) {
+        console.log('🔍 OTP Controller: Found existing user for phone:', cleanPhone);
         
-        return res.json({
-          success: true,
-          message: 'User already authenticated',
-          skipOTP: true,
-          user: {
-            ...sessionCheck.user,
-            needsNameUpdate: !sessionCheck.user.name || sessionCheck.user.name === 'Customer'
-          },
-          token,
-          refreshToken
-        });
+        // Check if this request has a valid JWT token in headers
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+        
+        if (token) {
+          try {
+            // Verify the JWT token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (decoded.phone === cleanPhone) {
+              console.log('✅ OTP Controller: Valid JWT token found, skipping OTP');
+              
+              // Generate fresh tokens
+              const newToken = generateToken(user);
+              const refreshToken = generateRefreshToken(user);
+              
+              return res.json({
+                success: true,
+                message: 'Valid token found, user authenticated',
+                skipOTP: true,
+                user: {
+                  ...user.toJSON(),
+                  needsNameUpdate: !user.name || user.name === 'Customer'
+                },
+                token: newToken,
+                refreshToken
+              });
+            }
+          } catch (tokenError) {
+            console.log('🔍 OTP Controller: Invalid or expired JWT token');
+            // Continue to OTP flow
+          }
+        }
+        
+        // If user exists but no valid token, still send OTP for security
+        console.log('🔍 OTP Controller: User exists but no valid token, sending OTP for verification');
+      } else {
+        console.log('🔍 OTP Controller: New user, sending OTP');
       }
 
       // Send OTP for new session - use cleaned phone number
