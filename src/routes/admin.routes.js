@@ -66,16 +66,23 @@ router.put('/shop-exterior-image', requireAuth, requireAdmin, async (req, res) =
       return res.status(400).json({ error: 'shopId and exteriorImageURL are required' });
     }
 
-    // Import Shop model and ObjectStorageService
+    // Import Shop model
     const { Shop } = await import('../models/index.js');
-    const { ObjectStorageService } = await import('../../../server/objectStorage.js');
     
-    const objectStorageService = new ObjectStorageService();
-    const objectPath = objectStorageService.normalizeObjectEntityPath(exteriorImageURL);
+    // Simple path conversion - extract the file path from the Google Storage URL
+    let objectPath = exteriorImageURL;
+    if (objectPath.startsWith('https://storage.googleapis.com/')) {
+      // Extract just the file path after .private/
+      const url = new URL(objectPath);
+      const pathMatch = url.pathname.match(/\.private\/(.+)$/);
+      if (pathMatch) {
+        objectPath = `/objects/.private/${pathMatch[1]}`;
+      }
+    }
     
     console.log('🖼️ Image path conversion:', {
       original: exteriorImageURL,
-      normalized: objectPath
+      converted: objectPath
     });
     
     // Update the shop with the exterior image path
