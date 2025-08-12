@@ -7,8 +7,15 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   }
   
   // Handle both old format (filename) and new format (path)
-  // Files are stored in object storage with .private prefix
-  const fileUrl = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename || file}`;
+  // Files are stored in object storage - use path directly if it starts with /objects/
+  let fileUrl;
+  if (file.path) {
+    // If path already starts with /objects/, use it directly
+    fileUrl = file.path.startsWith('/objects/') ? file.path : `/objects/.private/${file.path}`;
+  } else {
+    // Fallback for old filename format
+    fileUrl = `/objects/.private/uploads/${file.filename || file}`;
+  }
   
   console.log('🖨️ Attempting to print file:', fileUrl);
   
@@ -121,8 +128,15 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   }
 
   // Handle both old format (filename) and new format (path)  
-  // Files are stored in object storage with .private prefix
-  const filePath = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename || file}`;
+  // Files are stored in object storage - use path directly if it starts with /objects/
+  let filePath;
+  if (file.path) {
+    // If path already starts with /objects/, use it directly
+    filePath = file.path.startsWith('/objects/') ? file.path : `/objects/.private/${file.path}`;
+  } else {
+    // Fallback for old filename format
+    filePath = `/objects/.private/uploads/${file.filename || file}`;
+  }
   const originalName = file.originalName || file.filename || 'file';
   
   // Create download link and trigger download immediately
