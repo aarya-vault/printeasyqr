@@ -2,7 +2,8 @@ import { Order, Shop, User, Message, CustomerShopUnlock, sequelize } from '../mo
 import { Op } from 'sequelize';
 import fs from 'fs/promises';
 import path from 'path';
-import { sendToUser } from '../utils/websocket.js';
+import { sendToUser, broadcast } from '../utils/websocket.js';
+import { uploadFilesToObjectStorage } from '../utils/objectStorageUpload.js';
 
 class OrderController {
   // Data transformation helper for consistent API responses
@@ -160,16 +161,21 @@ class OrderController {
       
       const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
       
-      // Process file uploads
-      const files = req.files && Array.isArray(req.files) 
-        ? req.files.map((file) => ({
-            originalName: file.originalname,
-            filename: file.filename,
-            path: file.path,
-            size: file.size,
-            mimetype: file.mimetype
-          }))
-        : [];
+      // 🚀 OBJECT STORAGE FIX: Upload files to object storage instead of local disk
+      let files = [];
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        console.log(`📤 Processing ${req.files.length} files for object storage upload...`);
+        try {
+          files = await uploadFilesToObjectStorage(req.files);
+          console.log(`✅ Successfully uploaded ${files.length} files to object storage`);
+        } catch (uploadError) {
+          console.error('❌ Object storage upload failed:', uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload files to storage',
+            error: uploadError.message 
+          });
+        }
+      }
       
       // Extract additional order details from request body
       const {
@@ -278,13 +284,20 @@ class OrderController {
         ]
       });
       
-      // Send real-time notification to customer
+      // 🚀 CRITICAL FIX: Broadcast order status update to all connected users for real-time sync
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
-      sendToUser(updatedOrder.customerId, {
-        type: 'order_update',
+      
+      broadcast({
+        type: 'ORDER_STATUS_UPDATED',
+        orderId: orderId,
+        shopId: order.shopId,
+        customerId: order.customerId,
+        newStatus: status,
         order: transformedOrder,
-        message: `Order status updated to ${status}`
+        timestamp: new Date().toISOString()
       });
+      
+      console.log(`📡 Broadcasting order status update: Order ${orderId} status changed to ${status}`);
       
       res.json(transformedOrder);
     } catch (error) {
@@ -428,16 +441,21 @@ class OrderController {
         }, { transaction });
       }
       
-      // Handle file uploads
-      const files = req.files && Array.isArray(req.files)
-        ? req.files.map(file => ({
-            originalName: file.originalname,
-            filename: file.filename,
-            path: file.path,
-            size: file.size,
-            mimetype: file.mimetype
-          }))
-        : null;
+      // 🚀 OBJECT STORAGE FIX: Upload files to object storage for anonymous orders
+      let files = [];
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        console.log(`📤 Processing ${req.files.length} files for anonymous order object storage upload...`);
+        try {
+          files = await uploadFilesToObjectStorage(req.files);
+          console.log(`✅ Successfully uploaded ${files.length} files for anonymous order`);
+        } catch (uploadError) {
+          console.error('❌ Anonymous order object storage upload failed:', uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload files to storage',
+            error: uploadError.message 
+          });
+        }
+      }
       
       // Get next order number
       const lastOrder = await Order.findOne({
@@ -572,6 +590,17 @@ class OrderController {
       }, { transaction });
       
       await transaction.commit();
+      
+      // 🚀 CRITICAL FIX: Broadcast order deletion to all connected users for real-time sync
+      broadcast({
+        type: 'ORDER_DELETED',
+        orderId: orderId,
+        shopId: order.shopId,
+        customerId: order.customerId,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`📡 Broadcasting order deletion: Order ${orderId} deleted by user ${userId}`);
       
       res.json({ success: true, message: 'Order deleted successfully' });
     } catch (error) {
