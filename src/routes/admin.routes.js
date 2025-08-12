@@ -40,7 +40,7 @@ router.post('/objects/upload', requireAuth, requireAdmin, async (req, res) => {
       },
       body: JSON.stringify({
         bucket_name: process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f',
-        object_name: `${process.env.PRIVATE_OBJECT_DIR}/uploads/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`,
+        object_name: `.private/uploads/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`,
         method: 'PUT',
         expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes
       }),
