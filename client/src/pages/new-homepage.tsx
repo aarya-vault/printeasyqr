@@ -16,7 +16,8 @@ import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/phone-input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
-import { useState as useOTPState } from 'react';
+import { getFeatureFlag } from '@/config/features';
+import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
 
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
@@ -35,9 +36,12 @@ export default function NewHomepage() {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
 
+  // 🔧 CONFIGURABLE OTP VERIFICATION SYSTEM
+  const isOTPEnabled = getFeatureFlag('WHATSAPP_OTP_ENABLED');
+  const [showOTPModal, setShowOTPModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [tempUser, setTempUser] = useState(null);
-  const { user, login, updateUser, getPersistentUserData } = useAuth();
+  const { user, login, updateUser, getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 

@@ -13,7 +13,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/phone-input';
 import { useAuth } from '@/hooks/use-auth';
+import { getFeatureFlag } from '@/config/features';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
+import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 
 import { useToast } from '@/hooks/use-toast';
@@ -23,12 +25,15 @@ import { Badge } from '@/components/ui/badge';
 
 export default function RedesignedHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
+  // 🔧 CONFIGURABLE OTP VERIFICATION SYSTEM
+  const isOTPEnabled = getFeatureFlag('WHATSAPP_OTP_ENABLED');
+  const [showOTPModal, setShowOTPModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
 
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const { user, login, updateUser, getPersistentUserData } = useAuth();
+  const { user, login, updateUser, getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
