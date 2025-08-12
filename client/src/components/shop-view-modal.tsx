@@ -25,6 +25,8 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
   console.log('🚨 FULL SHOP OBJECT DEBUG:', shop);
   console.log('🔍 CUSTOM SERVICES RAW:', shop.customServices);
   console.log('🔍 CUSTOM EQUIPMENT RAW:', shop.customEquipment);
+  console.log('🔍 TOTAL ORDERS VALUE:', shop.totalOrders, 'TYPE:', typeof shop.totalOrders);
+  console.log('🔍 TOTAL ORDERS CONDITION:', (shop.totalOrders || 0) > 0);
 
   // More robust array handling with extensive logging
   const baseServices = Array.isArray(shop.services) ? shop.services : [];
