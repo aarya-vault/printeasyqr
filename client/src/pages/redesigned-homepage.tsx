@@ -15,7 +15,7 @@ import PhoneInput from '@/components/phone-input';
 import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
-import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
+
 import { useToast } from '@/hooks/use-toast';
 import SimpleQRScanner from '@/components/simple-qr-scanner';
 import { useQuery } from '@tanstack/react-query';
@@ -24,11 +24,11 @@ import { Badge } from '@/components/ui/badge';
 export default function RedesignedHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showNameModal, setShowNameModal] = useState(false);
-  const [showOTPModal, setShowOTPModal] = useState(false);
+
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, updateUser, getPersistentUserData } = useAuth();
+  const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -77,31 +77,18 @@ export default function RedesignedHomepage() {
     try {
       console.log('🔍 Homepage Login: Requesting OTP for', customerPhone);
       
-      // 🚀 SMART OTP-FIRST FLOW - Check JWT token, then OTP if needed
-      const result = await sendWhatsAppOTP(customerPhone);
+      // 🚀 SIMPLIFIED LOGIN FLOW - Direct phone-based login
+      const result = await login({ phone: customerPhone });
       
-      if (result.skipOTP) {
-        // User already has valid authentication token
-        console.log('✅ Homepage Login: Valid token found, skipping OTP');
-        
-        if (result.user && result.user.needsNameUpdate) {
-          setTempUser(result.user);
-          setShowNameModal(true);
-        } else {
-          toast({
-            title: "Welcome Back!",
-            description: "You were automatically logged in with your previous session",
-          });
-          navigate('/customer-dashboard');
-        }
+      if (result && result.needsNameUpdate) {
+        setTempUser(result);
+        setShowNameModal(true);
       } else {
-        // Request OTP verification for new/unverified users
-        console.log('🔍 Homepage Login: Requesting OTP verification for new user');
-        setShowOTPModal(true);
         toast({
-          title: "OTP Sent",
-          description: "Please check your WhatsApp for the verification code",
+          title: "Welcome Back!",
+          description: "You have been logged in successfully",
         });
+        navigate('/customer-dashboard');
       }
     } catch (error) {
       console.error('Homepage Login Error:', error);
@@ -136,28 +123,7 @@ export default function RedesignedHomepage() {
     }
   };
 
-  const handleOTPVerification = async (otp: string) => {
-    try {
-      console.log('🔍 OTP Verification: Verifying code for', customerPhone);
-      const user = await verifyWhatsAppOTP(customerPhone, otp);
-      
-      setShowOTPModal(false);
-      
-      if (user.needsNameUpdate) {
-        setTempUser(user);
-        setShowNameModal(true);
-      } else {
-        toast({
-          title: "Login Successful!",
-          description: "Welcome back to PrintEasy",
-        });
-        navigate('/customer-dashboard');
-      }
-    } catch (error) {
-      console.error('OTP Verification Error:', error);
-      throw error; // Let the OTP modal handle the error display
-    }
-  };
+
 
   const handleQRScan = (data: string) => {
     console.log('🔍 QR Scan: Redirecting to order page', data);
@@ -436,18 +402,7 @@ export default function RedesignedHomepage() {
         />
       )}
 
-      {/* WhatsApp OTP Verification Modal */}
-      {showOTPModal && (
-        <OTPVerificationModal
-          isOpen={showOTPModal}
-          phoneNumber={customerPhone}
-          onVerify={handleOTPVerification}
-          onClose={() => setShowOTPModal(false)}
-          onResend={async () => {
-            await sendWhatsAppOTP(customerPhone);
-          }}
-        />
-      )}
+
 
       {/* Shop Owner Login Modal */}
       <ShopOwnerLogin />

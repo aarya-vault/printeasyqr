@@ -17,7 +17,7 @@ import PhoneInput from '@/components/phone-input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
 import { useState as useOTPState } from 'react';
-import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
+
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 
@@ -34,10 +34,10 @@ export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [showOTPModal, setShowOTPModal] = useState(false);
+
   const [showNameModal, setShowNameModal] = useState(false);
   const [tempUser, setTempUser] = useState(null);
-  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, updateUser, getPersistentUserData } = useAuth();
+  const { user, login, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -81,31 +81,18 @@ export default function NewHomepage() {
     try {
       console.log('🔍 Homepage Login: Requesting OTP for', customerPhone);
       
-      // 🚀 SMART OTP-FIRST FLOW - Check JWT token, then OTP if needed
-      const result = await sendWhatsAppOTP(customerPhone);
+      // 🚀 SIMPLIFIED LOGIN FLOW - Direct phone-based login
+      const result = await login({ phone: customerPhone });
       
-      if (result.skipOTP) {
-        // User already has valid authentication token
-        console.log('✅ Homepage Login: Valid token found, skipping OTP');
-        
-        if (result.user && result.user.needsNameUpdate) {
-          setTempUser(result.user);
-          setShowNameModal(true);
-        } else {
-          toast({
-            title: "Welcome Back!",
-            description: "You were automatically logged in with your previous session",
-          });
-          navigate('/customer-dashboard');
-        }
+      if (result && result.needsNameUpdate) {
+        setTempUser(result);
+        setShowNameModal(true);
       } else {
-        // Request OTP verification for new/unverified users
-        console.log('🔍 Homepage Login: Requesting OTP verification for new user');
-        setShowOTPModal(true);
         toast({
-          title: "OTP Sent",
-          description: "Please check your WhatsApp for the verification code",
+          title: "Welcome Back!",
+          description: "You have been logged in successfully",
         });
+        navigate('/customer-dashboard');
       }
     } catch (error) {
       console.error('Homepage Login Error:', error);
@@ -140,32 +127,7 @@ export default function NewHomepage() {
     }
   };
 
-  const handleOTPVerification = async (otp: string) => {
-    try {
-      console.log('🔍 OTP Verification: Verifying code for', customerPhone);
-      const user = await verifyWhatsAppOTP(customerPhone, otp);
-      
-      setShowOTPModal(false);
-      
-      if (user.needsNameUpdate) {
-        setTempUser(user);
-        setShowNameModal(true);
-      } else {
-        toast({
-          title: "Login Successful",
-          description: "Welcome to PrintEasy!",
-        });
-        navigate('/customer-dashboard');
-      }
-    } catch (error) {
-      console.error('OTP Verification Error:', error);
-      toast({
-        title: "Verification Failed",
-        description: error instanceof Error ? error.message : "Invalid OTP. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+
 
   // Name collection is handled in customer dashboard, not homepage
 
@@ -559,16 +521,7 @@ export default function NewHomepage() {
         />
       )}
 
-      {/* OTP Verification Modal */}
-      {showOTPModal && (
-        <OTPVerificationModal
-          phoneNumber={customerPhone}
-          isOpen={showOTPModal}
-          onClose={() => setShowOTPModal(false)}
-          onVerify={handleOTPVerification}
-          onResend={() => sendWhatsAppOTP(customerPhone)}
-        />
-      )}
+
 
       {/* Name Collection Modal */}
       {showNameModal && tempUser && (

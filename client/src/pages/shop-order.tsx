@@ -22,7 +22,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
 import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
-import { OTPVerificationModal } from '@/components/otp-verification-modal';
+
 import { DemoBanner } from '@/components/demo-banner';
 
 const orderSchema = z.object({
@@ -50,9 +50,7 @@ export default function ShopOrder() {
     uploadSpeed: number;
     estimatedTime: number;
   } | null>(null);
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
-  const { getPersistentUserData, sendWhatsAppOTP, verifyWhatsAppOTP, user } = useAuth();
+  const { getPersistentUserData, user } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<Shop>({
@@ -70,21 +68,29 @@ export default function ShopOrder() {
   const form = useForm<OrderForm>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      name: persistentData?.name || '',
-      contactNumber: persistentData?.phone || '',
+      name: user?.name && user.name !== 'Customer' ? user.name : persistentData?.name || '',
+      contactNumber: user?.phone || persistentData?.phone || '',
       orderType: 'upload',
       isUrgent: false,
       description: '',
     },
   });
 
-  // Update form when persistent data becomes available
+  // Enhanced auto-population with logged-in user data
   useEffect(() => {
-    if (persistentData) {
+    // Prioritize logged-in user data first, then persistent data
+    if (user) {
+      if (user.name && user.name !== 'Customer') {
+        form.setValue('name', user.name);
+      }
+      if (user.phone) {
+        form.setValue('contactNumber', user.phone);
+      }
+    } else if (persistentData) {
       if (persistentData.name) form.setValue('name', persistentData.name);
       if (persistentData.phone) form.setValue('contactNumber', persistentData.phone);
     }
-  }, [persistentData, form]);
+  }, [user, persistentData, form]);
 
   // Real-time shop status tracking with live updates
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -232,52 +238,11 @@ export default function ShopOrder() {
       return;
     }
 
-    // Store order data for after OTP verification
-    setPendingOrderData({ ...data, orderType });
-
-    // Smart Authentication Check: Check if user is already authenticated OR if JWT exists for this phone number
-    if (user && user.phone === data.contactNumber) {
-      // User is already verified with same phone number, proceed with order
-      createOrderMutation.mutate({ ...data, orderType });
-      return;
-    }
-
-    // Check for existing authentication for this phone number
-    try {
-      const result = await sendWhatsAppOTP(data.contactNumber);
-      
-      if (result.skipOTP && result.user) {
-        // User already has valid JWT token for this phone number, skip OTP
-        toast({
-          title: 'Welcome back!',
-          description: 'You are already authenticated. Proceeding with order.',
-        });
-        createOrderMutation.mutate({ ...data, orderType });
-        return;
-      }
-      
-      // OTP verification needed
-      setShowOtpModal(true);
-      toast({
-        title: 'OTP Verification Required',
-        description: `Demo mode: Enter any 6-digit code to verify ${data.contactNumber}`,
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Check Failed',
-        description: 'Unable to verify authentication status. Please try again.',
-      });
-    }
+    // Direct order creation without OTP verification
+    createOrderMutation.mutate({ ...data, orderType });
   };
 
-  const handleOtpVerified = (userData: any) => {
-    setShowOtpModal(false);
-    if (pendingOrderData) {
-      createOrderMutation.mutate(pendingOrderData);
-      setPendingOrderData(null);
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -532,7 +497,7 @@ export default function ShopOrder() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00] transition-all duration-300"
-                  disabled={createOrderMutation.isPending || showOtpModal}
+                  disabled={createOrderMutation.isPending}
                 >
                   {createOrderMutation.isPending ? (
                     <>
@@ -543,15 +508,10 @@ export default function ShopOrder() {
                         <span>Creating Order...</span>
                       )}
                     </>
-                  ) : showOtpModal ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span>Verifying OTP...</span>
-                    </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      {user ? 'Submit Order' : 'Submit Order with OTP'}
+                      Submit Order
                     </>
                   )}
                 </Button>
@@ -560,16 +520,7 @@ export default function ShopOrder() {
           </CardContent>
         </Card>
 
-        {/* WhatsApp OTP Verification Modal */}
-        <OTPVerificationModal
-          isOpen={showOtpModal}
-          onClose={() => {
-            setShowOtpModal(false);
-            setPendingOrderData(null);
-          }}
-          phoneNumber={pendingOrderData?.contactNumber || ''}
-          onVerificationSuccess={handleOtpVerified}
-        />
+
       </div>
 
       {/* Demo Banner */}
