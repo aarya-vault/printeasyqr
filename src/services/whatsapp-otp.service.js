@@ -214,6 +214,16 @@ class WhatsAppOTPService {
         }
       }
       
+      // In bypass mode, return special flag to skip OTP modal
+      if (BYPASS_OTP_VERIFICATION) {
+        return {
+          success: true,
+          messageId: result.messageId,
+          expiresIn: OTP_EXPIRY_MINUTES,
+          bypassMode: true // Special flag for frontend to skip OTP modal
+        };
+      }
+      
       return {
         success: true,
         messageId: result.messageId,

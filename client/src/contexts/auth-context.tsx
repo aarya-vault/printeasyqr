@@ -331,16 +331,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const result = await response.json();
 
       if (result.success) {
-        if (result.skipOTP) {
-          // User already authenticated via valid JWT token
+        if (result.skipOTP || result.bypassMode) {
+          // User authenticated via valid JWT token OR bypass mode
           setUser(result.user);
           localStorage.setItem('user', JSON.stringify(result.user));
           localStorage.setItem('authToken', result.token);
           if (result.refreshToken) {
             localStorage.setItem('refreshToken', result.refreshToken);
           }
+          setIsSessionVerified(true);
           console.log('🔑 Fresh JWT Token stored');
-          console.log('✅ Login Success via Token:', result.user.role, result.user.phone);
+          
+          if (result.bypassMode) {
+            console.log('🚨 BYPASS MODE: User authenticated automatically via bypass mode');
+          } else {
+            console.log('✅ Login Success via Token:', result.user.role, result.user.phone);
+          }
+          
           return { skipOTP: true, user: result.user };
         } else {
           console.log('🔍 Auth Context: Valid token not found, OTP will be sent');

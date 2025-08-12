@@ -76,6 +76,46 @@ class OTPController {
       const result = await WhatsAppOTPService.sendOTP(cleanPhone);
       console.log(`🔍 OTP Controller: WhatsApp service returned:`, result);
       
+      // 🚨 BYPASS MODE: Auto-authenticate user without OTP modal
+      if (result.bypassMode) {
+        console.log('🚨 BYPASS MODE: Auto-authenticating user without OTP verification');
+        
+        // Find or create user
+        let authenticatedUser = user; // Use existing user if found
+        
+        if (!authenticatedUser) {
+          // Create new customer
+          authenticatedUser = await User.create({
+            phone: cleanPhone,
+            role: 'customer',
+            name: 'Customer',
+            isActive: true
+          });
+          console.log(`🔧 BYPASS MODE: Created new user with ID ${authenticatedUser.id}`);
+        }
+        
+        // Generate tokens
+        const token = generateToken(authenticatedUser.toJSON());
+        const refreshToken = generateRefreshToken(authenticatedUser.toJSON());
+        
+        const userResponse = {
+          ...authenticatedUser.toJSON(),
+          needsNameUpdate: !authenticatedUser.name || authenticatedUser.name === 'Customer',
+          token,
+          refreshToken
+        };
+
+        return res.json({
+          success: true,
+          message: 'Bypass mode: User authenticated automatically',
+          bypassMode: true,
+          skipOTP: true,
+          user: userResponse,
+          token,
+          refreshToken
+        });
+      }
+      
       res.json({
         success: true,
         message: 'WhatsApp OTP sent successfully',
