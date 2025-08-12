@@ -11,6 +11,7 @@ import {
   CheckCircle, PlayCircle, Truck, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatToIndiaDateTime } from '@/lib/time-utils';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -381,22 +382,8 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
               
               <div className="text-xs text-gray-500">
                 {currentOrder.status === 'completed' 
-                  ? `Completed: ${(() => {
-                      try {
-                        const date = new Date(currentOrder.updatedAt);
-                        return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'PPP p');
-                      } catch {
-                        return 'Invalid date';
-                      }
-                    })()}`
-                  : `Last updated: ${(() => {
-                      try {
-                        const date = new Date(currentOrder.updatedAt);
-                        return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'PPP p');
-                      } catch {
-                        return 'Invalid date';
-                      }
-                    })()}`
+                  ? `Completed: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
+                  : `Last updated: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
                 }
               </div>
             </CardContent>
@@ -479,14 +466,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   <div>
                     <p className="text-sm font-medium text-gray-600">Created</p>
                     <p className="text-sm mt-1">
-                      {(() => {
-                        try {
-                          const date = new Date(currentOrder.createdAt);
-                          return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'PPP p');
-                        } catch {
-                          return 'Invalid date';
-                        }
-                      })()}
+                      {formatToIndiaDateTime(currentOrder.createdAt)}
                     </p>
                   </div>
                 </CardContent>
@@ -548,14 +528,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                             <div className="flex items-center justify-between">
                               <p className="font-medium text-sm">{statusInfo.label}</p>
                               <span className="text-xs text-gray-500">
-                                {(() => {
-                                  try {
-                                    const date = new Date(item.timestamp);
-                                    return isNaN(date.getTime()) ? 'Invalid date' : format(date, 'MMM d, p');
-                                  } catch {
-                                    return 'Invalid date';
-                                  }
-                                })()}
+                                {formatToIndiaDateTime(item.timestamp)}
                               </span>
                             </div>
                             {item.note && (
