@@ -418,7 +418,7 @@ export default function RedesignedShopOwnerDashboard() {
         
         files.forEach((file: any, index: number) => {
           setTimeout(() => {
-            const fileUrl = `/uploads/${file.filename || file}`;
+            const fileUrl = file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename || file}`;
             const link = document.createElement('a');
             link.href = fileUrl;
             link.download = file.originalName || file.filename || `file_${index + 1}`;

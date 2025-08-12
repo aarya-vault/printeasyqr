@@ -1,7 +1,8 @@
 // Print function - opens window, waits for user to complete printing
 export const printFile = async (file: any): Promise<void> => {
   // Handle both old format (filename) and new format (path)
-  const fileUrl = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename || file}`;
+  // Files are stored in object storage with their path directly
+  const fileUrl = file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename || file}`;
   
   return new Promise((resolve) => {
     // Open file in new window
@@ -61,8 +62,9 @@ export const printFile = async (file: any): Promise<void> => {
 
 // Simple, direct download function that downloads immediately  
 export const downloadFile = (file: any): void => {
-  // Handle both old format (filename) and new format (path)
-  const filePath = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename || file}`;
+  // Handle both old format (filename) and new format (path)  
+  // Files are stored in object storage with their path directly
+  const filePath = file.path ? `/objects/${file.path}` : `/objects/uploads/${file.filename || file}`;
   const originalName = file.originalName || file.filename || 'file';
   
   // Create download link and trigger download immediately
