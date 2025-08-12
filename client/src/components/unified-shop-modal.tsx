@@ -243,7 +243,7 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
                     onClick={handleGoogleMapsClick}
                     variant="outline"
                     size="sm"
-                    className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
+                    className="w-full bg-brand-yellow/10 border-brand-yellow/30 text-black hover:bg-brand-yellow hover:text-black font-medium"
                   >
                     <MapPin className="w-4 h-4 mr-2" />
                     View on Google Maps

@@ -236,10 +236,10 @@ export default function UnifiedShopCard({
             {shop.googleMapsLink && isUnlocked && (
               <button
                 onClick={handleGoogleMapsClick}
-                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-brand-yellow/20 text-black border-brand-yellow/40 hover:bg-brand-yellow hover:border-brand-yellow transition-colors"
                 title="Open in Google Maps"
               >
-                <ExternalLink className="w-3 h-3 mr-1" />
+                <MapPin className="w-3 h-3 mr-1" />
                 Maps
               </button>
             )}
