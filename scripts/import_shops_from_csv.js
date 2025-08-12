@@ -227,20 +227,31 @@ async function importShops() {
           }
         });
         
-        // Create shop
+        // Handle duplicate shop names by adding suffix
+        let uniqueShopName = shopName;
+        let shopSlug = generateSlug(shopName);
+        
+        // Check if shop name already exists
+        const existingShop = await Shop.findOne({ where: { name: uniqueShopName } });
+        if (existingShop) {
+          uniqueShopName = `${shopName} - ${row.neighborhood || row.street || 'Branch'}`.substring(0, 100);
+          shopSlug = `${shopSlug}-${importedCount + 1}`;
+        }
+        
+        // Create shop with unique identifiers
         const shop = await Shop.create({
-          name: shopName,
-          slug: generateSlug(shopName),
+          name: uniqueShopName,
+          slug: shopSlug,
           address: row.street || row.address || '',
           city: row.city || 'Ahmedabad',
           state: row.state || 'Gujarat',
           pinCode: row.postalCode || '380001',
-          phone: phone,
+          phone: fallbackPhone,
           publicOwnerName: ownerName,
-          internalName: shopName,
+          internalName: uniqueShopName,
           ownerFullName: ownerName,
-          email: `shop${importedCount + 1}@printeasyqr.com`,
-          ownerPhone: ownerPhone,
+          email: uniqueEmail,
+          ownerPhone: fallbackPhone,
           completeAddress: row.address || '',
           services: services,
           workingHours: workingHours,
