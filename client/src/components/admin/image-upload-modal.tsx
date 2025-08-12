@@ -23,6 +23,7 @@ export function ImageUploadModal({ shop, isOpen, onClose, onSuccess }: ImageUplo
 
   const handleGetUploadParameters = async () => {
     const data = await apiRequest('/api/admin/objects/upload', 'POST');
+    console.log('Upload URL response:', data); // Debug log
     return {
       method: 'PUT' as const,
       url: data.uploadURL,
