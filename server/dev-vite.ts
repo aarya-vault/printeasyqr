@@ -22,6 +22,11 @@ console.log('✅ Vite + Sequelize integration');
     const server = createServer(sequelizeApp);
     console.log('🌐 HTTP server created with Sequelize routes');
 
+    // 🚀 CRITICAL FIX: Setup WebSocket server for real-time notifications
+    const setupWebSocketModule = await import("../src/utils/websocket.js");
+    setupWebSocketModule.setupWebSocket(server);
+    console.log('🔌 WebSocket server initialized for real-time chat');
+
     // Setup Vite development middleware
     await setupVite(sequelizeApp, server);
     console.log('🔧 Vite development server configured');

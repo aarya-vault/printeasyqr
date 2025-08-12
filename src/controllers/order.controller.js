@@ -557,7 +557,8 @@ class OrderController {
         transformedFiles: transformedOrder?.files?.length || 0
       });
       
-      res.json(transformedOrder);
+      // 🚀 ORDER CONFIRMATION FIX: Return order in expected format for confirmation page
+      res.json({ order: transformedOrder });
     } catch (error) {
       console.error('Get order error:', error);
       res.status(500).json({ message: 'Failed to get order' });

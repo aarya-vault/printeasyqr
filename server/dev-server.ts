@@ -44,6 +44,11 @@ console.log('✅ Pure Sequelize system');
     const server = createServer(sequelizeApp);
     console.log('🌐 HTTP server created with Sequelize routes');
 
+    // 🚀 CRITICAL FIX: Setup WebSocket server for real-time notifications
+    const setupWebSocketModule = await import("../src/utils/websocket.js");
+    setupWebSocketModule.setupWebSocket(server);
+    console.log('🔌 WebSocket server initialized for real-time chat');
+
     const PORT = parseInt(process.env.PORT || '3001', 10);
 
     server.listen(PORT, '0.0.0.0', () => {

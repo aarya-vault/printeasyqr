@@ -372,9 +372,7 @@ app.get('/uploads/:filename', (req, res) => {
 // REMOVED: This catch-all was blocking new TypeScript routes
 // Unmatched API routes are now handled by the new system
 
-// DISABLED: WebSocket setup now handled by new TypeScript system
-// This was causing WebSocket conflicts and is no longer needed
-// WebSocket functionality is now in server/routes.ts
+// WebSocket setup is now handled in server/dev-server.ts
 
 // Error handling middleware
 app.use((err, req, res, next) => {

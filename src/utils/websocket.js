@@ -6,7 +6,8 @@ const wsConnections = new Map();
 export function setupWebSocket(server) {
   console.log('🔌 Setting up WebSocket server...');
   
-  const wss = new WebSocketServer({ server });
+  // Use a specific path to avoid conflict with Vite HMR WebSocket
+  const wss = new WebSocketServer({ server, path: '/ws' });
   
   wss.on('connection', (ws, req) => {
     console.log('📡 New WebSocket connection established');

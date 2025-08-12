@@ -32,7 +32,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         
         // Send authentication message
         ws.send(JSON.stringify({
-          type: 'auth',
+          type: 'authenticate',
           userId: user.id
         }));
       };
