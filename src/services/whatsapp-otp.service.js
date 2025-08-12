@@ -9,6 +9,9 @@ const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 3;
 const DEMO_MODE = false; // 🚀 REAL WHATSAPP OTP ENABLED - Using Gupshup API
 
+// 🚨 TEMPORARY BYPASS MODE - Set to false when Gupshup business account is approved
+const BYPASS_OTP_VERIFICATION = true;
+
 // In-memory OTP storage (in production, use Redis or database)
 const otpStorage = new Map();
 
@@ -22,6 +25,15 @@ class WhatsAppOTPService {
 
   static async sendOTP(phoneNumber) {
     console.log(`🚨 WhatsApp OTP Service: sendOTP called with phone: ${phoneNumber}`);
+    
+    // BYPASS MODE NOTIFICATION
+    if (BYPASS_OTP_VERIFICATION) {
+      console.log('🚨🚨🚨 BYPASS MODE ACTIVE 🚨🚨🚨');
+      console.log('🔧 Gupshup business account pending approval');
+      console.log('🔧 Any 6-digit code will be accepted during verification');
+      console.log('🔧 Set BYPASS_OTP_VERIFICATION=false when business account approved');
+      console.log('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
+    }
     
     // DEBUG CREDENTIALS
     console.log('--- DEBUG CREDENTIALS ---');
@@ -281,18 +293,20 @@ class WhatsAppOTPService {
       storedData.attempts += 1;
       otpStorage.set(phoneNumber, storedData);
 
-      // Verify OTP - Demo mode accepts any 6-digit code
-      if (DEMO_MODE) {
-        // Demo mode - accept any 6-digit OTP
+      // Verify OTP - Bypass mode for temporary use until business account approved
+      if (BYPASS_OTP_VERIFICATION) {
+        // BYPASS MODE - accept any 6-digit OTP (temporary until Gupshup business account approved)
         if (submittedOTP.length !== 6 || !/^\d{6}$/.test(submittedOTP)) {
           throw new Error('Invalid OTP format');
         }
-        console.log(`🔧 DEMO MODE: OTP ${submittedOTP} accepted for ${phoneNumber} (actual was ${storedData.otp})`);
+        console.log(`🚨 BYPASS MODE ACTIVE: OTP ${submittedOTP} accepted for ${phoneNumber} (generated was ${storedData.otp})`);
+        console.log(`🔧 BYPASS: Gupshup business account pending approval - any 6-digit code accepted`);
       } else {
         // Production mode - verify actual OTP
         if (storedData.otp !== submittedOTP.toString()) {
           throw new Error('Invalid OTP');
         }
+        console.log(`✅ PRODUCTION MODE: Real OTP ${submittedOTP} verified for ${phoneNumber}`);
       }
 
       // OTP verified successfully - clean up
