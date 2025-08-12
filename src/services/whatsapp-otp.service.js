@@ -171,32 +171,34 @@ class WhatsAppOTPService {
         } else {
           console.log(`✅ WhatsApp OTP sent successfully to ${fullPhoneNumber}:`, result.messageId);
           
-          // CRITICAL DEBUG: Try sending a simple text message as well to test delivery
-          console.log('🔍 DEBUG: Testing simple text message delivery...');
-          try {
-            const testResponse = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/msg`, {
-              method: 'POST',
-              headers: {
-                'apikey': process.env.GUPSHUP_API_KEY,
-                'Content-Type': 'application/x-www-form-urlencoded'
-              },
-              body: new URLSearchParams({
-                channel: 'whatsapp',
-                source: process.env.GUPSHUP_SOURCE_PHONE,
-                destination: fullPhoneNumber,
-                'src.name': process.env.GUPSHUP_APP_NAME,
-                message: JSON.stringify({
-                  type: 'text',
-                  text: `TEST: Your OTP is ${otp}. If you receive this, templates work but delivery is delayed.`
-                })
-              })
-            });
-            
-            const testResult = await testResponse.json();
-            console.log(`🔍 DEBUG Simple Message - Status: ${testResponse.status}, Response:`, testResult);
-          } catch (debugError) {
-            console.error('🔍 DEBUG Simple Message Failed:', debugError);
-          }
+          // Check message delivery status after a short delay
+          setTimeout(async () => {
+            try {
+              console.log(`🔍 Checking delivery status for message: ${result.messageId}`);
+              
+              // Use the message status API to check delivery
+              const statusResponse = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/msg/${result.messageId}`, {
+                method: 'GET',
+                headers: {
+                  'apikey': process.env.GUPSHUP_API_KEY
+                }
+              });
+              
+              const statusResult = await statusResponse.json();
+              console.log(`📊 Message Status Response:`, statusResult);
+              
+              if (statusResult.status === 'failed' || statusResult.status === 'undelivered') {
+                console.log(`❌ MESSAGE DELIVERY FAILED for ${fullPhoneNumber}:`, statusResult.reason);
+                console.log(`🔍 Possible reasons: Invalid WhatsApp number, blocked, or network issues`);
+              } else if (statusResult.status === 'delivered') {
+                console.log(`✅ MESSAGE DELIVERED successfully to ${fullPhoneNumber}`);
+              } else {
+                console.log(`⏳ Message status: ${statusResult.status} - may still be in transit`);
+              }
+            } catch (statusError) {
+              console.log('🔍 Status check failed (normal if API doesn\'t support status endpoint):', statusError.message);
+            }
+          }, 10000); // Check after 10 seconds
         }
       }
       
