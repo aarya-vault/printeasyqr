@@ -174,6 +174,93 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 
+// Image proxy for Google Photos/Maps images - bypass CORS restrictions
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    
+    if (!imageUrl) {
+      return res.status(400).json({ error: 'URL parameter is required' });
+    }
+    
+    // Validate that the URL is from allowed Google domains
+    const allowedDomains = [
+      'lh3.googleusercontent.com',
+      'lh4.googleusercontent.com',
+      'lh5.googleusercontent.com',
+      'streetviewpixels-pa.googleapis.com',
+      'maps.googleapis.com',
+      'gps-proxy'
+    ];
+    
+    const urlObj = new URL(imageUrl);
+    const isAllowed = allowedDomains.some(domain => 
+      urlObj.hostname.includes(domain) || imageUrl.includes(domain)
+    );
+    
+    if (!isAllowed) {
+      return res.status(403).json({ error: 'Domain not allowed' });
+    }
+    
+    console.log('🖼️ Proxying image:', imageUrl.substring(0, 100) + '...');
+    
+    // Fetch the image with proper headers
+    const response = await fetch(imageUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://www.google.com/',
+        'Cache-Control': 'no-cache',
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('❌ Failed to fetch image:', response.status, response.statusText);
+      return res.status(response.status).json({ error: 'Failed to fetch image' });
+    }
+    
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Set cache headers
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    
+    // Set content type
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    res.setHeader('Content-Type', contentType);
+    
+    // Stream the image
+    const reader = response.body.getReader();
+    const pump = () => {
+      return reader.read().then(({ done, value }) => {
+        if (done) {
+          console.log('✅ Image proxied successfully');
+          return res.end();
+        }
+        res.write(value);
+        return pump();
+      });
+    };
+    
+    pump().catch(error => {
+      console.error('❌ Image proxy stream error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Image streaming failed' });
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Image proxy error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Image proxy failed' });
+    }
+  }
+});
+
 // Object Storage download proxy - bypass CORS restrictions
 app.get('/api/download/:objectPath(*)', async (req, res) => {
   try {

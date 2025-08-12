@@ -43,7 +43,9 @@ export default function UnifiedShopCard({
           <div className="relative mb-4">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
               <img
-                src={shop.exteriorImage}
+                src={shop.exteriorImage.includes('googleusercontent.com') || shop.exteriorImage.includes('gps-proxy') 
+                  ? `/api/proxy-image?url=${encodeURIComponent(shop.exteriorImage)}`
+                  : shop.exteriorImage}
                 alt={`${shop.name} exterior`}
                 className={`w-full h-full object-cover transition-opacity ${
                   isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
