@@ -49,6 +49,7 @@ class ShopController {
       qrCode: shopData.qrCode,
       rating: shopData.rating ? parseFloat(shopData.rating) : 0,
       totalOrders: shopData.totalOrders || 0,
+      exteriorImage: shopData.exteriorImage || null,
       // Frontend compatibility aliases
       publicName: shopData.publicOwnerName,
       publicAddress: shopData.completeAddress || shopData.address,

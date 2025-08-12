@@ -31,27 +31,30 @@ export default function UnifiedShopCard({
       onClick={onClick}
     >
       <CardContent className="p-4">
-        {/* FORCED IMAGE SECTION FOR TESTING - ALWAYS SHOW */}
-        <div className="relative mb-4">
-          <div className="aspect-video w-full rounded-lg overflow-hidden bg-red-100 border-2 border-red-500">
-            <div className="w-full h-full flex flex-col items-center justify-center text-sm">
-              <div className="text-red-800 font-bold">DEBUG: Shop {shop.id} - {shop.name}</div>
-              <div className="text-red-600">exteriorImage: {shop.exteriorImage || 'NULL'}</div>
-              {shop.exteriorImage && (
-                <img
-                  src={shop.exteriorImage}
-                  alt={`${shop.name} exterior`}
-                  className="mt-2 max-w-full max-h-20 object-contain border border-gray-300"
-                  onLoad={() => {
-                    console.log('✅ Image loaded successfully:', shop.exteriorImage);
-                  }}
-                  onError={(e) => {
-                    console.error('❌ Image failed to load:', shop.exteriorImage);
-                  }}
-                />
-              )}
+        {/* Only show exterior image if it exists */}
+        {shop.exteriorImage && (
+          <div className="relative mb-4">
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
+              <img
+                src={shop.exteriorImage}
+                alt={`${shop.name} exterior`}
+                className={`w-full h-full object-cover transition-opacity ${
+                  isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
+                }`}
+                onLoad={() => {
+                  console.log('✅ Image loaded successfully:', shop.exteriorImage);
+                }}
+                onError={(e) => {
+                  console.error('❌ Image failed to load:', shop.exteriorImage);
+                  // Hide entire image section if fails to load
+                  const target = e.target as HTMLImageElement;
+                  const imageContainer = target.closest('.relative');
+                  if (imageContainer) {
+                    (imageContainer as HTMLElement).style.display = 'none';
+                  }
+                }}
+              />
             </div>
-          </div>
             
             {/* Status badges overlay on image */}
             <div className="absolute top-2 left-2 flex gap-2">
