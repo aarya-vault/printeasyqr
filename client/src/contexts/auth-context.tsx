@@ -105,14 +105,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
-  // 🚨 DEPRECATED LEGACY LOGIN - USE OTP FLOW INSTEAD
+  // 🚀 SIMPLIFIED LOGIN - DIRECT PHONE AND EMAIL LOGIN
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
     setIsLoading(true);
     try {
-      // For phone-based login, redirect to OTP flow
+      // Handle phone-based login directly
       if (credentials.phone) {
-        console.log('🚨 DEPRECATED: phone-login called, redirecting to OTP flow');
-        throw new Error('Phone login must use WhatsApp OTP verification. Please use the OTP flow instead.');
+        console.log('📱 Phone Login: Creating account for', credentials.phone);
+        const response = await fetch('/api/auth/phone-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            phone: credentials.phone,
+            name: credentials.name || 'Customer'
+          }),
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Phone login failed');
+        }
+
+        const userData = await response.json();
+        
+        // Store JWT token if provided
+        if (userData.token) {
+          localStorage.setItem('authToken', userData.token);
+          console.log('🔑 JWT Token stored');
+        }
+        
+        // Set user immediately
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setIsSessionVerified(true);
+        console.log('✅ Phone Login Success:', userData.role, userData.phone);
+        
+        return userData;
       }
 
       // Only allow email+password login for shop owners and admins

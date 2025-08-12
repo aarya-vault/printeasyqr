@@ -54,6 +54,17 @@ export default function UnifiedCustomerDashboard() {
   const [selectedShopForDetails, setSelectedShopForDetails] = useState<any>(null);
   const [showShopDetails, setShowShopDetails] = useState(false);
 
+  // Fetch real notifications for notification count
+  const { data: notifications = [] } = useQuery<any[]>({
+    queryKey: [`/api/notifications/${user?.id}`],
+    enabled: !!user?.id,
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    staleTime: 0
+  });
+
+  // Calculate unread notification count using standard pattern
+  const unreadNotificationCount = notifications.filter(n => !n.isRead).length;
+
   // Fetch unlocked shops for the customer
   const { data: unlockedShopsData, isLoading: unlockedShopsLoading } = useQuery({
     queryKey: [`/api/customer/${user?.id}/unlocked-shops`],
@@ -344,9 +355,9 @@ export default function UnifiedCustomerDashboard() {
               onClick={() => setLocation('/customer-notifications')}
             >
               <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
-              {orderStats.active > 0 && (
+              {unreadNotificationCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {orderStats.active}
+                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
                 </span>
               )}
             </Button>

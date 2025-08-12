@@ -7,6 +7,7 @@ import UnifiedChatSystem from './unified-chat-system';
 
 interface Order {
   id: number;
+  unreadCount?: number;
   unreadMessages?: number;
 }
 
@@ -36,11 +37,12 @@ export default function UnifiedFloatingChatButton() {
       return failureCount < 1;
     },
     select: (data) => {
-      return data.filter(order => order.unreadMessages && order.unreadMessages > 0);
+      if (!data) return [];
+      return data.filter(order => (order.unreadCount || order.unreadMessages) && (order.unreadCount || order.unreadMessages) > 0);
     }
   });
 
-  const totalUnreadMessages = orders.reduce((sum, order) => sum + (order.unreadMessages || 0), 0);
+  const totalUnreadMessages = orders.reduce((sum, order) => sum + (order.unreadCount || order.unreadMessages || 0), 0);
 
   const handleChatOpen = () => {
     setIsChatOpen(true);
