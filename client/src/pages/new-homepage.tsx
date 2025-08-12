@@ -562,10 +562,11 @@ export default function NewHomepage() {
       {/* OTP Verification Modal */}
       {showOTPModal && (
         <OTPVerificationModal
-          phone={customerPhone}
+          phoneNumber={customerPhone}
           isOpen={showOTPModal}
           onClose={() => setShowOTPModal(false)}
           onVerify={handleOTPVerification}
+          onResend={() => sendWhatsAppOTP(customerPhone)}
         />
       )}
 

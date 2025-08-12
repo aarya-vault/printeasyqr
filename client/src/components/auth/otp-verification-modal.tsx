@@ -111,6 +111,7 @@ export function OTPVerificationModal({
   };
 
   const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
     if (phone.length === 10) {
       return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
     }
