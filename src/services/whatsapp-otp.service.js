@@ -21,6 +21,7 @@ class WhatsAppOTPService {
   // All authentication must go through proper JWT validation in OTP controller
 
   static async sendOTP(phoneNumber) {
+    console.log(`🚨 WhatsApp OTP Service: sendOTP called with phone: ${phoneNumber}`);
     try {
       // Enhanced phone validation and formatting for Gupshup API
       const cleanPhone = phoneNumber.replace(/\D/g, '');

@@ -72,7 +72,9 @@ class OTPController {
       }
 
       // Send OTP for new session - use cleaned phone number
+      console.log(`🔍 OTP Controller: About to call WhatsAppOTPService.sendOTP(${cleanPhone})`);
       const result = await WhatsAppOTPService.sendOTP(cleanPhone);
+      console.log(`🔍 OTP Controller: WhatsApp service returned:`, result);
       
       res.json({
         success: true,
