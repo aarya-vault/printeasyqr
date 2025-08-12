@@ -83,6 +83,15 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Platform Agnostic**: Application now ready for deployment on any platform (Railway, Render, VPS) without Netlify dependencies
 - **Clean Single Source**: Backend code now exists only in `src/` directory, eliminating sync issues and confusion
 
+### Working Hours Display System Fix (August 2025)
+- **Eliminated Hardcoded Text**: Removed "Standard hours" fallback from working-hours.ts utility that was masking actual shop timings
+- **Enhanced CSV Import Logic**: Fixed import scripts to properly parse Google Maps time formats ("8:30 AM to 10 PM") into structured database format
+- **Comprehensive Format Support**: Working hours utility now handles legacy string formats, structured objects, and mixed data types seamlessly
+- **24/7 Operation Support**: Added proper detection and display of 24-hour operations with "24/7 Open" text and is24Hours flag
+- **Complex Schedule Handling**: Support for different opening/closing times per day (e.g., Saturday 9 AM vs weekdays 8:30 AM)
+- **Database Migration Scripts**: Created fix-working-hours-format.js for converting existing malformed working hours to proper structured format
+- **Authentic Data Display**: All shop modals now show real working hours from CSV/Google Maps data instead of generic placeholder text
+
 ### Mobile Responsiveness Improvements (August 2025)
 - **Mobile-First Header Design**: Implemented responsive header with hamburger menu for mobile devices, compact status toggle, and proper button sizing
 - **Responsive Navigation**: Desktop navigation hidden on mobile with dropdown menu containing all navigation options (Analytics, QR Code, History, Settings)
