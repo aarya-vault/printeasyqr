@@ -31,28 +31,27 @@ export default function UnifiedShopCard({
       onClick={onClick}
     >
       <CardContent className="p-4">
-        {/* Only show exterior image if it exists */}
-        {shop.exteriorImage && (
-          <div className="relative mb-4">
-            <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
-              <img
-                src={shop.exteriorImage}
-                alt={`${shop.name} exterior`}
-                className={`w-full h-full object-cover transition-opacity ${
-                  isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
-                }`}
-                onLoad={() => {
-                  console.log('✅ Image loaded successfully:', shop.exteriorImage);
-                }}
-                onError={(e) => {
-                  console.error('❌ Image failed to load:', shop.exteriorImage);
-                  // Show broken image placeholder instead of hiding
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZpbGw9IiM2QjcyODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pgo8L3N2Zz4K';
-                  target.className = 'w-full h-full object-cover opacity-50';
-                }}
-              />
+        {/* FORCED IMAGE SECTION FOR TESTING - ALWAYS SHOW */}
+        <div className="relative mb-4">
+          <div className="aspect-video w-full rounded-lg overflow-hidden bg-red-100 border-2 border-red-500">
+            <div className="w-full h-full flex flex-col items-center justify-center text-sm">
+              <div className="text-red-800 font-bold">DEBUG: Shop {shop.id} - {shop.name}</div>
+              <div className="text-red-600">exteriorImage: {shop.exteriorImage || 'NULL'}</div>
+              {shop.exteriorImage && (
+                <img
+                  src={shop.exteriorImage}
+                  alt={`${shop.name} exterior`}
+                  className="mt-2 max-w-full max-h-20 object-contain border border-gray-300"
+                  onLoad={() => {
+                    console.log('✅ Image loaded successfully:', shop.exteriorImage);
+                  }}
+                  onError={(e) => {
+                    console.error('❌ Image failed to load:', shop.exteriorImage);
+                  }}
+                />
+              )}
             </div>
+          </div>
             
             {/* Status badges overlay on image */}
             <div className="absolute top-2 left-2 flex gap-2">
@@ -74,8 +73,7 @@ export default function UnifiedShopCard({
               </span>
             )}
           </div>
-          </div>
-        )}
+        </div>
 
         {/* Status badges when no image */}
         {!shop.exteriorImage && (
