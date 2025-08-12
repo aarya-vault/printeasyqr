@@ -17,61 +17,93 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     const printWindow = window.open(fileUrl, '_blank');
     
     if (printWindow) {
-      // Wait for window to load, then print
+      // Set up error handling for both load and security errors
+      let hasHandledError = false;
+      
+      const handleError = (errorMessage: string) => {
+        if (hasHandledError) return;
+        hasHandledError = true;
+        
+        try {
+          if (!printWindow.closed) {
+            printWindow.close();
+          }
+        } catch (e) {
+          // Ignore errors when closing cross-origin windows
+        }
+        
+        console.log(`❌ ${errorMessage}`);
+        reject(new Error(errorMessage));
+      };
+
+      // Handle window load
       printWindow.onload = () => {
         setTimeout(() => {
-          printWindow.print();
-          console.log('🖨️ Print dialog opened');
-          // DON'T close immediately - let user complete printing
-          // Check if window is closed by user every 2 seconds
-          const checkInterval = setInterval(() => {
-            if (printWindow.closed) {
+          try {
+            printWindow.print();
+            console.log('🖨️ Print dialog opened');
+            
+            // Check if window is closed by user every 2 seconds
+            const checkInterval = setInterval(() => {
+              try {
+                if (printWindow.closed) {
+                  clearInterval(checkInterval);
+                  console.log('✅ Print window closed by user');
+                  resolve();
+                }
+              } catch (e) {
+                // Cross-origin access blocked - assume print completed
+                clearInterval(checkInterval);
+                console.log('✅ Print completed (cross-origin)');
+                resolve();
+              }
+            }, 2000);
+            
+            // Auto-resolve after 30 seconds
+            setTimeout(() => {
               clearInterval(checkInterval);
-              console.log('✅ Print window closed by user');
+              try {
+                if (!printWindow.closed) {
+                  printWindow.close();
+                }
+              } catch (e) {
+                // Ignore cross-origin errors
+              }
+              console.log('⏰ Print auto-completed after timeout');
               resolve();
-            }
-          }, 2000);
-          
-          // Auto-close after 30 seconds if user hasn't closed it
-          setTimeout(() => {
-            if (!printWindow.closed) {
-              printWindow.close();
-              clearInterval(checkInterval);
-              console.log('⏰ Print window auto-closed after timeout');
-              resolve();
-            }
-          }, 30000);
-        }, 2000); // Give PDF more time to load
+            }, 30000);
+          } catch (error) {
+            handleError('Cross-origin access blocked during print');
+          }
+        }, 2000);
       };
       
-      // Handle load errors (file not found, etc.)
+      // Handle load errors
       printWindow.onerror = () => {
-        printWindow.close();
-        console.log('❌ Error loading file for printing');
-        reject(new Error('Failed to load file for printing'));
+        handleError('Failed to load file for printing');
       };
       
-      // Fallback if onload doesn't fire
+      // Fallback timeout for files that don't trigger onload
       setTimeout(() => {
-        if (printWindow && !printWindow.closed) {
-          printWindow.print();
-          console.log('🖨️ Print initiated (fallback)');
-          
-          // Same logic - wait for user to close or auto-close
-          const checkInterval = setInterval(() => {
-            if (printWindow.closed) {
-              clearInterval(checkInterval);
+        if (!hasHandledError) {
+          try {
+            printWindow.print();
+            console.log('🖨️ Print initiated (fallback)');
+            
+            // Simplified resolution for fallback case
+            setTimeout(() => {
+              try {
+                if (!printWindow.closed) {
+                  printWindow.close();
+                }
+              } catch (e) {
+                // Ignore cross-origin errors
+              }
               resolve();
-            }
-          }, 2000);
-          
-          setTimeout(() => {
-            if (!printWindow.closed) {
-              printWindow.close();
-              clearInterval(checkInterval);
-              resolve();
-            }
-          }, 30000);
+            }, 10000);
+          } catch (error) {
+            handleError('File may not be available for printing');
+          }
         }
       }, 5000);
     } else {

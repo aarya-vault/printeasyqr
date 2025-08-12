@@ -1,7 +1,17 @@
 // Utility functions for consistent time formatting
 
-export const formatToIndiaTime = (date: Date | string | number): string => {
+export const formatToIndiaTime = (date: Date | string | number | null | undefined): string => {
+  // Handle null/undefined dates
+  if (!date) {
+    return 'Invalid time';
+  }
+  
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid time';
+  }
   
   // Convert to India time (UTC+5:30)
   const options: Intl.DateTimeFormatOptions = {
@@ -14,8 +24,18 @@ export const formatToIndiaTime = (date: Date | string | number): string => {
   return dateObj.toLocaleTimeString('en-IN', options);
 };
 
-export const formatToIndiaDateTime = (date: Date | string | number): string => {
+export const formatToIndiaDateTime = (date: Date | string | number | null | undefined): string => {
+  // Handle null/undefined dates
+  if (!date) {
+    return 'Invalid date';
+  }
+  
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
   
   // Convert to India time with date
   const options: Intl.DateTimeFormatOptions = {
@@ -31,8 +51,18 @@ export const formatToIndiaDateTime = (date: Date | string | number): string => {
   return dateObj.toLocaleString('en-IN', options);
 };
 
-export const formatToIndiaDate = (date: Date | string | number): string => {
+export const formatToIndiaDate = (date: Date | string | number | null | undefined): string => {
+  // Handle null/undefined dates
+  if (!date) {
+    return 'Invalid date';
+  }
+  
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
   
   // Convert to India date only
   const options: Intl.DateTimeFormatOptions = {
@@ -45,8 +75,19 @@ export const formatToIndiaDate = (date: Date | string | number): string => {
   return dateObj.toLocaleDateString('en-IN', options);
 };
 
-export const formatRelativeTime = (date: Date | string | number): string => {
+export const formatRelativeTime = (date: Date | string | number | null | undefined): string => {
+  // Handle null/undefined dates
+  if (!date) {
+    return 'Unknown time';
+  }
+  
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid time';
+  }
+  
   const now = new Date();
   const diff = now.getTime() - dateObj.getTime();
   
@@ -63,12 +104,23 @@ export const formatRelativeTime = (date: Date | string | number): string => {
 };
 
 // Check if a date is today (in India timezone)
-export const isToday = (date: Date | string | number): boolean => {
+export const isToday = (date: Date | string | number | null | undefined): boolean => {
+  // Handle null/undefined dates
+  if (!date) {
+    return false;
+  }
+  
   const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return false;
+  }
+  
   const today = new Date();
   
   const dateIndia = formatToIndiaDate(dateObj);
   const todayIndia = formatToIndiaDate(today);
   
-  return dateIndia === todayIndia;
+  return dateIndia === todayIndia && dateIndia !== 'Invalid date';
 };

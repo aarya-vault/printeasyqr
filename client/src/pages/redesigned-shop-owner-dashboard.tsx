@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
-import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 import {
   Search,
