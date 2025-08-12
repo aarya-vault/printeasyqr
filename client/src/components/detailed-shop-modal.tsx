@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
-  CheckCircle2, X
+  CheckCircle2, X, ExternalLink, MapPin
 } from 'lucide-react';
 import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
@@ -53,6 +53,8 @@ interface Shop {
   acceptsWalkinOrders: boolean;
   isOnline: boolean;
   isOpen?: boolean;
+  // Google Maps Integration
+  googleMapsLink?: string;
   // Statistics
   totalOrders?: number;
   rating?: number;
@@ -70,6 +72,12 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
   if (!shop) {
     return null;
   }
+
+  const handleGoogleMapsClick = () => {
+    if (shop.googleMapsLink) {
+      window.open(shop.googleMapsLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
@@ -262,6 +270,21 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
                     <p className="text-sm text-gray-600">{shop.email}</p>
+                  </div>
+                )}
+
+                {shop.googleMapsLink && (
+                  <div>
+                    <Button
+                      onClick={handleGoogleMapsClick}
+                      variant="outline"
+                      size="sm"
+                      className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
+                    >
+                      <MapPin className="w-4 h-4 mr-2" />
+                      View on Google Maps
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </Button>
                   </div>
                 )}
               </CardContent>
