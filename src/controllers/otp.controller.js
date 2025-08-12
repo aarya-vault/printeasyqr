@@ -10,15 +10,17 @@ class OTPController {
     try {
       const { phone } = req.body;
       
-      if (!phone || !/^[6-9][0-9]{9}$/.test(phone)) {
+      // Enhanced phone validation - flexible for testing and production
+      const cleanPhone = phone.replace(/\D/g, '');
+      if (!phone || cleanPhone.length < 10 || cleanPhone.length > 15) {
         return res.status(400).json({ 
           success: false,
-          message: 'Invalid phone number format' 
+          message: 'Phone number must be 10-15 digits' 
         });
       }
 
       // Check if user already has a valid session
-      const sessionCheck = await WhatsAppOTPService.checkExistingSession(phone);
+      const sessionCheck = await WhatsAppOTPService.checkExistingSession(cleanPhone);
       
       if (sessionCheck.hasValidSession) {
         // User already authenticated, generate new token
@@ -38,8 +40,8 @@ class OTPController {
         });
       }
 
-      // Send OTP for new session
-      const result = await WhatsAppOTPService.sendOTP(phone);
+      // Send OTP for new session - use cleaned phone number
+      const result = await WhatsAppOTPService.sendOTP(cleanPhone);
       
       res.json({
         success: true,

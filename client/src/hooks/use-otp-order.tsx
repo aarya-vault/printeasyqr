@@ -61,13 +61,21 @@ export function useOTPOrder() {
         });
       }
 
-      return await apiClient.post('/api/orders', formData, {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
+        body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error(`Order creation failed: ${response.status}`);
+      }
+
+      return await response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: "Order Created Successfully!",
         description: `Your order #${data.orderNumber} has been submitted`,
@@ -230,6 +238,8 @@ export function useOTPOrder() {
     resetFlow,
     
     // Resend OTP function
-    resendOTP: () => sendWhatsAppOTP(state.phoneNumber),
+    resendOTP: async () => {
+      await sendWhatsAppOTP(state.phoneNumber);
+    },
   };
 }

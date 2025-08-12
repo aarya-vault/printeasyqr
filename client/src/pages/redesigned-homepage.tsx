@@ -17,7 +17,7 @@ import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
 import { useToast } from '@/hooks/use-toast';
-import QRScanner from '@/components/qr-scanner';
+import SimpleQRScanner from '@/components/simple-qr-scanner';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 
@@ -75,14 +75,14 @@ export default function RedesignedHomepage() {
 
     setLoginLoading(true);
     try {
-      console.log('🔍 Smart Authentication: Checking existing token for', customerPhone);
+      console.log('🔍 Homepage Login: Requesting OTP for', customerPhone);
       
-      // Step 1: Smart token checking with WhatsApp OTP service
+      // Always request OTP for new logins - simplified flow
       const result = await sendWhatsAppOTP(customerPhone);
       
       if (result.skipOTP) {
         // User already has valid authentication token
-        console.log('✅ Smart Authentication: Valid token found, skipping OTP');
+        console.log('✅ Homepage Login: Valid token found, skipping OTP');
         
         if (result.user && result.user.needsNameUpdate) {
           setTempUser(result.user);
@@ -95,8 +95,8 @@ export default function RedesignedHomepage() {
           navigate('/customer-dashboard');
         }
       } else {
-        // No valid token found, request OTP verification
-        console.log('🔍 Smart Authentication: No valid token, requesting OTP verification');
+        // Request OTP verification for new/unverified users
+        console.log('🔍 Homepage Login: Requesting OTP verification for new user');
         setShowOTPModal(true);
         toast({
           title: "OTP Sent",
@@ -104,7 +104,7 @@ export default function RedesignedHomepage() {
         });
       }
     } catch (error) {
-      console.error('Smart Authentication Error:', error);
+      console.error('Homepage Login Error:', error);
       toast({
         title: "Authentication Error",
         description: error instanceof Error ? error.message : "Please try again",
@@ -159,20 +159,22 @@ export default function RedesignedHomepage() {
     }
   };
 
-  const handleQRScan = (shopId: number, shopName: string) => {
-    console.log('🔍 QR Scan: Shop unlocked', { shopId, shopName });
-    toast({
-      title: "Shop Unlocked!",
-      description: `You can now place orders at ${shopName}`,
-    });
+  const handleQRScan = (data: string) => {
+    console.log('🔍 QR Scan: Redirecting to order page', data);
     setShowQRScanner(false);
-  };
-
-  const handleQRScanData = (data: string) => {
-    console.log('QR Scanned:', data);
-    setShowQRScanner(false);
+    
+    // Simple redirect to order page - no authentication here
     if (data.includes('/shop/')) {
       navigate(data.replace(window.location.origin, ''));
+    } else if (data.includes('shop') || data.includes('order')) {
+      // Handle different QR code formats
+      navigate(data);
+    } else {
+      toast({
+        title: "Invalid QR Code",
+        description: "Please scan a valid shop QR code",
+        variant: "destructive",
+      });
     }
   };
 
@@ -429,7 +431,9 @@ export default function RedesignedHomepage() {
           phoneNumber={customerPhone}
           onVerify={handleOTPVerification}
           onClose={() => setShowOTPModal(false)}
-          onResend={() => sendWhatsAppOTP(customerPhone)}
+          onResend={async () => {
+            await sendWhatsAppOTP(customerPhone);
+          }}
         />
       )}
 
@@ -438,11 +442,10 @@ export default function RedesignedHomepage() {
 
       {/* QR Scanner Modal */}
       {showQRScanner && (
-        <QRScanner
+        <SimpleQRScanner
           isOpen={showQRScanner}
           onClose={() => setShowQRScanner(false)}
-          onShopUnlocked={handleQRScan}
-          autoRedirect={true}
+          onResult={handleQRScan}
         />
       )}
     </div>

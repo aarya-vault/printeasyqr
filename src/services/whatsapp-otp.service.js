@@ -53,13 +53,18 @@ class WhatsAppOTPService {
 
   static async sendOTP(phoneNumber) {
     try {
-      // Validate Indian phone number format
+      // Enhanced phone validation - flexible for testing and production
       const cleanPhone = phoneNumber.replace(/\D/g, '');
-      if (!/^[6-9][0-9]{9}$/.test(cleanPhone)) {
-        throw new Error('Invalid phone number format');
+      
+      // Accept various formats:
+      // - 10 digits starting with any digit (for testing): 1234567890, 9876543210
+      // - Already includes country code: 919876543210
+      if (cleanPhone.length < 10 || cleanPhone.length > 15) {
+        throw new Error('Phone number must be 10-15 digits');
       }
 
-      const fullPhoneNumber = `91${cleanPhone}`;
+      // Format for WhatsApp API - add country code if needed
+      const fullPhoneNumber = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
       const otp = this.generateOTP();
       const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 

@@ -125,6 +125,8 @@ The platform adheres to a strict design policy centered around golden yellow (`#
 - **Background Processing**: OTP verification runs in background while file uploads continue for optimal user experience
 - **Security Features**: Rate limiting, device fingerprinting, 6-digit OTP codes with 10-minute expiry
 - **API Endpoints**: /api/auth/send-otp, /api/auth/verify-otp, /api/auth/refresh-token
+- **Simplified QR Authentication**: Removed all authentication from QR scanning - QR codes now redirect directly to order page where authentication occurs, eliminating technical debt as requested
+- **Flexible Phone Validation**: Enhanced phone number validation to accept any 10-15 digit number for testing and international compatibility
 
 ## External Dependencies
 
