@@ -97,40 +97,9 @@ function detectServices(title, categories) {
   return services;
 }
 
-// Smart equipment detection
+// NO equipment details as per user requirements
 function detectEquipment(services) {
-  const equipment = [];
-  
-  if (services.includes('Photocopying')) {
-    equipment.push('High-Speed Photocopier');
-  }
-  
-  if (services.includes('Digital Printing') || services.includes('Color Printing')) {
-    equipment.push('Color Laser Printer');
-  }
-  
-  if (services.includes('Document Scanning')) {
-    equipment.push('Document Scanner');
-  }
-  
-  if (services.includes('Lamination')) {
-    equipment.push('Lamination Machine');
-  }
-  
-  if (services.includes('Binding Services')) {
-    equipment.push('Binding Machine');
-  }
-  
-  if (services.includes('Large Format Printing')) {
-    equipment.push('Large Format Printer');
-  }
-  
-  // Default equipment
-  if (equipment.length === 0) {
-    equipment.push('Basic Photocopier');
-  }
-  
-  return equipment;
+  return []; // Always return empty array - no equipment details
 }
 
 // Generate shop slug from name
@@ -289,10 +258,10 @@ async function importLastFiveShops() {
                 shopData.phoneNumber || '9876543210', shopData.address,
                 JSON.stringify(services), JSON.stringify(equipment),
                 JSON.stringify([]), JSON.stringify([]),
-                Math.floor(Math.random() * 10) + 5, // 5-15 years
-                new Date().getFullYear() - Math.floor(Math.random() * 10) - 5,
+                0, // years_of_experience = 0 as per user requirements
+                new Date().getFullYear(),
                 JSON.stringify(workingHours), true, true, true, true, true,
-                'active', Math.floor(Math.random() * 100)
+                'active', 0 // total_orders = 0 as per user requirements
               ]);
               
               const createdShop = createShopResult.rows[0];
