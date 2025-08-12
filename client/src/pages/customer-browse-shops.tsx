@@ -12,7 +12,7 @@ import {
 import LoadingScreen from '@/components/loading-screen';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import BottomNavigation from '@/components/common/bottom-navigation';
-import DetailedShopModal from '@/components/detailed-shop-modal';
+import UnifiedShopModal from '@/components/unified-shop-modal';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -483,7 +483,7 @@ export default function CustomerBrowseShops() {
       <UnifiedFloatingChatButton />
 
       {/* Detailed Shop Modal */}
-      <DetailedShopModal
+      <UnifiedShopModal
         shop={selectedShop}
         isOpen={showShopDetails}
         onClose={() => setShowShopDetails(false)}
