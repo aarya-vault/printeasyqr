@@ -47,13 +47,28 @@ export const printFile = async (file: any): Promise<void> => {
             }
             @page { margin: 0.5in; }
           </style>
+          <script>
+            function triggerPrint() {
+              setTimeout(function() {
+                window.print();
+              }, 500);
+            }
+          </script>
         </head>
-        <body>${content}</body>
+        <body>
+          ${content}
+          <script>
+            // Wait for all content to load, then print
+            ${isPDF ? 'setTimeout(triggerPrint, 2000);' : ''}
+            ${isImage ? 'document.querySelector("img").onload = triggerPrint;' : ''}
+            ${!isPDF && !isImage ? 'window.onload = triggerPrint;' : ''}
+          </script>
+        </body>
       </html>
     `);
     frameDoc.close();
 
-    // Wait for content to load, then print ONCE
+    // Fallback: if content doesn't trigger print automatically
     setTimeout(() => {
       try {
         if (printFrame.contentWindow) {
@@ -64,14 +79,14 @@ export const printFile = async (file: any): Promise<void> => {
         console.error('Print failed', e);
       }
       
-      // Clean up after a delay
+      // Clean up after printing
       setTimeout(() => {
         if (document.body.contains(printFrame)) {
           document.body.removeChild(printFrame);
         }
         resolve();
       }, 1000);
-    }, 2000); // Increased delay to ensure content loads properly
+    }, 4000); // Longer fallback delay
   });
 };
 
