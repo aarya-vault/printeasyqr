@@ -174,21 +174,59 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 
-// Object Storage serving routes using ObjectStorageService
+// Object Storage serving routes - FIXED APPROACH
 app.get('/objects/*', async (req, res) => {
   try {
-    const { ObjectStorageService, ObjectNotFoundError } = await import('./server/objectStorage.js');
-    const objectStorageService = new ObjectStorageService();
+    const objectPath = req.path.replace('/objects/', '');
+    const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
     
-    console.log('🔍 Object request:', req.path);
+    console.log('🔍 Object request:', {
+      requestPath: req.path,
+      objectPath: objectPath,
+      bucketName: bucketName
+    });
     
-    const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-    objectStorageService.downloadObject(objectFile, res);
-  } catch (error) {
-    console.error('Error serving object:', error);
-    if (error.name === 'ObjectNotFoundError') {
+    // Generate a signed URL for accessing the object
+    const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bucket_name: bucketName,
+        object_name: objectPath,
+        method: 'GET',
+        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour
+      }),
+    });
+
+    if (!signedUrlResponse.ok) {
+      console.error('Failed to get signed URL:', signedUrlResponse.status);
       return res.status(404).json({ error: 'Object not found' });
     }
+
+    const { signed_url: signedUrl } = await signedUrlResponse.json();
+    console.log('✅ Got signed URL, fetching object...');
+    
+    // Fetch the object and stream it back
+    const objectResponse = await fetch(signedUrl);
+    if (!objectResponse.ok) {
+      console.error('Failed to fetch object:', objectResponse.status);
+      return res.status(404).json({ error: 'Object not found' });
+    }
+
+    // Set appropriate headers
+    res.set({
+      'Content-Type': objectResponse.headers.get('content-type') || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=3600',
+    });
+
+    console.log('🖼️ Streaming image back to client...');
+    
+    // Stream the response
+    objectResponse.body.pipe(res);
+  } catch (error) {
+    console.error('Error serving object:', error);
     res.status(500).json({ error: 'Failed to serve object' });
   }
 });

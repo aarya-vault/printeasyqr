@@ -68,7 +68,7 @@ router.put('/shop-exterior-image', requireAuth, requireAdmin, async (req, res) =
 
     // Import Shop model and ObjectStorageService
     const { Shop } = await import('../models/index.js');
-    const { ObjectStorageService } = await import('../../server/objectStorage.js');
+    const { ObjectStorageService } = await import('../../../server/objectStorage.js');
     
     const objectStorageService = new ObjectStorageService();
     const objectPath = objectStorageService.normalizeObjectEntityPath(exteriorImageURL);
