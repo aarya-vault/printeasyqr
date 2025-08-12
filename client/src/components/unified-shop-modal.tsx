@@ -9,7 +9,7 @@ import {
   Store, MapPin, Phone, Mail, User, Building2, Clock, CheckCircle, 
   AlertCircle, Star, Wrench, Package, Calendar
 } from 'lucide-react';
-import { formatWorkingHoursDisplay, getShopStatusText } from '@/utils/working-hours';
+import { formatWorkingHoursForDisplay, getWorkingHoursDisplay, isShopCurrentlyOpen } from '@/utils/working-hours';
 
 interface Shop {
   id: number;
@@ -114,8 +114,19 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
   };
 
   // Get working hours formatted for display
-  const formattedWorkingHours = formatWorkingHoursDisplay(shop.workingHours);
-  const shopStatus = getShopStatusText(shop.workingHours);
+  const formattedWorkingHours = formatWorkingHoursForDisplay(shop.workingHours);
+  
+  // Get shop status
+  const getShopStatus = () => {
+    const isOpen = isShopCurrentlyOpen(shop.workingHours);
+    return {
+      isOpen,
+      text: isOpen ? 'Open Now' : 'Closed',
+      className: isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+    };
+  };
+  
+  const shopStatus = getShopStatus();
 
   const allServices = getAllServices();
   const allEquipment = getAllEquipment();
@@ -246,15 +257,15 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
               Working Hours
             </h4>
             <div className="space-y-2">
-              {formattedWorkingHours.map(({ day, schedule, status }) => (
-                <div key={day} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                  <span className="text-sm font-medium text-gray-900">{day}</span>
+              {formattedWorkingHours.map((item: { day: string; hours: string }) => (
+                <div key={item.day} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                  <span className="text-sm font-medium text-gray-900">{item.day}</span>
                   <span className={`text-sm px-3 py-1 rounded-full ${
-                    status === 'closed' ? 'bg-red-100 text-red-800' :
-                    status === '24hours' ? 'bg-blue-100 text-blue-800' :
+                    item.hours.toLowerCase().includes('closed') ? 'bg-red-100 text-red-800' :
+                    item.hours.toLowerCase().includes('24') ? 'bg-blue-100 text-blue-800' :
                     'bg-green-100 text-green-800'
                   }`}>
-                    {schedule}
+                    {item.hours}
                   </span>
                 </div>
               ))}
