@@ -4,7 +4,7 @@ import { User } from '../models/index.js';
 import { Op } from 'sequelize';
 
 const GUPSHUP_API_BASE = 'https://api.gupshup.io';
-const OTP_TEMPLATE_ID = 'otp_verification'; // You may need to create this template in Gupshup
+const OTP_TEMPLATE_ID = 'verification_1'; // Using the working template from your example
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 3;
 const DEMO_MODE = false; // 🚀 REAL WHATSAPP OTP ENABLED - Using Gupshup API
@@ -84,6 +84,7 @@ class WhatsAppOTPService {
         console.log(`🔧 DEMO MODE: WhatsApp OTP simulated for ${phoneNumber}, actual OTP: ${otp}`);
       } else {
         // 🚀 PRODUCTION MODE - REAL GUPSHUP API INTEGRATION
+        // Using the authentication template endpoint as shown in your working example
         const apiUrl = `${GUPSHUP_API_BASE}/wa/api/v1/template/msg`;
         const requestBody = {
           channel: 'whatsapp',
@@ -92,7 +93,7 @@ class WhatsAppOTPService {
           'src.name': process.env.GUPSHUP_APP_NAME,
           template: JSON.stringify({
             id: OTP_TEMPLATE_ID,
-            params: [otp, otp] // OTP twice for body and button component
+            params: [otp] // Single OTP parameter as shown in working example
           })
         };
 
