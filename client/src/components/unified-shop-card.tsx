@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
   MapPin, Clock, Star, Phone, Printer, Eye, Lock, 
   Users, Package, CheckCircle, AlertCircle, Store 
@@ -56,21 +55,21 @@ export default function UnifiedShopCard({
             {/* Status badges overlay on image */}
             <div className="absolute top-2 left-2 flex gap-2">
               {isCurrentlyOpen && shop.isOnline ? (
-                <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Open Now
-              </Badge>
+              </span>
             ) : (
-              <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 Closed
-              </Badge>
+              </span>
             )}
             
             {shop.acceptsWalkinOrders && (
-              <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40 text-xs px-2 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
                 Walk-in
-              </Badge>
+              </span>
             )}
           </div>
           </div>
@@ -80,21 +79,21 @@ export default function UnifiedShopCard({
         {!shop.exteriorImage && (
           <div className="flex gap-2 mb-4">
             {isCurrentlyOpen && shop.isOnline ? (
-              <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Open Now
-              </Badge>
+              </span>
             ) : (
-              <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 Closed
-              </Badge>
+              </span>
             )}
             
             {shop.acceptsWalkinOrders && (
-              <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40 text-xs px-2 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
                 Walk-in
-              </Badge>
+              </span>
             )}
           </div>
         )}
@@ -190,29 +189,27 @@ export default function UnifiedShopCard({
             </div>
             <div className="flex flex-wrap gap-1">
               {((shop.services || shop.servicesOffered) || []).slice(0, 3).map((service, index) => (
-                <Badge 
+                <span 
                   key={index} 
-                  variant="outline" 
-                  className={`text-xs ${
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                     isUnlocked 
                       ? 'border-gray-300 bg-white' 
                       : 'border-gray-200 bg-gray-100 text-gray-500'
                   }`}
                 >
                   {service}
-                </Badge>
+                </span>
               ))}
               {((shop.services || shop.servicesOffered) || []).length > 3 && (
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs ${
+                <span 
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                     isUnlocked 
                       ? 'border-gray-300 bg-gray-50' 
                       : 'border-gray-200 bg-gray-100 text-gray-500'
                   }`}
                 >
                   +{((shop.services || shop.servicesOffered) || []).length - 3} more
-                </Badge>
+                </span>
               )}
             </div>
           </div>
@@ -238,21 +235,21 @@ export default function UnifiedShopCard({
           <div className="flex items-center gap-2">
             {showUnlockStatus ? (
               isUnlocked ? (
-                <Badge className="bg-[#FFBF00] text-black px-3 py-1 font-medium">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00] text-black">
                   <Eye className="w-3 h-3 mr-1" />
                   View Details
-                </Badge>
+                </span>
               ) : (
-                <Badge variant="secondary" className="bg-gray-200 text-gray-600 px-3 py-1">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-200 text-gray-600">
                   <Lock className="w-3 h-3 mr-1" />
                   Scan QR to Unlock
-                </Badge>
+                </span>
               )
             ) : (
-              <Badge className="bg-[#FFBF00] text-black px-3 py-1 font-medium">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00] text-black">
                 <Eye className="w-3 h-3 mr-1" />
                 View Details
-              </Badge>
+              </span>
             )}
           </div>
         </div>
