@@ -77,6 +77,7 @@ export default function UnifiedShopCard({
             )}
           </div>
         </div>
+        )}
 
         {/* Status badges when no image */}
         {!shop.exteriorImage && (
