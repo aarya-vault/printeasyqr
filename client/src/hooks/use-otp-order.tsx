@@ -1,186 +1,235 @@
-// Custom hook for OTP-integrated order placement
 import { useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api-client';
 
-interface OrderFormData {
+interface OrderData {
   shopId: number;
   type: 'upload' | 'walkin';
-  title?: string;
+  title: string;
   description?: string;
-  specifications?: any;
+  specifications?: string;
+  files?: File[];
+  walkinTime?: string;
   isUrgent?: boolean;
-  estimatedPages?: number;
-  estimatedBudget?: number;
 }
 
-interface UseOTPOrderResult {
-  isLoading: boolean;
-  otpRequired: boolean;
+interface OTPOrderState {
+  step: 'phone' | 'otp' | 'name' | 'uploading' | 'complete';
   phoneNumber: string;
-  setPhoneNumber: (phone: string) => void;
+  isLoading: boolean;
   showOTPModal: boolean;
-  setShowOTPModal: (show: boolean) => void;
-  initiateOrderWithOTP: (orderData: OrderFormData, files?: File[]) => Promise<void>;
-  handleOTPSuccess: (userData: any) => Promise<void>;
-  pendingOrderData: { orderData: OrderFormData; files?: File[] } | null;
+  showNameModal: boolean;
+  tempUser: any;
+  orderData: OrderData | null;
 }
 
-export function useOTPOrder(): UseOTPOrderResult {
-  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, getPersistentUserData } = useAuth();
+export function useOTPOrder() {
+  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, updateUser } = useAuth();
   const { toast } = useToast();
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [otpRequired, setOtpRequired] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [showOTPModal, setShowOTPModal] = useState(false);
-  const [pendingOrderData, setPendingOrderData] = useState<{ orderData: OrderFormData; files?: File[] } | null>(null);
+  const queryClient = useQueryClient();
 
-  // Auto-fill phone from persistent data or current user
-  const getPhoneNumber = (): string => {
-    if (phoneNumber) return phoneNumber;
-    if (user?.phone) return user.phone;
-    const persistentData = getPersistentUserData();
-    return persistentData?.phone || '';
-  };
+  const [state, setState] = useState<OTPOrderState>({
+    step: 'phone',
+    phoneNumber: '',
+    isLoading: false,
+    showOTPModal: false,
+    showNameModal: false,
+    tempUser: null,
+    orderData: null,
+  });
 
-  const submitOrder = async (orderData: OrderFormData, files?: File[]) => {
-    try {
+  // Order creation mutation
+  const createOrderMutation = useMutation({
+    mutationFn: async (orderData: OrderData) => {
       const formData = new FormData();
       
-      // Add order data
+      // Add order fields
       formData.append('shopId', orderData.shopId.toString());
-      formData.append('orderType', orderData.type);
-      formData.append('instructions', JSON.stringify({
-        title: orderData.title,
-        description: orderData.description,
-        specifications: orderData.specifications,
-        isUrgent: orderData.isUrgent,
-        estimatedPages: orderData.estimatedPages,
-        estimatedBudget: orderData.estimatedBudget
-      }));
+      formData.append('type', orderData.type);
+      formData.append('title', orderData.title);
+      if (orderData.description) formData.append('description', orderData.description);
+      if (orderData.specifications) formData.append('specifications', orderData.specifications);
+      if (orderData.walkinTime) formData.append('walkinTime', orderData.walkinTime);
+      if (orderData.isUrgent) formData.append('isUrgent', orderData.isUrgent.toString());
 
-      // Add files if present
-      if (files && files.length > 0) {
-        files.forEach(file => {
+      // Add files
+      if (orderData.files && orderData.files.length > 0) {
+        orderData.files.forEach((file) => {
           formData.append('files', file);
         });
       }
 
-      const authToken = localStorage.getItem('authToken');
-      const response = await fetch('/api/orders', {
-        method: 'POST',
+      return await apiClient.post('/api/orders', formData, {
         headers: {
-          'Authorization': `Bearer ${authToken}`
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create order');
-      }
-
-      const result = await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Order Created Successfully!",
+        description: `Your order #${data.orderNumber} has been submitted`,
+      });
       
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/customer'] });
+      
+      setState(prev => ({ ...prev, step: 'complete', isLoading: false }));
+    },
+    onError: (error) => {
+      console.error('Order creation error:', error);
       toast({
-        title: "Order placed successfully!",
-        description: `Order #${result.orderNumber} created. You'll receive updates soon.`,
-      });
-
-      return result;
-
-    } catch (error: any) {
-      console.error('Order submission error:', error);
-      throw error;
-    }
-  };
-
-  const initiateOrderWithOTP = async (orderData: OrderFormData, files?: File[]) => {
-    const phone = getPhoneNumber();
-    
-    if (!phone || !/^[6-9][0-9]{9}$/.test(phone)) {
-      toast({
-        title: "Phone number required",
-        description: "Please enter a valid phone number to continue",
+        title: "Order Creation Failed",
+        description: "Please try again or contact support",
         variant: "destructive",
       });
-      return;
-    }
+      setState(prev => ({ ...prev, isLoading: false }));
+    },
+  });
 
-    setIsLoading(true);
+  const startOTPOrderFlow = async (phoneNumber: string, orderData: OrderData) => {
+    setState(prev => ({
+      ...prev,
+      phoneNumber,
+      orderData,
+      isLoading: true,
+    }));
+
     try {
-      // Store pending order data
-      setPendingOrderData({ orderData, files });
+      console.log('🔍 OTP Order: Starting smart authentication for', phoneNumber);
       
-      // Check if OTP is needed
-      const otpResult = await sendWhatsAppOTP(phone);
+      // Step 1: Check for existing valid token
+      const result = await sendWhatsAppOTP(phoneNumber);
       
-      if (otpResult.skipOTP && otpResult.user) {
-        // User already authenticated, submit order directly
-        await submitOrder(orderData, files);
-        setPendingOrderData(null);
+      if (result.skipOTP) {
+        // User already authenticated, check if name update needed
+        console.log('✅ OTP Order: Valid token found, proceeding with order');
+        
+        if (result.user && result.user.needsNameUpdate) {
+          setState(prev => ({
+            ...prev,
+            step: 'name',
+            tempUser: result.user,
+            showNameModal: true,
+            isLoading: false,
+          }));
+        } else {
+          // User fully authenticated, create order directly
+          setState(prev => ({ ...prev, step: 'uploading', isLoading: false }));
+          await createOrderMutation.mutateAsync(orderData);
+        }
       } else {
-        // Show OTP modal
-        setOtpRequired(true);
-        setShowOTPModal(true);
-        setPhoneNumber(phone);
+        // No valid token, request OTP verification
+        console.log('🔍 OTP Order: No valid token, requesting OTP');
+        setState(prev => ({
+          ...prev,
+          step: 'otp',
+          showOTPModal: true,
+          isLoading: false,
+        }));
+        
+        toast({
+          title: "OTP Sent",
+          description: "Please check your WhatsApp for the verification code",
+        });
       }
-      
-    } catch (error: any) {
-      console.error('Initiate order error:', error);
+    } catch (error) {
+      console.error('OTP Order Error:', error);
       toast({
-        title: "Failed to start order process",
-        description: error.message || "Please try again",
+        title: "Authentication Error",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       });
-      setPendingOrderData(null);
-    } finally {
-      setIsLoading(false);
+      setState(prev => ({ ...prev, isLoading: false }));
     }
   };
 
-  const handleOTPSuccess = async (userData: any) => {
-    if (!pendingOrderData) {
-      toast({
-        title: "No pending order found",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const verifyOTPAndOrder = async (otp: string) => {
     try {
-      setShowOTPModal(false);
-      setIsLoading(true);
+      console.log('🔍 OTP Order: Verifying OTP for', state.phoneNumber);
+      const user = await verifyWhatsAppOTP(state.phoneNumber, otp);
       
-      // Submit the pending order
-      await submitOrder(pendingOrderData.orderData, pendingOrderData.files);
+      setState(prev => ({ ...prev, showOTPModal: false }));
       
-      // Clean up
-      setPendingOrderData(null);
-      setOtpRequired(false);
+      if (user.needsNameUpdate) {
+        setState(prev => ({
+          ...prev,
+          step: 'name',
+          tempUser: user,
+          showNameModal: true,
+        }));
+      } else {
+        // User fully authenticated, create order
+        setState(prev => ({ ...prev, step: 'uploading' }));
+        if (state.orderData) {
+          await createOrderMutation.mutateAsync(state.orderData);
+        }
+      }
+    } catch (error) {
+      console.error('OTP Order Verification Error:', error);
+      throw error; // Let the OTP modal handle the error display
+    }
+  };
+
+  const updateNameAndOrder = async (name: string) => {
+    try {
+      await updateUser({ name: name.trim() });
+      setState(prev => ({ ...prev, showNameModal: false, step: 'uploading' }));
       
-    } catch (error: any) {
-      console.error('Order submission after OTP error:', error);
       toast({
-        title: "Failed to place order",
-        description: error.message || "Please try again",
+        title: "Welcome to PrintEasy!",
+        description: "Creating your order...",
+      });
+      
+      if (state.orderData) {
+        await createOrderMutation.mutateAsync(state.orderData);
+      }
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Please try again",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const closeModals = () => {
+    setState(prev => ({
+      ...prev,
+      showOTPModal: false,
+      showNameModal: false,
+      isLoading: false,
+    }));
+  };
+
+  const resetFlow = () => {
+    setState({
+      step: 'phone',
+      phoneNumber: '',
+      isLoading: false,
+      showOTPModal: false,
+      showNameModal: false,
+      tempUser: null,
+      orderData: null,
+    });
   };
 
   return {
-    isLoading,
-    otpRequired,
-    phoneNumber: getPhoneNumber(),
-    setPhoneNumber,
-    showOTPModal,
-    setShowOTPModal,
-    initiateOrderWithOTP,
-    handleOTPSuccess,
-    pendingOrderData
+    // State
+    ...state,
+    isCreatingOrder: createOrderMutation.isPending,
+    
+    // Actions
+    startOTPOrderFlow,
+    verifyOTPAndOrder,
+    updateNameAndOrder,
+    closeModals,
+    resetFlow,
+    
+    // Resend OTP function
+    resendOTP: () => sendWhatsAppOTP(state.phoneNumber),
   };
 }

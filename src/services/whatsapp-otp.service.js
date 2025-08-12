@@ -7,7 +7,7 @@ const GUPSHUP_API_BASE = 'https://api.gupshup.io';
 const OTP_TEMPLATE_ID = 'otp_verification'; // You may need to create this template in Gupshup
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 3;
-const DEMO_MODE = process.env.NODE_ENV === 'development'; // Enable demo mode in development
+const DEMO_MODE = false; // Enable real WhatsApp OTP for production use
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStorage = new Map();

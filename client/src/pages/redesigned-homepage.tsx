@@ -15,6 +15,7 @@ import PhoneInput from '@/components/phone-input';
 import { useAuth } from '@/hooks/use-auth';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 import { NameCollectionModal } from '@/components/auth/name-collection-modal';
+import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
 import { useToast } from '@/hooks/use-toast';
 import QRScanner from '@/components/qr-scanner';
 import { useQuery } from '@tanstack/react-query';
@@ -23,10 +24,11 @@ import { Badge } from '@/components/ui/badge';
 export default function RedesignedHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [tempUser, setTempUser] = useState<any>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const { user, login, updateUser, getPersistentUserData } = useAuth();
+  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -73,31 +75,39 @@ export default function RedesignedHomepage() {
 
     setLoginLoading(true);
     try {
-      const response = await fetch('/api/auth/phone-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ phone: customerPhone })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Login failed: ${response.status}`);
-      }
-
-      const data = await response.json();
+      console.log('🔍 Smart Authentication: Checking existing token for', customerPhone);
       
-      if (data.requiresName) {
-        setTempUser(data.user);
-        setShowNameModal(true);
+      // Step 1: Smart token checking with WhatsApp OTP service
+      const result = await sendWhatsAppOTP(customerPhone);
+      
+      if (result.skipOTP) {
+        // User already has valid authentication token
+        console.log('✅ Smart Authentication: Valid token found, skipping OTP');
+        
+        if (result.user && result.user.needsNameUpdate) {
+          setTempUser(result.user);
+          setShowNameModal(true);
+        } else {
+          toast({
+            title: "Welcome Back!",
+            description: "You were automatically logged in with your previous session",
+          });
+          navigate('/customer-dashboard');
+        }
       } else {
-        login(data.user);
-        navigate('/customer-dashboard');
+        // No valid token found, request OTP verification
+        console.log('🔍 Smart Authentication: No valid token, requesting OTP verification');
+        setShowOTPModal(true);
+        toast({
+          title: "OTP Sent",
+          description: "Please check your WhatsApp for the verification code",
+        });
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Smart Authentication Error:', error);
       toast({
-        title: "Login Failed",
-        description: "Please check your connection and try again",
+        title: "Authentication Error",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       });
     } finally {
@@ -109,9 +119,13 @@ export default function RedesignedHomepage() {
     if (!tempUser || !name.trim()) return;
     
     try {
-      // Use the auth context updateUser function correctly
       await updateUser({ name: name.trim() });
       setShowNameModal(false);
+      setTempUser(null);
+      toast({
+        title: "Welcome to PrintEasy!",
+        description: "Your account has been set up successfully",
+      });
       navigate('/customer-dashboard');
     } catch (error) {
       toast({
@@ -122,7 +136,39 @@ export default function RedesignedHomepage() {
     }
   };
 
-  const handleQRScan = (data: string) => {
+  const handleOTPVerification = async (otp: string) => {
+    try {
+      console.log('🔍 OTP Verification: Verifying code for', customerPhone);
+      const user = await verifyWhatsAppOTP(customerPhone, otp);
+      
+      setShowOTPModal(false);
+      
+      if (user.needsNameUpdate) {
+        setTempUser(user);
+        setShowNameModal(true);
+      } else {
+        toast({
+          title: "Login Successful!",
+          description: "Welcome back to PrintEasy",
+        });
+        navigate('/customer-dashboard');
+      }
+    } catch (error) {
+      console.error('OTP Verification Error:', error);
+      throw error; // Let the OTP modal handle the error display
+    }
+  };
+
+  const handleQRScan = (shopId: number, shopName: string) => {
+    console.log('🔍 QR Scan: Shop unlocked', { shopId, shopName });
+    toast({
+      title: "Shop Unlocked!",
+      description: `You can now place orders at ${shopName}`,
+    });
+    setShowQRScanner(false);
+  };
+
+  const handleQRScanData = (data: string) => {
     console.log('QR Scanned:', data);
     setShowQRScanner(false);
     if (data.includes('/shop/')) {
@@ -368,29 +414,36 @@ export default function RedesignedHomepage() {
       </footer>
 
       {/* Modals */}
-      <NameCollectionModal
-        isOpen={showNameModal}
-        onClose={() => setShowNameModal(false)}
-        onSubmit={handleNameSubmit}
-        user={tempUser}
-      />
+      {showNameModal && tempUser && (
+        <NameCollectionModal
+          isOpen={showNameModal}
+          onComplete={handleNameSubmit}
+          onClose={() => setShowNameModal(false)}
+        />
+      )}
 
+      {/* WhatsApp OTP Verification Modal */}
+      {showOTPModal && (
+        <OTPVerificationModal
+          isOpen={showOTPModal}
+          phoneNumber={customerPhone}
+          onVerify={handleOTPVerification}
+          onClose={() => setShowOTPModal(false)}
+          onResend={() => sendWhatsAppOTP(customerPhone)}
+        />
+      )}
+
+      {/* Shop Owner Login Modal */}
+      <ShopOwnerLogin />
+
+      {/* QR Scanner Modal */}
       {showQRScanner && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Scan Shop QR Code</h3>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowQRScanner(false)}
-              >
-                Close
-              </Button>
-            </div>
-            <QRScanner onResult={handleQRScan} />
-          </div>
-        </div>
+        <QRScanner
+          isOpen={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onShopUnlocked={handleQRScan}
+          autoRedirect={true}
+        />
       )}
     </div>
   );
