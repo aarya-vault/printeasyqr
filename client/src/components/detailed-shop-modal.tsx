@@ -74,6 +74,9 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
   const formatDetailedWorkingHours = () => {
+    console.log('🕐 DEBUG: Working Hours Object:', shop.workingHours);
+    console.log('🕐 DEBUG: Working Hours Type:', typeof shop.workingHours);
+    
     if (!shop.workingHours) {
       return dayNames.map(day => ({
         day,
@@ -85,9 +88,11 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
 
     return dayNames.map((day, index) => {
       const hours = shop.workingHours?.[day]; // Use day name directly like "Monday"
+      console.log(`🕐 DEBUG: Day ${day}, Hours:`, hours, 'Type:', typeof hours);
       
       // Handle CSV format hours (strings like "10 AM to 8:30 PM") - this is our primary format
       if (typeof hours === 'string') {
+        console.log(`✅ Using string format for ${day}: ${hours}`);
         return {
           day: day,
           schedule: hours,
@@ -130,6 +135,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
       }
       
       // Fallback for missing hours
+      console.log(`❌ FALLBACK: No hours found for ${day}, hours:`, hours);
       return {
         day: day,
         schedule: "Closed",
