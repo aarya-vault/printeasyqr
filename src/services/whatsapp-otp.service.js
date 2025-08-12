@@ -36,10 +36,10 @@ class WhatsAppOTPService {
         throw new Error('Phone number must be 10-15 digits');
       }
 
-      // Format for Gupshup WhatsApp API - ensure proper international format
+      // Format for Gupshup WhatsApp API - exactly as shown in your working example
       let fullPhoneNumber;
       if (cleanPhone.length === 10) {
-        // Add country code for Indian numbers
+        // Add country code for Indian numbers (without +)
         fullPhoneNumber = `91${cleanPhone}`;
       } else if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
         // Already has country code
@@ -85,7 +85,7 @@ class WhatsAppOTPService {
         console.log(`🔧 DEMO MODE: WhatsApp OTP simulated for ${phoneNumber}, actual OTP: ${otp}`);
       } else {
         // 🚀 PRODUCTION MODE - REAL GUPSHUP API INTEGRATION
-        // Using the authentication template endpoint as shown in your working example
+        // Using the sendingAuthenticationTemplate endpoint as shown in your working example
         const apiUrl = `${GUPSHUP_API_BASE}/wa/api/v1/template/msg`;
         const requestBody = {
           channel: 'whatsapp',
@@ -159,6 +159,30 @@ class WhatsAppOTPService {
           console.log(`✅ WhatsApp OTP sent via fallback to ${fullPhoneNumber}:`, result.messageId);
         } else {
           console.log(`✅ WhatsApp OTP sent successfully to ${fullPhoneNumber}:`, result.messageId);
+          
+          // CRITICAL DEBUG: Try sending a simple text message as well to test delivery
+          console.log('🔍 DEBUG: Testing simple text message delivery...');
+          try {
+            const testResponse = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/msg`, {
+              method: 'POST',
+              headers: {
+                'apikey': process.env.GUPSHUP_API_KEY,
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: new URLSearchParams({
+                channel: 'whatsapp',
+                source: process.env.GUPSHUP_SOURCE_PHONE,
+                destination: fullPhoneNumber,
+                'src.name': process.env.GUPSHUP_APP_NAME,
+                message: `TEST: Your OTP is ${otp}. If you receive this, templates work but delivery is delayed.`
+              })
+            });
+            
+            const testResult = await testResponse.json();
+            console.log(`🔍 DEBUG Simple Message - Status: ${testResponse.status}, Response:`, testResult);
+          } catch (debugError) {
+            console.error('🔍 DEBUG Simple Message Failed:', debugError);
+          }
         }
       }
       
