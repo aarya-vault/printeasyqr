@@ -174,51 +174,21 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 
-// Object Storage serving routes
+// Object Storage serving routes using ObjectStorageService
 app.get('/objects/*', async (req, res) => {
   try {
-    const objectPath = req.path.replace('/objects/', '');
-    const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
+    const { ObjectStorageService, ObjectNotFoundError } = await import('./server/objectStorage.js');
+    const objectStorageService = new ObjectStorageService();
     
-    // Construct the full object path directly - objectPath already includes .private/uploads/...
-    const fullObjectPath = objectPath;
+    console.log('🔍 Object request:', req.path);
     
-    // Generate a signed URL for accessing the object
-    const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bucket_name: bucketName,
-        object_name: fullObjectPath.replace(`/${bucketName}/`, ''),
-        method: 'GET',
-        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour
-      }),
-    });
-
-    if (!signedUrlResponse.ok) {
-      return res.status(404).json({ error: 'Object not found' });
-    }
-
-    const { signed_url: signedUrl } = await signedUrlResponse.json();
-    
-    // Fetch the object and stream it back
-    const objectResponse = await fetch(signedUrl);
-    if (!objectResponse.ok) {
-      return res.status(404).json({ error: 'Object not found' });
-    }
-
-    // Set appropriate headers
-    res.set({
-      'Content-Type': objectResponse.headers.get('content-type') || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=3600',
-    });
-
-    // Stream the response
-    objectResponse.body.pipe(res);
+    const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+    objectStorageService.downloadObject(objectFile, res);
   } catch (error) {
     console.error('Error serving object:', error);
+    if (error.name === 'ObjectNotFoundError') {
+      return res.status(404).json({ error: 'Object not found' });
+    }
     res.status(500).json({ error: 'Failed to serve object' });
   }
 });

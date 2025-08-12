@@ -66,36 +66,17 @@ router.put('/shop-exterior-image', requireAuth, requireAdmin, async (req, res) =
       return res.status(400).json({ error: 'shopId and exteriorImageURL are required' });
     }
 
-    // Import Shop model
+    // Import Shop model and ObjectStorageService
     const { Shop } = await import('../models/index.js');
+    const { ObjectStorageService } = await import('../../server/objectStorage.js');
     
-    // Extract the object path from the Google Storage URL for serving
-    let objectPath = exteriorImageURL;
-    if (objectPath.startsWith('https://storage.googleapis.com/')) {
-      // Extract the path after the bucket name for /objects/ serving
-      const url = new URL(objectPath);
-      let pathname = url.pathname;
-      
-      // Remove any double slashes and clean the path
-      pathname = pathname.replace(/\/+/g, '/');
-      
-      // Split and get path after bucket name
-      const pathParts = pathname.split('/').filter(part => part.length > 0);
-      
-      // The structure is: /bucket-name/rest-of-path
-      // We want to serve it as: /objects/rest-of-path (without bucket name)
-      if (pathParts.length > 1) {
-        const objectPathWithoutBucket = pathParts.slice(1).join('/');
-        objectPath = `/objects/${objectPathWithoutBucket}`;
-      }
-      
-      console.log('🖼️ Image path conversion:', {
-        original: exteriorImageURL,
-        cleaned: pathname,
-        parts: pathParts,
-        final: objectPath
-      });
-    }
+    const objectStorageService = new ObjectStorageService();
+    const objectPath = objectStorageService.normalizeObjectEntityPath(exteriorImageURL);
+    
+    console.log('🖼️ Image path conversion:', {
+      original: exteriorImageURL,
+      normalized: objectPath
+    });
     
     // Update the shop with the exterior image path
     const shop = await Shop.findByPk(shopId);
