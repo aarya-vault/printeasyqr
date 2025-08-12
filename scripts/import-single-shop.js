@@ -171,35 +171,9 @@ function detectServices(title, categories) {
   return services;
 }
 
-// Smart equipment detection
+// No equipment detection - leave empty as requested
 function detectEquipment(services) {
-  const equipment = [];
-  
-  if (services.includes('Photocopying')) {
-    equipment.push('Xerox Machine', 'Scanner');
-  }
-  if (services.includes('Digital Printing')) {
-    equipment.push('Digital Printer');
-  }
-  if (services.includes('Color Printing')) {
-    equipment.push('Color Printer');
-  }
-  if (services.includes('Large Format Printing')) {
-    equipment.push('Plotter');
-  }
-  if (services.includes('Lamination')) {
-    equipment.push('Lamination Machine');
-  }
-  if (services.includes('Binding Services')) {
-    equipment.push('Binding Machine');
-  }
-  
-  // Default equipment
-  if (equipment.length === 0) {
-    equipment.push('Xerox Machine', 'Scanner');
-  }
-  
-  return equipment;
+  return []; // Equipment details not available as per user requirements
 }
 
 // Generate slug from title
@@ -309,20 +283,15 @@ async function importShopByName(targetShopName) {
             console.log('Pincode:', pincode);
             console.log('City/State:', city, state);
             
-            // Extract owner name from shop name (smart logic)
+            // Generate owner name from shop name + "Owner"
             const shopName = targetShop.title;
-            let ownerName = 'Shop Owner';
-            if (shopName.includes('Jai Ambe')) {
-              ownerName = 'Ambe Kumar';
-            } else if (shopName.includes('Krishna')) {
-              ownerName = 'Krishna Shah';
-            } else if (shopName.includes('Sai')) {
-              ownerName = 'Sai Gupta';
-            } else {
-              // Use first word of shop name + common surname
-              const firstWord = shopName.split(' ')[0];
-              ownerName = `${firstWord} Kumar`;
-            }
+            let ownerName = `${shopName} Owner`;
+            
+            // Clean up common redundant words for better formatting
+            ownerName = ownerName
+              .replace(/\s+(Shop|Centre|Center)\s+Owner/gi, ' Owner')
+              .replace(/\s+&\s+Xerox Owner/gi, ' Owner')
+              .replace(/\s+Xerox Owner/gi, ' Owner');
             
             // Check if shop already exists
             const existingShop = await pool.query(
@@ -373,10 +342,10 @@ async function importShopByName(targetShopName) {
               JSON.stringify(equipment), // equipment
               JSON.stringify([]), // custom_services
               JSON.stringify([]), // custom_equipment
-              '5', // years_of_experience
+              'Not Available', // years_of_experience
               '2019', // formation_year
               JSON.stringify(workingHours), // working_hours
-              true, // accepts_walkin_orders
+              false, // accepts_walkin_orders - disabled as requested
               true, // is_online
               true, // auto_availability
               true, // is_approved

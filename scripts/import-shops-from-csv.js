@@ -146,40 +146,9 @@ function detectServices(title, categories) {
   return services;
 }
 
-// Smart equipment detection
+// NO equipment details as per user requirements
 function detectEquipment(services) {
-  const equipment = [];
-  
-  if (services.includes('Photocopying')) {
-    equipment.push('High-Speed Photocopier');
-  }
-  
-  if (services.includes('Digital Printing') || services.includes('Color Printing')) {
-    equipment.push('Color Laser Printer');
-  }
-  
-  if (services.includes('Document Scanning')) {
-    equipment.push('Document Scanner');
-  }
-  
-  if (services.includes('Lamination')) {
-    equipment.push('Lamination Machine');
-  }
-  
-  if (services.includes('Binding Services')) {
-    equipment.push('Binding Machine');
-  }
-  
-  if (services.includes('Large Format Printing')) {
-    equipment.push('Large Format Printer');
-  }
-  
-  // Default equipment
-  if (equipment.length === 0) {
-    equipment.push('Basic Photocopier');
-  }
-  
-  return equipment;
+  return []; // Equipment details not available as per user requirements
 }
 
 // Generate shop slug from name
