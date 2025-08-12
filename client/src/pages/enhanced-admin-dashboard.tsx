@@ -15,10 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   Shield, Users, Store, Package, TrendingUp, CheckCircle2, 
   XCircle, Clock, LogOut, Search, Filter, Eye, MessageSquare,
-  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3, Ban, Star
+  BarChart3, DollarSign, AlertTriangle, UserCheck, Settings, Edit3, Ban, Star, Upload
 } from 'lucide-react';
 import { ShopViewModal } from "@/components/admin/shop-view-modal";
 import { ShopEditModal } from "@/components/admin/shop-edit-modal";
+import { ImageUploadModal } from "@/components/admin/image-upload-modal";
 import AdminUserEditModal from "@/components/admin-user-edit-modal";
 import ComprehensiveShopManagementModal from "@/components/comprehensive-shop-management-modal";
 import ShopApplicationEditModal from "@/components/shop-application-edit-modal";
@@ -56,6 +57,7 @@ export default function EnhancedAdminDashboard() {
   const [selectedShopForView, setSelectedShopForView] = useState<Shop | null>(null);
   const [selectedShopForEdit, setSelectedShopForEdit] = useState<Shop | null>(null);
   const [selectedShopForManagement, setSelectedShopForManagement] = useState<Shop | null>(null);
+  const [selectedShopForImage, setSelectedShopForImage] = useState<Shop | null>(null);
   
   // Modal states for users - restoring detailed user management
   const [selectedUserForView, setSelectedUserForView] = useState<User | null>(null);
@@ -963,12 +965,12 @@ export default function EnhancedAdminDashboard() {
                             </div>
                           </div>
                           
-                          {/* Restored Shop Action Buttons */}
-                          <div className="flex space-x-2 mt-4">
+                          {/* Shop Action Buttons */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              className="border-brand-yellow/30 hover:bg-brand-yellow/10"
                               onClick={() => setSelectedShopForView(shop)}
                             >
                               <Eye className="w-3 h-3 mr-1" />
@@ -977,15 +979,24 @@ export default function EnhancedAdminDashboard() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="flex-1 border-brand-yellow/30 hover:bg-brand-yellow/10"
+                              className="border-brand-yellow/30 hover:bg-brand-yellow/10"
                               onClick={() => window.open(`tel:${shop.contactNumber}`, '_blank')}
                             >
                               <MessageSquare className="w-3 h-3 mr-1" />
                               Contact
                             </Button>
                             <Button 
+                              variant="outline" 
                               size="sm" 
-                              className="flex-1 bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                              className="border-green-300 text-green-600 hover:bg-green-50"
+                              onClick={() => setSelectedShopForImage(shop)}
+                            >
+                              <Upload className="w-3 h-3 mr-1" />
+                              Add Image
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
                               onClick={() => setSelectedShopForManagement(shop)}
                             >
                               <Settings className="w-3 h-3 mr-1" />
@@ -1304,6 +1315,18 @@ export default function EnhancedAdminDashboard() {
           onUpdate={() => {
             setEditingApplication(null);
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
+          }}
+        />
+      )}
+
+      {/* Image Upload Modal */}
+      {selectedShopForImage && (
+        <ImageUploadModal
+          shop={selectedShopForImage}
+          isOpen={!!selectedShopForImage}
+          onClose={() => setSelectedShopForImage(null)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
           }}
         />
       )}
