@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { ObjectUploader } from '@/components/ObjectUploader';
 import { 
   Store, User, MapPin, Briefcase, Clock, Settings, 
-  Save, X, Plus, Package
+  Save, X, Plus, Package, Upload, Camera
 } from 'lucide-react';
 
 const SERVICES = [
@@ -73,6 +74,9 @@ export default function CompleteAdminShopEdit({ shop, onClose, onSave }: Complet
     email: shop.email || '',
     ownerPhone: shop.ownerPhone || '',
     completeAddress: shop.completeAddress || '',
+    
+    // Exterior Image
+    exteriorImage: shop.exteriorImage || '',
     description: shop.description || '',
     
     // Location
@@ -105,6 +109,43 @@ export default function CompleteAdminShopEdit({ shop, onClose, onSave }: Complet
     acceptsWalkinOrders: shop.acceptsWalkinOrders ?? true,
     status: shop.status || 'active'
   });
+
+  // Image upload handlers
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest('/api/admin/objects/upload', 'POST');
+    return {
+      method: 'PUT' as const,
+      url: response.uploadURL,
+    };
+  };
+
+  const handleImageUploadComplete = async (result: any) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const imageURL = uploadedFile.uploadURL;
+      
+      // Update shop with the new image URL
+      try {
+        const response = await apiRequest('/api/admin/shop-exterior-image', 'PUT', {
+          shopId: shop.id,
+          exteriorImageURL: imageURL,
+        });
+        
+        setFormData(prev => ({ ...prev, exteriorImage: response.objectPath }));
+        
+        toast({
+          title: "Success",
+          description: "Shop exterior image uploaded successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to save image",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   // Save mutation
   const saveShopMutation = useMutation({
@@ -311,6 +352,64 @@ export default function CompleteAdminShopEdit({ shop, onClose, onSave }: Complet
                   placeholder="Describe your shop and services..."
                   rows={3}
                 />
+              </div>
+
+              {/* Exterior Image Upload Section */}
+              <div>
+                <Label className="text-base font-medium">Shop Exterior Image</Label>
+                <p className="text-sm text-gray-600 mb-3">
+                  Upload a high-quality exterior photo of the shop (Admin Only Feature)
+                </p>
+                
+                {formData.exteriorImage ? (
+                  <div className="space-y-3">
+                    {/* Current Image Preview */}
+                    <div className="relative">
+                      <img 
+                        src={formData.exteriorImage} 
+                        alt="Shop exterior" 
+                        className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => setFormData(prev => ({ ...prev, exteriorImage: '' }))}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Replace Image Button */}
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5242880} // 5MB for images
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleImageUploadComplete}
+                      buttonClassName="w-full border border-gray-300 bg-white hover:bg-gray-50"
+                    >
+                      <Package className="w-4 h-4 mr-2" />
+                      Replace Exterior Image
+                    </ObjectUploader>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <Store className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No exterior image</h3>
+                    <p className="text-gray-600 mb-4">Upload a professional photo of the shop exterior</p>
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5242880} // 5MB for images
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleImageUploadComplete}
+                      buttonClassName="bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black"
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      Upload Exterior Image
+                    </ObjectUploader>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
