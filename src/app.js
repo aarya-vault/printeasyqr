@@ -270,7 +270,7 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
   }
 });
 
-// Object Storage serving routes - REDIRECT APPROACH  
+// Object Storage serving routes - PROXY APPROACH FOR CORS COMPATIBILITY
 app.get('/objects/*', async (req, res) => {
   try {
     let objectPath = req.path.replace('/objects/', '');
@@ -308,10 +308,43 @@ app.get('/objects/*', async (req, res) => {
     }
 
     const { signed_url: signedUrl } = await signedUrlResponse.json();
-    console.log('✅ Got signed URL, redirecting to:', signedUrl);
+    console.log('✅ Got signed URL, proxying image:', signedUrl);
     
-    // Simple redirect to the signed URL - let the browser handle it directly
-    res.redirect(signedUrl);
+    // 🔥 CRITICAL FIX: Proxy the image instead of redirecting to avoid CORS issues
+    const imageResponse = await fetch(signedUrl);
+    
+    if (!imageResponse.ok) {
+      console.error('Failed to fetch image from signed URL:', imageResponse.status);
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Set appropriate headers for image serving
+    const contentType = imageResponse.headers.get('content-type') || 'application/octet-stream';
+    const contentLength = imageResponse.headers.get('content-length');
+    
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour cache
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow cross-origin for images
+    
+    if (contentLength) {
+      res.setHeader('Content-Length', contentLength);
+    }
+    
+    // Stream the image data to the client
+    const reader = imageResponse.body.getReader();
+    const pump = () => {
+      return reader.read().then(({ done, value }) => {
+        if (done) return res.end();
+        res.write(value);
+        return pump();
+      });
+    };
+    
+    pump().catch(error => {
+      console.error('Image streaming error:', error);
+      if (!res.headersSent) res.status(500).json({ error: 'Failed to serve image' });
+    });
+
   } catch (error) {
     console.error('Error serving object:', error);
     res.status(500).json({ error: 'Failed to serve object' });
