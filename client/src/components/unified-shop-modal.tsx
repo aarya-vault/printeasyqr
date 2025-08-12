@@ -146,28 +146,28 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
 
         {/* Shop Status Badge */}
         <div className="flex justify-start -mt-2 mb-4">
-          <Badge className={`${shopStatus.className} text-sm px-3 py-1`}>
+          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${shopStatus.className}`}>
             {shopStatus.isOpen ? (
               <CheckCircle className="w-4 h-4 mr-2" />
             ) : (
               <AlertCircle className="w-4 h-4 mr-2" />
             )}
             {shopStatus.text}
-          </Badge>
+          </span>
         </div>
 
         <div className="space-y-6">
           {/* Status and Overview */}
           <div className="flex flex-wrap items-center gap-3">
             {shop.isOnline && (
-              <Badge className="bg-green-100 text-green-800 px-3 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
                 Online Available
-              </Badge>
+              </span>
             )}
             {shop.acceptsWalkinOrders && (
-              <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">
                 Walk-in Orders
-              </Badge>
+              </span>
             )}
             {shop.totalOrders && shop.totalOrders > 0 && (
               <div className="flex items-center text-sm text-gray-600">
@@ -291,9 +291,9 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
                 {allServices.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {allServices.map((service, index) => (
-                      <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-800">
+                      <span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-800">
                         {service}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 ) : (
@@ -306,10 +306,10 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
                   <p className="text-sm font-medium text-gray-900 mb-2">Equipment Available</p>
                   <div className="flex flex-wrap gap-2">
                     {allEquipment.map((equipment, index) => (
-                      <Badge key={index} variant="outline" className="border-gray-300">
+                      <span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-gray-300">
                         <Wrench className="w-3 h-3 mr-1" />
                         {equipment}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 </div>
