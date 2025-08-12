@@ -44,7 +44,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **SEO Optimization**: Complete SEO implementation including meta tags, Open Graph, Twitter Cards, structured data, dynamic sitemap, robots.txt, and canonical URLs.
 - **Production Deployment**: Enhanced error handling, database initialization, and deployment readiness.
 - **Professional UI Design**: Clean, mobile-first design maintaining brand consistency with golden yellow and black.
-- **Object Storage Integration**: Corrected file access URLs to `/objects/.private/{path}` for proper redirection to Google Cloud Storage signed URLs.
+- **Object Storage Integration**: Complete image serving architecture with CORS-compatible proxy approach, ensuring shop exterior images load correctly across all pages by preserving full object paths and streaming directly from Google Cloud Storage.
 - **Working Hours Display**: Robust utility to parse and display complex shop working hours, including 24/7 operations and varied daily schedules, removing hardcoded text.
 - **Mobile Responsiveness**: Implemented mobile-first headers, navigation, stats cards, search/filters, order layouts, typography, and touch-friendly interactions.
 - **WhatsApp OTP System**: Integrated Gupshup API for WhatsApp OTP authentication, with intelligent session checking, extended JWT tokens (90 days), and background processing for file uploads during OTP verification. QR codes now directly redirect to order pages, where authentication occurs, simplifying the flow.
