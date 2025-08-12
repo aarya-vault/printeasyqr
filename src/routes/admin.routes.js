@@ -69,8 +69,17 @@ router.put('/shop-exterior-image', requireAuth, requireAdmin, async (req, res) =
     // Import Shop model
     const { Shop } = await import('../models/index.js');
     
-    // Normalize the object path for serving
-    const objectPath = exteriorImageURL.replace('https://storage.googleapis.com/', '/objects/');
+    // Extract the object path from the Google Storage URL for serving
+    let objectPath = exteriorImageURL;
+    if (objectPath.startsWith('https://storage.googleapis.com/')) {
+      // Extract the path after the bucket name for /objects/ serving
+      const url = new URL(objectPath);
+      const pathParts = url.pathname.split('/');
+      // Skip the bucket name and get the actual object path
+      if (pathParts.length > 2) {
+        objectPath = `/objects/${pathParts.slice(2).join('/')}`;
+      }
+    }
     
     // Update the shop with the exterior image path
     const shop = await Shop.findByPk(shopId);

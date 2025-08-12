@@ -22,10 +22,10 @@ export function ImageUploadModal({ shop, isOpen, onClose, onSuccess }: ImageUplo
   const [isUploading, setIsUploading] = useState(false);
 
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest('/api/admin/objects/upload', 'POST');
+    const data = await apiRequest('/api/admin/objects/upload', 'POST');
     return {
       method: 'PUT' as const,
-      url: response.uploadURL,
+      url: data.uploadURL,
     };
   };
 
