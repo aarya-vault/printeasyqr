@@ -71,7 +71,6 @@ export interface Shop extends Timestamps {
   isPublic: boolean;
   status: 'active' | 'deactivated' | 'banned';
   qrCode?: string;
-  rating?: number;
   totalOrders: number;
   // Relations
   owner?: User;
@@ -373,6 +372,17 @@ export interface OrderFormInput {
   files?: File[];
   isUrgent: boolean;
   description?: string;
+}
+
+export interface OrderFormData {
+  shopId: number;
+  type: 'upload' | 'walkin';
+  title: string;
+  description?: string;
+  specifications?: any;
+  estimatedPages?: number;
+  estimatedBudget?: number;
+  isUrgent: boolean;
 }
 
 export interface ShopApplicationFormInput {

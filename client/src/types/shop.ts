@@ -42,8 +42,7 @@ export interface Shop {
   isPublic: boolean;
   status: string;
   
-  // Statistics and Rating
-  rating?: number;
+  // Statistics
   totalOrders: number;
   
   // Images

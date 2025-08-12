@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, MapPin, Star } from 'lucide-react';
+import { X, MapPin } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,7 +123,10 @@ export function WalkinOrderModal({ isOpen, onClose, shops, onSubmit }: WalkinOrd
                         <h4 className="font-medium text-rich-black">{shop.name}</h4>
                         <p className="text-sm text-medium-gray">{shop.address}</p>
                         <p className="text-xs text-medium-gray mt-1">
-                          Open: {shop.workingHours?.open} - {shop.workingHours?.close}
+                          {typeof shop.workingHours === 'string' 
+                            ? shop.workingHours 
+                            : 'Standard business hours'
+                          }
                         </p>
                       </div>
                       <div className="text-right">
@@ -132,8 +135,7 @@ export function WalkinOrderModal({ isOpen, onClose, shops, onSubmit }: WalkinOrd
                           <span className="text-xs text-success-green">Open</span>
                         </div>
                         <div className="flex items-center">
-                          <Star className="w-4 h-4 text-brand-yellow fill-current" />
-                          <span className="text-sm text-medium-gray ml-1">{shop.rating}</span>
+                          <span className="text-sm text-success-green">Available</span>
                         </div>
                       </div>
                     </div>

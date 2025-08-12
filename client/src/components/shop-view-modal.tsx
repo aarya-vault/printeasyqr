@@ -120,11 +120,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                 Walk-in Orders
               </Badge>
             )}
-            {shop.rating && (
-              <Badge className="bg-brand-yellow/20 text-black border-brand-yellow/30 px-4 py-2">
-                {shop.rating}/5
-              </Badge>
-            )}
+
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

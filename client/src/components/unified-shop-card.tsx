@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  MapPin, Clock, Star, Phone, Printer, Eye, Lock, 
+  MapPin, Clock, Phone, Printer, Eye, Lock, 
   Users, Package, CheckCircle, AlertCircle, Store 
 } from 'lucide-react';
 import { Shop } from '@/types/shop';
@@ -112,18 +112,6 @@ export default function UnifiedShopCard({
                 {shop.name}
               </h3>
               <div className="flex items-center gap-3 mb-2">
-                {shop.rating && shop.rating > 0 && (
-                  <div className="flex items-center gap-1">
-                    <Star className={`w-4 h-4 fill-current ${
-                      isUnlocked ? 'text-yellow-400' : 'text-gray-300'
-                    }`} />
-                    <span className={`text-sm font-medium ${
-                      isUnlocked ? 'text-gray-700' : 'text-gray-500'
-                    }`}>
-                      {shop.rating}
-                    </span>
-                  </div>
-                )}
                 {shop.totalOrders > 0 && (
                   <div className="flex items-center gap-1">
                     <Package className={`w-4 h-4 ${

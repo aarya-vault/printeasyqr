@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Upload, UploadCloud, FileText, Star } from 'lucide-react';
+import { X, Upload, UploadCloud, FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -215,8 +215,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
                         </div>
                         <div className="text-right">
                           <div className="flex items-center">
-                            <Star className="w-4 h-4 text-brand-yellow fill-current" />
-                            <span className="text-sm text-medium-gray ml-1">{shop.rating}</span>
+                            <span className="text-sm text-success-green">Available</span>
                           </div>
                         </div>
                       </div>

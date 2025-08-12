@@ -2,7 +2,7 @@
 export type {
   User, Shop, Order, Message, ShopApplication, OrderFile, MessageFile,
   CreateOrderInput, UpdateOrderInput, CreateMessageInput,
-  PlatformStats, ApiResponse, OrderFormInput, ShopApplicationFormInput,
+  PlatformStats, ApiResponse, OrderFormInput, OrderFormData, ShopApplicationFormInput,
   LoginCredentials, AuthSession, Notification, CreateNotificationInput,
   WebSocketMessage, SearchQueries, FilterOptions
 } from '@shared/types';
