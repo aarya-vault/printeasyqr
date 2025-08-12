@@ -50,9 +50,9 @@ export default function ShopOrderDetails() {
     enabled: !!orderId,
   });
 
-  const handlePrintFile = async (file: any) => {
+  const handlePrintFile = (file: any) => {
     try {
-      await printFile(file);
+      printFile(file);
       toast({ title: 'File sent to print' });
     } catch (error) {
       console.error('Error printing file:', error);
@@ -60,24 +60,22 @@ export default function ShopOrderDetails() {
     }
   };
 
-  const handleDownloadFile = async (file: any) => {
+  const handleDownloadFile = (file: any) => {
     try {
-      await downloadFile(file);
+      downloadFile(file);
       toast({ title: 'Download started', description: `Downloading ${file.originalName || file.filename}` });
     } catch (error) {
       console.error('Error downloading file:', error);
-      toast({ title: 'Download failed', description: (error as Error).message || 'Unable to download file', variant: 'destructive' });
+      toast({ title: 'Download failed', description: 'Unable to download file', variant: 'destructive' });
     }
   };
 
-  const handlePrintAll = async () => {
+  const handlePrintAll = () => {
     if (order?.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
         if (files.length > 0) {
-          toast({ title: `Preparing ${files.length} files for printing...` });
-          
-          await printAllFiles(files, (current, total) => {
+          printAllFiles(files, (current, total) => {
             if (current === total) {
               toast({ title: `All ${total} files sent to print` });
             }
@@ -90,14 +88,12 @@ export default function ShopOrderDetails() {
     }
   };
 
-  const handleDownloadAll = async () => {
+  const handleDownloadAll = () => {
     if (order?.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
         if (files.length > 0) {
-          toast({ title: `Downloading ${files.length} files...` });
-          
-          await downloadAllFiles(files, (current, total) => {
+          downloadAllFiles(files, (current, total) => {
             if (current === total) {
               toast({ title: `All ${total} files downloaded` });
             }
