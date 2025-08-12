@@ -265,6 +265,7 @@ class OrderController {
 
       // Auto delete files if order is completed
       if (status === 'completed') {
+        console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
         await OrderController.deleteOrderFiles(orderId, transaction);
       }
       
@@ -298,19 +299,49 @@ class OrderController {
     try {
       const order = await Order.findByPk(orderId, { transaction });
       if (!order || !order.files) {
+        console.log(`❌ No files to delete for order ${orderId}`);
         return;
       }
 
-      // Delete each file from filesystem
-      const filesToDelete = Array.isArray(order.files) ? order.files : [];
+      // Parse files if they're stored as JSON string
+      let filesToDelete = [];
+      if (typeof order.files === 'string') {
+        try {
+          filesToDelete = JSON.parse(order.files);
+        } catch (parseError) {
+          console.error('Failed to parse order files JSON:', parseError);
+          return;
+        }
+      } else if (Array.isArray(order.files)) {
+        filesToDelete = order.files;
+      }
+
+      console.log(`🗑️  Deleting ${filesToDelete.length} files for completed order ${orderId}`);
       
       for (const file of filesToDelete) {
         try {
-          const filePath = path.join(process.cwd(), 'uploads', file.filename || file.path);
+          // Try multiple path variations
+          let filePath;
+          
+          if (file.path && file.path.startsWith('uploads/')) {
+            // If path already includes 'uploads/', use it directly
+            filePath = path.join(process.cwd(), file.path);
+          } else if (file.filename) {
+            // Use filename with uploads folder
+            filePath = path.join(process.cwd(), 'uploads', file.filename);
+          } else if (file.path) {
+            // Add uploads folder to path
+            filePath = path.join(process.cwd(), 'uploads', file.path);
+          } else {
+            console.error('❌ No valid file path found for file:', file);
+            continue;
+          }
+
+          console.log(`🗑️  Attempting to delete: ${filePath}`);
           await fs.unlink(filePath);
-          console.log(`Deleted file: ${filePath}`);
+          console.log(`✅ Successfully deleted file: ${filePath}`);
         } catch (fileError) {
-          console.error(`Failed to delete file ${file.filename || file.path}:`, fileError.message);
+          console.error(`❌ Failed to delete file ${file.filename || file.path}:`, fileError.message);
           // Continue with other files even if one fails
         }
       }
