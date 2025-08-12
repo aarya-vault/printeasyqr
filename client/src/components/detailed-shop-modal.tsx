@@ -9,10 +9,10 @@ import {
 } from 'lucide-react';
 import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
-// Helper function to calculate years of experience
-const calculateYearsOfExperience = (shop: Shop): number => {
-  // Always use yearsOfExperience field directly instead of calculating from formation year
-  return shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
+// Helper function to get experience display text
+const getExperienceDisplay = (shop: Shop): string => {
+  const years = shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
+  return years > 0 ? years.toString() : "Details Not Available";
 };
 
 interface Shop {
@@ -84,53 +84,57 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     }
 
     return dayNames.map((day, index) => {
-      const dayKey = day; // Use proper day name like "Monday" instead of "monday"
-      const hours = shop.workingHours?.[dayKey];
+      const hours = shop.workingHours?.[day]; // Use day name directly like "Monday"
       
-      // Check if explicitly closed or missing hours 
-      if (!hours || hours.closed === true) {
-        return {
-          day: dayNames[index],
-          schedule: "Closed",
-          is24Hours: false,
-          status: "closed"
-        };
-      }
-      
-      // Check if hours object exists but missing open/close times
-      if (hours && !hours.open && !hours.close) {
-        return {
-          day: dayNames[index],
-          schedule: "Closed",
-          is24Hours: false,
-          status: "closed"
-        };
-      }
-      
-      if (hours.is24Hours || (hours.open === "00:00" && hours.close === "23:59")) {
-        return {
-          day: dayNames[index],
-          schedule: "24/7 Open",
-          is24Hours: true,
-          status: "24hours"
-        };
-      }
-      
-      // Handle CSV format hours like "10 AM to 8:30 PM"
+      // Handle CSV format hours (strings like "10 AM to 8:30 PM") - this is our primary format
       if (typeof hours === 'string') {
         return {
-          day: dayNames[index],
+          day: day,
           schedule: hours,
           is24Hours: false,
           status: "open"
         };
       }
       
+      // Handle object format for backwards compatibility
+      if (typeof hours === 'object' && hours !== null) {
+        // Check if explicitly closed
+        if (hours.closed === true) {
+          return {
+            day: day,
+            schedule: "Closed",
+            is24Hours: false,
+            status: "closed"
+          };
+        }
+        
+        // Check for 24/7
+        if (hours.is24Hours || (hours.open === "00:00" && hours.close === "23:59")) {
+          return {
+            day: day,
+            schedule: "24/7 Open",
+            is24Hours: true,
+            status: "24hours"
+          };
+        }
+        
+        // Regular hours
+        if (hours.open && hours.close) {
+          return {
+            day: day,
+            schedule: `${hours.open} - ${hours.close}`,
+            is24Hours: false,
+            status: "open"
+          };
+        }
+      }
+      
+      // Fallback for missing hours
       return {
-        day: dayNames[index],
-        schedule: `${hours.open || '09:00'} - ${hours.close || '18:00'}`,
+        day: day,
+        schedule: "Closed",
         is24Hours: false,
-        status: "open"
+        status: "closed"
       };
     });
   };
@@ -141,10 +145,18 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     if (!shop.workingHours) return true;
     
     const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }); // "Monday" not "monday"
     const currentTime = now.toTimeString().slice(0, 5);
     const todayHours = shop.workingHours[currentDay];
 
+    // Handle string format hours (primary format)
+    if (typeof todayHours === 'string') {
+      // For string format like "10 AM to 8:30 PM", assume shop is open during business hours
+      // This would need more complex parsing for exact time checking
+      return true;
+    }
+    
+    // Handle object format
     if (!todayHours || todayHours.closed) return false;
     if (todayHours.is24Hours || (todayHours.open === "00:00" && todayHours.close === "23:59")) return true;
     
@@ -271,7 +283,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   )}
                   <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                     <div className="text-2xl font-bold text-brand-yellow">
-                      {calculateYearsOfExperience(shop)}
+                      {getExperienceDisplay(shop)}
                     </div>
                     <p className="text-sm text-gray-600 mt-1">Years Experience</p>
                   </div>

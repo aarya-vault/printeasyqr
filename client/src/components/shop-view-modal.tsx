@@ -71,9 +71,9 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     equipmentCount: allEquipment.length
   });
 
-  const calculateYearsOfExperience = (shop: any): number => {
-    // Always use yearsOfExperience field directly instead of calculating from formation year
-    return shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
+  const getExperienceDisplay = (shop: any): string => {
+    const years = shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
+    return years > 0 ? years.toString() : "Details Not Available";
   };
 
   return (
@@ -230,7 +230,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                       <div className="text-2xl font-bold text-brand-yellow mb-1">
-                        {calculateYearsOfExperience(shop)}
+                        {getExperienceDisplay(shop)}
                       </div>
                       <p className="text-sm text-gray-600">Years Experience</p>
                     </div>
@@ -259,13 +259,17 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   {shop.workingHours ? (
                     <div className="space-y-2">
                       {dayNames.map(({ key, label }) => {
-                        // Use proper day name from dayNames mapping
-                        const hours = shop.workingHours?.[label]; // Use label (e.g., "Monday") instead of key (e.g., "monday")
+                        const hours = shop.workingHours?.[label]; // Use label like "Monday"
                         return (
                           <div key={key} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">{label}</span>
                             <div className="flex items-center gap-2">
-                              {hours?.is24Hours ? (
+                              {/* Handle string format first (our primary format) */}
+                              {typeof hours === 'string' ? (
+                                <span className="text-sm text-gray-600 font-medium">
+                                  {hours}
+                                </span>
+                              ) : hours?.is24Hours ? (
                                 <Badge className="bg-green-100 text-green-800 border-green-200">
                                   24/7 Open
                                 </Badge>
@@ -273,10 +277,14 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                                 <Badge variant="secondary">
                                   Closed
                                 </Badge>
-                              ) : (
+                              ) : hours?.open && hours?.close ? (
                                 <span className="text-sm text-gray-600 font-medium">
-                                  {typeof hours === 'string' ? hours : `${hours?.open || '09:00'} - ${hours?.close || '18:00'}`}
+                                  {hours.open} - {hours.close}
                                 </span>
+                              ) : (
+                                <Badge variant="secondary">
+                                  Closed
+                                </Badge>
                               )}
                             </div>
                           </div>
