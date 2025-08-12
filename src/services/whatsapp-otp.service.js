@@ -93,7 +93,7 @@ class WhatsAppOTPService {
           'src.name': process.env.GUPSHUP_APP_NAME,
           template: JSON.stringify({
             id: OTP_TEMPLATE_ID,
-            params: [otp] // Single OTP parameter as shown in working example
+            params: [otp, otp] // OTP twice as required by Gupshup documentation for body and button component
           })
         };
 
@@ -158,6 +158,15 @@ class WhatsAppOTPService {
           console.log(`✅ WhatsApp OTP sent via fallback to ${fullPhoneNumber}:`, result.messageId);
         } else {
           console.log(`✅ WhatsApp OTP sent successfully to ${fullPhoneNumber}:`, result.messageId);
+          
+          // Check delivery status after a few seconds
+          setTimeout(async () => {
+            try {
+              await this.checkDeliveryStatus(result.messageId, fullPhoneNumber);
+            } catch (error) {
+              console.error('Failed to check delivery status:', error);
+            }
+          }, 5000); // Check after 5 seconds
         }
       }
       
@@ -169,6 +178,49 @@ class WhatsAppOTPService {
 
     } catch (error) {
       console.error('WhatsApp OTP Send Error:', error);
+      throw error;
+    }
+  }
+
+  // Check delivery status of sent WhatsApp message
+  static async checkDeliveryStatus(messageId, phoneNumber) {
+    try {
+      console.log(`🔍 Checking delivery status for message: ${messageId} to ${phoneNumber}`);
+      
+      // Gupshup delivery status endpoint
+      const statusResponse = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/msg/${messageId}`, {
+        method: 'GET',
+        headers: {
+          'apikey': process.env.GUPSHUP_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const statusResult = await statusResponse.json();
+      console.log(`📊 Delivery Status for ${phoneNumber}:`, statusResult);
+      
+      if (statusResult.status) {
+        switch (statusResult.status.toLowerCase()) {
+          case 'delivered':
+            console.log(`✅ Message delivered successfully to ${phoneNumber}`);
+            break;
+          case 'sent':
+            console.log(`📤 Message sent to WhatsApp servers for ${phoneNumber}`);
+            break;
+          case 'failed':
+            console.log(`❌ Message delivery failed to ${phoneNumber}:`, statusResult.reason || 'Unknown reason');
+            break;
+          case 'read':
+            console.log(`👀 Message read by user ${phoneNumber}`);
+            break;
+          default:
+            console.log(`📋 Message status for ${phoneNumber}: ${statusResult.status}`);
+        }
+      }
+      
+      return statusResult;
+    } catch (error) {
+      console.error(`❌ Failed to check delivery status for ${phoneNumber}:`, error.message);
       throw error;
     }
   }
