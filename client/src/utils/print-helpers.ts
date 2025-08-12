@@ -19,13 +19,12 @@ export const printFile = async (file: any): Promise<void> => {
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
     const isPDF = fileExtension === 'pdf';
 
-    // Different content for different file types
+    // Different content for different file types - NO AUTOMATIC PRINT CALLS
     const content = isImage
-      ? `<img src="${fileUrl}" onload="window.print()" style="width: 100%; height: auto;" />`
+      ? `<img src="${fileUrl}" style="width: 100%; height: auto;" />`
       : isPDF
-        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" />
-           <script>window.onload = function() { window.print(); }</script>`
-        : `<iframe src="${fileUrl}" onload="window.print()" style="width: 100%; height: 100%; border: none;"></iframe>`;
+        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" />`
+        : `<iframe src="${fileUrl}" style="width: 100%; height: 100%; border: none;"></iframe>`;
 
     const frameDoc = printFrame.contentDocument || printFrame.contentWindow?.document;
     if (!frameDoc) {
@@ -54,7 +53,7 @@ export const printFile = async (file: any): Promise<void> => {
     `);
     frameDoc.close();
 
-    // Wait for content to load, then print
+    // Wait for content to load, then print ONCE
     setTimeout(() => {
       try {
         if (printFrame.contentWindow) {
@@ -72,7 +71,7 @@ export const printFile = async (file: any): Promise<void> => {
         }
         resolve();
       }, 1000);
-    }, 1500);
+    }, 2000); // Increased delay to ensure content loads properly
   });
 };
 
