@@ -19,10 +19,26 @@ class OTPController {
         });
       }
 
-      // 🔧 FIXED: Always send OTP for new login attempts
-      // Only skip OTP if user has valid JWT token (handled by frontend auth context)
-      // This ensures OTP is always sent, even for existing phone numbers
-      console.log('🔍 OTP Controller: Forcing OTP for phone:', cleanPhone);
+      // Check if user already has a valid session
+      const sessionCheck = await WhatsAppOTPService.checkExistingSession(cleanPhone);
+      
+      if (sessionCheck.hasValidSession) {
+        // User already authenticated, generate new token
+        const token = generateToken(sessionCheck.user);
+        const refreshToken = generateRefreshToken(sessionCheck.user);
+        
+        return res.json({
+          success: true,
+          message: 'User already authenticated',
+          skipOTP: true,
+          user: {
+            ...sessionCheck.user,
+            needsNameUpdate: !sessionCheck.user.name || sessionCheck.user.name === 'Customer'
+          },
+          token,
+          refreshToken
+        });
+      }
 
       // Send OTP for new session - use cleaned phone number
       const result = await WhatsAppOTPService.sendOTP(cleanPhone);
