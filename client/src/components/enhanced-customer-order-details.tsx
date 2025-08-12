@@ -553,7 +553,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                       <FileText className="w-5 h-5 text-brand-yellow" />
                       Files ({currentFiles.length})
                     </span>
-                    {currentFiles.length > 1 && (
+                    {currentFiles.length > 1 && currentOrder.status !== 'completed' && (
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" onClick={handlePrintAll}>
                           <Printer className="w-4 h-4 mr-1" />
@@ -586,23 +586,34 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                               {(file.size / 1024).toFixed(1)} KB
                             </p>
                           )}
+                          {currentOrder.status === 'completed' && (
+                            <p className="text-xs text-red-500 mt-1">
+                              ⚠ File deleted after completion
+                            </p>
+                          )}
                         </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDownloadFile(file)}
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handlePrintFile(file)}
-                          >
-                            <Printer className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        {currentOrder.status !== 'completed' ? (
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDownloadFile(file)}
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handlePrintFile(file)}
+                            >
+                              <Printer className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400 px-3">
+                            Files removed
+                          </div>
+                        )}
                       </div>
                     ))
                   )}
@@ -661,11 +672,11 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   )}
 
                   {!canAddFiles && (
-                    <div className="bg-yellow-50 p-3 rounded-lg">
+                    <div className="bg-blue-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-yellow-600" />
-                        <span className="text-sm text-yellow-700">
-                          Files cannot be added to completed orders
+                        <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm text-blue-700">
+                          Order completed - Files have been processed and removed from storage
                         </span>
                       </div>
                     </div>
