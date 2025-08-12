@@ -1,4 +1,4 @@
-// Print function - direct PDF opening for instant printing
+// Print function - simple and effective for PDFs
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -14,30 +14,36 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     fileUrl = `/objects/.private/uploads/${file.filename || file}`;
   }
   
-  console.log('🖨️ Opening file for printing:', fileUrl);
+  console.log('🖨️ Opening PDF for printing:', file.originalName || file.filename);
   
-  return new Promise((resolve, reject) => {
-    // Open PDF directly in new window - browsers handle PDF viewing and printing natively
-    const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
+  return new Promise((resolve) => {
+    // Simple approach: Open PDF in new window
+    // Browser will display PDF with print button available
+    const printWindow = window.open(fileUrl, '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
     
     if (!printWindow) {
-      console.error('❌ Popup blocked or window failed to open');
-      reject(new Error('Popup blocked - please allow popups and try again'));
-      return;
+      console.error('❌ Popup blocked - please allow popups and try again');
+      throw new Error('Popup blocked - please allow popups and try again');
     }
-
-    // Wait a moment then trigger print - let browser handle PDF loading
-    setTimeout(() => {
-      try {
-        printWindow.focus();
-        printWindow.print();
-        console.log('🖨️ Print dialog triggered for:', file.originalName || file.filename);
-        resolve();
-      } catch (error) {
-        console.error('Print error:', error);
-        resolve(); // Don't reject, just log the error
-      }
-    }, 2000); // Give PDF time to load
+    
+    // Add message to help user
+    console.log('🖨️ PDF opened in new window. Use Ctrl+P or browser print button to print.');
+    
+    // Attempt to trigger print after PDF loads
+    printWindow.addEventListener('load', () => {
+      setTimeout(() => {
+        try {
+          printWindow.focus();
+          // Try to trigger print - may work depending on browser settings
+          printWindow.print();
+          console.log('🖨️ Print command sent');
+        } catch (error) {
+          console.log('🖨️ Print command blocked by browser - use Ctrl+P in the PDF window');
+        }
+      }, 2000);
+    });
+    
+    resolve();
   });
 };
 
