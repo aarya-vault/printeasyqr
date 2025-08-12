@@ -52,7 +52,9 @@ import {
   UserCheck,
   PieChart,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Menu,
+  X
 } from 'lucide-react';
 import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
@@ -160,6 +162,7 @@ export default function RedesignedShopOwnerDashboard() {
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCustomerInsights, setShowCustomerInsights] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
@@ -466,14 +469,14 @@ export default function RedesignedShopOwnerDashboard() {
 
   const StatCard = ({ title, value, icon: Icon, subtitle }: any) => (
     <Card className="transition-shadow hover:shadow-md">
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-center justify-between">
+      <CardContent className="p-2 sm:p-3 lg:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
           <div className="space-y-1 flex-1 min-w-0">
             <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{title}</p>
-            <p className="text-lg sm:text-2xl font-bold text-rich-black">{value}</p>
-            {subtitle && <p className="text-xs text-gray-500 truncate">{subtitle}</p>}
+            <p className="text-base sm:text-lg lg:text-2xl font-bold text-rich-black">{value}</p>
+            {subtitle && <p className="text-xs text-gray-500 truncate hidden sm:block">{subtitle}</p>}
           </div>
-          <div className="p-1.5 sm:p-2 bg-brand-yellow/20 rounded-lg ml-2">
+          <div className="p-1.5 sm:p-2 bg-brand-yellow/20 rounded-lg self-end sm:self-auto sm:ml-2">
             <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-yellow" />
           </div>
         </div>
@@ -669,17 +672,19 @@ export default function RedesignedShopOwnerDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Mobile-First Responsive Header */}
       <div className="bg-white shadow-sm border-b relative">
-        <div className="px-6 py-4">
+        <div className="px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-rich-black">
+            {/* Title Section - Always Visible */}
+            <div className="flex items-center flex-1 min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold text-rich-black truncate">
                 {shopData?.shop?.name || 'Shop Dashboard'}
               </h1>
             </div>
             
-            <div className="flex items-center space-x-4">
+            {/* Desktop Navigation - Hidden on Mobile */}
+            <div className="hidden lg:flex items-center space-x-4">
               {/* Navigation Buttons */}
               <div className="flex items-center space-x-2">
                 <Button
@@ -708,7 +713,7 @@ export default function RedesignedShopOwnerDashboard() {
                   className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00]"
                 >
                   <History className="w-4 h-4 mr-2" />
-                  Order History
+                  History
                 </Button>
                 <Button
                   variant="outline"
@@ -772,15 +777,129 @@ export default function RedesignedShopOwnerDashboard() {
                 Logout
               </button>
             </div>
+
+            {/* Mobile Actions - Compact Layout */}
+            <div className="flex lg:hidden items-center space-x-2">
+              {/* Shop Status - Mobile Compact */}
+              <button
+                onClick={() => {
+                  if (shopData?.shop?.id) {
+                    toggleShopStatus.mutate();
+                  }
+                }}
+                disabled={toggleShopStatus.isPending}
+                className={`
+                  flex items-center px-2 py-1.5 rounded-md font-semibold text-xs transition-all duration-200
+                  ${shopData?.shop?.isOnline 
+                    ? 'bg-[#FFBF00] text-black' 
+                    : 'bg-gray-200 text-gray-600'
+                  }
+                  ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+              >
+                <div className={`w-2 h-2 rounded-full mr-1 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
+                {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
+          {/* Mobile Dropdown Menu */}
+          {showMobileMenu && (
+            <div className="lg:hidden mt-3 pt-3 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowAnalytics(true);
+                    setShowMobileMenu(false);
+                  }}
+                  className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black text-xs"
+                >
+                  <BarChart3 className="w-4 h-4 mr-1" />
+                  Analytics
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowQRModal(true);
+                    setShowMobileMenu(false);
+                  }}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00] text-xs"
+                >
+                  <QrCode className="w-4 h-4 mr-1" />
+                  QR Code
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigate('/shop-order-history');
+                    setShowMobileMenu(false);
+                  }}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00] text-xs"
+                >
+                  <History className="w-4 h-4 mr-1" />
+                  History
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigate('/shop-settings');
+                    setShowMobileMenu(false);
+                  }}
+                  className="border-gray-300 hover:border-[#FFBF00] hover:text-[#FFBF00] text-xs"
+                >
+                  <Settings className="w-4 h-4 mr-1" />
+                  Settings
+                </Button>
+              </div>
+              
+              {/* Mobile Logout */}
+              <button 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  try {
+                    await fetch('/api/auth/logout', {
+                      method: 'POST',
+                      credentials: 'include'
+                    });
+                    
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  } catch (error) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  }
+                }}
+                className="w-full flex items-center justify-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-lg transition-all duration-200"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Dashboard Content */}
-      <div className="p-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      {/* Dashboard Content - Mobile Responsive */}
+      <div className="p-3 sm:p-6">
+        {/* Stats Cards - Responsive Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <StatCard
             title="Today's Orders"
             value={dashboardStats.totalOrdersToday}
@@ -879,29 +998,32 @@ export default function RedesignedShopOwnerDashboard() {
 
 
 
-        {/* Search and Filters */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
+        {/* Search and Filters - Mobile Responsive */}
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              {/* Search Input */}
+              <div className="w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Search orders by customer name, order ID, or description..."
+                    placeholder="Search orders..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
+              
+              {/* Status Filters - Mobile Grid */}
+              <div className="grid grid-cols-2 sm:flex gap-2">
                 {['all', 'new', 'processing', 'ready'].map((status) => (
                   <Button
                     key={status}
                     size="sm"
                     variant={selectedStatus === status ? "default" : "outline"}
                     onClick={() => setSelectedStatus(status)}
-                    className={selectedStatus === status ? 'bg-brand-yellow text-rich-black' : ''}
+                    className={`text-xs sm:text-sm ${selectedStatus === status ? 'bg-brand-yellow text-rich-black' : ''}`}
                   >
                     {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
                   </Button>
@@ -911,32 +1033,34 @@ export default function RedesignedShopOwnerDashboard() {
           </CardContent>
         </Card>
 
-        {/* 4-Column Orders Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          {/* File Upload Orders - 2 Columns */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4 p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
-              <div className="flex items-center">
-                <Upload className="w-6 h-6 mr-3 text-brand-yellow" />
-                <div>
-                  <h2 className="text-lg font-bold text-rich-black">File Upload Orders</h2>
-                  <p className="text-sm text-gray-600">Digital file printing orders</p>
+        {/* Mobile-First Orders Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* File Upload Orders */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 sm:p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
+              <div className="flex items-center flex-1 min-w-0">
+                <Upload className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-brand-yellow flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-sm sm:text-lg font-bold text-rich-black truncate">File Upload Orders</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Digital file printing orders</p>
                 </div>
               </div>
               {uploadOrders.length > 0 && (
-                <Badge className="bg-brand-yellow text-rich-black font-semibold px-3 py-1">
-                  {uploadOrders.length} {uploadOrders.length === 1 ? 'Order' : 'Orders'}
+                <Badge className="bg-brand-yellow text-rich-black font-semibold px-2 py-1 text-xs sm:text-sm">
+                  {uploadOrders.length}
                 </Badge>
               )}
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            
+            {/* Orders Grid - Mobile: 1 column, Desktop: 2 columns */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
               {uploadOrders.length === 0 ? (
                 <div className="xl:col-span-2">
                   <Card className="border-dashed border-2 border-brand-yellow/30">
-                    <CardContent className="p-8 text-center">
-                      <Upload className="w-12 h-12 text-brand-yellow/50 mx-auto mb-3" />
-                      <p className="text-gray-500 font-medium">No upload orders yet</p>
-                      <p className="text-sm text-gray-400">File upload orders will appear here</p>
+                    <CardContent className="p-6 sm:p-8 text-center">
+                      <Upload className="w-8 h-8 sm:w-12 sm:h-12 text-brand-yellow/50 mx-auto mb-2 sm:mb-3" />
+                      <p className="text-sm sm:text-base text-gray-500 font-medium">No upload orders yet</p>
+                      <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">File upload orders will appear here</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -948,30 +1072,32 @@ export default function RedesignedShopOwnerDashboard() {
             </div>
           </div>
 
-          {/* Walk-in Orders - 2 Columns */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4 p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
-              <div className="flex items-center">
-                <Users className="w-6 h-6 mr-3 text-brand-yellow" />
-                <div>
-                  <h2 className="text-lg font-bold text-rich-black">Walk-in Orders</h2>
-                  <p className="text-sm text-gray-600">Immediate pickup orders</p>
+          {/* Walk-in Orders */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 sm:p-4 bg-brand-yellow/10 rounded-lg border border-brand-yellow/20">
+              <div className="flex items-center flex-1 min-w-0">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-brand-yellow flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-sm sm:text-lg font-bold text-rich-black truncate">Walk-in Orders</h2>
+                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Immediate pickup orders</p>
                 </div>
               </div>
               {walkinOrders.length > 0 && (
-                <Badge className="bg-brand-yellow text-rich-black font-semibold px-3 py-1">
-                  {walkinOrders.length} {walkinOrders.length === 1 ? 'Order' : 'Orders'}
+                <Badge className="bg-brand-yellow text-rich-black font-semibold px-2 py-1 text-xs sm:text-sm">
+                  {walkinOrders.length}
                 </Badge>
               )}
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            
+            {/* Orders Grid - Mobile: 1 column, Desktop: 2 columns */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
               {walkinOrders.length === 0 ? (
                 <div className="xl:col-span-2">
                   <Card className="border-dashed border-2 border-brand-yellow/30">
-                    <CardContent className="p-8 text-center">
-                      <Users className="w-12 h-12 text-brand-yellow/50 mx-auto mb-3" />
-                      <p className="text-gray-500 font-medium">No walk-in orders yet</p>
-                      <p className="text-sm text-gray-400">Walk-in orders will appear here</p>
+                    <CardContent className="p-6 sm:p-8 text-center">
+                      <Users className="w-8 h-8 sm:w-12 sm:h-12 text-brand-yellow/50 mx-auto mb-2 sm:mb-3" />
+                      <p className="text-sm sm:text-base text-gray-500 font-medium">No walk-in orders yet</p>
+                      <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Walk-in orders will appear here</p>
                     </CardContent>
                   </Card>
                 </div>
