@@ -232,8 +232,8 @@ export default function UnifiedShopCard({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Google Maps Button - Only show if link exists and shop is unlocked */}
-            {shop.googleMapsLink && isUnlocked && (
+            {/* Google Maps Button - Show for all shops that have a link */}
+            {shop.googleMapsLink && (
               <button
                 onClick={handleGoogleMapsClick}
                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-brand-yellow/20 text-black border-brand-yellow/40 hover:bg-brand-yellow hover:border-brand-yellow transition-colors"
