@@ -104,17 +104,17 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          {/* Status Section */}
+          {/* Status Section - Clean */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
             {shop.isOnline ? (
               <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                Online & Available
+                Online Available
               </Badge>
             ) : (
               <Badge className="bg-gray-100 text-gray-600 border-gray-200 px-4 py-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                Currently Offline
+                Closed
               </Badge>
             )}
             {shop.acceptsWalkinOrders && (
