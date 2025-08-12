@@ -54,13 +54,14 @@ class OrderController {
     };
   }
 
-  // Get orders by shop - includes deleted orders for history
+  // Get orders by shop - excludes soft-deleted orders for active view
   static async getOrdersByShop(req, res) {
     try {
       const shopId = parseInt(req.params.shopId);
       const orders = await Order.findAll({
         where: { 
-          shopId
+          shopId,
+          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
         },
         include: [
           { model: User, as: 'customer' },
@@ -83,7 +84,8 @@ class OrderController {
       const customerId = parseInt(req.params.customerId);
       const orders = await Order.findAll({
         where: { 
-          customerId
+          customerId,
+          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
         },
         include: [
           { model: Shop, as: 'shop' },
@@ -592,9 +594,9 @@ class OrderController {
         // Customers can only delete their own pending orders
         canDelete = order.status === 'new' || order.status === 'pending';
       } else if (userRole === 'shop_owner') {
-        // Shop owners can delete processing/ready orders from their shop
+        // Shop owners can delete any order except 'new' from their shop
         if (order.shop && order.shop.ownerId === userId) {
-          canDelete = order.status === 'processing' || order.status === 'ready';
+          canDelete = order.status !== 'new'; // Shop owners cannot delete 'new' orders - customers must cancel them
         }
       }
       

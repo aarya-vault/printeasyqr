@@ -60,6 +60,7 @@ export const canDeleteOrder = (
     if (order.status === 'new') {
       return { canDelete: false, reason: "Customer must cancel new orders" };
     }
+    // Shop owners can delete any order except 'new' status
     return { canDelete: true };
   }
 

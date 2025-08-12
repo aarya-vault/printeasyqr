@@ -263,10 +263,13 @@ export default function RedesignedShopOwnerDashboard() {
     avgProcessingTime: calculateAvgProcessingTime()
   };
 
-  // Filter orders with improved performance - exclude completed orders
+  // Filter orders with improved performance - exclude completed and deleted orders
   const filteredOrders = orders.filter(order => {
     // Exclude completed orders (they go to Order History)
     if (order.status === 'completed') return false;
+    
+    // Exclude soft-deleted orders (should already be filtered on server, but double-check)
+    if (order.deletedAt) return false;
     
     const matchesSearch = searchQuery === '' || 
       order.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
