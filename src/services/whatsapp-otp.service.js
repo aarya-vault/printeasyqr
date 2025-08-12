@@ -94,7 +94,7 @@ class WhatsAppOTPService {
           'src.name': process.env.GUPSHUP_APP_NAME,
           template: JSON.stringify({
             id: OTP_TEMPLATE_ID,
-            params: [otp] // Single OTP parameter as shown in your working example
+            params: [otp, otp] // Two OTP parameters as shown in your working example
           })
         };
 
