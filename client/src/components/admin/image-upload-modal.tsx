@@ -22,7 +22,19 @@ export function ImageUploadModal({ shop, isOpen, onClose, onSuccess }: ImageUplo
   const [isUploading, setIsUploading] = useState(false);
 
   const handleGetUploadParameters = async () => {
-    const data = await apiRequest('/api/admin/objects/upload', 'POST');
+    const response = await fetch('/api/admin/objects/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to get upload URL');
+    }
+    
+    const data = await response.json();
     console.log('Upload URL response:', data); // Debug log
     return {
       method: 'PUT' as const,
