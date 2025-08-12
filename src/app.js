@@ -177,12 +177,18 @@ app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 // Object Storage serving routes - REDIRECT APPROACH  
 app.get('/objects/*', async (req, res) => {
   try {
-    const objectPath = req.path.replace('/objects/', '');
+    let objectPath = req.path.replace('/objects/', '');
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
+    
+    // 🔥 CRITICAL FIX: Remove .private prefix since files are stored without it
+    if (objectPath.startsWith('.private/')) {
+      objectPath = objectPath.replace('.private/', '');
+    }
     
     console.log('🔍 Object request:', {
       requestPath: req.path,
-      objectPath: objectPath,
+      originalObjectPath: req.path.replace('/objects/', ''),
+      correctedObjectPath: objectPath,
       bucketName: bucketName
     });
     
