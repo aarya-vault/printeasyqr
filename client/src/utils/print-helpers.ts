@@ -1,11 +1,9 @@
-// Original robust print function that opens print dialog directly (NO PREVIEW)
+// Direct print function - SINGLE PRINT CALL ONLY
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
-  const filename = file.originalName || file.filename || file;
-  const fileExtension = filename.split('.').pop()?.toLowerCase();
 
   return new Promise((resolve, reject) => {
-    // Create a hidden iframe for printing to avoid popup blockers
+    // Create a hidden iframe for printing
     const printFrame = document.createElement('iframe');
     printFrame.style.position = 'absolute';
     printFrame.style.top = '-9999px';
@@ -15,78 +13,39 @@ export const printFile = async (file: any): Promise<void> => {
     printFrame.style.border = 'none';
     
     document.body.appendChild(printFrame);
+
+    // Set iframe source
+    printFrame.src = fileUrl;
     
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension || '');
-    const isPDF = fileExtension === 'pdf';
-
-    // Different content for different file types - NO AUTOMATIC PRINT CALLS
-    const content = isImage
-      ? `<img src="${fileUrl}" style="width: 100%; height: auto;" />`
-      : isPDF
-        ? `<embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" />`
-        : `<iframe src="${fileUrl}" style="width: 100%; height: 100%; border: none;"></iframe>`;
-
-    const frameDoc = printFrame.contentDocument || printFrame.contentWindow?.document;
-    if (!frameDoc) {
-      document.body.removeChild(printFrame);
-      reject(new Error('Unable to access frame document'));
-      return;
-    }
-
-    frameDoc.open();
-    frameDoc.write(`
-      <html>
-        <head>
-          <title>Print - ${filename}</title>
-          <style>
-            body { margin: 0; padding: 0; }
-            img { max-width: 100%; height: auto; }
-            @media print {
-              html, body { margin: 0; padding: 0; }
-              img, embed, iframe { page-break-inside: avoid; }
-            }
-            @page { margin: 0.5in; }
-          </style>
-          <script>
-            function triggerPrint() {
-              setTimeout(function() {
-                window.print();
-              }, 500);
-            }
-          </script>
-        </head>
-        <body>
-          ${content}
-          <script>
-            // Wait for all content to load, then print
-            ${isPDF ? 'setTimeout(triggerPrint, 2000);' : ''}
-            ${isImage ? 'document.querySelector("img").onload = triggerPrint;' : ''}
-            ${!isPDF && !isImage ? 'window.onload = triggerPrint;' : ''}
-          </script>
-        </body>
-      </html>
-    `);
-    frameDoc.close();
-
-    // Fallback: if content doesn't trigger print automatically
-    setTimeout(() => {
-      try {
-        if (printFrame.contentWindow) {
-          printFrame.contentWindow.focus();
-          printFrame.contentWindow.print();
-        }
-      } catch (e) {
-        console.error('Print failed', e);
-      }
-      
-      // Clean up after printing
+    // Single load event handler
+    printFrame.onload = () => {
       setTimeout(() => {
-        if (document.body.contains(printFrame)) {
-          document.body.removeChild(printFrame);
+        try {
+          if (printFrame.contentWindow) {
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+          }
+        } catch (e) {
+          console.error('Print failed', e);
         }
-        resolve();
-      }, 1000);
-    }, 4000); // Longer fallback delay
+        
+        // Clean up after printing
+        setTimeout(() => {
+          if (document.body.contains(printFrame)) {
+            document.body.removeChild(printFrame);
+          }
+          resolve();
+        }, 1000);
+      }, 500); // Small delay after load
+    };
+
+    // Error handling
+    printFrame.onerror = () => {
+      if (document.body.contains(printFrame)) {
+        document.body.removeChild(printFrame);
+      }
+      reject(new Error('Failed to load file'));
+    };
   });
 };
 
