@@ -48,6 +48,8 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Working Hours Display**: Robust utility to parse and display complex shop working hours, including 24/7 operations and varied daily schedules, removing hardcoded text.
 - **Mobile Responsiveness**: Implemented mobile-first headers, navigation, stats cards, search/filters, order layouts, typography, and touch-friendly interactions.
 - **WhatsApp OTP System**: Integrated Gupshup API for WhatsApp OTP authentication, with intelligent session checking, extended JWT tokens (90 days), and background processing for file uploads during OTP verification. QR codes now directly redirect to order pages, where authentication occurs, simplifying the flow.
+- **Enhanced Print System**: Robust print functionality with browser compatibility, intelligent file type detection (PDFs, images, documents), proper error handling, memory cleanup, and bypass of popup blockers. Uses optimized approaches for different file types with fallback mechanisms.
+- **Real-time WebSocket Notifications**: Fully functional WebSocket server integrated with Vite development setup, enabling instant chat notifications, message synchronization, and real-time order updates across all user interfaces.
 
 ## External Dependencies
 
