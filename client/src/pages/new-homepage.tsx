@@ -16,6 +16,9 @@ import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/phone-input';
 import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/hooks/use-auth';
+import { useState as useOTPState } from 'react';
+import { OTPVerificationModal } from '@/components/auth/otp-verification-modal';
+import { NameCollectionModal } from '@/components/auth/name-collection-modal';
 import { ShopOwnerLogin } from '@/components/auth/shop-owner-login';
 
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +34,10 @@ export default function NewHomepage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
-  const { user, login, getPersistentUserData } = useAuth();
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [tempUser, setTempUser] = useState(null);
+  const { user, sendWhatsAppOTP, verifyWhatsAppOTP, updateUser, getPersistentUserData } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -72,32 +78,92 @@ export default function NewHomepage() {
     }
 
     setLoginLoading(true);
-
-    if (!/^[6-9]\d{9}$/.test(customerPhone)) {
-      toast({
-        title: "Invalid Phone Number",
-        description: "Please enter a valid 10-digit phone number",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      await login({ phone: customerPhone });
-      // Navigate to dashboard - name modal will show there if needed
-      navigate('/customer-dashboard');
-      toast({
-        title: "Login Successful",
-        description: "Welcome to PrintEasy!",
-      });
+      console.log('🔍 Homepage Login: Requesting OTP for', customerPhone);
+      
+      // 🚀 SMART OTP-FIRST FLOW - Check JWT token, then OTP if needed
+      const result = await sendWhatsAppOTP(customerPhone);
+      
+      if (result.skipOTP) {
+        // User already has valid authentication token
+        console.log('✅ Homepage Login: Valid token found, skipping OTP');
+        
+        if (result.user && result.user.needsNameUpdate) {
+          setTempUser(result.user);
+          setShowNameModal(true);
+        } else {
+          toast({
+            title: "Welcome Back!",
+            description: "You were automatically logged in with your previous session",
+          });
+          navigate('/customer-dashboard');
+        }
+      } else {
+        // Request OTP verification for new/unverified users
+        console.log('🔍 Homepage Login: Requesting OTP verification for new user');
+        setShowOTPModal(true);
+        toast({
+          title: "OTP Sent",
+          description: "Please check your WhatsApp for the verification code",
+        });
+      }
     } catch (error) {
+      console.error('Homepage Login Error:', error);
       toast({
-        title: "Login Failed",
-        description: "Please try again",
+        title: "Authentication Error",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       });
     } finally {
       setLoginLoading(false);
+    }
+  };
+
+  const handleNameSubmit = async (name: string) => {
+    if (!tempUser || !name.trim()) return;
+    
+    try {
+      await updateUser({ name: name.trim() });
+      setShowNameModal(false);
+      setTempUser(null);
+      toast({
+        title: "Welcome to PrintEasy!",
+        description: "Your account has been set up successfully",
+      });
+      navigate('/customer-dashboard');
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleOTPVerification = async (otp: string) => {
+    try {
+      console.log('🔍 OTP Verification: Verifying code for', customerPhone);
+      const user = await verifyWhatsAppOTP(customerPhone, otp);
+      
+      setShowOTPModal(false);
+      
+      if (user.needsNameUpdate) {
+        setTempUser(user);
+        setShowNameModal(true);
+      } else {
+        toast({
+          title: "Login Successful",
+          description: "Welcome to PrintEasy!",
+        });
+        navigate('/customer-dashboard');
+      }
+    } catch (error) {
+      console.error('OTP Verification Error:', error);
+      toast({
+        title: "Verification Failed",
+        description: error instanceof Error ? error.message : "Invalid OTP. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -493,6 +559,25 @@ export default function NewHomepage() {
         />
       )}
 
+      {/* OTP Verification Modal */}
+      {showOTPModal && (
+        <OTPVerificationModal
+          phone={customerPhone}
+          isOpen={showOTPModal}
+          onClose={() => setShowOTPModal(false)}
+          onVerify={handleOTPVerification}
+        />
+      )}
+
+      {/* Name Collection Modal */}
+      {showNameModal && tempUser && (
+        <NameCollectionModal
+          isOpen={showNameModal}
+          onClose={() => setShowNameModal(false)}
+          onSubmit={handleNameSubmit}
+          userPhone={tempUser.phone}
+        />
+      )}
 
     </div>
   );
