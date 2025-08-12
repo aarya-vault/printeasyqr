@@ -5,31 +5,37 @@ export const printFile = (file: any): void => {
   // Create a hidden iframe for printing
   const printFrame = document.createElement('iframe');
   printFrame.style.position = 'absolute';
-  printFrame.style.top = '-9999px';
-  printFrame.style.left = '-9999px';
-  printFrame.style.width = '0px';
-  printFrame.style.height = '0px';
+  printFrame.style.top = '-1000px';
+  printFrame.style.left = '-1000px';
+  printFrame.style.width = '1px';
+  printFrame.style.height = '1px';
   printFrame.style.border = 'none';
+  printFrame.style.visibility = 'hidden';
   
   document.body.appendChild(printFrame);
   
-  // Set the source and trigger print
-  printFrame.src = fileUrl;
-  
+  // Load the file and print
   printFrame.onload = () => {
-    try {
-      printFrame.contentWindow?.print();
-    } catch (e) {
-      console.error('Print failed', e);
-    }
-    
-    // Clean up after printing
     setTimeout(() => {
-      if (document.body.contains(printFrame)) {
-        document.body.removeChild(printFrame);
+      try {
+        printFrame.contentWindow?.focus();
+        printFrame.contentWindow?.print();
+      } catch (e) {
+        console.error('Print failed', e);
+        // Fallback: open in new window
+        window.open(fileUrl, '_blank');
       }
-    }, 1000);
+      
+      // Clean up after printing
+      setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 2000);
+    }, 500);
   };
+  
+  printFrame.src = fileUrl;
 };
 
 // Simple, direct download function that downloads immediately  
