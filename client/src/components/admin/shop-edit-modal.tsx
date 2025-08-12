@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { X, Save } from "lucide-react";
+import { X, Save, Upload, Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from '@uppy/core';
 
 interface Shop {
   id: number;
@@ -22,6 +24,7 @@ interface Shop {
   isApproved: boolean;
   totalOrders: number;
   workingHours?: string;
+  exteriorImage?: string;
 }
 
 interface ShopEditModalProps {
@@ -43,6 +46,7 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
     contactNumber: shop.contactNumber,
     isOnline: shop.isOnline,
     isApproved: shop.isApproved,
+    exteriorImage: shop.exteriorImage || '',
   });
 
   const updateShopMutation = useMutation({
@@ -74,6 +78,60 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Image upload handlers
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest('/api/admin/objects/upload', 'POST');
+    return {
+      method: 'PUT' as const,
+      url: response.uploadURL,
+    };
+  };
+
+  const handleImageUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const imageURL = uploadedFile.uploadURL;
+      
+      // Update shop with the new image URL
+      try {
+        const response = await apiRequest('/api/admin/shop-exterior-image', 'PUT', {
+          shopId: shop.id,
+          exteriorImageURL: imageURL,
+        });
+        
+        setFormData(prev => ({ ...prev, exteriorImage: response.objectPath }));
+        
+        toast({
+          title: "Success",
+          description: "Shop exterior image uploaded successfully",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to save image",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      setFormData(prev => ({ ...prev, exteriorImage: '' }));
+      
+      toast({
+        title: "Success",
+        description: "Shop exterior image removed successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove image",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -159,6 +217,63 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
               className="border-brand-yellow/30 focus:border-brand-yellow"
               rows={3}
             />
+          </div>
+
+          {/* Shop Exterior Image */}
+          <div className="space-y-4 p-4 border border-brand-yellow/30 rounded-lg">
+            <h3 className="font-medium text-rich-black">Shop Exterior Image</h3>
+            <p className="text-sm text-gray-600">Add a professional exterior photo to showcase your shop</p>
+            
+            {formData.exteriorImage ? (
+              <div className="space-y-4">
+                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={formData.exteriorImage}
+                    alt="Shop exterior"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <ObjectUploader
+                    maxNumberOfFiles={1}
+                    maxFileSize={10485760}
+                    onGetUploadParameters={handleGetUploadParameters}
+                    onComplete={handleImageUploadComplete}
+                    buttonClassName="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Replace Image
+                  </ObjectUploader>
+                  <Button
+                    variant="outline"
+                    onClick={handleRemoveImage}
+                    className="border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Image
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="mb-4">
+                  <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto flex items-center justify-center">
+                    <Upload className="w-8 h-8 text-gray-400" />
+                  </div>
+                </div>
+                <p className="text-gray-600 mb-4">No exterior image uploaded</p>
+                <ObjectUploader
+                  maxNumberOfFiles={1}
+                  maxFileSize={10485760}
+                  onGetUploadParameters={handleGetUploadParameters}
+                  onComplete={handleImageUploadComplete}
+                  buttonClassName="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Exterior Image
+                </ObjectUploader>
+              </div>
+            )}
           </div>
 
           {/* Status Controls */}
