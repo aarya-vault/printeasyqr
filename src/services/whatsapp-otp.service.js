@@ -22,8 +22,11 @@ class WhatsAppOTPService {
 
   static async sendOTP(phoneNumber) {
     try {
-      // Enhanced phone validation - flexible for testing and production
+      // Enhanced phone validation and formatting for Gupshup API
       const cleanPhone = phoneNumber.replace(/\D/g, '');
+      
+      // Debug: Log original and cleaned phone number
+      console.log(`🔍 Gupshup Debug - Original phone: ${phoneNumber}, Cleaned: ${cleanPhone}`);
       
       // Accept various formats:
       // - 10 digits starting with any digit (for testing): 1234567890, 9876543210
@@ -32,10 +35,25 @@ class WhatsAppOTPService {
         throw new Error('Phone number must be 10-15 digits');
       }
 
-      // Format for WhatsApp API - add country code if needed
-      const fullPhoneNumber = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+      // Format for Gupshup WhatsApp API - ensure proper international format
+      let fullPhoneNumber;
+      if (cleanPhone.length === 10) {
+        // Add country code for Indian numbers
+        fullPhoneNumber = `91${cleanPhone}`;
+      } else if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
+        // Already has country code
+        fullPhoneNumber = cleanPhone;
+      } else {
+        // Use as is for other international numbers
+        fullPhoneNumber = cleanPhone;
+      }
+      
+      console.log(`🔍 Gupshup Debug - Final formatted number: ${fullPhoneNumber}`);
+      
       const otp = this.generateOTP();
       const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+      
+      console.log(`🔍 Gupshup Debug - Generated OTP: ${otp} for ${phoneNumber}`);
 
       // Check rate limiting - Demo mode allows faster retries
       const rateLimitMs = DEMO_MODE ? 5000 : 60000; // 5 seconds in demo, 60 seconds in production
@@ -66,32 +84,80 @@ class WhatsAppOTPService {
         console.log(`🔧 DEMO MODE: WhatsApp OTP simulated for ${phoneNumber}, actual OTP: ${otp}`);
       } else {
         // 🚀 PRODUCTION MODE - REAL GUPSHUP API INTEGRATION
-        const response = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/template/msg`, {
+        const apiUrl = `${GUPSHUP_API_BASE}/wa/api/v1/template/msg`;
+        const requestBody = {
+          channel: 'whatsapp',
+          source: process.env.GUPSHUP_SOURCE_PHONE,
+          destination: fullPhoneNumber,
+          'src.name': process.env.GUPSHUP_APP_NAME,
+          template: JSON.stringify({
+            id: OTP_TEMPLATE_ID,
+            params: [otp, otp] // OTP twice for body and button component
+          })
+        };
+
+        // Debug: Log the full API request
+        console.log(`🔍 Gupshup Debug - API URL: ${apiUrl}`);
+        console.log(`🔍 Gupshup Debug - Source Phone: ${process.env.GUPSHUP_SOURCE_PHONE}`);
+        console.log(`🔍 Gupshup Debug - App Name: ${process.env.GUPSHUP_APP_NAME}`);
+        console.log(`🔍 Gupshup Debug - Template ID: ${OTP_TEMPLATE_ID}`);
+        console.log(`🔍 Gupshup Debug - Request Body:`, requestBody);
+
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'apikey': process.env.GUPSHUP_API_KEY,
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: new URLSearchParams({
-            channel: 'whatsapp',
-            source: process.env.GUPSHUP_SOURCE_PHONE,
-            destination: fullPhoneNumber,
-            'src.name': process.env.GUPSHUP_APP_NAME,
-            template: JSON.stringify({
-              id: OTP_TEMPLATE_ID,
-              params: [otp, otp] // OTP twice for body and button component
-            })
-          })
+          body: new URLSearchParams(requestBody)
         });
 
         result = await response.json();
         
+        // Debug: Log the full API response
+        console.log(`🔍 Gupshup Debug - Response Status: ${response.status}`);
+        console.log(`🔍 Gupshup Debug - Response Body:`, result);
+        
         if (response.status !== 202) {
-          console.error('Gupshup API Error:', result);
-          throw new Error(result.message || 'Failed to send OTP');
-        }
+          console.error('❌ Gupshup Template API Failed:', {
+            status: response.status,
+            response: result,
+            destination: fullPhoneNumber,
+            source: process.env.GUPSHUP_SOURCE_PHONE
+          });
+          
+          // Try fallback: Simple text message instead of template
+          console.log('🔄 Attempting fallback: Simple text message...');
+          
+          const fallbackResponse = await fetch(`${GUPSHUP_API_BASE}/wa/api/v1/msg`, {
+            method: 'POST',
+            headers: {
+              'apikey': process.env.GUPSHUP_API_KEY,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              channel: 'whatsapp',
+              source: process.env.GUPSHUP_SOURCE_PHONE,
+              destination: fullPhoneNumber,
+              'src.name': process.env.GUPSHUP_APP_NAME,
+              message: `Your PrintEasy QR verification code is: ${otp}. Valid for ${OTP_EXPIRY_MINUTES} minutes. Do not share this code.`
+            })
+          });
 
-        console.log(`✅ WhatsApp OTP sent to ${phoneNumber}:`, result.messageId);
+          const fallbackResult = await fallbackResponse.json();
+          console.log(`🔍 Gupshup Fallback - Response Status: ${fallbackResponse.status}`);
+          console.log(`🔍 Gupshup Fallback - Response Body:`, fallbackResult);
+          
+          if (fallbackResponse.status !== 202) {
+            console.error('❌ Gupshup Fallback Also Failed:', fallbackResult);
+            throw new Error(fallbackResult.message || `Gupshup API Error: ${fallbackResponse.status}`);
+          }
+          
+          result = fallbackResult;
+          console.log(`✅ WhatsApp OTP sent via fallback to ${fullPhoneNumber}:`, result.messageId);
+        } else {
+          console.log(`✅ WhatsApp OTP sent successfully to ${fullPhoneNumber}:`, result.messageId);
+        }
       }
       
       return {
