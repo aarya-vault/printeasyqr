@@ -23,7 +23,18 @@ export default function UnifiedFloatingChatButton() {
     retry: 2,
   });
 
-  // Calculate total unread messages  
+  // 🚀 CRITICAL FIX: Get proper unread count from the correct endpoint
+  const { data: unreadData } = useQuery<{ unreadCount: number }>({
+    queryKey: [`/api/messages/unread-count`],
+    enabled: Boolean(user?.id),
+    refetchInterval: 10000, // Check every 10 seconds for real-time updates
+    retry: (failureCount, error: any) => {
+      if (error?.status === 401) return false;
+      return failureCount < 2;
+    }
+  });
+
+  // Legacy fallback: Calculate from orders if unread endpoint not available
   const { data: orders = [] } = useQuery<Order[]>({
     queryKey: user?.role === 'shop_owner' 
       ? [`/api/orders/shop/${shopData?.shop?.id}`]
@@ -35,14 +46,11 @@ export default function UnifiedFloatingChatButton() {
     retry: (failureCount, error: any) => {
       if (error?.status === 401) return false;
       return failureCount < 1;
-    },
-    select: (data) => {
-      if (!data) return [];
-      return data.filter(order => (order.unreadCount || order.unreadMessages) && (order.unreadCount || order.unreadMessages) > 0);
     }
   });
 
-  const totalUnreadMessages = orders.reduce((sum, order) => sum + (order.unreadCount || order.unreadMessages || 0), 0);
+  // 🚀 Use dedicated unread count API or fallback to order calculation
+  const totalUnreadMessages = unreadData?.unreadCount || 0;
 
   const handleChatOpen = () => {
     setIsChatOpen(true);

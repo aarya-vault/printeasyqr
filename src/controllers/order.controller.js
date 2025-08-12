@@ -538,8 +538,26 @@ class OrderController {
         return res.status(401).json({ message: 'Authentication required for older orders' });
       }
       
+      // 🚀 CRITICAL DEBUG: Add detailed logging for order data transformation
+      console.log('🔍 ORDER API DEBUG:', {
+        orderId,
+        hasOrder: !!order,
+        orderStatus: order?.status,
+        hasFiles: !!order?.files,
+        filesType: typeof order?.files,
+        createdAt: order?.createdAt,
+        customerId: order?.customerId,
+        shopId: order?.shopId
+      });
+
       const transformedOrder = OrderController.transformOrderData(order);
-      res.json({ order: transformedOrder });
+      console.log('🔍 TRANSFORMED ORDER:', {
+        transformedId: transformedOrder?.id,
+        transformedStatus: transformedOrder?.status,
+        transformedFiles: transformedOrder?.files?.length || 0
+      });
+      
+      res.json(transformedOrder);
     } catch (error) {
       console.error('Get order error:', error);
       res.status(500).json({ message: 'Failed to get order' });

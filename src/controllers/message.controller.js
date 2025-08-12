@@ -1,6 +1,7 @@
 import { Message, Order, User, Shop } from '../models/index.js';
 import { Op } from 'sequelize';
 import { sendToUser } from '../utils/websocket.js';
+import { uploadFilesToObjectStorage } from '../utils/objectStorageUpload.js';
 
 class MessageController {
   // Data transformation helper for consistent API responses
@@ -56,15 +57,21 @@ class MessageController {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
-      // Handle file uploads
+      // 🚀 OBJECT STORAGE FIX: Upload files to object storage for chat attachments
       let fileData = null;
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        fileData = req.files.map(file => ({
-          originalName: file.originalname,
-          filename: file.filename,
-          size: file.size,
-          mimetype: file.mimetype
-        }));
+        console.log(`📤 Processing ${req.files.length} files for chat message object storage upload...`);
+        try {
+          const uploadedFiles = await uploadFilesToObjectStorage(req.files);
+          fileData = uploadedFiles;
+          console.log(`✅ Successfully uploaded ${uploadedFiles.length} files for chat message`);
+        } catch (uploadError) {
+          console.error('❌ Chat message object storage upload failed:', uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload files to storage',
+            error: uploadError.message 
+          });
+        }
       }
       
       const message = await Message.create({

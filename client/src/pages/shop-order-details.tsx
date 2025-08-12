@@ -45,9 +45,24 @@ export default function ShopOrderDetails() {
   const { orderId } = useParams();
   const { toast } = useToast();
 
-  const { data: order, isLoading } = useQuery<OrderDetails>({
+  const { data: order, isLoading, error } = useQuery<OrderDetails>({
     queryKey: [`/api/orders/${orderId}`],
     enabled: !!orderId,
+    retry: (failureCount, error: any) => {
+      if (error?.status === 404) return false;
+      return failureCount < 2;
+    },
+    staleTime: 30000, // Keep data fresh for 30 seconds
+  });
+
+  // 🚀 CRITICAL DEBUG: Log order data to identify the vanishing issue
+  console.log('🔍 ORDER DETAILS DEBUG:', {
+    orderId,
+    order,
+    isLoading,
+    error,
+    hasData: !!order,
+    orderKeys: order ? Object.keys(order) : null
   });
 
   const handlePrintFile = async (file: any) => {
@@ -148,6 +163,21 @@ export default function ShopOrderDetails() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-yellow"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Order</h2>
+          <p className="text-gray-500 mb-4">{error.message || 'Failed to load order details'}</p>
+          <Link href="/shop-dashboard">
+            <Button>Back to Dashboard</Button>
+          </Link>
+        </Card>
       </div>
     );
   }
