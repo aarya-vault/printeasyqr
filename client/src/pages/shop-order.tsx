@@ -23,7 +23,7 @@ import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinne
 import { Shop, OrderFormInput } from '@shared/types';
 import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
 
-import { DemoBanner } from '@/components/demo-banner';
+
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -523,8 +523,7 @@ export default function ShopOrder() {
 
       </div>
 
-      {/* Demo Banner */}
-      <DemoBanner />
+
     </div>
   );
 }
