@@ -258,6 +258,18 @@ export default function RedesignedHomepage() {
                       {loginLoading ? 'Connecting...' : 'Access Dashboard'}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
+                    
+                    <Button 
+                      onClick={() => {
+                        localStorage.clear();
+                        window.location.reload();
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs mt-2 h-7 border-gray-300 text-gray-600 hover:bg-gray-50"
+                    >
+                      🔧 Clear Session (Test OTP Flow)
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
