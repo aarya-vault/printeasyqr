@@ -88,7 +88,18 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
       const dayKey = day.toLowerCase();
       const hours = shop.workingHours?.[dayKey];
       
-      if (!hours || hours.closed) {
+      // Check if explicitly closed or missing hours 
+      if (!hours || hours.closed === true) {
+        return {
+          day: dayNames[index],
+          schedule: "Closed",
+          is24Hours: false,
+          status: "closed"
+        };
+      }
+      
+      // Check if hours object exists but missing open/close times
+      if (hours && !hours.open && !hours.close && !hours.isOpen) {
         return {
           day: dayNames[index],
           schedule: "Closed",

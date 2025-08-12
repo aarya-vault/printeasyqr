@@ -156,10 +156,6 @@ const Shop = sequelize.define('Shop', {
     allowNull: true,
     field: 'qr_code'
   },
-  rating: {
-    type: DataTypes.DECIMAL(3, 2),
-    defaultValue: 0.00
-  },
   totalOrders: {
     type: DataTypes.INTEGER,
     allowNull: false,

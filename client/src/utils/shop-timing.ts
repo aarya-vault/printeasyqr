@@ -59,9 +59,15 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     todayHours
   });
 
-  // If day is explicitly marked as closed
-  if (!todayHours || todayHours.closed) {
-    console.log('❌ SHOP TIMING - Shop is closed today');
+  // If day is explicitly marked as closed or missing required fields
+  if (!todayHours || todayHours.closed === true) {
+    console.log('❌ SHOP TIMING - Shop is explicitly closed today');
+    return false;
+  }
+  
+  // Check if hours object exists but missing isOpen flag or open/close times
+  if (!todayHours.isOpen && !todayHours.open && !todayHours.close) {
+    console.log('❌ SHOP TIMING - Shop has no valid hours defined for today');
     return false;
   }
 
