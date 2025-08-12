@@ -19,7 +19,7 @@ import {
   Zap
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderDetails {
@@ -61,12 +61,13 @@ export default function ShopOrderDetails() {
   };
 
   const handleDownloadFile = (file: any) => {
-    const link = document.createElement('a');
-    link.href = `/uploads/${file.filename || file}`;
-    link.download = file.originalName || file.filename || 'file';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      downloadFile(file);
+      toast({ title: 'Download started', description: `Downloading ${file.originalName || file.filename}` });
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({ title: 'Download failed', description: 'Unable to download file', variant: 'destructive' });
+    }
   };
 
   const handlePrintAll = async () => {
@@ -89,15 +90,22 @@ export default function ShopOrderDetails() {
     }
   };
 
-  const handleDownloadAll = () => {
+  const handleDownloadAll = async () => {
     if (order?.files) {
-      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-      if (files.length > 0) {
-        files.forEach((file: any, index: number) => {
-          setTimeout(() => {
-            handleDownloadFile(file);
-          }, index * 300); // Stagger downloads by 300ms
-        });
+      try {
+        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+        if (files.length > 0) {
+          toast({ title: `Downloading ${files.length} files...` });
+          
+          await downloadAllFiles(files, (current, total) => {
+            if (current === total) {
+              toast({ title: `All ${total} files downloaded` });
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error downloading files:', error);
+        toast({ title: 'Download failed', description: 'Unable to download files', variant: 'destructive' });
       }
     }
   };
