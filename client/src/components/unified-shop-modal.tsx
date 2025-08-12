@@ -139,7 +139,7 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
             <Store className="w-6 h-6 mr-3 text-brand-yellow" />
             {shop.name}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="mt-2">
             <Badge className={`${shopStatus.className} text-sm px-3 py-1`}>
               {shopStatus.isOpen ? (
                 <CheckCircle className="w-4 h-4 mr-2" />

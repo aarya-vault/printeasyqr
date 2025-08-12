@@ -32,9 +32,9 @@ export default function UnifiedShopCard({
       onClick={onClick}
     >
       <CardContent className="p-4">
-        {/* Shop Image Section */}
-        <div className="relative mb-4">
-          {shop.exteriorImage ? (
+        {/* Only show exterior image if it exists */}
+        {shop.exteriorImage && (
+          <div className="relative mb-4">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
               <img
                 src={shop.exteriorImage}
@@ -43,34 +43,42 @@ export default function UnifiedShopCard({
                   isUnlocked ? 'opacity-100' : 'opacity-60 grayscale'
                 }`}
                 onError={(e) => {
-                  // Fallback to placeholder if image fails to load
+                  // Hide entire image section if fails to load
                   const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
+                  const imageContainer = target.closest('.relative');
+                  if (imageContainer) {
+                    (imageContainer as HTMLElement).style.display = 'none';
+                  }
                 }}
               />
-              {/* Fallback placeholder */}
-              <div 
-                className={`w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center ${
-                  isUnlocked ? 'text-gray-500' : 'text-gray-400'
-                }`}
-                style={{ display: 'none' }}
-              >
-                <Store className="w-12 h-12" />
-              </div>
             </div>
-          ) : (
-            /* No image placeholder */
-            <div className={`aspect-video w-full rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center ${
-              isUnlocked ? 'text-gray-500' : 'text-gray-400'
-            }`}>
-              <Store className="w-12 h-12" />
-            </div>
-          )}
-          
-          {/* Status badges overlay */}
-          <div className="absolute top-2 left-2 flex gap-2">
+            
+            {/* Status badges overlay on image */}
+            <div className="absolute top-2 left-2 flex gap-2">
+              {isCurrentlyOpen && shop.isOnline ? (
+                <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Open Now
+              </Badge>
+            ) : (
+              <Badge className="bg-gray-100 text-gray-600 text-xs px-2 py-1">
+                <AlertCircle className="w-3 h-3 mr-1" />
+                Closed
+              </Badge>
+            )}
+            
+            {shop.acceptsWalkinOrders && (
+              <Badge className="bg-[#FFBF00]/20 text-black border border-[#FFBF00]/40 text-xs px-2 py-1">
+                Walk-in
+              </Badge>
+            )}
+          </div>
+          </div>
+        )}
+
+        {/* Status badges when no image */}
+        {!shop.exteriorImage && (
+          <div className="flex gap-2 mb-4">
             {isCurrentlyOpen && shop.isOnline ? (
               <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1">
                 <CheckCircle className="w-3 h-3 mr-1" />
@@ -89,7 +97,7 @@ export default function UnifiedShopCard({
               </Badge>
             )}
           </div>
-        </div>
+        )}
 
         {/* Shop Header */}
         <div className="mb-3">
