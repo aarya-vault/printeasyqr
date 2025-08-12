@@ -60,13 +60,13 @@ export default function ShopOrderDetails() {
     }
   };
 
-  const handleDownloadFile = (file: any) => {
+  const handleDownloadFile = async (file: any) => {
     try {
-      downloadFile(file);
+      await downloadFile(file);
       toast({ title: 'Download started', description: `Downloading ${file.originalName || file.filename}` });
     } catch (error) {
       console.error('Error downloading file:', error);
-      toast({ title: 'Download failed', description: 'Unable to download file', variant: 'destructive' });
+      toast({ title: 'Download failed', description: (error as Error).message || 'Unable to download file', variant: 'destructive' });
     }
   };
 
