@@ -167,6 +167,12 @@ const Shop = sequelize.define('Shop', {
     type: DataTypes.TEXT,
     allowNull: true,
     field: 'exterior_image'
+  },
+  // Google Maps Integration
+  googleMapsLink: {
+    type: DataTypes.STRING(1000),
+    allowNull: true,
+    field: 'google_maps_link'
   }
 }, {
   tableName: 'shops',
