@@ -105,61 +105,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
+  // 🚨 DEPRECATED LEGACY LOGIN - USE OTP FLOW INSTEAD
   const login = async (credentials: { phone?: string; email?: string; password?: string; name?: string }): Promise<User> => {
     setIsLoading(true);
     try {
-      let endpoint = '/api/auth/email-login'; // Default to email login
-      let body: any = {};
-
+      // For phone-based login, redirect to OTP flow
       if (credentials.phone) {
-        // Customer phone-based login
-        endpoint = '/api/auth/phone-login';
-        body = { phone: credentials.phone };
-        if (credentials.name) {
-          body.name = credentials.name;
+        console.log('🚨 DEPRECATED: phone-login called, redirecting to OTP flow');
+        throw new Error('Phone login must use WhatsApp OTP verification. Please use the OTP flow instead.');
+      }
+
+      // Only allow email+password login for shop owners and admins
+      if (credentials.email && credentials.password) {
+        const response = await fetch('/api/auth/email-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Login failed');
         }
-      } else if (credentials.email && credentials.password) {
-        // Shop owner or admin email+password login
-        endpoint = '/api/auth/email-login';
-        body = { email: credentials.email, password: credentials.password };
+
+        const userData = await response.json();
+        
+        // Store JWT token if provided
+        if (userData.token) {
+          localStorage.setItem('authToken', userData.token);
+          console.log('🔑 JWT Token stored');
+        }
+        
+        // Set user immediately
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setIsSessionVerified(true);
+        console.log('✅ Email Login Success:', userData.role, userData.email);
+        
+        return userData;
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
-      }
-
-      const userData = await response.json();
-      
-      // Store JWT token if provided
-      if (userData.token) {
-        localStorage.setItem('authToken', userData.token);
-        console.log('🔑 JWT Token stored');
-      }
-      
-      // Set user immediately - name modal will show in dashboard if needed
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setIsSessionVerified(true);
-      console.log('✅ Login Success:', userData.role, userData.email || userData.phone);
-      
-      // Save persistent user data for auto-fill
-      const persistentData: Partial<PersistentUserData> = {};
-      if (userData.phone) persistentData.phone = userData.phone;
-      if (userData.name) persistentData.name = userData.name;
-      if (userData.email) persistentData.email = userData.email;
-      savePersistentUserData(persistentData);
-      
-      return userData;
+      throw new Error('Invalid login credentials');
     } catch (error) {
       console.error('Login error:', error);
       throw error;

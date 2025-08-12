@@ -77,7 +77,7 @@ export default function RedesignedHomepage() {
     try {
       console.log('🔍 Homepage Login: Requesting OTP for', customerPhone);
       
-      // Always request OTP for new logins - simplified flow
+      // 🚀 SMART OTP-FIRST FLOW - Check JWT token, then OTP if needed
       const result = await sendWhatsAppOTP(customerPhone);
       
       if (result.skipOTP) {
