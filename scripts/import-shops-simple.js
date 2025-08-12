@@ -20,6 +20,51 @@ const pool = new Pool({
 function parseOpeningHours(data) {
   const workingHours = {};
   
+  // Helper function to convert time format like "10 AM" to "10:00"
+  function convertTo24Hour(timeStr) {
+    const [time, period] = timeStr.trim().split(' ');
+    let [hours, minutes] = time.split(':');
+    
+    if (!minutes) minutes = '00';
+    hours = parseInt(hours);
+    
+    if (period.toUpperCase() === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (period.toUpperCase() === 'AM' && hours === 12) {
+      hours = 0;
+    }
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes}`;
+  }
+  
+  // Helper function to parse hours string like "10 AM to 10 PM"
+  function parseHoursString(hoursStr) {
+    if (!hoursStr || hoursStr.toLowerCase().includes('closed')) {
+      return { open: '09:00', close: '18:00', closed: true };
+    }
+    
+    // Check for 24/7 or similar patterns
+    if (hoursStr.toLowerCase().includes('24') || hoursStr.toLowerCase().includes('always')) {
+      return { open: '00:00', close: '23:59', closed: false, is24Hours: true };
+    }
+    
+    // Parse "10 AM to 10 PM" format
+    const timePattern = /(\d{1,2}(?::\d{2})?\s*(?:AM|PM))\s*(?:to|-)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM))/i;
+    const match = hoursStr.match(timePattern);
+    
+    if (match) {
+      const [, openTime, closeTime] = match;
+      return {
+        open: convertTo24Hour(openTime),
+        close: convertTo24Hour(closeTime),
+        closed: false
+      };
+    }
+    
+    // Default fallback
+    return { open: '09:00', close: '18:00', closed: false };
+  }
+  
   for (let i = 0; i < 7; i++) {
     const dayKey = `openingHours/${i}/day`;
     const hoursKey = `openingHours/${i}/hours`;
@@ -28,20 +73,28 @@ function parseOpeningHours(data) {
       const day = data[dayKey].toLowerCase();
       const hours = data[hoursKey];
       
-      // Convert day names to our format
+      // Convert day names to our format (lowercase keys as per database schema)
       const dayMap = {
-        'monday': 'Monday',
-        'tuesday': 'Tuesday', 
-        'wednesday': 'Wednesday',
-        'thursday': 'Thursday',
-        'friday': 'Friday',
-        'saturday': 'Saturday',
-        'sunday': 'Sunday'
+        'monday': 'monday',
+        'tuesday': 'tuesday', 
+        'wednesday': 'wednesday',
+        'thursday': 'thursday',
+        'friday': 'friday',
+        'saturday': 'saturday',
+        'sunday': 'sunday'
       };
       
-      if (dayMap[day] && hours !== 'Closed') {
-        workingHours[dayMap[day]] = hours;
+      if (dayMap[day]) {
+        workingHours[dayMap[day]] = parseHoursString(hours);
       }
+    }
+  }
+  
+  // Ensure all 7 days are present with defaults if missing
+  const allDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  for (const day of allDays) {
+    if (!workingHours[day]) {
+      workingHours[day] = { open: '09:00', close: '18:00', closed: true };
     }
   }
   

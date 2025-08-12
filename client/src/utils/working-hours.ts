@@ -137,13 +137,13 @@ export function getWorkingHoursDisplay(workingHours: WorkingHours | string): str
     }
   }
   
-  return 'Standard business hours';
+  return 'Business hours not available';
 }
 
 /**
  * Format working hours for display in chronological order
  */
-export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string): Array<{day: string, hours: string}> {
+export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string | any): Array<{day: string, hours: string}> {
   if (typeof workingHours === 'string') {
     return [{
       day: 'Daily',
@@ -151,19 +151,83 @@ export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string
     }];
   }
   
+  // Helper function to parse legacy string format like "10 AM to 10 PM"
+  function parseLegacyHoursString(hoursStr: string): string {
+    if (!hoursStr || hoursStr.toLowerCase().includes('closed')) {
+      return 'Closed';
+    }
+    
+    if (hoursStr.toLowerCase().includes('24') || hoursStr.toLowerCase().includes('always')) {
+      return '24/7 Open';
+    }
+    
+    // Parse "10 AM to 10 PM" format and convert to 24-hour
+    const timePattern = /(\d{1,2}(?::\d{2})?\s*(?:AM|PM))\s*(?:to|-)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM))/i;
+    const match = hoursStr.match(timePattern);
+    
+    if (match) {
+      const [, openTime, closeTime] = match;
+      
+      function convertTo24Hour(timeStr: string): string {
+        const parts = timeStr.trim().split(' ');
+        if (parts.length < 2) {
+          // If no AM/PM, assume it's already 24-hour format
+          return timeStr.includes(':') ? timeStr : `${timeStr}:00`;
+        }
+        
+        const [time, period] = parts;
+        let [hours, minutes] = time.split(':');
+        
+        if (!minutes) minutes = '00';
+        let hourNum = parseInt(hours);
+        
+        if (period && period.toUpperCase() === 'PM' && hourNum !== 12) {
+          hourNum += 12;
+        } else if (period && period.toUpperCase() === 'AM' && hourNum === 12) {
+          hourNum = 0;
+        }
+        
+        return `${hourNum.toString().padStart(2, '0')}:${minutes}`;
+      }
+      
+      return `${convertTo24Hour(openTime)} - ${convertTo24Hour(closeTime)}`;
+    }
+    
+    return hoursStr; // Return as-is if can't parse
+  }
+  
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   
   return days.map(day => {
-    const dayHours = workingHours[day];
-    let hours = 'Standard hours';
+    // Try different key formats (lowercase, capitalized, etc.)
+    const dayKeys = [day, day.charAt(0).toUpperCase() + day.slice(1)];
+    let dayHours = null;
+    
+    for (const dayKey of dayKeys) {
+      if (workingHours[dayKey]) {
+        dayHours = workingHours[dayKey];
+        break;
+      }
+    }
+    
+    let hours = 'Details not available';
     
     if (dayHours) {
-      if (dayHours.closed) {
-        hours = 'Closed';
-      } else if (dayHours.is24Hours) {
-        hours = '24/7 Open';
-      } else if (dayHours.open && dayHours.close) {
-        hours = `${dayHours.open} - ${dayHours.close}`;
+      // Handle new structured format: { open: "10:00", close: "22:00", closed: false }
+      if (typeof dayHours === 'object' && dayHours.open && dayHours.close) {
+        if (dayHours.closed === true) {
+          hours = 'Closed';
+        } else if (dayHours.isOpen === false) { // Handle legacy isOpen field
+          hours = 'Closed';
+        } else if (dayHours.is24Hours) {
+          hours = '24/7 Open';
+        } else {
+          hours = `${dayHours.open} - ${dayHours.close}`;
+        }
+      }
+      // Handle legacy string format: "10 AM to 10 PM"
+      else if (typeof dayHours === 'string') {
+        hours = parseLegacyHoursString(dayHours);
       }
     }
     
