@@ -22,8 +22,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
 import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
-import { getFeatureFlag } from '@/config/features';
-import { OTPVerificationModal } from '@/components/otp-verification-modal';
 
 import { DemoBanner } from '@/components/demo-banner';
 
@@ -52,11 +50,7 @@ export default function ShopOrder() {
     uploadSpeed: number;
     estimatedTime: number;
   } | null>(null);
-  // 🔧 CONFIGURABLE OTP VERIFICATION SYSTEM
-  const isOTPEnabled = getFeatureFlag('WHATSAPP_OTP_ENABLED');
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
-  const { getPersistentUserData, user, sendWhatsAppOTP, verifyWhatsAppOTP } = useAuth();
+  const { getPersistentUserData, user } = useAuth();
 
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<Shop>({
@@ -244,64 +238,11 @@ export default function ShopOrder() {
       return;
     }
 
-    // 🔧 CONFIGURABLE OTP VERIFICATION FLOW
-    if (isOTPEnabled) {
-      // ✅ OTP VERIFICATION ENABLED - Full verification flow
-      console.log('🔐 OTP Verification: ENABLED - Starting verification flow');
-      
-      // Store order data for after OTP verification
-      setPendingOrderData({ ...data, orderType });
-
-      // Smart Authentication Check: Check if user is already authenticated OR if JWT exists for this phone number
-      if (user && user.phone === data.contactNumber) {
-        // User is already verified with same phone number, proceed with order
-        createOrderMutation.mutate({ ...data, orderType });
-        return;
-      }
-
-      // Check for existing authentication for this phone number
-      try {
-        const result = await sendWhatsAppOTP(data.contactNumber);
-        
-        if (result.skipOTP && result.user) {
-          // User already has valid JWT token for this phone number, skip OTP
-          toast({
-            title: 'Welcome back!',
-            description: 'You are already authenticated. Proceeding with order.',
-          });
-          createOrderMutation.mutate({ ...data, orderType });
-          return;
-        }
-        
-        // OTP verification needed
-        setShowOtpModal(true);
-        toast({
-          title: 'OTP Verification Required',
-          description: `Demo mode: Enter any 6-digit code to verify ${data.contactNumber}`,
-        });
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Authentication Check Failed',
-          description: 'Unable to verify authentication status. Please try again.',
-        });
-      }
-    } else {
-      // 🚫 OTP VERIFICATION DISABLED - Direct order submission
-      console.log('🔐 OTP Verification: DISABLED - Direct order submission');
-      createOrderMutation.mutate({ ...data, orderType });
-    }
+    // Direct order creation without OTP verification
+    createOrderMutation.mutate({ ...data, orderType });
   };
 
-  // 🔧 CONFIGURABLE OTP VERIFICATION HANDLER
-  const handleOtpVerified = (userData: any) => {
-    console.log('✅ OTP Verification: Successful for user', userData);
-    setShowOtpModal(false);
-    if (pendingOrderData) {
-      createOrderMutation.mutate(pendingOrderData);
-      setPendingOrderData(null);
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -556,7 +497,7 @@ export default function ShopOrder() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FFBF00] text-black hover:bg-black hover:text-[#FFBF00] transition-all duration-300"
-                  disabled={createOrderMutation.isPending || (isOTPEnabled && showOtpModal)}
+                  disabled={createOrderMutation.isPending}
                 >
                   {createOrderMutation.isPending ? (
                     <>
@@ -567,15 +508,10 @@ export default function ShopOrder() {
                         <span>Creating Order...</span>
                       )}
                     </>
-                  ) : (isOTPEnabled && showOtpModal) ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span>Verifying OTP...</span>
-                    </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      {isOTPEnabled && !user ? 'Submit Order with OTP' : 'Submit Order'}
+                      Submit Order
                     </>
                   )}
                 </Button>
@@ -584,18 +520,7 @@ export default function ShopOrder() {
           </CardContent>
         </Card>
 
-        {/* 🔧 CONFIGURABLE OTP VERIFICATION MODAL */}
-        {isOTPEnabled && (
-          <OTPVerificationModal
-            isOpen={showOtpModal}
-            onClose={() => {
-              setShowOtpModal(false);
-              setPendingOrderData(null);
-            }}
-            phoneNumber={pendingOrderData?.contactNumber || ''}
-            onVerificationSuccess={handleOtpVerified}
-          />
-        )}
+
       </div>
 
       {/* Demo Banner */}
