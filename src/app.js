@@ -174,7 +174,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 
-// Object Storage serving routes - FIXED APPROACH
+// Object Storage serving routes - REDIRECT APPROACH  
 app.get('/objects/*', async (req, res) => {
   try {
     const objectPath = req.path.replace('/objects/', '');
@@ -206,25 +206,10 @@ app.get('/objects/*', async (req, res) => {
     }
 
     const { signed_url: signedUrl } = await signedUrlResponse.json();
-    console.log('✅ Got signed URL, fetching object...');
+    console.log('✅ Got signed URL, redirecting to:', signedUrl);
     
-    // Fetch the object and stream it back
-    const objectResponse = await fetch(signedUrl);
-    if (!objectResponse.ok) {
-      console.error('Failed to fetch object:', objectResponse.status);
-      return res.status(404).json({ error: 'Object not found' });
-    }
-
-    // Set appropriate headers
-    res.set({
-      'Content-Type': objectResponse.headers.get('content-type') || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=3600',
-    });
-
-    console.log('🖼️ Streaming image back to client...');
-    
-    // Stream the response
-    objectResponse.body.pipe(res);
+    // Simple redirect to the signed URL - let the browser handle it directly
+    res.redirect(signedUrl);
   } catch (error) {
     console.error('Error serving object:', error);
     res.status(500).json({ error: 'Failed to serve object' });
