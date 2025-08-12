@@ -281,19 +281,27 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
 
   const handlePrintFile = async (file: any) => {
     try {
-      await printFile(file);
+      await printFile(file, currentOrder.status);
       toast({ title: `${file.originalName || file.filename} sent to print` });
-    } catch (error) {
-      toast({ title: 'Error printing file', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot print file', 
+        description: error.message || 'File may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 
   const handleDownloadFile = (file: any) => {
     try {
-      downloadFile(file);
+      downloadFile(file, currentOrder.status);
       toast({ title: `${file.originalName || file.filename} downloaded` });
-    } catch (error) {
-      toast({ title: 'Error downloading file', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot download file', 
+        description: error.message || 'File may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -305,10 +313,14 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
           if (current === total) {
             toast({ title: `All ${total} files sent to print` });
           }
-        });
+        }, currentOrder.status);
       }
-    } catch (error) {
-      toast({ title: 'Error printing files', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot print files', 
+        description: error.message || 'Files may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -316,14 +328,18 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     try {
       if (currentFiles.length > 0) {
         toast({ title: `Downloading ${currentFiles.length} files...` });
-        await downloadAllFiles(currentFiles, (current, total) => {
+        downloadAllFiles(currentFiles, (current, total) => {
           if (current === total) {
             toast({ title: `All ${total} files downloaded` });
           }
-        });
+        }, currentOrder.status);
       }
-    } catch (error) {
-      toast({ title: 'Error downloading files', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot download files', 
+        description: error.message || 'Files may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 

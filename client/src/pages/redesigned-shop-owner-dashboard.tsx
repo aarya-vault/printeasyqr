@@ -401,11 +401,15 @@ export default function RedesignedShopOwnerDashboard() {
             if (current === total) {
               toast({ title: `All ${total} files sent to print` });
             }
-          });
+          }, order.status);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error printing files:', error);
-        toast({ title: 'Error opening print dialogs', variant: 'destructive' });
+        toast({ 
+          title: 'Cannot print files', 
+          description: error.message || 'Files may no longer be available',
+          variant: 'destructive' 
+        });
       }
     }
   };
@@ -414,33 +418,20 @@ export default function RedesignedShopOwnerDashboard() {
     if (order.files) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-        let downloadCount = 0;
         
-        files.forEach((file: any, index: number) => {
-          setTimeout(() => {
-            const fileUrl = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename || file}`;
-            const link = document.createElement('a');
-            link.href = fileUrl;
-            link.download = file.originalName || file.filename || `file_${index + 1}`;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            downloadCount++;
-            if (downloadCount === files.length) {
-              toast({
-                title: "Downloads Complete",
-                description: `${files.length} files downloaded successfully`
-              });
-            }
-          }, index * 300);
-        });
-      } catch (error) {
+        downloadAllFiles(files, (current, total) => {
+          if (current === total) {
+            toast({
+              title: "Downloads Complete",
+              description: `${files.length} files downloaded successfully`
+            });
+          }
+        }, order.status);
+      } catch (error: any) {
         console.error('Error downloading files:', error);
         toast({
-          title: "Download Error",
-          description: "Failed to download files",
+          title: "Cannot download files",
+          description: error.message || 'Files may no longer be available',
           variant: "destructive"
         });
       }

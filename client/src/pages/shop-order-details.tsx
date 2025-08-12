@@ -52,21 +52,29 @@ export default function ShopOrderDetails() {
 
   const handlePrintFile = async (file: any) => {
     try {
-      await printFile(file);
+      await printFile(file, order?.status);
       toast({ title: 'File sent to print' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error printing file:', error);
-      toast({ title: 'Error printing file', variant: 'destructive' });
+      toast({ 
+        title: 'Cannot print file', 
+        description: error.message || 'File may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 
   const handleDownloadFile = (file: any) => {
     try {
-      downloadFile(file);
+      downloadFile(file, order?.status);
       toast({ title: 'Download started', description: `Downloading ${file.originalName || file.filename}` });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error downloading file:', error);
-      toast({ title: 'Download failed', description: 'Unable to download file', variant: 'destructive' });
+      toast({ 
+        title: 'Cannot download file', 
+        description: error.message || 'File may no longer be available',
+        variant: 'destructive' 
+      });
     }
   };
 
@@ -81,11 +89,15 @@ export default function ShopOrderDetails() {
             if (current === total) {
               toast({ title: `All ${total} files sent to print` });
             }
-          });
+          }, order.status);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error printing files:', error);
-        toast({ title: 'Error printing files', variant: 'destructive' });
+        toast({ 
+          title: 'Cannot print files', 
+          description: error.message || 'Files may no longer be available',
+          variant: 'destructive' 
+        });
       }
     }
   };
@@ -99,11 +111,15 @@ export default function ShopOrderDetails() {
             if (current === total) {
               toast({ title: `All ${total} files downloaded` });
             }
-          });
+          }, order.status);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error downloading files:', error);
-        toast({ title: 'Download failed', description: 'Unable to download files', variant: 'destructive' });
+        toast({ 
+          title: 'Cannot download files', 
+          description: error.message || 'Files may no longer be available',
+          variant: 'destructive' 
+        });
       }
     }
   };
