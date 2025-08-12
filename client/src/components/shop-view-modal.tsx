@@ -104,7 +104,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          {/* Status Section - Clean */}
+          {/* Status Section - Force Refresh */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
             {shop.isOnline ? (
               <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2">

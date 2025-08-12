@@ -169,7 +169,7 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
                 Walk-in Orders
               </span>
             )}
-            {shop.totalOrders && shop.totalOrders > 0 && (
+            {(shop.totalOrders || 0) > 0 && (
               <div className="flex items-center text-sm text-gray-600">
                 <Star className="w-4 h-4 mr-1 text-brand-yellow" />
                 Successfully completed {shop.totalOrders} orders
