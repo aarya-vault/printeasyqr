@@ -142,7 +142,10 @@ class WhatsAppOTPService {
               source: process.env.GUPSHUP_SOURCE_PHONE,
               destination: fullPhoneNumber,
               'src.name': process.env.GUPSHUP_APP_NAME,
-              message: `Your PrintEasy QR verification code is: ${otp}. Valid for ${OTP_EXPIRY_MINUTES} minutes. Do not share this code.`
+              message: JSON.stringify({
+                type: 'text',
+                text: `Your PrintEasy QR verification code is: ${otp}. Valid for ${OTP_EXPIRY_MINUTES} minutes. Do not share this code.`
+              })
             })
           });
 
@@ -174,7 +177,10 @@ class WhatsAppOTPService {
                 source: process.env.GUPSHUP_SOURCE_PHONE,
                 destination: fullPhoneNumber,
                 'src.name': process.env.GUPSHUP_APP_NAME,
-                message: `TEST: Your OTP is ${otp}. If you receive this, templates work but delivery is delayed.`
+                message: JSON.stringify({
+                  type: 'text',
+                  text: `TEST: Your OTP is ${otp}. If you receive this, templates work but delivery is delayed.`
+                })
               })
             });
             
