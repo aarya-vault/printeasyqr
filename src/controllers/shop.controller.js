@@ -50,6 +50,7 @@ class ShopController {
       rating: shopData.rating ? parseFloat(shopData.rating) : 0,
       totalOrders: shopData.totalOrders || 0,
       exteriorImage: shopData.exteriorImage || null,
+      googleMapsLink: shopData.googleMapsLink || null,
       // Frontend compatibility aliases
       publicName: shopData.publicOwnerName,
       publicAddress: shopData.completeAddress || shopData.address,
@@ -485,6 +486,9 @@ class ShopController {
         
         // Working Hours
         workingHours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
+        
+        // Google Maps Link
+        googleMapsLink: updateData.googleMapsLink,
         
         // Shop Settings
         isOnline: updateData.isOnline,

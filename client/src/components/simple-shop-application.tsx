@@ -35,6 +35,7 @@ const applicationSchema = z.object({
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   pinCode: z.string().min(1, 'Pin code is required'),
+  googleMapsLink: z.string().url('Please enter a valid Google Maps URL').optional().or(z.literal('')),
   
   // Business Details
   yearsOfExperience: z.string().min(1, 'Years of experience is required'),
@@ -121,6 +122,7 @@ export default function SimpleShopApplication() {
       city: '',
       state: '',
       pinCode: '',
+      googleMapsLink: '',
       yearsOfExperience: '',
       servicesOffered: [],
       customServices: [],
@@ -150,6 +152,7 @@ export default function SimpleShopApplication() {
         city: data.city,
         state: data.state,
         pinCode: data.pinCode,
+        googleMapsLink: data.googleMapsLink || null,
         yearsOfExperience: data.yearsOfExperience,
         services: [...data.servicesOffered, ...(data.customServices?.filter(Boolean) || [])],
         customServices: data.customServices?.filter(Boolean) || [],
@@ -465,6 +468,26 @@ export default function SimpleShopApplication() {
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="googleMapsLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Maps Link (optional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="https://maps.google.com/..." 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <p className="text-xs text-gray-500">
+                          Paste your shop's Google Maps URL to help customers find you easily
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Business Details Section */}

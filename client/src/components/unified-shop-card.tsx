@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   MapPin, Clock, Phone, Printer, Eye, Lock, 
-  Users, Package, CheckCircle, AlertCircle, Store 
+  Users, Package, CheckCircle, AlertCircle, Store, ExternalLink 
 } from 'lucide-react';
 import { Shop } from '@/types/shop';
 import { isShopCurrentlyOpen, getWorkingHoursDisplay } from '@/utils/working-hours';
@@ -22,6 +22,13 @@ export default function UnifiedShopCard({
 }: UnifiedShopCardProps) {
   const isCurrentlyOpen = isShopCurrentlyOpen(shop.workingHours);
   const workingHoursDisplay = getWorkingHoursDisplay(shop.workingHours);
+
+  const handleGoogleMapsClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card onClick from firing
+    if (shop.googleMapsLink) {
+      window.open(shop.googleMapsLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <Card 
@@ -225,6 +232,18 @@ export default function UnifiedShopCard({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Google Maps Button - Only show if link exists and shop is unlocked */}
+            {shop.googleMapsLink && isUnlocked && (
+              <button
+                onClick={handleGoogleMapsClick}
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
+                title="Open in Google Maps"
+              >
+                <ExternalLink className="w-3 h-3 mr-1" />
+                Maps
+              </button>
+            )}
+
             {showUnlockStatus ? (
               isUnlocked ? (
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00] text-black">

@@ -274,6 +274,8 @@ class ShopApplicationController {
             ? JSON.parse(application.workingHours) 
             : application.workingHours,
           acceptsWalkinOrders: application.acceptsWalkinOrders !== undefined ? application.acceptsWalkinOrders : true,
+          // Google Maps Link
+          googleMapsLink: application.googleMapsLink || null,
           // Status
           isApproved: true,
           isPublic: true,

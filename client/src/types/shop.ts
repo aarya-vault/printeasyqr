@@ -48,6 +48,9 @@ export interface Shop {
   // Images
   exteriorImage?: string;
   
+  // Google Maps Integration
+  googleMapsLink?: string;
+  
   // QR and Metadata
   qrCode?: string;
   createdAt?: string;

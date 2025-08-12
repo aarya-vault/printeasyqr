@@ -34,7 +34,10 @@ interface ShopApplication {
   email: string;
   phoneNumber: string;
   completeAddress: string;
+  city: string;
+  state: string;
   pinCode: string;
+  googleMapsLink?: string;
   services: string[];
   customServices?: string[];
   equipment: string[];
@@ -482,6 +485,24 @@ export default function ShopApplicationEditModal({
                           readOnly={!!editingApplication.pinCode && editingApplication.pinCode.length === 6}
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-rich-black mb-2">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        Google Maps Link (Optional)
+                      </label>
+                      <Input
+                        value={editingApplication.googleMapsLink || ''}
+                        onChange={(e) => setEditingApplication({
+                          ...editingApplication,
+                          googleMapsLink: e.target.value
+                        })}
+                        placeholder="https://maps.google.com/..."
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Google Maps URL to help customers find the shop easily
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
