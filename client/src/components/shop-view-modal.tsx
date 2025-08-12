@@ -71,10 +71,9 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
     equipmentCount: allEquipment.length
   });
 
-  const calculateYearsOfExperience = (formationYear: number | string): number => {
-    const currentYear = new Date().getFullYear();
-    const year = typeof formationYear === 'string' ? parseInt(formationYear) : formationYear;
-    return Math.max(0, currentYear - year);
+  const calculateYearsOfExperience = (shop: any): number => {
+    // Always use yearsOfExperience field directly instead of calculating from formation year
+    return shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
   };
 
   return (
@@ -231,17 +230,17 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                       <div className="text-2xl font-bold text-brand-yellow mb-1">
-                        {shop.formationYear ? calculateYearsOfExperience(shop.formationYear) : shop.yearsOfExperience || '0'}
+                        {calculateYearsOfExperience(shop)}
                       </div>
                       <p className="text-sm text-gray-600">Years Experience</p>
                     </div>
-                    {shop.totalOrders > 0 && (
+                    {(shop.totalOrders || 0) > 0 && (
                       <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                         <div className="text-2xl font-bold text-brand-yellow mb-1">
                           {shop.totalOrders}
                         </div>
                         <p className="text-sm text-gray-600">
-                          Successfully completed {shop.totalOrders === 1 ? 'order' : 'orders'}
+                          Successfully completed {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}
                         </p>
                       </div>
                     )}
@@ -260,7 +259,8 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   {shop.workingHours ? (
                     <div className="space-y-2">
                       {dayNames.map(({ key, label }) => {
-                        const hours = shop.workingHours?.[key];
+                        // Use proper day name from dayNames mapping
+                        const hours = shop.workingHours?.[label]; // Use label (e.g., "Monday") instead of key (e.g., "monday")
                         return (
                           <div key={key} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">{label}</span>
@@ -275,7 +275,7 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                                 </Badge>
                               ) : (
                                 <span className="text-sm text-gray-600 font-medium">
-                                  {hours?.open || '09:00'} - {hours?.close || '18:00'}
+                                  {typeof hours === 'string' ? hours : `${hours?.open || '09:00'} - ${hours?.close || '18:00'}`}
                                 </span>
                               )}
                             </div>

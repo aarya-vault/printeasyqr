@@ -10,10 +10,9 @@ import {
 import { LocationDisplay } from '@/hooks/use-location-from-pincode';
 
 // Helper function to calculate years of experience
-const calculateYearsOfExperience = (formationYear: number | string): number => {
-  const currentYear = new Date().getFullYear();
-  const year = typeof formationYear === 'string' ? parseInt(formationYear) : formationYear;
-  return Math.max(0, currentYear - year);
+const calculateYearsOfExperience = (shop: Shop): number => {
+  // Always use yearsOfExperience field directly instead of calculating from formation year
+  return shop.yearsOfExperience ? parseInt(shop.yearsOfExperience.toString()) : 0;
 };
 
 interface Shop {
@@ -85,7 +84,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
     }
 
     return dayNames.map((day, index) => {
-      const dayKey = day.toLowerCase();
+      const dayKey = day; // Use proper day name like "Monday" instead of "monday"
       const hours = shop.workingHours?.[dayKey];
       
       // Check if explicitly closed or missing hours 
@@ -99,7 +98,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
       }
       
       // Check if hours object exists but missing open/close times
-      if (hours && !hours.open && !hours.close && !hours.isOpen) {
+      if (hours && !hours.open && !hours.close) {
         return {
           day: dayNames[index],
           schedule: "Closed",
@@ -114,6 +113,16 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
           schedule: "24/7 Open",
           is24Hours: true,
           status: "24hours"
+        };
+      }
+      
+      // Handle CSV format hours like "10 AM to 8:30 PM"
+      if (typeof hours === 'string') {
+        return {
+          day: dayNames[index],
+          schedule: hours,
+          is24Hours: false,
+          status: "open"
         };
       }
       
@@ -257,12 +266,12 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                   {shop.totalOrders > 0 && (
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                       <div className="text-2xl font-bold text-brand-yellow">{shop.totalOrders}</div>
-                      <p className="text-sm text-gray-600 mt-1">Successfully completed {shop.totalOrders === 1 ? 'order' : 'orders'}</p>
+                      <p className="text-sm text-gray-600 mt-1">Successfully completed {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}</p>
                     </div>
                   )}
                   <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                     <div className="text-2xl font-bold text-brand-yellow">
-                      {shop.formationYear ? calculateYearsOfExperience(shop.formationYear) : shop.yearsOfExperience || '0'}
+                      {calculateYearsOfExperience(shop)}
                     </div>
                     <p className="text-sm text-gray-600 mt-1">Years Experience</p>
                   </div>
