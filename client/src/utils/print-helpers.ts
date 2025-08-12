@@ -1,51 +1,48 @@
-// Direct print function - SINGLE PRINT CALL ONLY
+// Working print function - opens new window and prints immediately
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
-
-  return new Promise((resolve, reject) => {
-    // Create a hidden iframe for printing
-    const printFrame = document.createElement('iframe');
-    printFrame.style.position = 'absolute';
-    printFrame.style.top = '-9999px';
-    printFrame.style.left = '-9999px';
-    printFrame.style.width = '0px';
-    printFrame.style.height = '0px';
-    printFrame.style.border = 'none';
+  
+  return new Promise((resolve) => {
+    // Open file in new window
+    const printWindow = window.open(fileUrl, '_blank');
     
-    document.body.appendChild(printFrame);
-
-    // Set iframe source
-    printFrame.src = fileUrl;
-    
-    // Single load event handler
-    printFrame.onload = () => {
-      setTimeout(() => {
-        try {
-          if (printFrame.contentWindow) {
-            printFrame.contentWindow.focus();
-            printFrame.contentWindow.print();
-          }
-        } catch (e) {
-          console.error('Print failed', e);
-        }
-        
-        // Clean up after printing
+    if (printWindow) {
+      // Wait for window to load, then print
+      printWindow.onload = () => {
         setTimeout(() => {
-          if (document.body.contains(printFrame)) {
-            document.body.removeChild(printFrame);
-          }
+          printWindow.print();
+          printWindow.close();
           resolve();
         }, 1000);
-      }, 500); // Small delay after load
-    };
-
-    // Error handling
-    printFrame.onerror = () => {
-      if (document.body.contains(printFrame)) {
-        document.body.removeChild(printFrame);
-      }
-      reject(new Error('Failed to load file'));
-    };
+      };
+      
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        if (printWindow && !printWindow.closed) {
+          printWindow.print();
+          printWindow.close();
+        }
+        resolve();
+      }, 3000);
+    } else {
+      // If popup blocked, use iframe approach
+      const printFrame = document.createElement('iframe');
+      printFrame.style.display = 'none';
+      document.body.appendChild(printFrame);
+      
+      printFrame.src = fileUrl;
+      printFrame.onload = () => {
+        setTimeout(() => {
+          try {
+            printFrame.contentWindow?.print();
+          } catch (e) {
+            console.error('Print failed', e);
+          }
+          document.body.removeChild(printFrame);
+          resolve();
+        }, 1000);
+      };
+    }
   });
 };
 
