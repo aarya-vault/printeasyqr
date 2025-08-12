@@ -1,7 +1,7 @@
 import fs from 'fs';
 import csv from 'csv-parser';
 import bcrypt from 'bcrypt';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -211,16 +211,41 @@ async function importShops() {
         const ownerName = generateOwnerName(shopName);
         const workingHours = parseWorkingHours(row);
         const services = extractServices(row);
-        const phone = row.phone ? row.phone.replace(/[^\d]/g, '').slice(-10) : null;
-        const ownerPhone = row.phoneUnformatted ? row.phoneUnformatted.toString().slice(-10) : phone;
+        const rawPhone = row.phone || '';
+        
+        // Extract 10-digit phone number from Indian format (+91 XXXXX XXXXX)
+        let ownerPhone = null;
+        if (rawPhone && rawPhone.trim()) {
+          const phoneDigits = rawPhone.toString().replace(/[^\d]/g, '');
+          if (phoneDigits.length >= 10) {
+            ownerPhone = phoneDigits.slice(-10); // Get last 10 digits
+          }
+        }
+        
+        // Skip if no real phone number available
+        if (!ownerPhone || ownerPhone.length < 10) {
+          console.log(`❌ Skipping ${shopName}: No valid phone number (extracted: "${ownerPhone}")`);
+          continue;
+        }
+        
+        console.log(`✅ Found valid phone for ${shopName}: ${ownerPhone}`);
+        
+        // Generate unique identifiers
+        const uniqueId = `${importedCount + 1}_${Date.now().toString().slice(-4)}`;
+        const uniqueEmail = `shop_${uniqueId}@printeasyqr.com`;
         
         // Create shop owner user
         const [user] = await User.findOrCreate({
-          where: { phone: ownerPhone || `shop${importedCount + 1}@temp.com` },
+          where: { 
+            [Op.or]: [
+              { phone: ownerPhone },
+              { email: uniqueEmail }
+            ]
+          },
           defaults: {
             phone: ownerPhone,
             name: ownerName,
-            email: `shop${importedCount + 1}@printeasyqr.com`,
+            email: uniqueEmail,
             passwordHash: hashedPassword,
             role: 'shop_owner',
             isActive: true
@@ -246,12 +271,12 @@ async function importShops() {
           city: row.city || 'Ahmedabad',
           state: row.state || 'Gujarat',
           pinCode: row.postalCode || '380001',
-          phone: fallbackPhone,
+          phone: ownerPhone,
           publicOwnerName: ownerName,
           internalName: uniqueShopName,
           ownerFullName: ownerName,
           email: uniqueEmail,
-          ownerPhone: fallbackPhone,
+          ownerPhone: ownerPhone,
           completeAddress: row.address || '',
           services: services,
           workingHours: workingHours,
