@@ -1,4 +1,4 @@
-// Working print function - opens new window and prints immediately
+// Print function - opens window, waits for user to complete printing
 export const printFile = async (file: any): Promise<void> => {
   const fileUrl = `/uploads/${file.filename || file}`;
   
@@ -11,37 +11,49 @@ export const printFile = async (file: any): Promise<void> => {
       printWindow.onload = () => {
         setTimeout(() => {
           printWindow.print();
-          printWindow.close();
-          resolve();
-        }, 1000);
+          // DON'T close immediately - let user complete printing
+          // Check if window is closed by user every 2 seconds
+          const checkInterval = setInterval(() => {
+            if (printWindow.closed) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 2000);
+          
+          // Auto-close after 30 seconds if user hasn't closed it
+          setTimeout(() => {
+            if (!printWindow.closed) {
+              printWindow.close();
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 30000);
+        }, 2000); // Give PDF more time to load
       };
       
       // Fallback if onload doesn't fire
       setTimeout(() => {
         if (printWindow && !printWindow.closed) {
           printWindow.print();
-          printWindow.close();
+          // Same logic - wait for user to close or auto-close
+          const checkInterval = setInterval(() => {
+            if (printWindow.closed) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 2000);
+          
+          setTimeout(() => {
+            if (!printWindow.closed) {
+              printWindow.close();
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 30000);
         }
-        resolve();
-      }, 3000);
+      }, 5000);
     } else {
-      // If popup blocked, use iframe approach
-      const printFrame = document.createElement('iframe');
-      printFrame.style.display = 'none';
-      document.body.appendChild(printFrame);
-      
-      printFrame.src = fileUrl;
-      printFrame.onload = () => {
-        setTimeout(() => {
-          try {
-            printFrame.contentWindow?.print();
-          } catch (e) {
-            console.error('Print failed', e);
-          }
-          document.body.removeChild(printFrame);
-          resolve();
-        }, 1000);
-      };
+      resolve(); // Popup blocked - just resolve
     }
   });
 };
