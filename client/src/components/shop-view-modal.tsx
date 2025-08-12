@@ -225,13 +225,23 @@ export default function ShopViewModal({ shop, onClose }: ShopViewModalProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
                       <div className="text-2xl font-bold text-brand-yellow mb-1">
                         {getExperienceDisplay(shop)}
                       </div>
                       <p className="text-sm text-gray-600">Years Experience</p>
                     </div>
+                    {(shop.totalOrders || 0) > 0 && (
+                      <div className="text-center p-4 bg-brand-yellow/10 rounded-lg">
+                        <div className="text-2xl font-bold text-brand-yellow mb-1">
+                          {shop.totalOrders}
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Successfully completed {(shop.totalOrders || 0) === 1 ? 'order' : 'orders'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
