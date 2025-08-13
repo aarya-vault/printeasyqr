@@ -92,7 +92,8 @@ export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolea
     if (parsed.is24Hours) return true;
     
     const currentTime = parse(format(now, 'h:mm a'), 'h:mm a', new Date());
-    return isAfter(currentTime, parsed.openTime) && isBefore(currentTime, parsed.closeTime);
+    return (isAfter(currentTime, parsed.openTime) || isEqual(currentTime, parsed.openTime)) && 
+           isBefore(currentTime, parsed.closeTime);
   }
   
   if (typeof workingHours === 'object' && workingHours[currentDay]) {
@@ -109,7 +110,9 @@ export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolea
       const closeTime = parse(dayHours.closeTime, 'HH:mm', new Date());
       const currentTime = parse(format(now, 'HH:mm'), 'HH:mm', new Date());
       
-      return isAfter(currentTime, openTime) && isBefore(currentTime, closeTime);
+      // Shop is open if current time is >= opening time AND < closing time
+      return (isAfter(currentTime, openTime) || isEqual(currentTime, openTime)) && 
+             isBefore(currentTime, closeTime);
     } catch (error) {
       console.warn('Failed to parse working hours for', currentDay, dayHours, error);
       return false;
@@ -126,7 +129,9 @@ export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolea
       const closeTime = parse(dayHours.close, dayHours.close.includes(':') ? 'h:mm a' : 'h a', new Date());
       const currentTime = parse(format(now, 'h:mm a'), 'h:mm a', new Date());
       
-      return isAfter(currentTime, openTime) && isBefore(currentTime, closeTime);
+      // Shop is open if current time is >= opening time AND < closing time
+      return (isAfter(currentTime, openTime) || isEqual(currentTime, openTime)) && 
+             isBefore(currentTime, closeTime);
     } catch (error) {
       console.warn('Failed to parse working hours for', currentDay, dayHours, error);
       return false;
