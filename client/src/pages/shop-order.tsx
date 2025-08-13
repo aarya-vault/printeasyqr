@@ -209,12 +209,13 @@ export default function ShopOrder() {
   });
 
   const onSubmit = async (data: OrderForm) => {
-    // Check if shop is accepting orders
-    if (!shop || !shop.isOnline) {
+    // Allow order submission even if shop is closed
+    // The shop owner can handle orders when they open
+    if (!shop) {
       toast({
         variant: 'destructive',
-        title: 'Shop Closed',
-        description: 'This shop is currently not accepting orders.',
+        title: 'Shop Not Found',
+        description: 'Unable to find shop information.',
       });
       return;
     }

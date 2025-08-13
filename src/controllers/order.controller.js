@@ -406,6 +406,16 @@ class OrderController {
         return res.status(400).json({ message: 'Invalid phone number format. Please use 10-digit number starting with 6-9' });
       }
 
+      // Check if shop exists
+      const shop = await Shop.findByPk(parseInt(shopId));
+      if (!shop) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      // Allow orders even when shop is closed - shop owner can handle them when they open
+      // This ensures customers can place orders for later processing
+
       // 🔥 PREVENT SHOP OWNER PHONE COLLISION IN ANONYMOUS ORDERS
       let customer = await User.findOne({ 
         where: { phone: customerPhone } 

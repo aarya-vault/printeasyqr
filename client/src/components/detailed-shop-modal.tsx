@@ -150,7 +150,9 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
 
   // Check if shop is currently open
   const isShopOpen = () => {
+    // Shop owner manual override - if shop is manually closed, it's closed
     if (!shop || !shop.isOnline) return false;
+    // If shop is online but no working hours defined, it's open 24/7
     if (!shop.workingHours) return true;
     
     const now = new Date();
@@ -319,7 +321,7 @@ export default function DetailedShopModal({ isOpen, onClose, shop, onOrderClick 
                       Walk-in Orders
                     </Badge>
                   )}
-                  {shop.isOnline && (
+                  {(
                     <Badge className="bg-blue-100 text-blue-800 border-blue-200">
                       Online Available
                     </Badge>
