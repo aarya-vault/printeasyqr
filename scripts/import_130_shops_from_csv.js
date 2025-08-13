@@ -326,10 +326,11 @@ async function main() {
             city: row[headers[14]],
             state: row[headers[47]],
             postalCode: row[headers[40]],
-            url: row[headers[51]],
+            googleMapsUrl: row[headers[52]], // Column 53 (index 52) contains Google Maps links
+            website: row[headers[53]], // Column 54 (index 53) contains website URLs
             imageUrl: row[headers[17]],
             neighborhood: row[headers[22]],
-            street: row[headers[48]]
+            street: row[headers[50]] // Column 51 (index 50) contains street info
           };
           
           // Add opening hours
@@ -459,7 +460,7 @@ async function main() {
           isApproved: true,
           isPublic: true,
           status: 'active',
-          googleMapsLink: row.url || '',
+          googleMapsLink: row.googleMapsUrl || '',
           exteriorImage: row.imageUrl || null,
           ownerId: user.id
         });
