@@ -9,66 +9,53 @@ export const setGlobalErrorHandler = (handler: (error: any) => void) => {
 export const setupGlobalErrorHandling = () => {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
-    // Prevent the default handling first
-    event.preventDefault();
-    
-    // CRITICAL: Silently ignore ALL TypeErrors (Vite HMR throws these)
-    if (event.reason instanceof TypeError) {
-      return; // Complete silence - no logging
-    }
-    
-    // Check for error message and stack
+    // Check if it's a Vite HMR ping error (most common cause)
     const errorMessage = event.reason?.message || '';
     const errorStack = event.reason?.stack || '';
     
-    // Silently ignore Vite-related errors
-    if (errorMessage === 'Failed to fetch' || 
-        errorMessage.includes('Failed to fetch') ||
-        errorStack.includes('@vite') ||
-        errorStack.includes('waitForSuccessfulPing') ||
-        errorStack.includes('ping')) {
-      return; // Complete silence - no logging
+    // Silently ignore Vite HMR connection errors
+    if (errorMessage === 'Failed to fetch' || errorMessage.includes('Failed to fetch')) {
+      if (errorStack.includes('@vite/client') || 
+          errorStack.includes('ping') || 
+          errorStack.includes('waitForSuccessfulPing') ||
+          errorStack.includes('vite') ||
+          event.reason?.toString().includes('TypeError')) {
+        // Prevent default and silently ignore Vite HMR errors
+        event.preventDefault();
+        return;
+      }
     }
     
-    // Handle specific error types WITHOUT logging the main error first
+    console.error('🚨 Unhandled Promise Rejection:', event.reason);
+    
+    // Prevent the default handling (which logs to console)
+    event.preventDefault();
+    
+    // Call custom error handler if set
+    if (errorHandler) {
+      errorHandler(event.reason);
+    }
+    
+    // Handle specific error types
     if (event.reason?.message?.includes('401')) {
       console.log('🔐 Global Error Handler: Authentication error, redirecting...');
+      // Let the auth context handle this
       return;
     }
     
-    if (event.reason?.message?.includes('Network Error')) {
-      // Silently handle network errors - they're from Vite
-      return; // Complete silence - no logging
+    if (event.reason?.message?.includes('Network Error') || 
+        event.reason?.message?.includes('fetch')) {
+      console.log('🌐 Global Error Handler: Network error detected');
+      // Show network error toast or retry mechanism
+      return;
     }
     
-    // Check if it's an empty object {} (from Vite)
-    const isEmptyObject = event.reason && 
-                         typeof event.reason === 'object' && 
-                         Object.keys(event.reason).length === 0;
-    
-    // Skip all Vite-related errors
-    if (isEmptyObject) {
-      return; // Complete silence
-    }
-    
-    // Only log REAL application errors that have actual content
-    if (!(event.reason instanceof TypeError) && 
-        !errorMessage.includes('Network') && 
-        !errorMessage.includes('fetch')) {
-      console.error('🚨 Unhandled Promise Rejection:', event.reason);
-      
-      // Call custom error handler if set
-      if (errorHandler) {
-        errorHandler(event.reason);
-      }
-      
-      // Log details for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.group('🐛 Unhandled Promise Rejection Details');
-        console.error('Reason:', event.reason);
-        console.error('Promise:', event.promise);
-        console.groupEnd();
-      }
+    // Log other errors for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.group('🐛 Unhandled Promise Rejection Details');
+      console.error('Reason:', event.reason);
+      console.error('Promise:', event.promise);
+      console.groupEnd();
     }
   });
 
