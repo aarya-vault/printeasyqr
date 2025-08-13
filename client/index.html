@@ -89,62 +89,7 @@
       </div>
     </noscript>
     <div id="root"></div>
-    <script>
-      // CRITICAL: Disable Vite HMR to prevent connection errors in Replit
-      (function() {
-        // Store original fetch IMMEDIATELY before Vite loads
-        const originalFetch = window.fetch;
-        
-        // Override fetch to intercept all Vite ping requests
-        window.fetch = function(url, options) {
-          // Convert URL to string if it's not already
-          const urlString = typeof url === 'string' ? url : 
-                           url instanceof URL ? url.href : 
-                           url && url.url ? url.url : String(url);
-          
-          // Block Vite ping requests that cause "Failed to fetch" errors
-          if (urlString === '/' || 
-              urlString === '' || 
-              urlString.includes('__vite') ||
-              urlString.includes('@vite') ||
-              (options && options.headers && JSON.stringify(options.headers).includes('ping'))) {
-            // Return fake success to stop Vite from retrying
-            return Promise.resolve(new Response('ok', { 
-              status: 200,
-              statusText: 'OK'
-            }));
-          }
-          
-          // Allow all other requests
-          return originalFetch.apply(this, arguments);
-        };
-        
-        // Also fix WebSocket issues
-        const originalWebSocket = window.WebSocket;
-        window.WebSocket = function(url, protocols) {
-          if (url && typeof url === 'string') {
-            // Fix undefined port
-            if (url.includes('localhost:undefined')) {
-              url = url.replace('localhost:undefined', 'localhost:5000');
-            }
-            // Block HMR WebSocket connections
-            if (url.includes(':5001') || url.includes('ws://0.0.0.0')) {
-              // Return a mock WebSocket that does nothing
-              return {
-                send: () => {},
-                close: () => {},
-                addEventListener: () => {},
-                removeEventListener: () => {},
-                readyState: 1
-              };
-            }
-          }
-          return new originalWebSocket(url, protocols);
-        };
-        
-        console.log('HMR interceptor active - errors will be suppressed');
-      })();
-    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

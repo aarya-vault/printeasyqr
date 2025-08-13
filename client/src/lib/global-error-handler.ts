@@ -9,23 +9,6 @@ export const setGlobalErrorHandler = (handler: (error: any) => void) => {
 export const setupGlobalErrorHandling = () => {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
-    // Check if it's a Vite HMR ping error (most common cause)
-    const errorMessage = event.reason?.message || '';
-    const errorStack = event.reason?.stack || '';
-    
-    // Silently ignore Vite HMR connection errors
-    if (errorMessage === 'Failed to fetch' || errorMessage.includes('Failed to fetch')) {
-      if (errorStack.includes('@vite/client') || 
-          errorStack.includes('ping') || 
-          errorStack.includes('waitForSuccessfulPing') ||
-          errorStack.includes('vite') ||
-          event.reason?.toString().includes('TypeError')) {
-        // Prevent default and silently ignore Vite HMR errors
-        event.preventDefault();
-        return;
-      }
-    }
-    
     console.error('🚨 Unhandled Promise Rejection:', event.reason);
     
     // Prevent the default handling (which logs to console)
