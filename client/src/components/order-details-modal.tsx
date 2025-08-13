@@ -186,7 +186,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Type</Label>
-                    <p className="text-sm text-gray-900 mt-1 capitalize">{order.type} Order</p>
+                    <p className="text-sm text-gray-900 mt-1 capitalize">{stableOrder.type} Order</p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Status</Label>
@@ -203,24 +203,24 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                           <option value="completed">Completed</option>
                         </select>
                       ) : (
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        <Badge className={getStatusColor(stableOrder.status)}>
+                          {stableOrder.status.charAt(0).toUpperCase() + stableOrder.status.slice(1)}
                         </Badge>
                       )}
                     </div>
                   </div>
                 </div>
-                {order.description && (
+                {stableOrder.description && (
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Description</Label>
-                    <p className="text-sm text-gray-900 mt-1">{order.description}</p>
+                    <p className="text-sm text-gray-900 mt-1">{stableOrder.description}</p>
                   </div>
                 )}
-                {order.walkinTime && (
+                {stableOrder.walkinTime && (
                   <div>
                     <Label className="text-sm font-medium text-gray-600">Walk-in Time</Label>
                     <p className="text-sm text-gray-900 mt-1">
-                      {format(new Date(order.walkinTime), 'MMM dd, yyyy HH:mm')}
+                      {format(new Date(stableOrder.walkinTime), 'MMM dd, yyyy HH:mm')}
                     </p>
                   </div>
                 )}
