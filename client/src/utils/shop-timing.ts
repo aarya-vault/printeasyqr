@@ -42,95 +42,17 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
   
-  // Shop owner manual override: isOnline is the master switch
-  // When shop owner manually sets to CLOSED, shop is closed regardless of working hours
+  // MASTER OVERRIDE: Manual shop toggle takes absolute priority
+  // If shop owner manually toggles OFFLINE, shop is closed regardless of working hours
   if (!shop.isOnline) {
-    console.log('🔴 Shop manually set to CLOSED by owner');
+    console.log('🔴 MANUAL OVERRIDE: Shop set to CLOSED by owner (ignoring working hours)');
     return false;
   }
 
-  // Parse working hours if it's a string (from database)
-  let workingHours = shop.workingHours;
-  if (typeof workingHours === 'string') {
-    try {
-      workingHours = JSON.parse(workingHours);
-      console.log('📋 SHOP TIMING - Parsed working hours from string');
-    } catch (e) {
-      console.log('❌ SHOP TIMING - Failed to parse working hours string');
-      return true; // Default to open if can't parse
-    }
-  }
-
-  // When isOnline is true but no working hours defined
-  // This means shop is manually kept OPEN (24/7 mode)
-  if (!workingHours) {
-    console.log('🟢 Shop manually set to OPEN (24/7 mode)');
-    return true;
-  }
-
-  // Get current time info
-  const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-  const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
-  const todayHours = workingHours[currentDay];
-
-  console.log('🔍 SHOP TIMING - Current time analysis:', {
-    currentDay,
-    currentTime,
-    todayHours
-  });
-
-  // Handle both database formats: {isOpen, openTime, closeTime} and {open, close, closed}
-  // Database format uses isOpen/openTime/closeTime
-  // Legacy format uses open/close/closed
-  
-  // Check if explicitly closed
-  if (!todayHours || todayHours.closed === true || todayHours.isOpen === false) {
-    console.log('❌ SHOP TIMING - Shop is explicitly closed today');
-    return false;
-  }
-  
-  // Get open and close times (handle both formats)
-  const openTime = todayHours.openTime || todayHours.open;
-  const closeTime = todayHours.closeTime || todayHours.close;
-  
-  // Check if hours are missing
-  if (!openTime && !closeTime) {
-    console.log('❌ SHOP TIMING - Shop has no valid hours defined for today');
-    return false;
-  }
-
-  // Check for explicit 24/7 flag
-  if (todayHours.is24Hours) {
-    console.log('✅ SHOP TIMING - Shop is explicitly marked as 24/7 today');
-    return true;
-  }
-
-  // Handle 24/7 operation - if open time equals close time (common pattern: 00:00 = 00:00)
-  if (openTime === closeTime) {
-    console.log('✅ SHOP TIMING - Shop has same open/close time, treating as 24/7');
-    return true;
-  }
-
-  // Special 24/7 patterns
-  if ((openTime === '00:00' && closeTime === '00:00') ||
-      (openTime === '0:00' && closeTime === '0:00')) {
-    console.log('✅ SHOP TIMING - Shop has 00:00-00:00 schedule, treating as 24/7');
-    return true;
-  }
-
-  // Handle overnight operations (e.g., 22:00 to 06:00)
-  if (openTime > closeTime) {
-    const isOpen = currentTime >= openTime || currentTime <= closeTime;
-    console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Overnight operation: ${openTime}-${closeTime}, current: ${currentTime}`);
-    return isOpen;
-  }
-
-  // Normal day operation (e.g., 09:00 to 18:00)
-  const isOpen = currentTime >= openTime && currentTime <= closeTime;
-  console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Normal operation: ${openTime}-${closeTime}, current: ${currentTime}`);
-  
-  return isOpen;
+  // SIMPLIFIED LOGIC: If shop owner toggles ONLINE, shop is ALWAYS OPEN
+  // This is the master override - no need to check working hours when manually set to online
+  console.log('🟢 MANUAL OVERRIDE: Shop set to OPEN by owner - ALWAYS OPEN regardless of working hours');
+  return true;
 }
 
 /**
