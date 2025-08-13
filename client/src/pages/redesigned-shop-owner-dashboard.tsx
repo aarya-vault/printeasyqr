@@ -721,9 +721,9 @@ export default function RedesignedShopOwnerDashboard() {
                 </Button>
               </div>
 
-              {/* Shop Status Toggle */}
-              <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200 px-3 py-2">
-                <span className="text-sm font-medium text-gray-700 mr-3">Status:</span>
+              {/* EMERGENCY Shop Status Toggle - Override working hours */}
+              <div className="flex items-center bg-red-50 rounded-lg border-2 border-red-200 px-3 py-2 animate-pulse-slow">
+                <span className="text-sm font-bold text-red-700 mr-3">EMERGENCY:</span>
                 <button
                   onClick={() => {
                     if (shopData?.shop?.id) {
@@ -732,16 +732,20 @@ export default function RedesignedShopOwnerDashboard() {
                   }}
                   disabled={toggleShopStatus.isPending}
                   className={`
-                    flex items-center px-3 py-1.5 rounded-md font-semibold text-sm transition-all duration-200 min-w-[70px]
+                    flex items-center px-4 py-2 rounded-md font-bold text-sm transition-all duration-200 min-w-[100px] shadow-lg
                     ${shopData?.shop?.isOnline 
-                      ? 'bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 shadow-sm' 
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      ? 'bg-green-500 text-white hover:bg-green-600 border-2 border-green-600' 
+                      : 'bg-red-500 text-white hover:bg-red-600 border-2 border-red-600'
                     }
                     ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
+                  title={shopData?.shop?.isOnline 
+                    ? 'Click to CLOSE shop (even during working hours)' 
+                    : 'Click to OPEN shop (even after working hours)'
+                  }
                 >
-                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
-                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                  <Power className={`w-4 h-4 mr-2 ${toggleShopStatus.isPending ? 'animate-spin' : ''}`} />
+                  {shopData?.shop?.isOnline ? 'FORCE OPEN' : 'FORCE CLOSED'}
                 </button>
               </div>
 

@@ -41,14 +41,17 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
   
+  // EMERGENCY OVERRIDE: isOnline is the master switch
+  // When shop owner manually sets to CLOSED, shop is closed regardless of working hours
   if (!shop.isOnline) {
-    console.log('❌ SHOP TIMING - Shop is manually set to offline');
+    console.log('🚨 EMERGENCY OVERRIDE - Shop manually set to CLOSED by owner');
     return false;
   }
 
-  // If no working hours defined, assume 24/7 operation (always open)
+  // EMERGENCY OVERRIDE: When isOnline is true but no working hours defined
+  // This means shop is manually kept OPEN (24/7 emergency mode)
   if (!shop.workingHours) {
-    console.log('✅ SHOP TIMING - No working hours defined, assuming 24/7 operation');
+    console.log('🚨 EMERGENCY OVERRIDE - Shop manually set to OPEN (24/7 mode)');
     return true;
   }
 

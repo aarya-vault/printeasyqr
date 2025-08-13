@@ -48,14 +48,16 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // FIX: Update stable order only when actual order changes
+  // FIX: Update stable order only when actual order changes - prevent data vanishing
   useEffect(() => {
     if (order && order.id) {
       console.log('📝 Order Details Modal: Updating stable order', order.id);
-      setStableOrder(order);
-      setEditedOrder(order);
+      // Deep clone to prevent reference issues
+      const clonedOrder = JSON.parse(JSON.stringify(order));
+      setStableOrder(clonedOrder);
+      setEditedOrder(clonedOrder);
     }
-  }, [order?.id, order?.status, order?.notes]);
+  }, [order?.id]); // Only update when order ID changes, not on every field change
 
   // Update order mutation
   const updateOrderMutation = useMutation({
@@ -146,6 +148,15 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
     );
   }
 
+  // Ensure we always have stable data to display
+  const displayOrder = stableOrder || order;
+  
+  // Prevent modal from rendering if no data
+  if (!displayOrder || !displayOrder.id) {
+    console.error('Order Details Modal: No order data available');
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -156,8 +167,8 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
               <Package className="w-5 h-5 text-rich-black" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-rich-black">Order #{stableOrder.id}</h2>
-              <p className="text-medium-gray">{stableOrder.title}</p>
+              <h2 className="text-xl font-bold text-rich-black">Order #{displayOrder.id}</h2>
+              <p className="text-medium-gray">{displayOrder.title || 'Order Details'}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
