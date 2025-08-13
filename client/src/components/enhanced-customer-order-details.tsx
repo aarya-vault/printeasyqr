@@ -66,11 +66,13 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch fresh order data for real-time updates
+  // Fetch fresh order data for real-time updates (only when component is visible)
   const { data: freshOrder, refetch: refetchOrder } = useQuery({
     queryKey: [`/api/orders/${order.id}`],
     initialData: order,
-    refetchInterval: 2000, // Refetch every 2 seconds for real-time updates
+    refetchInterval: order && order.status !== 'completed' ? 2000 : false, // Only refetch for active orders
+    refetchIntervalInBackground: false, // Don't refetch when tab is not active
+    enabled: !!order?.id, // Only run when we have a valid order
   });
 
   // Use fresh order data if available, fallback to initial order

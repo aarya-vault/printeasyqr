@@ -23,11 +23,12 @@ export default function UnifiedFloatingChatButton() {
     retry: 2,
   });
 
-  // 🚀 CRITICAL FIX: Get proper unread count from the correct endpoint
+  // 🚀 CRITICAL FIX: Get proper unread count from the correct endpoint (only when authenticated)
   const { data: unreadData } = useQuery<{ unreadCount: number }>({
     queryKey: [`/api/messages/unread-count`],
-    enabled: Boolean(user?.id),
-    refetchInterval: 10000, // Check every 10 seconds for real-time updates
+    enabled: Boolean(user?.id && user?.role),
+    refetchInterval: (user?.id && user?.role) ? 10000 : false, // Check every 10 seconds for real-time updates only when authenticated
+    refetchIntervalInBackground: false, // Don't refetch when tab is not active
     retry: (failureCount, error: any) => {
       if (error?.status === 401) return false;
       return failureCount < 2;
