@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { debug, perf } from '@/utils/debug';
 import { DEFAULTS } from '@/constants';
+import { handleQueryError, handleMutationError } from './global-error-handler';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -128,8 +129,9 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5, // 5 minutes for better performance
       gcTime: 1000 * 60 * 10, // 10 minutes garbage collection
-      retry: (failureCount, error) => {
-        debug.warn(`Query retry attempt ${failureCount}`, error);
+      retry: (failureCount: number, error: Error) => {
+        // Use centralized error handling
+        handleQueryError(error);
         
         // Global 401 handler
         if (error.message.includes('401')) {
@@ -144,10 +146,15 @@ export const queryClient = new QueryClient({
         return failureCount < 2;
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      onError: (error: Error) => {
+        // Centralized query error handling
+        handleQueryError(error);
+      },
     },
     mutations: {
-      retry: (failureCount, error) => {
-        debug.warn(`Mutation retry attempt ${failureCount}`, error);
+      retry: (failureCount: number, error: Error) => {
+        // Use centralized error handling
+        handleMutationError(error);
         
         // Global 401 handler
         if (error.message.includes('401')) {
@@ -162,6 +169,10 @@ export const queryClient = new QueryClient({
         return failureCount < 1;
       },
       retryDelay: 1000,
+      onError: (error: Error) => {
+        // Centralized mutation error handling
+        handleMutationError(error);
+      },
     },
   },
 });
