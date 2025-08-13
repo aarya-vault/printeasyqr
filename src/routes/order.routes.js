@@ -95,9 +95,34 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     // Get file stats for content-length
     const stats = fs.statSync(filePath);
     
-    // Set download filename if provided in query
+    // Determine file type
+    const ext = path.extname(filePath).toLowerCase();
+    const isPDF = ext === '.pdf';
+    
+    // Set appropriate content type
+    if (isPDF) {
+      res.setHeader('Content-Type', 'application/pdf');
+    } else if (ext === '.jpg' || ext === '.jpeg') {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (ext === '.png') {
+      res.setHeader('Content-Type', 'image/png');
+    } else {
+      res.setHeader('Content-Type', 'application/octet-stream');
+    }
+    
+    // For print/view requests, use inline disposition for PDFs
+    // For download requests, always use attachment
     const originalName = req.query.originalName || path.basename(filePath);
-    res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    const isDownloadRequest = req.query.download === 'true';
+    
+    if (isDownloadRequest || !isPDF) {
+      // Force download
+      res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    } else {
+      // Display inline for PDFs (allows printing without download)
+      res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
+    }
+    
     res.setHeader('Content-Length', stats.size);
     
     // Create read stream and pipe to response
