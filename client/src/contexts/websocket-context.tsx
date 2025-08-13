@@ -19,7 +19,10 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const connect = () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log('⚠️ WebSocket: Skipping connection - no authenticated user');
+      return;
+    }
 
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -164,15 +167,25 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         setIsConnected(false);
         setSocket(null);
         
-        // Auto-reconnect after 3 seconds
-        reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('Attempting to reconnect...');
-          connect();
-        }, 3000);
+        // Only reconnect if user is still authenticated
+        if (user?.id) {
+          // Auto-reconnect after 3 seconds
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log('Attempting to reconnect WebSocket...');
+            connect();
+          }, 3000);
+        } else {
+          console.log('⚠️ WebSocket: Not reconnecting - user not authenticated');
+        }
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('WebSocket connection error:', error);
+        // Prevent excessive reconnection attempts for unauthenticated users
+        if (!user?.id) {
+          console.log('⚠️ WebSocket: Connection failed - user not authenticated');
+          return;
+        }
       };
 
     } catch (error) {

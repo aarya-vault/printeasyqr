@@ -146,10 +146,7 @@ export const queryClient = new QueryClient({
         return failureCount < 2;
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      onError: (error: Error) => {
-        // Centralized query error handling
-        handleQueryError(error);
-      },
+
     },
     mutations: {
       retry: (failureCount: number, error: Error) => {
@@ -169,10 +166,7 @@ export const queryClient = new QueryClient({
         return failureCount < 1;
       },
       retryDelay: 1000,
-      onError: (error: Error) => {
-        // Centralized mutation error handling
-        handleMutationError(error);
-      },
+
     },
   },
 });

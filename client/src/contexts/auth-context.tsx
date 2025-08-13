@@ -52,7 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up global 401 handler
     setAuthLogoutHandler(handleGlobalLogout);
 
-    // 🔥 JWT-FIRST AUTHENTICATION CHECK
+    // 🔥 OPTIMIZED JWT AUTHENTICATION CHECK - PREVENTS UNNECESSARY API CALLS
     const checkAuth = async () => {
       try {
         console.log('🔍 Auth Context: Checking JWT authentication...');
@@ -61,15 +61,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const authToken = localStorage.getItem('authToken');
         
         if (!authToken) {
-          console.log('❌ Auth Context: No JWT token found');
+          console.log('✅ Auth Context: No JWT token found - skipping API call');
           setUser(null);
           localStorage.removeItem('user');
           setIsSessionVerified(true);
           setIsLoading(false);
-          return;
+          return; // ✅ EXIT EARLY - No token = no API call needed
         }
         
-        // Verify token with server
+        // Only make API call if we have a token
+        console.log('🔑 Auth Context: JWT token found, verifying with server...');
         const response = await fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include',
@@ -83,7 +84,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = await response.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          console.log('✅ Auth Context: User loaded via JWT:', userData.role);
+          console.log('✅ Auth Context: User verified via JWT:', userData.role);
         } else {
           // Token is invalid, clear everything
           console.log('❌ Auth Context: JWT token invalid, clearing auth state');
@@ -93,9 +94,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       } catch (error) {
         console.error('❌ Auth Context: Auth check error:', error);
-        setUser(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
+        // Only clear auth if we actually had a token to check
+        const hadToken = localStorage.getItem('authToken');
+        if (hadToken) {
+          console.log('🧹 Auth Context: Clearing invalid auth state after error');
+          setUser(null);
+          localStorage.removeItem('user');
+          localStorage.removeItem('authToken');
+        }
       } finally {
         setIsSessionVerified(true);
         setIsLoading(false);
