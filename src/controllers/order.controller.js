@@ -163,13 +163,14 @@ class OrderController {
       
       const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
       
-      // 🚀 OBJECT STORAGE FIX: Upload files to object storage instead of local disk
+      // 🚀 PARALLEL UPLOAD FIX: Upload files in parallel to object storage
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for object storage upload...`);
+        console.log(`📤 Processing ${req.files.length} files for PARALLEL object storage upload...`);
         try {
+          // Upload all files in parallel for speed - NO COMPRESSION
           files = await uploadFilesToObjectStorage(req.files);
-          console.log(`✅ Successfully uploaded ${files.length} files to object storage`);
+          console.log(`✅ Successfully uploaded ${files.length} files to object storage in parallel`);
         } catch (uploadError) {
           console.error('❌ Object storage upload failed:', uploadError);
           return res.status(500).json({ 

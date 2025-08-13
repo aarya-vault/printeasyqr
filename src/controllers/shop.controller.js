@@ -329,6 +329,18 @@ class ShopController {
       
       await shop.update({ isOnline: !shop.isOnline });
       
+      // Broadcast shop status update to all connected WebSocket clients
+      console.log(`📢 Broadcasting shop status update: Shop ${shopId} is now ${!shop.isOnline ? 'OFFLINE' : 'ONLINE'}`);
+      const { broadcast } = await import('../utils/websocket.js');
+      if (broadcast) {
+        broadcast({
+          type: 'SHOP_STATUS_UPDATE',
+          shopId: shopId,
+          isOnline: shop.isOnline,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       const transformedShop = ShopController.transformShopData(shop);
       res.json(transformedShop);
     } catch (error) {

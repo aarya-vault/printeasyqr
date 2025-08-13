@@ -174,6 +174,7 @@ app.use('/api/pincode', pincodeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
+app.use('/api', downloadRoutes); // Download routes for file access
 
 // Object Storage download proxy - bypass CORS restrictions
 app.get('/api/download/:objectPath(*)', async (req, res) => {

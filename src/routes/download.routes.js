@@ -1,10 +1,8 @@
 // Download routes for file access from object storage
 import { Router } from 'express';
-import { ObjectStorageService } from '../server/objectStorage.js';
-import requireAuth from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
 
 const router = Router();
-const objectStorage = new ObjectStorageService();
 
 // Download file from object storage
 router.get('/download/*', requireAuth, async (req, res) => {
@@ -21,18 +19,55 @@ router.get('/download/*', requireAuth, async (req, res) => {
       objectPath = `/objects/${filePath}`;
     }
     
-    // Stream the file from object storage
-    const stream = await objectStorage.getFileStream(objectPath);
+    // Use fetch to get file from object storage via signed URL
+    const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
     
-    if (!stream) {
+    // Generate signed URL for downloading
+    const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bucketName: bucketName,
+        objectPath: objectPath,
+        action: 'read',
+        expiresIn: 3600
+      })
+    });
+    
+    if (!signedUrlResponse.ok) {
+      console.error('❌ Failed to generate signed URL');
+      return res.status(500).json({ message: 'Failed to generate download URL' });
+    }
+    
+    const { signedUrl } = await signedUrlResponse.json();
+    
+    // Fetch the file from the signed URL
+    const fileResponse = await fetch(signedUrl);
+    
+    if (!fileResponse.ok) {
       return res.status(404).json({ message: 'File not found' });
     }
     
     // Set appropriate headers
     res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    res.setHeader('Content-Type', fileResponse.headers.get('content-type') || 'application/octet-stream');
     
-    // Pipe the stream to response
-    stream.pipe(res);
+    // Stream the response
+    const reader = fileResponse.body.getReader();
+    const stream = new ReadableStream({
+      async start(controller) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          controller.enqueue(value);
+        }
+        controller.close();
+      }
+    });
+    
+    // Convert to Node stream and pipe to response
+    const nodeStream = require('stream').Readable.from(stream);
+    nodeStream.pipe(res);
     
   } catch (error) {
     console.error('Download error:', error);

@@ -104,11 +104,13 @@ export async function uploadFilesToObjectStorage(files) {
     return [];
   }
   
-  console.log(`📤 Uploading ${files.length} files to object storage...`);
+  console.log(`🚀 PARALLEL UPLOAD: ${files.length} files (NO COMPRESSION - ORIGINAL SIZES)`);
   
-  const uploadPromises = files.map(file => 
-    uploadFileToObjectStorage(file.buffer, file.originalname, file.mimetype)
-  );
+  // Upload all files in parallel for maximum speed
+  const uploadPromises = files.map(file => {
+    console.log(`📤 Uploading ${file.originalname} (${file.buffer.length} bytes) - ORIGINAL SIZE`);
+    return uploadFileToObjectStorage(file.buffer, file.originalname, file.mimetype);
+  });
   
   try {
     const results = await Promise.all(uploadPromises);

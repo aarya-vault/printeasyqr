@@ -542,7 +542,7 @@ export default function ShopSettings() {
                                 {!hours.closed && hours.is24Hours && (
                                   <div className="flex items-center">
                                     <Badge variant="outline" className="border-brand-yellow text-brand-yellow">
-                                      Open 24 Hours
+                                      24/7
                                     </Badge>
                                   </div>
                                 )}
