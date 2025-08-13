@@ -342,7 +342,7 @@ function extractServices(categories) {
   return [...new Set(services)];
 }
 
-async function importSingleShop() {
+async function importBulkShops() {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected successfully');
@@ -360,17 +360,25 @@ async function importSingleShop() {
     csvStream.on('end', async () => {
       console.log(`📊 Found ${csvData.length} shops in CSV`);
       
-      // Import only the first shop for testing
-      const row = csvData[0];
+      let counter = 0;
+      let successCount = 0;
+      let skipCount = 0;
       
-      try {
-        console.log(`\n🔄 Processing shop: ${row.title}`);
+      // Import first 25 diverse shops for demo
+      const selectedShops = csvData.slice(0, 25);
+      
+      for (const row of selectedShops) {
+        counter++;
         
-        // Skip if permanently closed
-        if (row.permanentlyClosed === 'TRUE') {
-          console.log(`⚠️ Shop is permanently closed: ${row.title}`);
-          return;
-        }
+        try {
+          console.log(`\n🔄 Processing shop ${counter}/${selectedShops.length}: ${row.title}`);
+          
+          // Skip if permanently closed
+          if (row.permanentlyClosed === 'TRUE') {
+            console.log(`⚠️ Shop is permanently closed: ${row.title}`);
+            skipCount++;
+            continue;
+          }
 
         // Extract and validate required data
         const shopName = row.title?.trim();

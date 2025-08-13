@@ -199,34 +199,45 @@ function parseWorkingHours(row) {
       console.log(`  Processing: ${day} = ${hours}`);
       
       if (dayMapping.hasOwnProperty(day) && hours !== 'Closed') {
-        // Parse time format "9 AM to 10 PM" or "9:30 AM to 9:30 PM"
-        const timeMatch = hours.match(/(\d{1,2}):?(\d{0,2})\s*(AM|PM)\s*to\s*(\d{1,2}):?(\d{0,2})\s*(AM|PM)/i);
-        if (timeMatch) {
-          let [, startHour, startMin = '00', startPeriod, endHour, endMin = '00', endPeriod] = timeMatch;
-          
-          console.log(`    Matched: Start=${startHour}:${startMin} ${startPeriod}, End=${endHour}:${endMin} ${endPeriod}`);
-          
-          // Convert to 24-hour format
-          startHour = parseInt(startHour);
-          endHour = parseInt(endHour);
-          
-          if (startPeriod.toUpperCase() === 'PM' && startHour !== 12) startHour += 12;
-          if (startPeriod.toUpperCase() === 'AM' && startHour === 12) startHour = 0;
-          if (endPeriod.toUpperCase() === 'PM' && endHour !== 12) endHour += 12;
-          if (endPeriod.toUpperCase() === 'AM' && endHour === 12) endHour = 0;
-          
-          const openTime = `${startHour.toString().padStart(2, '0')}:${startMin.padStart(2, '0')}`;
-          const closeTime = `${endHour.toString().padStart(2, '0')}:${endMin.padStart(2, '0')}`;
-          
-          console.log(`    Converted to 24h: ${openTime} - ${closeTime}`);
-          
+        // Check for 24-hour operation first
+        if (hours.toLowerCase().includes('24') || hours.toLowerCase().includes('open 24')) {
           workingHours[dayMapping[day]] = {
             isOpen: true,
-            openTime,
-            closeTime
+            openTime: '00:00',
+            closeTime: '23:59',
+            is24Hours: true
           };
+          console.log(`    ${day} = 24/7 OPEN`);
         } else {
-          console.log(`    ❌ Failed to match time format: "${hours}"`);
+          // Parse time format "9 AM to 10 PM" or "9:30 AM to 9:30 PM"
+          const timeMatch = hours.match(/(\d{1,2}):?(\d{0,2})\s*(AM|PM)\s*to\s*(\d{1,2}):?(\d{0,2})\s*(AM|PM)/i);
+          if (timeMatch) {
+            let [, startHour, startMin = '00', startPeriod, endHour, endMin = '00', endPeriod] = timeMatch;
+            
+            console.log(`    Matched: Start=${startHour}:${startMin} ${startPeriod}, End=${endHour}:${endMin} ${endPeriod}`);
+            
+            // Convert to 24-hour format
+            startHour = parseInt(startHour);
+            endHour = parseInt(endHour);
+            
+            if (startPeriod.toUpperCase() === 'PM' && startHour !== 12) startHour += 12;
+            if (startPeriod.toUpperCase() === 'AM' && startHour === 12) startHour = 0;
+            if (endPeriod.toUpperCase() === 'PM' && endHour !== 12) endHour += 12;
+            if (endPeriod.toUpperCase() === 'AM' && endHour === 12) endHour = 0;
+            
+            const openTime = `${startHour.toString().padStart(2, '0')}:${startMin.padStart(2, '0')}`;
+            const closeTime = `${endHour.toString().padStart(2, '0')}:${endMin.padStart(2, '0')}`;
+            
+            console.log(`    Converted to 24h: ${openTime} - ${closeTime}`);
+            
+            workingHours[dayMapping[day]] = {
+              isOpen: true,
+              openTime,
+              closeTime
+            };
+          } else {
+            console.log(`    ❌ Failed to match time format: "${hours}"`);
+          }
         }
       } else if (hours === 'Closed') {
         console.log(`    Setting as closed: ${day}`);
