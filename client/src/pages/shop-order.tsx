@@ -117,12 +117,15 @@ export default function ShopOrder() {
   // Add debugging for shop status
   useEffect(() => {
     if (shop) {
-      console.log('🔍 SHOP ORDER PAGE - Shop data received:', {
+      const openStatus = isShopOpen();
+      console.log('🔍 SHOP ORDER PAGE - Shop status check:', {
         name: shop.name,
         isOnline: shop.isOnline,
         workingHours: shop.workingHours,
         acceptsWalkinOrders: shop.acceptsWalkinOrders,
-        currentTime: currentTime.toLocaleTimeString()
+        currentTime: currentTime.toLocaleTimeString(),
+        isShopOpen: openStatus,
+        calculatedClosed: !openStatus
       });
     }
   }, [shop, currentTime]);
@@ -271,7 +274,15 @@ export default function ShopOrder() {
     );
   }
 
+  // Calculate shop open status - updates when shop data or time changes
   const shopOpen = isShopOpen();
+  
+  console.log('🏪 SHOP ORDER PAGE - Final status:', {
+    shopName: shop.name,
+    isOnline: shop.isOnline, 
+    calculatedOpen: shopOpen,
+    shouldShowClosedMessage: !shopOpen
+  });
 
   return (
     <div className="min-h-screen bg-white">

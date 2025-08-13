@@ -32,6 +32,7 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
   console.log('🔍 SHOP TIMING - Checking shop availability:', {
     isOnline: shop?.isOnline,
     hasWorkingHours: !!shop?.workingHours,
+    workingHoursType: typeof shop?.workingHours,
     autoAvailability: shop?.autoAvailability
   });
 
@@ -48,9 +49,21 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
 
+  // Parse working hours if it's a string (from database)
+  let workingHours = shop.workingHours;
+  if (typeof workingHours === 'string') {
+    try {
+      workingHours = JSON.parse(workingHours);
+      console.log('📋 SHOP TIMING - Parsed working hours from string');
+    } catch (e) {
+      console.log('❌ SHOP TIMING - Failed to parse working hours string');
+      return true; // Default to open if can't parse
+    }
+  }
+
   // When isOnline is true but no working hours defined
   // This means shop is manually kept OPEN (24/7 mode)
-  if (!shop.workingHours) {
+  if (!workingHours) {
     console.log('🟢 Shop manually set to OPEN (24/7 mode)');
     return true;
   }
@@ -59,7 +72,7 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
   const now = new Date();
   const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
   const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
-  const todayHours = shop.workingHours[currentDay];
+  const todayHours = workingHours[currentDay];
 
   console.log('🔍 SHOP TIMING - Current time analysis:', {
     currentDay,
