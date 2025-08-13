@@ -168,14 +168,15 @@ function generateOwnerName(shopName) {
 function parseWorkingHours(row) {
   console.log('\n🔍 DEBUG: Parsing working hours for:', row.title);
   const workingHours = {};
+  // Use string keys for frontend compatibility
   const dayMapping = {
-    'Monday': 0,
-    'Tuesday': 1, 
-    'Wednesday': 2,
-    'Thursday': 3,
-    'Friday': 4,
-    'Saturday': 5,
-    'Sunday': 6
+    'Monday': 'monday',
+    'Tuesday': 'tuesday', 
+    'Wednesday': 'wednesday',
+    'Thursday': 'thursday',
+    'Friday': 'friday',
+    'Saturday': 'saturday',
+    'Sunday': 'sunday'
   };
 
   // Debug: Show all opening hours columns
@@ -238,10 +239,11 @@ function parseWorkingHours(row) {
     }
   }
 
-  // Fill in missing days as closed
-  for (let i = 0; i < 7; i++) {
-    if (!workingHours[i]) {
-      workingHours[i] = {
+  // Fill in missing days as closed using string keys
+  const allDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  for (const day of allDays) {
+    if (!workingHours[day]) {
+      workingHours[day] = {
         isOpen: false,
         openTime: '',
         closeTime: ''
@@ -261,7 +263,17 @@ function parsePhoneNumber(phoneStr) {
     return null;
   }
   
-  // Handle scientific notation (e.g., 9.19E+11)
+  // First try the properly formatted phone number (should be prioritized)
+  if (phoneStr.startsWith('+91') && phoneStr.includes(' ')) {
+    const cleaned = phoneStr.replace(/[^\d]/g, '');
+    if (cleaned.length >= 10) {
+      const result = cleaned.slice(-10); // Take last 10 digits
+      console.log(`  ✅ Formatted phone: ${phoneStr} -> ${result}`);
+      return result;
+    }
+  }
+  
+  // Handle scientific notation as fallback (e.g., 9.19E+11)
   if (phoneStr.includes('E+')) {
     const num = parseFloat(phoneStr);
     // Convert to integer string without decimals
@@ -364,12 +376,12 @@ async function importSingleShop() {
           slug = generateSlug(shopName, counter);
         }
 
-        // Parse phone number with debug
+        // Parse phone number with debug - prioritize formatted phone
         console.log('\n📱 PHONE NUMBER PARSING:');
+        console.log('  phone (formatted):', row.phone);
         console.log('  phoneUnformatted:', row.phoneUnformatted);
-        console.log('  phone:', row.phone);
         
-        const phone = parsePhoneNumber(row.phoneUnformatted || row.phone);
+        const phone = parsePhoneNumber(row.phone || row.phoneUnformatted);
         const finalPhone = phone && phone.length >= 10 ? phone : '9876543210';
         
         console.log('  Final phone:', finalPhone);
