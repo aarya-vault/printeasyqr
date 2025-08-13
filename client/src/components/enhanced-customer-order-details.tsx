@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,18 +65,35 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // FIX: Stable order state to prevent data vanishing
+  const [stableOrder, setStableOrder] = useState(() => {
+    // Deep clone to prevent reference issues
+    return order ? JSON.parse(JSON.stringify(order)) : order;
+  });
 
   // Fetch fresh order data for real-time updates (only when component is visible)
   const { data: freshOrder, refetch: refetchOrder } = useQuery({
     queryKey: [`/api/orders/${order.id}`],
     initialData: order,
-    refetchInterval: order && order.status !== 'completed' ? 2000 : false, // Only refetch for active orders
+    refetchInterval: order && order.status !== 'completed' ? 5000 : false, // Reduced frequency to prevent flickering
     refetchIntervalInBackground: false, // Don't refetch when tab is not active
     enabled: !!order?.id, // Only run when we have a valid order
+    staleTime: 2000, // Consider data fresh for 2 seconds
   });
 
-  // Use fresh order data if available, fallback to initial order
-  const currentOrder = freshOrder || order;
+  // FIX: Update stable order only when we get valid fresh data
+  useEffect(() => {
+    if (freshOrder && freshOrder.id) {
+      console.log('📝 Customer Order Details: Updating stable order with fresh data', freshOrder.id);
+      // Deep clone to prevent reference issues
+      const clonedOrder = JSON.parse(JSON.stringify(freshOrder));
+      setStableOrder(clonedOrder);
+    }
+  }, [freshOrder]);
+
+  // Use stable order for rendering to prevent data vanishing
+  const currentOrder = stableOrder || order;
 
   // Upload additional files mutation
   const uploadFilesMutation = useMutation({
