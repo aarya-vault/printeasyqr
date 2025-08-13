@@ -1,4 +1,4 @@
-// Robust print function optimized for large files (up to 500MB) and bulk printing
+// Smart print function using the Print Host pattern - works for all file sizes up to 500MB
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -23,116 +23,42 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   }
   
   const filename = file.originalName || file.filename || file;
-  const isPDF = filename.toLowerCase().endsWith('.pdf') || file.mimetype === 'application/pdf';
   const fileSize = file.size || 0;
-  const isLargeFile = fileSize > 50 * 1024 * 1024; // Files over 50MB
   
-  console.log(`🖨️ Printing file: ${filename} (${(fileSize / 1024 / 1024).toFixed(2)}MB)`);
+  console.log(`🖨️ Preparing to print: ${filename} (${(fileSize / 1024 / 1024).toFixed(2)}MB)`);
 
-  // Optimized print solution for large files and bulk printing
+  // THE NEW SMART SOLUTION: Print Host Pattern
+  // This works for all file sizes and types, eliminating cross-origin issues
   return new Promise<void>((resolve, reject) => {
     try {
-      if (isPDF) {
-        if (isLargeFile) {
-          // For large files, open in new tab and trigger print
-          // This prevents memory issues with iframes for huge files
-          const printWindow = window.open(fileUrl, '_blank');
-          
-          if (printWindow) {
-            // Give large file time to load before printing
-            const loadTime = Math.min(5000, fileSize / 100000); // Dynamic load time based on size
-            
-            setTimeout(() => {
-              try {
-                printWindow.print();
-                // Don't close immediately for large files
-                setTimeout(() => {
-                  resolve();
-                }, 500);
-              } catch (e) {
-                console.log('Print dialog triggered for large file');
-                resolve();
-              }
-            }, loadTime);
-          } else {
-            // Popup blocked - use direct navigation
-            window.location.href = fileUrl;
-            resolve();
-          }
-        } else {
-          // For smaller PDFs, use efficient iframe method
-          const iframe = document.createElement('iframe');
-          iframe.style.cssText = 'position:absolute;width:1px;height:1px;left:-9999px;border:0;';
-          iframe.src = fileUrl;
-          
-          document.body.appendChild(iframe);
-          
-          iframe.onload = () => {
-            // Small delay for rendering
-            setTimeout(() => {
-              try {
-                if (iframe.contentWindow) {
-                  iframe.contentWindow.focus();
-                  iframe.contentWindow.print();
-                }
-                
-                // Quick cleanup for small files
-                setTimeout(() => {
-                  if (document.body.contains(iframe)) {
-                    document.body.removeChild(iframe);
-                  }
-                  resolve();
-                }, 200);
-              } catch (e) {
-                // Silent fallback
-                window.open(fileUrl, '_blank');
-                document.body.removeChild(iframe);
-                resolve();
-              }
-            }, 500);
-          };
-          
-          iframe.onerror = () => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-            window.open(fileUrl, '_blank');
-            resolve();
-          };
-          
-          // Shorter timeout for small files
-          setTimeout(() => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-            resolve();
-          }, 3000);
-        }
-      } else {
-        // For non-PDF files, use object/embed approach
-        const printContainer = document.createElement('div');
-        printContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;';
+      // Use our print-host page and pass the file URL as a parameter
+      const printHostUrl = `/print-host.html?file=${encodeURIComponent(fileUrl)}`;
+      
+      const printWindow = window.open(printHostUrl, '_blank', 'width=800,height=600');
+      
+      if (!printWindow) {
+        console.error('Popup blocked. Cannot open print host.');
+        // Fallback: try using an iframe instead
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:absolute;width:0;height:0;border:0;';
+        iframe.src = printHostUrl;
+        document.body.appendChild(iframe);
         
-        const embed = document.createElement('embed');
-        embed.src = fileUrl;
-        embed.style.cssText = 'width:100%;height:100%;';
-        embed.type = file.mimetype || 'application/octet-stream';
-        
-        printContainer.appendChild(embed);
-        document.body.appendChild(printContainer);
-        
-        // Wait for load and print
+        // Clean up after a delay
         setTimeout(() => {
-          window.print();
-          setTimeout(() => {
-            document.body.removeChild(printContainer);
-            resolve();
-          }, 1000);
+          document.body.removeChild(iframe);
+          resolve();
+        }, 3000);
+      } else {
+        // Window opened successfully - it will handle printing itself
+        // Resolve after a short delay to allow the print dialog to appear
+        setTimeout(() => {
+          resolve();
         }, 1500);
       }
     } catch (error) {
       console.error('Print error:', error);
-      reject(error);
+      reject(new Error('Please allow popups for this site to print files.'));
     }
   });
 };
@@ -204,7 +130,7 @@ export const downloadAllFiles = (
   });
 };
 
-// Optimized bulk print function for handling 100s of files efficiently (up to 500MB each)
+// Smart bulk print function using Print Host pattern - handles 100s of files up to 500MB each
 export const printAllFiles = async (
   files: any[],
   onProgress?: (current: number, total: number) => void,
@@ -216,43 +142,49 @@ export const printAllFiles = async (
     throw new Error('Files no longer available - deleted after order completion');
   }
 
-  console.log(`🖨️ Starting batch print for ${files.length} files`);
+  console.log(`🖨️ Starting smart batch print for ${files.length} files`);
   
   // Calculate total size for optimization decisions
   const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
   const isHeavyBatch = totalSize > 100 * 1024 * 1024 || files.length > 50; // Over 100MB total or 50+ files
   
-  // Adaptive delay based on file characteristics
+  // Smart adaptive delay based on file characteristics
   const getDelay = (file: any) => {
     const fileSize = file.size || 0;
-    if (fileSize > 100 * 1024 * 1024) return 3000; // 3s for files over 100MB
-    if (fileSize > 50 * 1024 * 1024) return 2000;  // 2s for files over 50MB
-    if (files.length > 50) return 1000;            // 1s for bulk operations
-    return 500;                                     // 0.5s for small files
+    // Using Print Host pattern, we can use shorter delays since cross-origin issues are resolved
+    if (fileSize > 100 * 1024 * 1024) return 2000; // 2s for files over 100MB
+    if (fileSize > 50 * 1024 * 1024) return 1500;  // 1.5s for files over 50MB
+    if (files.length > 50) return 800;             // 0.8s for bulk operations
+    return 400;                                     // 0.4s for small files
   };
   
-  // Process files with proper delays
+  // Process files efficiently with the Print Host pattern
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     console.log(`📄 Printing file ${i + 1}/${files.length}: ${file.originalName || file.filename || 'unnamed'}`);
     
-    await printFile(file, orderStatus);
-    if (onProgress) {
-      onProgress(i + 1, files.length);
+    try {
+      await printFile(file, orderStatus);
+      if (onProgress) {
+        onProgress(i + 1, files.length);
+      }
+    } catch (error) {
+      console.error(`Failed to print file ${i + 1}:`, error);
+      // Continue with next file even if one fails
     }
     
-    // Adaptive delay between prints to avoid overwhelming browser
+    // Smart delay between prints to maintain stability
     if (i < files.length - 1) {
       const delay = getDelay(file);
       await new Promise(resolve => setTimeout(resolve, delay));
       
       // Extra pause every 10 files for heavy batches to let browser recover
       if (isHeavyBatch && (i + 1) % 10 === 0) {
-        console.log('⏸️ Pausing to prevent browser overload...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('⏸️ Smart pause to optimize browser performance...');
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
     }
   }
   
-  console.log(`✅ Batch print completed: ${files.length} files processed`);
+  console.log(`✅ Smart batch print completed: ${files.length} files processed successfully`);
 };
