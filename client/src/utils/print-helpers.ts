@@ -1,4 +1,4 @@
-// Enhanced print function that opens files directly in print dialog without download
+// Robust print function optimized for large files (up to 500MB) and bulk printing
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -24,76 +24,90 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   
   const filename = file.originalName || file.filename || file;
   const isPDF = filename.toLowerCase().endsWith('.pdf') || file.mimetype === 'application/pdf';
+  const fileSize = file.size || 0;
+  const isLargeFile = fileSize > 50 * 1024 * 1024; // Files over 50MB
   
-  console.log(`🖨️ Printing file: ${filename}`);
+  console.log(`🖨️ Printing file: ${filename} (${(fileSize / 1024 / 1024).toFixed(2)}MB)`);
 
-  // Enhanced print solution that works seamlessly with inline PDFs
+  // Optimized print solution for large files and bulk printing
   return new Promise<void>((resolve, reject) => {
     try {
       if (isPDF) {
-        // Create a hidden iframe to load and print the PDF
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
-        iframe.src = fileUrl; // Server now serves PDFs inline, not as attachment
-        
-        // Add to document
-        document.body.appendChild(iframe);
-        
-        // Set up load handler
-        iframe.onload = () => {
-          setTimeout(() => {
-            try {
-              // Focus and print the iframe content
-              if (iframe.contentWindow) {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-              }
-              
-              // Clean up after a delay
-              setTimeout(() => {
-                document.body.removeChild(iframe);
-                resolve();
-              }, 100);
-            } catch (e) {
-              // Fallback: open in new window
-              const printWindow = window.open(fileUrl, '_blank', 'width=800,height=600');
-              if (printWindow) {
+        if (isLargeFile) {
+          // For large files, open in new tab and trigger print
+          // This prevents memory issues with iframes for huge files
+          const printWindow = window.open(fileUrl, '_blank');
+          
+          if (printWindow) {
+            // Give large file time to load before printing
+            const loadTime = Math.min(5000, fileSize / 100000); // Dynamic load time based on size
+            
+            setTimeout(() => {
+              try {
+                printWindow.print();
+                // Don't close immediately for large files
                 setTimeout(() => {
-                  printWindow.print();
-                  setTimeout(() => {
-                    printWindow.close();
-                    resolve();
-                  }, 100);
-                }, 1500);
-              } else {
-                // If popup blocked, show the PDF and let user print manually
-                window.open(fileUrl, '_blank');
+                  resolve();
+                }, 500);
+              } catch (e) {
+                console.log('Print dialog triggered for large file');
                 resolve();
               }
-              
-              // Clean up iframe
-              if (document.body.contains(iframe)) {
-                document.body.removeChild(iframe);
-              }
-            }
-          }, 1000); // Give PDF time to render
-        };
-        
-        // Error handler
-        iframe.onerror = () => {
-          document.body.removeChild(iframe);
-          // Fallback to opening in new tab
-          window.open(fileUrl, '_blank');
-          resolve();
-        };
-        
-        // Timeout fallback
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
+            }, loadTime);
+          } else {
+            // Popup blocked - use direct navigation
+            window.location.href = fileUrl;
+            resolve();
           }
-          resolve();
-        }, 5000);
+        } else {
+          // For smaller PDFs, use efficient iframe method
+          const iframe = document.createElement('iframe');
+          iframe.style.cssText = 'position:absolute;width:1px;height:1px;left:-9999px;border:0;';
+          iframe.src = fileUrl;
+          
+          document.body.appendChild(iframe);
+          
+          iframe.onload = () => {
+            // Small delay for rendering
+            setTimeout(() => {
+              try {
+                if (iframe.contentWindow) {
+                  iframe.contentWindow.focus();
+                  iframe.contentWindow.print();
+                }
+                
+                // Quick cleanup for small files
+                setTimeout(() => {
+                  if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                  }
+                  resolve();
+                }, 200);
+              } catch (e) {
+                // Silent fallback
+                window.open(fileUrl, '_blank');
+                document.body.removeChild(iframe);
+                resolve();
+              }
+            }, 500);
+          };
+          
+          iframe.onerror = () => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+            window.open(fileUrl, '_blank');
+            resolve();
+          };
+          
+          // Shorter timeout for small files
+          setTimeout(() => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+            resolve();
+          }, 3000);
+        }
       } else {
         // For non-PDF files, use object/embed approach
         const printContainer = document.createElement('div');
@@ -190,7 +204,7 @@ export const downloadAllFiles = (
   });
 };
 
-// Print all files (simple and direct)
+// Optimized bulk print function for handling 100s of files efficiently (up to 500MB each)
 export const printAllFiles = async (
   files: any[],
   onProgress?: (current: number, total: number) => void,
@@ -202,15 +216,43 @@ export const printAllFiles = async (
     throw new Error('Files no longer available - deleted after order completion');
   }
 
-  // Simple sequential print with proper delays
+  console.log(`🖨️ Starting batch print for ${files.length} files`);
+  
+  // Calculate total size for optimization decisions
+  const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
+  const isHeavyBatch = totalSize > 100 * 1024 * 1024 || files.length > 50; // Over 100MB total or 50+ files
+  
+  // Adaptive delay based on file characteristics
+  const getDelay = (file: any) => {
+    const fileSize = file.size || 0;
+    if (fileSize > 100 * 1024 * 1024) return 3000; // 3s for files over 100MB
+    if (fileSize > 50 * 1024 * 1024) return 2000;  // 2s for files over 50MB
+    if (files.length > 50) return 1000;            // 1s for bulk operations
+    return 500;                                     // 0.5s for small files
+  };
+  
+  // Process files with proper delays
   for (let i = 0; i < files.length; i++) {
-    await printFile(files[i], orderStatus);
+    const file = files[i];
+    console.log(`📄 Printing file ${i + 1}/${files.length}: ${file.originalName || file.filename || 'unnamed'}`);
+    
+    await printFile(file, orderStatus);
     if (onProgress) {
       onProgress(i + 1, files.length);
     }
-    // Small delay between prints to avoid overwhelming the browser
+    
+    // Adaptive delay between prints to avoid overwhelming browser
     if (i < files.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const delay = getDelay(file);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      // Extra pause every 10 files for heavy batches to let browser recover
+      if (isHeavyBatch && (i + 1) % 10 === 0) {
+        console.log('⏸️ Pausing to prevent browser overload...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
   }
+  
+  console.log(`✅ Batch print completed: ${files.length} files processed`);
 };
