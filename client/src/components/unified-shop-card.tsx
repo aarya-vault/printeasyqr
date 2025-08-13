@@ -65,18 +65,6 @@ export default function UnifiedShopCard({
             
             {/* Status badges overlay on image */}
             <div className="absolute top-2 left-2 flex gap-2">
-              {/* EMERGENCY OVERRIDE INDICATOR */}
-              {shop.isOnline && !isCurrentlyOpen && (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold bg-red-500 text-white animate-pulse">
-                  ⚡ EMERGENCY OPEN
-                </span>
-              )}
-              {!shop.isOnline && isCurrentlyOpen && (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold bg-orange-500 text-white animate-pulse">
-                  🚨 EMERGENCY CLOSED
-                </span>
-              )}
-              
               {/* Normal status */}
               {isCurrentlyOpen && shop.isOnline ? (
                 <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
@@ -102,18 +90,6 @@ export default function UnifiedShopCard({
         {/* Status badges when no image */}
         {!shop.exteriorImage && (
           <div className="flex gap-2 mb-4">
-            {/* EMERGENCY OVERRIDE INDICATOR */}
-            {shop.isOnline && !isCurrentlyOpen && (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold bg-red-500 text-white animate-pulse">
-                ⚡ EMERGENCY OPEN
-              </span>
-            )}
-            {!shop.isOnline && isCurrentlyOpen && (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold bg-orange-500 text-white animate-pulse">
-                🚨 EMERGENCY CLOSED
-              </span>
-            )}
-            
             {/* Normal status */}
             {isCurrentlyOpen && shop.isOnline ? (
               <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">

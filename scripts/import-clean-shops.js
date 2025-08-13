@@ -240,11 +240,19 @@ function parsePhoneNumber(phoneStr) {
   // Handle scientific notation (e.g., 9.19E+11)
   if (phoneStr.includes('E+')) {
     const num = parseFloat(phoneStr);
-    return num.toString();
+    // Convert to integer string without decimals
+    return Math.round(num).toString();
   }
   
-  // Clean up phone number
-  return phoneStr.replace(/[^\d]/g, '');
+  // Clean up phone number and keep only digits
+  const cleaned = phoneStr.replace(/[^\d]/g, '');
+  
+  // Ensure it's a valid 10-digit Indian number
+  if (cleaned.length >= 10) {
+    return cleaned.slice(-10); // Take last 10 digits
+  }
+  
+  return cleaned;
 }
 
 function extractServices(categories) {
@@ -351,7 +359,7 @@ async function importShops() {
               phone: finalPhone,
               name: ownerName,
               email: ownerEmail,
-              passwordHash: await bcrypt.hash('printeasy123', 10),
+              passwordHash: await bcrypt.hash('PrintEasyQR@2025', 10),
               role: 'shop_owner',
               isActive: true
             });
@@ -392,7 +400,7 @@ async function importShops() {
             ownerPhone: finalPhone,
             completeAddress,
             services,
-            equipment: ['printer', 'scanner', 'photocopier'], // Default equipment
+            equipment: [], // No equipment as per user requirement
             workingHours,
             acceptsWalkinOrders: true,
             isOnline: true,
