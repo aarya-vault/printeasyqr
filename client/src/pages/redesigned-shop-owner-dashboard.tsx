@@ -82,6 +82,7 @@ interface Order {
   updatedAt: string;
   unreadMessages?: number;
   isUrgent: boolean;
+  deletedAt?: string | null;
 }
 
 interface DashboardStats {

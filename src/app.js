@@ -203,15 +203,30 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
       fullUrl: req.url
     });
     
-    // Generate signed URL for downloading - CORRECT PARAMETER NAMES
+    // Generate signed URL for downloading - using local file system fallback
+    console.log('📥 Download request for:', objectPath);
+    
+    // For local development, try direct file access first
+    const fs = await import('fs');
+    const path = await import('path');
+    const localPath = path.join(process.cwd(), objectPath);
+    
+    // Check if file exists locally
+    if (fs.existsSync(localPath)) {
+      console.log('✅ Found local file:', localPath);
+      const stream = fs.createReadStream(localPath);
+      return stream.pipe(res);
+    }
+    
+    // Fallback to object storage
     const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        bucketName: bucketName, // Changed from bucket_name
-        objectPath: objectPath,  // Changed from object_name
-        action: 'read',         // Changed from method: 'GET'
-        expiresIn: 3600         // Changed from expires_at
+        bucketName: bucketName,
+        objectPath: objectPath,
+        action: 'read',
+        expiresIn: 3600
       }),
     });
 
