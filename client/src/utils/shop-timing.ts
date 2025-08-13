@@ -5,10 +5,15 @@
 
 export interface WorkingHours {
   [day: string]: {
-    open: string;
-    close: string;
+    // Legacy format fields
+    open?: string;
+    close?: string;
     closed?: boolean;
     is24Hours?: boolean; // Explicit 24/7 flag
+    // Database format fields
+    isOpen?: boolean;
+    openTime?: string;
+    closeTime?: string;
   };
 }
 
@@ -59,14 +64,22 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     todayHours
   });
 
-  // If day is explicitly marked as closed or missing required fields
-  if (!todayHours || todayHours.closed === true) {
+  // Handle both database formats: {isOpen, openTime, closeTime} and {open, close, closed}
+  // Database format uses isOpen/openTime/closeTime
+  // Legacy format uses open/close/closed
+  
+  // Check if explicitly closed
+  if (!todayHours || todayHours.closed === true || todayHours.isOpen === false) {
     console.log('❌ SHOP TIMING - Shop is explicitly closed today');
     return false;
   }
   
-  // Check if hours object exists but missing open/close times
-  if (!todayHours.open && !todayHours.close) {
+  // Get open and close times (handle both formats)
+  const openTime = todayHours.openTime || todayHours.open;
+  const closeTime = todayHours.closeTime || todayHours.close;
+  
+  // Check if hours are missing
+  if (!openTime && !closeTime) {
     console.log('❌ SHOP TIMING - Shop has no valid hours defined for today');
     return false;
   }
@@ -78,28 +91,28 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
   }
 
   // Handle 24/7 operation - if open time equals close time (common pattern: 00:00 = 00:00)
-  if (todayHours.open === todayHours.close) {
+  if (openTime === closeTime) {
     console.log('✅ SHOP TIMING - Shop has same open/close time, treating as 24/7');
     return true;
   }
 
   // Special 24/7 patterns
-  if ((todayHours.open === '00:00' && todayHours.close === '00:00') ||
-      (todayHours.open === '0:00' && todayHours.close === '0:00')) {
+  if ((openTime === '00:00' && closeTime === '00:00') ||
+      (openTime === '0:00' && closeTime === '0:00')) {
     console.log('✅ SHOP TIMING - Shop has 00:00-00:00 schedule, treating as 24/7');
     return true;
   }
 
   // Handle overnight operations (e.g., 22:00 to 06:00)
-  if (todayHours.open > todayHours.close) {
-    const isOpen = currentTime >= todayHours.open || currentTime <= todayHours.close;
-    console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Overnight operation: ${todayHours.open}-${todayHours.close}, current: ${currentTime}`);
+  if (openTime > closeTime) {
+    const isOpen = currentTime >= openTime || currentTime <= closeTime;
+    console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Overnight operation: ${openTime}-${closeTime}, current: ${currentTime}`);
     return isOpen;
   }
 
   // Normal day operation (e.g., 09:00 to 18:00)
-  const isOpen = currentTime >= todayHours.open && currentTime <= todayHours.close;
-  console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Normal operation: ${todayHours.open}-${todayHours.close}, current: ${currentTime}`);
+  const isOpen = currentTime >= openTime && currentTime <= closeTime;
+  console.log(`${isOpen ? '✅' : '❌'} SHOP TIMING - Normal operation: ${openTime}-${closeTime}, current: ${currentTime}`);
   
   return isOpen;
 }

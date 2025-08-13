@@ -418,7 +418,15 @@ export default function RedesignedShopSettings() {
                   <CardContent className="p-8 space-y-4">
                     {DAYS.map((day) => {
                       const dayKey = day.toLowerCase();
-                      const hours = formData.workingHours[dayKey] || { open: '09:00', close: '18:00', closed: false, is24Hours: false };
+                      const rawHours = formData.workingHours[dayKey] || {};
+                      
+                      // Handle both database format (isOpen, openTime, closeTime) and legacy format (open, close, closed)
+                      const hours = {
+                        open: (rawHours as any).openTime || (rawHours as any).open || '09:00',
+                        close: (rawHours as any).closeTime || (rawHours as any).close || '18:00',
+                        closed: (rawHours as any).isOpen === false || (rawHours as any).closed || false,
+                        is24Hours: (rawHours as any).is24Hours || false
+                      };
                       
                       return (
                         <div key={day} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">

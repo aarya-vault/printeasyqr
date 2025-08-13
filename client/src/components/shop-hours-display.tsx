@@ -31,14 +31,25 @@ export function ShopHoursDisplay({ workingHours, compact = false, showToday = fa
 
   const getStatusForDay = (dayKey: string) => {
     const hours = workingHours[dayKey];
-    if (!hours || hours.closed) {
+    
+    // Handle both formats: {isOpen, openTime, closeTime} and {open, close, closed}
+    if (!hours || hours.closed || (hours as any).isOpen === false) {
       return { status: 'Closed', className: 'bg-gray-200 text-gray-600' };
     }
     if (hours.is24Hours) {
       return { status: 'Open 24 Hours', className: 'bg-green-500 text-white' };
     }
+    
+    // Get times from either format
+    const openTime = (hours as any).openTime || hours.open;
+    const closeTime = (hours as any).closeTime || hours.close;
+    
+    if (!openTime || !closeTime) {
+      return { status: 'Closed', className: 'bg-gray-200 text-gray-600' };
+    }
+    
     return { 
-      status: `${formatTime(hours.open)} - ${formatTime(hours.close)}`, 
+      status: `${formatTime(openTime)} - ${formatTime(closeTime)}`, 
       className: 'bg-brand-yellow text-rich-black' 
     };
   };
