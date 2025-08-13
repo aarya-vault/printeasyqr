@@ -150,6 +150,18 @@ function generateSlug(name) {
     .substring(0, 50);
 }
 
+function generateEmailFromShopName(shopName) {
+  // Generate clean email from shop name
+  const cleanName = shopName
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+    .replace(/\s+/g, '') // Remove all spaces
+    .replace(/xerox|copy|centre|center|shop|store|prints?|digital|enterprise|systems?|solutions?|services?/g, '') // Remove business words
+    .substring(0, 20); // Limit length
+    
+  return cleanName ? `${cleanName}@printeasyqr.com` : `shop${Date.now()}@printeasyqr.com`;
+}
+
 function generateOwnerName(shopName) {
   // Remove common business words and generate owner name
   const cleanName = shopName
@@ -171,7 +183,7 @@ function parseWorkingHours(row) {
     'Sunday': 'sunday'
   };
 
-  // Parse opening hours from CSV columns
+  // Parse opening hours from CSV columns (openingHours/0/day, openingHours/0/hours, etc.)
   for (let i = 0; i < 7; i++) {
     const dayKey = `openingHours/${i}/day`;
     const hoursKey = `openingHours/${i}/hours`;
@@ -184,7 +196,7 @@ function parseWorkingHours(row) {
         if (hours.toLowerCase().includes('closed')) {
           workingHours[dayName] = { isOpen: false };
         } else {
-          // Parse time ranges like "9 AM to 10 PM" or "10 AM–8:30 PM"
+          // Parse time ranges like "9 AM to 10 PM", "10 AM–8:30 PM", "9:30 AM to 9:30 PM"
           const timeMatch = hours.match(/(\d{1,2}(?::\d{2})?\s*(?:AM|PM))\s*(?:to|–|-)\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM))/i);
           if (timeMatch) {
             const openTime = convertTo24Hour(timeMatch[1]);
@@ -195,7 +207,7 @@ function parseWorkingHours(row) {
               closeTime: closeTime
             };
           } else {
-            // Default fallback
+            // Default fallback for unparseable times
             workingHours[dayName] = {
               isOpen: true,
               openTime: "09:00",
@@ -205,6 +217,18 @@ function parseWorkingHours(row) {
         }
       }
     }
+  }
+
+  // If no working hours found, set default
+  if (Object.keys(workingHours).length === 0) {
+    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].forEach(day => {
+      workingHours[day] = {
+        isOpen: true,
+        openTime: "09:00",
+        closeTime: "18:00"
+      };
+    });
+    workingHours.sunday = { isOpen: false };
   }
 
   return workingHours;
@@ -268,16 +292,60 @@ async function main() {
     console.log('✅ Database models synchronized');
     
     const shops = [];
-    const csvPath = 'clean_shops.csv';
+    const csvPath = 'attached_assets/updated filtered data!_1755023573628.csv';
     
-    // Read and parse CSV
+    // Read and parse CSV - first get headers manually
+    const headers = [];
+    let dataStarted = false;
+    
     await new Promise((resolve, reject) => {
       fs.createReadStream(csvPath)
         .pipe(csv({
           skipEmptyLines: true
         }))
+        .on('headers', (headerList) => {
+          headers.push(...headerList);
+          console.log(`📋 CSV Headers found: ${headers.slice(0, 10).join(', ')}...`);
+        })
         .on('data', (row) => {
-          shops.push(row);
+          if (!dataStarted) {
+            dataStarted = true;
+            console.log(`📋 First row data:`, {
+              title: row[headers[0]],
+              phone: row[headers[38]],
+              availableKeys: Object.keys(row).slice(0, 5)
+            });
+          }
+          
+          // Map to proper field names
+          const mappedRow = {
+            title: row[headers[0]], // First column should be title
+            address: row[headers[1]],
+            phone: row[headers[38]], // Phone column
+            phoneUnformatted: row[headers[39]],
+            city: row[headers[14]],
+            state: row[headers[47]],
+            postalCode: row[headers[40]],
+            url: row[headers[51]],
+            imageUrl: row[headers[17]],
+            neighborhood: row[headers[22]],
+            street: row[headers[48]]
+          };
+          
+          // Add opening hours
+          for (let i = 0; i < 7; i++) {
+            const dayIndex = 23 + (i * 2); // openingHours/0/day starts at index 23
+            const hoursIndex = 24 + (i * 2); // openingHours/0/hours starts at index 24
+            mappedRow[`openingHours/${i}/day`] = row[headers[dayIndex]];
+            mappedRow[`openingHours/${i}/hours`] = row[headers[hoursIndex]];
+          }
+          
+          // Add categories
+          for (let i = 0; i < 10; i++) {
+            mappedRow[`categories/${i}`] = row[headers[2 + i]];
+          }
+          
+          shops.push(mappedRow);
         })
         .on('end', resolve)
         .on('error', reject);
@@ -298,6 +366,11 @@ async function main() {
           ...row,
           extractedPhone: phoneNumber
         });
+      } else {
+        // Debug logging for first few rejected shops
+        if (validShops.length < 5) {
+          console.log(`❌ Rejecting: "${row.title}" - Phone: "${row.phone}" - Extracted: "${phoneNumber}"`);
+        }
       }
     }
     
@@ -316,32 +389,42 @@ async function main() {
         
         console.log(`🔍 Processing: ${shopName} (Phone: ${ownerPhone})`);
         
-        // Generate unique identifiers
-        const uniqueId = `${importedCount + 1}_${Date.now().toString().slice(-4)}`;
-        const uniqueEmail = `shop_${uniqueId}@printeasyqr.com`;
+        // Generate proper email from shop name
+        const shopEmail = generateEmailFromShopName(shopName);
         
-        // Create shop owner user
-        const [user, userCreated] = await User.findOrCreate({
-          where: { phone: ownerPhone },
-          defaults: {
+        // Create shop owner user - handle duplicates
+        let user = await User.findOne({ where: { phone: ownerPhone } });
+        if (!user) {
+          // Check if email exists, make it unique if needed
+          let finalEmail = shopEmail;
+          let emailCounter = 1;
+          while (await User.findOne({ where: { email: finalEmail } })) {
+            const emailParts = shopEmail.split('@');
+            finalEmail = `${emailParts[0]}${emailCounter}@${emailParts[1]}`;
+            emailCounter++;
+          }
+          
+          user = await User.create({
             phone: ownerPhone,
             name: ownerName,
-            email: uniqueEmail,
+            email: finalEmail,
             passwordHash: hashedPassword,
             role: 'shop_owner',
             isActive: true
-          }
-        });
+          });
+        }
         
         // Handle duplicate shop names
         let uniqueShopName = shopName;
         let shopSlug = generateSlug(shopName);
         
-        const existingShop = await Shop.findOne({ where: { name: uniqueShopName } });
-        if (existingShop) {
-          const suffix = row.neighborhood || row.street || row.address || 'Branch';
-          uniqueShopName = `${shopName} - ${suffix}`.substring(0, 100);
-          shopSlug = `${shopSlug}-${importedCount + 1}`;
+        // Check for existing shop with same name
+        let nameCounter = 1;
+        let finalShopName = uniqueShopName;
+        while (await Shop.findOne({ where: { name: finalShopName } })) {
+          const suffix = row.neighborhood || row.street || `Branch ${nameCounter}`;
+          finalShopName = `${shopName} - ${suffix}`.substring(0, 100);
+          nameCounter++;
         }
         
         // Ensure unique slug
@@ -354,7 +437,7 @@ async function main() {
         
         // Create shop
         const shop = await Shop.create({
-          name: uniqueShopName,
+          name: finalShopName,
           slug: finalSlug,
           address: row.street || row.address || '',
           city: row.city || 'Ahmedabad',
@@ -364,7 +447,7 @@ async function main() {
           publicOwnerName: ownerName,
           internalName: uniqueShopName,
           ownerFullName: ownerName,
-          email: uniqueEmail,
+          email: shopEmail,
           ownerPhone: ownerPhone,
           completeAddress: row.address || '',
           services: services,
