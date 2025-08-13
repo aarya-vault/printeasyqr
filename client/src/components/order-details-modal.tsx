@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { printFile, printAllFiles } from '@/utils/print-helpers';
+import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
 import { apiClient } from '@/lib/api-client';
 
 interface Order {

@@ -6,12 +6,14 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     throw new Error('Files are no longer available for completed orders');
   }
   
-  // Handle both old format (filename) and new format (path)
+  // Handle both old format (filename) and new format (path) - use download proxy for CORS
   let fileUrl;
   if (file.path) {
-    fileUrl = file.path; // Use path as-is, object routes handle redirection
+    // Use download proxy endpoint to bypass CORS
+    const objectPath = file.path.startsWith('.private/') ? file.path : '.private/' + file.path.replace('/objects/', '');
+    fileUrl = `/api/download/${objectPath}`;
   } else {
-    fileUrl = `/objects/.private/uploads/${file.filename || file}`;
+    fileUrl = `/api/download/.private/uploads/${file.filename || file}`;
   }
   
   const filename = file.originalName || file.filename || file;

@@ -44,6 +44,7 @@ import notificationRoutes from './routes/notification.routes.js';
 import pincodeRoutes from './routes/pincode.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import otpRoutes from './routes/otp.routes.js';
+import downloadRoutes from './routes/download.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
