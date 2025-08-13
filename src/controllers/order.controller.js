@@ -329,6 +329,118 @@ class OrderController {
     }
   }
 
+  // Add files to existing order
+  static async addFilesToOrder(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      const order = await Order.findByPk(orderId, {
+        include: [{ model: Shop, as: 'shop' }]
+      });
+      
+      if (!order) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Order not found' });
+      }
+
+      // Check permissions - only order customer can add files
+      if (order.customerId !== req.user.id && req.user.role !== 'admin') {
+        await transaction.rollback();
+        return res.status(403).json({ message: 'Access denied. Only the order customer can add files.' });
+      }
+
+      // Prevent adding files to completed orders
+      if (order.status === 'completed') {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'Cannot add files to completed orders' });
+      }
+
+      if (!req.files || req.files.length === 0) {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'No files provided' });
+      }
+
+      console.log(`📤 Adding ${req.files.length} files to existing order ${orderId}...`);
+      
+      // Get existing files
+      let existingFiles = [];
+      if (order.files) {
+        existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
+      }
+
+      // Process new files using local storage
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      // Ensure uploads directory exists
+      if (!fs.existsSync('uploads')) {
+        fs.mkdirSync('uploads', { recursive: true });
+      }
+      
+      // Save new files locally
+      const newFiles = req.files.map((file, index) => {
+        const timestamp = Date.now();
+        const filename = `${timestamp}-${index}-${file.originalname}`;
+        const localPath = `uploads/${filename}`;
+        
+        // Write file to disk
+        fs.writeFileSync(localPath, file.buffer);
+        console.log(`💾 File saved locally: ${localPath}`);
+        
+        return {
+          filename: filename,
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size,
+          path: localPath,
+          isLocalFile: true
+        };
+      });
+
+      // Combine existing and new files
+      const allFiles = [...existingFiles, ...newFiles];
+      
+      // Update order with new files
+      await order.update({ files: allFiles }, { transaction });
+      await transaction.commit();
+      
+      console.log(`✅ Successfully added ${newFiles.length} files to order ${orderId}`);
+      
+      // Return updated order
+      const updatedOrder = await Order.findByPk(orderId, {
+        include: [
+          { model: User, as: 'customer' },
+          { model: Shop, as: 'shop' }
+        ]
+      });
+      
+      const transformedOrder = OrderController.transformOrderData(updatedOrder);
+      
+      // Broadcast update to shop owner
+      broadcast({
+        type: 'ORDER_FILES_ADDED',
+        orderId: orderId,
+        shopId: order.shopId,
+        customerId: order.customerId,
+        newFilesCount: newFiles.length,
+        order: transformedOrder,
+        timestamp: new Date().toISOString()
+      });
+      
+      res.json({
+        message: `Successfully added ${newFiles.length} files to order`,
+        order: transformedOrder,
+        newFiles: newFiles
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Add files to order error:', error);
+      res.status(500).json({ message: 'Failed to add files to order' });
+    }
+  }
+
   // Delete order files from filesystem
   static async deleteOrderFiles(orderId, transaction = null) {
     try {

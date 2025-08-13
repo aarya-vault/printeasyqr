@@ -58,6 +58,7 @@ const optionalAuth = (req, res, next) => {
 router.get('/orders/:id/details', optionalAuth, OrderController.getOrder); // Public endpoint with optional auth
 router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
+router.post('/orders/:id/add-files', requireAuth, upload.array('files'), OrderController.addFilesToOrder);
 router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
 // Anonymous order route (no auth required)
