@@ -28,7 +28,11 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server },
+    hmr: {
+      port: 5001, // EXPLICIT HMR PORT
+      host: "0.0.0.0",
+      server,
+    },
     allowedHosts: true as const,
   };
 
@@ -54,7 +58,7 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     // Skip API routes - let Express handle them
-    if (url.startsWith('/api/')) {
+    if (url.startsWith("/api/")) {
       return next();
     }
 
