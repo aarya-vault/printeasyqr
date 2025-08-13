@@ -21,21 +21,27 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5000, // CHANGED FROM 3000
+    port: 5000,
     host: "0.0.0.0",
     hmr: {
-      port: 5001, // ADDED EXPLICIT HMR PORT
+      port: 5001,
       host: "localhost",
+      clientPort: 5001, // This is the key fix!
     },
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // CHANGED FROM 3001
+        target: "http://localhost:5000",
         changeOrigin: true,
       },
       "/ws": {
-        target: "ws://localhost:5000", // CHANGED FROM 3001
+        target: "ws://localhost:5000",
         ws: true,
       },
     },
+  },
+  // Add environment variables to prevent 0.0.0.0 connection issues
+  define: {
+    __VITE_HMR_HOST__: JSON.stringify("localhost"),
+    __VITE_HMR_PORT__: 5001,
   },
 });
