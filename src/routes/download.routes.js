@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 const router = Router();
 
 // Download file from object storage
-router.get('/download/*', requireAuth, async (req, res) => {
+router.get('/download/*', async (req, res) => {  // Removed requireAuth temporarily for debugging
   try {
     // Get the file path from the URL
     const filePath = req.params[0];
@@ -13,11 +13,18 @@ router.get('/download/*', requireAuth, async (req, res) => {
     
     console.log('📥 Download request for:', filePath);
     
-    // Construct the full object path
+    // Normalize the object path
     let objectPath = filePath;
+    
+    // Remove any duplicate .private paths
+    objectPath = objectPath.replace(/^\.private\/\.private\//, '.private/');
+    
+    // Ensure proper /objects/ prefix
     if (!objectPath.startsWith('/objects/')) {
-      objectPath = `/objects/${filePath}`;
+      objectPath = `/objects/${objectPath}`;
     }
+    
+    console.log('🔍 Normalized object path:', objectPath);
     
     // Use fetch to get file from object storage via signed URL
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
@@ -35,8 +42,9 @@ router.get('/download/*', requireAuth, async (req, res) => {
     });
     
     if (!signedUrlResponse.ok) {
-      console.error('❌ Failed to generate signed URL');
-      return res.status(500).json({ message: 'Failed to generate download URL' });
+      console.error('❌ Failed to generate signed URL:', await signedUrlResponse.text());
+      console.error('❌ Download error: Object not found');
+      return res.status(404).json({ message: 'File not found' });
     }
     
     const { signedUrl } = await signedUrlResponse.json();

@@ -174,7 +174,7 @@ app.use('/api/pincode', pincodeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
-app.use('/api', downloadRoutes); // Download routes for file access
+// app.use('/api', downloadRoutes); // DISABLED - Using inline download route instead
 
 // Object Storage download proxy - bypass CORS restrictions
 app.get('/api/download/:objectPath(*)', async (req, res) => {
@@ -182,7 +182,10 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
     let objectPath = req.params.objectPath;
     const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
     
-    // Keep the full .private path as files are stored with this prefix in the bucket
+    // Ensure proper /objects/ prefix for object storage
+    if (!objectPath.startsWith('/objects/')) {
+      objectPath = `/objects/${objectPath}`;
+    }
     
     // Extract originalName from URL query parameter manually
     const urlParts = req.url.split('?');
@@ -200,24 +203,25 @@ app.get('/api/download/:objectPath(*)', async (req, res) => {
       fullUrl: req.url
     });
     
-    // Generate signed URL for downloading
+    // Generate signed URL for downloading - CORRECT PARAMETER NAMES
     const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        bucket_name: bucketName,
-        object_name: objectPath,
-        method: 'GET',
-        expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        bucketName: bucketName, // Changed from bucket_name
+        objectPath: objectPath,  // Changed from object_name
+        action: 'read',         // Changed from method: 'GET'
+        expiresIn: 3600         // Changed from expires_at
       }),
     });
 
     if (!signedUrlResponse.ok) {
-      console.error('Failed to get signed URL for download:', signedUrlResponse.status);
+      const errorText = await signedUrlResponse.text();
+      console.error('Failed to get signed URL for download:', signedUrlResponse.status, errorText);
       return res.status(404).json({ error: 'File not found' });
     }
 
-    const { signed_url: signedUrl } = await signedUrlResponse.json();
+    const { signedUrl } = await signedUrlResponse.json(); // Changed from signed_url
     
     // Fetch and stream the file
     const fileResponse = await fetch(signedUrl);
