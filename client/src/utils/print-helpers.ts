@@ -6,18 +6,20 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     throw new Error('Files are no longer available for completed orders');
   }
   
-  // Build the correct file URL
+  // Build the correct file URL for local storage
   let fileUrl;
   if (file.path) {
-    // File path is already in /objects/.private format
+    // Handle local file storage path
     let path = file.path;
-    // Remove /objects/ prefix if present
-    if (path.startsWith('/objects/')) {
-      path = path.substring(9);
+    // Remove 'uploads/' prefix if present to normalize
+    if (path.startsWith('uploads/')) {
+      path = path.substring(8);
     }
     fileUrl = `/api/download/${path}`;
+  } else if (file.filename) {
+    fileUrl = `/api/download/${file.filename}`;
   } else {
-    fileUrl = `/api/download/.private/uploads/${file.filename || file}`;
+    fileUrl = `/api/download/${file}`;
   }
   
   const filename = file.originalName || file.filename || file;
@@ -79,19 +81,22 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
     throw new Error('File no longer available - deleted after order completion');
   }
 
-  // Handle both old format (filename) and new format (path)  
+  // Handle both old format (filename) and new format (path) for local storage
   let downloadPath;
   if (file.path) {
-    // File path is already in /objects/.private format
+    // Handle local file storage path
     let path = file.path;
-    // Remove /objects/ prefix if present
-    if (path.startsWith('/objects/')) {
-      path = path.substring(9);
+    // Remove 'uploads/' prefix if present to normalize
+    if (path.startsWith('uploads/')) {
+      path = path.substring(8);
     }
     downloadPath = `/api/download/${path}`;
+  } else if (file.filename) {
+    // Use filename directly
+    downloadPath = `/api/download/${file.filename}`;
   } else {
-    // Fallback for old filename format
-    downloadPath = `/api/download/.private/uploads/${file.filename || file}`;
+    // Fallback for string filename
+    downloadPath = `/api/download/${file}`;
   }
   
   // Use the original filename if available, otherwise fall back to the generated filename
