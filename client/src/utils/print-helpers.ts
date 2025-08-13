@@ -1,4 +1,4 @@
-// Simple print function using basic iframe - the working solution
+// Enhanced print function that opens files directly in print dialog without download
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
   if (orderStatus === 'completed') {
@@ -23,57 +23,132 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   }
   
   const filename = file.originalName || file.filename || file;
+  const isPDF = filename.toLowerCase().endsWith('.pdf') || file.mimetype === 'application/pdf';
   
   console.log(`🖨️ Printing file: ${filename}`);
 
-  // Simple iframe print solution that works
+  // Enhanced print solution for PDFs and other files
   return new Promise<void>((resolve, reject) => {
     try {
-      // Create a hidden iframe for printing
-      const iframe = document.createElement('iframe');
-      iframe.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;border:none;';
-      iframe.src = fileUrl;
-      
-      // Add to document
-      document.body.appendChild(iframe);
-      
-      // Wait for iframe to load then print
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-          } catch (e) {
-            console.log('Print initiated');
-          }
-          // Clean up after a delay
+      if (isPDF) {
+        // For PDFs, open in a new window with print dialog
+        const printWindow = window.open(fileUrl, '_blank');
+        
+        if (printWindow) {
+          // Set up the print action
+          const checkLoaded = setInterval(() => {
+            try {
+              // Check if the PDF is loaded
+              if (printWindow.document.readyState === 'complete') {
+                clearInterval(checkLoaded);
+                
+                // Trigger print after a short delay
+                setTimeout(() => {
+                  printWindow.print();
+                  
+                  // Listen for afterprint event to close window
+                  printWindow.addEventListener('afterprint', () => {
+                    printWindow.close();
+                    resolve();
+                  });
+                  
+                  // Fallback resolution
+                  setTimeout(() => {
+                    resolve();
+                  }, 2000);
+                }, 1000);
+              }
+            } catch (e) {
+              // Cross-origin or other errors - use alternative method
+              clearInterval(checkLoaded);
+              
+              // Alternative: Create hidden iframe with PDF embed
+              const iframe = document.createElement('iframe');
+              iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;';
+              iframe.src = fileUrl;
+              
+              document.body.appendChild(iframe);
+              
+              iframe.onload = () => {
+                setTimeout(() => {
+                  try {
+                    // Try to focus and print
+                    iframe.contentWindow?.focus();
+                    iframe.contentWindow?.print();
+                    
+                    // Remove after print
+                    setTimeout(() => {
+                      document.body.removeChild(iframe);
+                      resolve();
+                    }, 2000);
+                  } catch (printError) {
+                    // Fallback: use window.print on the iframe
+                    iframe.contentWindow?.print();
+                    setTimeout(() => {
+                      document.body.removeChild(iframe);
+                      resolve();
+                    }, 2000);
+                  }
+                }, 1000);
+              };
+            }
+          }, 500);
+          
+          // Timeout safety
           setTimeout(() => {
-            document.body.removeChild(iframe);
+            clearInterval(checkLoaded);
+            resolve();
+          }, 10000);
+        } else {
+          // Popup blocked - use iframe method
+          const iframe = document.createElement('iframe');
+          iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;';
+          iframe.src = fileUrl;
+          
+          document.body.appendChild(iframe);
+          
+          iframe.onload = () => {
+            setTimeout(() => {
+              iframe.contentWindow?.focus();
+              iframe.contentWindow?.print();
+              
+              setTimeout(() => {
+                document.body.removeChild(iframe);
+                resolve();
+              }, 2000);
+            }, 1000);
+          };
+        }
+      } else {
+        // For non-PDF files, use object/embed approach
+        const printContainer = document.createElement('div');
+        printContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;';
+        
+        const embed = document.createElement('embed');
+        embed.src = fileUrl;
+        embed.style.cssText = 'width:100%;height:100%;';
+        embed.type = file.mimetype || 'application/octet-stream';
+        
+        printContainer.appendChild(embed);
+        document.body.appendChild(printContainer);
+        
+        // Wait for load and print
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => {
+            document.body.removeChild(printContainer);
             resolve();
           }, 1000);
-        }, 500);
-      };
-      
-      // Handle errors
-      iframe.onerror = () => {
-        document.body.removeChild(iframe);
-        reject(new Error('Failed to load file for printing'));
-      };
-      
-      // Timeout fallback
-      setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
-        }
-        resolve();
-      }, 5000);
+        }, 1500);
+      }
     } catch (error) {
+      console.error('Print error:', error);
       reject(error);
     }
   });
 };
 
-// Download function using server proxy to bypass CORS restrictions
+// Direct download function - super easy, no prompts
 export const downloadFile = (file: any, orderStatus?: string): void => {
   // Check if file is accessible before attempting to download
   if (orderStatus === 'completed') {
@@ -102,21 +177,19 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   // Use the original filename if available, otherwise fall back to the generated filename
   const originalName = file.originalName || file.filename || 'document.pdf';
   
-  // Add original filename as query parameter to help server set correct filename
-  const downloadUrl = `${downloadPath}?originalName=${encodeURIComponent(originalName)}`;
+  // Direct download using invisible iframe - bypasses "Save As" dialog
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
   
-  // Create download link and trigger download immediately
-  const link = document.createElement('a');
-  link.href = downloadUrl;
-  link.download = originalName; // Browser hint for filename
-  link.style.display = 'none';
+  document.body.appendChild(iframe);
   
-  // Add to DOM, click, and remove
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Clean up iframe after download starts
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+  }, 3000);
   
-  console.log(`📥 Download started: ${originalName}`);
+  console.log(`📥 Direct download triggered: ${originalName}`);
 };
 
 // Download all files at once (simple and direct)
