@@ -3,10 +3,15 @@ import { format, parse, isAfter, isBefore, isEqual } from 'date-fns';
 
 export interface WorkingHours {
   [day: string]: {
+    // Legacy format
     open?: string;
     close?: string;
     closed?: boolean;
     is24Hours?: boolean;
+    // Database format
+    isOpen?: boolean;
+    openTime?: string;
+    closeTime?: string;
   };
 }
 
@@ -96,6 +101,22 @@ export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolea
     return false; // No hours defined for today
   }
 
+  // Handle database format: { isOpen: true/false, openTime: "10:00", closeTime: "20:30" }
+  if (dayHours.isOpen === false) return false;
+  if (dayHours.isOpen === true && dayHours.openTime && dayHours.closeTime) {
+    try {
+      const openTime = parse(dayHours.openTime, 'HH:mm', new Date());
+      const closeTime = parse(dayHours.closeTime, 'HH:mm', new Date());
+      const currentTime = parse(format(now, 'HH:mm'), 'HH:mm', new Date());
+      
+      return isAfter(currentTime, openTime) && isBefore(currentTime, closeTime);
+    } catch (error) {
+      console.warn('Failed to parse working hours for', currentDay, dayHours, error);
+      return false;
+    }
+  }
+
+  // Handle legacy format
   if (dayHours.closed) return false;
   if (dayHours.is24Hours) return true;
 
@@ -129,6 +150,13 @@ export function getWorkingHoursDisplay(workingHours: WorkingHours | string): str
     const todayHours = workingHours[today];
     
     if (todayHours) {
+      // Handle database format: { isOpen: true/false, openTime: "10:00", closeTime: "20:30" }
+      if (todayHours.isOpen === false) return 'Closed Today';
+      if (todayHours.isOpen === true && todayHours.openTime && todayHours.closeTime) {
+        return `${todayHours.openTime} - ${todayHours.closeTime}`;
+      }
+      
+      // Handle legacy format
       if (todayHours.closed) return 'Closed Today';
       if (todayHours.is24Hours) return '24/7 Open';
       if (todayHours.open && todayHours.close) {
@@ -152,7 +180,7 @@ export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string
   }
   
   // Helper function to parse legacy string format like "10 AM to 10 PM"
-  function parseLegacyHoursString(hoursStr: string): string {
+  const parseLegacyHoursString = (hoursStr: string): string => {
     if (!hoursStr || hoursStr.toLowerCase().includes('closed')) {
       return 'Closed';
     }
@@ -168,7 +196,7 @@ export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string
     if (match) {
       const [, openTime, closeTime] = match;
       
-      function convertTo24Hour(timeStr: string): string {
+      const convertTo24Hour = (timeStr: string): string => {
         const parts = timeStr.trim().split(' ');
         if (parts.length < 2) {
           // If no AM/PM, assume it's already 24-hour format
@@ -194,7 +222,7 @@ export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string
     }
     
     return hoursStr; // Return as-is if can't parse
-  }
+  };
   
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   
@@ -213,11 +241,15 @@ export function formatWorkingHoursForDisplay(workingHours: WorkingHours | string
     let hours = 'Details not available';
     
     if (dayHours) {
-      // Handle new structured format: { open: "10:00", close: "22:00", closed: false }
-      if (typeof dayHours === 'object' && dayHours.open && dayHours.close) {
+      // Handle database format: { isOpen: true/false, openTime: "10:00", closeTime: "20:30" }
+      if (typeof dayHours === 'object' && dayHours.isOpen === false) {
+        hours = 'Closed';
+      } else if (typeof dayHours === 'object' && dayHours.isOpen === true && dayHours.openTime && dayHours.closeTime) {
+        hours = `${dayHours.openTime} - ${dayHours.closeTime}`;
+      }
+      // Handle legacy structured format: { open: "10:00", close: "22:00", closed: false }
+      else if (typeof dayHours === 'object' && dayHours.open && dayHours.close) {
         if (dayHours.closed === true) {
-          hours = 'Closed';
-        } else if (dayHours.isOpen === false) { // Handle legacy isOpen field
           hours = 'Closed';
         } else if (dayHours.is24Hours) {
           hours = '24/7 Open';
