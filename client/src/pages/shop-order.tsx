@@ -337,17 +337,6 @@ export default function ShopOrder() {
 
       {/* Order Form */}
       <div className="max-w-4xl mx-auto p-6">
-        {!shopOpen && (
-          <Card className="mb-6 border-red-200 bg-red-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-red-600">
-                <AlertCircle className="w-5 h-5" />
-                <p>This shop is currently closed. You can still place an order for later.</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <Card>
           <CardHeader>
             <CardTitle>Place Your Order</CardTitle>
