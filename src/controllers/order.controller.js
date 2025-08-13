@@ -163,21 +163,40 @@ class OrderController {
       
       const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
       
-      // 🚀 PARALLEL UPLOAD FIX: Upload files in parallel to object storage
+      // 📁 SIMPLE LOCAL FILE STORAGE: Save files locally for authenticated orders
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for PARALLEL object storage upload...`);
-        try {
-          // Upload all files in parallel for speed - NO COMPRESSION
-          files = await uploadFilesToObjectStorage(req.files);
-          console.log(`✅ Successfully uploaded ${files.length} files to object storage in parallel`);
-        } catch (uploadError) {
-          console.error('❌ Object storage upload failed:', uploadError);
-          return res.status(500).json({ 
-            message: 'Failed to upload files to storage',
-            error: uploadError.message 
-          });
+        console.log(`📤 Processing ${req.files.length} files for authenticated order (local storage)...`);
+        
+        const fs = await import('fs');
+        const path = await import('path');
+        
+        // Ensure uploads directory exists
+        if (!fs.existsSync('uploads')) {
+          fs.mkdirSync('uploads', { recursive: true });
         }
+        
+        // Save files locally - simple and reliable
+        files = req.files.map((file, index) => {
+          const timestamp = Date.now();
+          const filename = `${timestamp}-${index}-${file.originalname}`;
+          const localPath = `uploads/${filename}`;
+          
+          // Write file to disk
+          fs.writeFileSync(localPath, file.buffer);
+          console.log(`💾 File saved locally: ${localPath}`);
+          
+          return {
+            filename: filename,
+            originalName: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            path: localPath,
+            isLocalFile: true
+          };
+        });
+        
+        console.log(`✅ Successfully saved ${files.length} files locally for authenticated order`);
       }
       
       // Extract additional order details from request body
@@ -454,50 +473,40 @@ class OrderController {
         }, { transaction });
       }
       
-      // 🚀 OBJECT STORAGE FIX: Upload files with local storage fallback for anonymous orders
+      // 📁 SIMPLE LOCAL FILE STORAGE: Save files locally without object storage complexity
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for anonymous order upload...`);
-        try {
-          // Try object storage first
-          try {
-            files = await uploadFilesToObjectStorage(req.files);
-            console.log(`✅ Object storage upload successful: ${files.length} files for anonymous order`);
-          } catch (objectStorageError) {
-            console.warn('⚠️ Object storage failed for anonymous order, using local storage fallback:', objectStorageError.message);
-            
-            // Fallback to local storage
-            const fs = await import('fs');
-            const path = await import('path');
-            
-            files = req.files.map((file, index) => ({
-              filename: `${Date.now()}-${index}-${file.originalname}`,
-              originalName: file.originalname,
-              mimetype: file.mimetype,
-              size: file.size,
-              path: `uploads/${Date.now()}-${index}-${file.originalname}`,
-              isLocalFile: true
-            }));
-            
-            // Ensure uploads directory exists
-            if (!fs.existsSync('uploads')) {
-              fs.mkdirSync('uploads', { recursive: true });
-            }
-            
-            // Save files locally
-            for (let i = 0; i < req.files.length; i++) {
-              const file = req.files[i];
-              const localPath = `uploads/${files[i].filename}`;
-              fs.writeFileSync(localPath, file.buffer);
-              console.log(`💾 Anonymous order file saved locally: ${localPath}`);
-            }
-          }
-        } catch (uploadError) {
-          console.error('❌ Both object storage and local storage failed for anonymous order:', uploadError);
-          // Don't fail the order creation, just continue without files
-          console.warn('⚠️ Continuing order creation without files due to upload failure');
-          files = [];
+        console.log(`📤 Processing ${req.files.length} files for anonymous order (local storage)...`);
+        
+        const fs = await import('fs');
+        const path = await import('path');
+        
+        // Ensure uploads directory exists
+        if (!fs.existsSync('uploads')) {
+          fs.mkdirSync('uploads', { recursive: true });
         }
+        
+        // Save files locally - simple and reliable
+        files = req.files.map((file, index) => {
+          const timestamp = Date.now();
+          const filename = `${timestamp}-${index}-${file.originalname}`;
+          const localPath = `uploads/${filename}`;
+          
+          // Write file to disk
+          fs.writeFileSync(localPath, file.buffer);
+          console.log(`💾 File saved locally: ${localPath}`);
+          
+          return {
+            filename: filename,
+            originalName: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            path: localPath,
+            isLocalFile: true
+          };
+        });
+        
+        console.log(`✅ Successfully saved ${files.length} files locally for anonymous order`);
       }
       
       // Get next order number

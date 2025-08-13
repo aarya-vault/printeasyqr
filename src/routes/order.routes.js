@@ -67,49 +67,50 @@ router.post('/orders/anonymous', upload.array('files'), OrderController.createAn
 router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
 router.post('/orders/walkin', upload.array('files'), OrderController.createAnonymousOrder);
 
-// 🚀 CRITICAL FIX: Download endpoint for file access (fixes Issue #4)
+// 📁 SIMPLE FILE DOWNLOAD: Serve files from local uploads directory
 router.get('/download/*', optionalAuth, async (req, res) => {
   try {
     console.log('📥 Download request for:', req.params[0]);
     
-    // Construct object path - handle both .private/uploads/file and uploads/file patterns
-    let objectPath = req.params[0];
-    if (!objectPath.startsWith('.private/')) {
-      objectPath = `.private/${objectPath}`;
-    }
-    if (!objectPath.startsWith('/objects/')) {
-      objectPath = `/objects/${objectPath}`;
-    }
+    const fs = await import('fs');
+    const path = await import('path');
     
-    console.log('🔍 Normalized object path:', objectPath);
-    
-    // Get the file from object storage
-    const file = await objectStorageService.getObjectEntityFile(objectPath);
-    
-    // Set download filename if provided in query
-    const originalName = req.query.originalName;
-    if (originalName) {
-      res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    // Handle both uploads/filename and just filename patterns
+    let filePath = req.params[0];
+    if (!filePath.startsWith('uploads/')) {
+      filePath = `uploads/${filePath}`;
     }
     
-    // Stream the file to response
-    await objectStorageService.downloadObject(file, res);
+    console.log('🔍 Local file path:', filePath);
     
-    console.log('✅ File download completed:', originalName || objectPath);
-    
-  } catch (error) {
-    console.error('❌ Download error:', error.message);
-    if (error.name === 'ObjectNotFoundError') {
-      res.status(404).json({ 
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ 
         error: 'File not found',
         message: 'The requested file could not be found or may have been deleted'
       });
-    } else {
-      res.status(500).json({ 
-        error: 'Download failed',
-        message: error.message 
-      });
     }
+    
+    // Get file stats for content-length
+    const stats = fs.statSync(filePath);
+    
+    // Set download filename if provided in query
+    const originalName = req.query.originalName || path.basename(filePath);
+    res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+    res.setHeader('Content-Length', stats.size);
+    
+    // Create read stream and pipe to response
+    const readStream = fs.createReadStream(filePath);
+    readStream.pipe(res);
+    
+    console.log('✅ Local file download completed:', originalName);
+    
+  } catch (error) {
+    console.error('❌ Local file download error:', error.message);
+    res.status(500).json({ 
+      error: 'Download failed',
+      message: error.message 
+    });
   }
 });
 

@@ -16,7 +16,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Backend**: Express.js with Sequelize ORM.
 - **Database**: PostgreSQL.
 - **Real-time**: WebSocket connections.
-- **File Handling**: Multer for local storage.
+- **File Handling**: Multer with local storage (simplified, no external dependencies).
 - **State Management**: React Context API, TanStack Query.
 - **Authentication**: Pure JWT tokens.
 
@@ -33,7 +33,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Unified Chat System**: Real-time customer-shop owner communication with file attachments and timestamps.
 - **Comprehensive Admin Dashboard**: Manages users and shops (CRUD, application review, status), including QR Customer Acquisition Analytics.
 - **Dynamic Homepage**: Mobile-first design focusing on QR scanning, login, real-time chat, and order tracking.
-- **File Management**: Supports all file types, unlimited uploads (up to 500MB/file, 100 files/order), with local storage and automatic deletion on order completion.
+- **File Management**: Supports all file types, uploads (up to 50MB/file, 20 files/order), with simplified local storage and automatic deletion on order completion.
 - **Smart Order Logic**: Customer dashboards adapt UI based on order status.
 - **24/7 Shop Support**: Logic to handle 24-hour operations across the platform.
 - **Pure JWT Authentication**: Bcrypt hashing, stateless JWT tokens, and role-based middleware for API protection.
@@ -55,6 +55,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Production-Ready Shop Database**: Successfully imported 248 authentic print shops from CSV data with validated phone numbers, working hours from CSV (not hardcoded), Google Maps links, standardized passwords, and proper user accounts. Import script handles scientific notation phone parsing and duplicate shop names intelligently.
 - **Shop Status Management System**: Clean, professional feature allowing shop owners to control their shop's availability. Shop owners can open or close their shop at any time using the isOnline master switch, overriding scheduled working hours. The status toggle in the shop dashboard provides instant control with clear visual feedback using standard open/closed indicators.
 - **Production-Ready Architecture Assessment**: Comprehensive CTO-level analysis completed showing 7.5/10 production readiness score. Critical unhandled promise rejections addressed with global error handling system. Architecture supports 500+ concurrent users with optimization potential for 2,000+ users. Technical debt markers (1,782 instances) identified but manageable. Core systems (authentication, database, APIs) are production-grade with modern best practices.
+- **Simplified File Storage**: Removed object storage dependency for hassle-free setup. File uploads now use local storage only, eliminating need for external secrets or configurations. File size limits optimized for performance (50MB/file, 20 files/order).
 
 ## External Dependencies
 
