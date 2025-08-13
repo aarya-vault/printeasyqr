@@ -45,6 +45,7 @@ import pincodeRoutes from './routes/pincode.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import otpRoutes from './routes/otp.routes.js';
 import downloadRoutes from './routes/download.routes.js';
+import printHostRoutes from './routes/print-host.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -151,6 +152,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+
+
 // 🔥 CRITICAL FIX: Ensure API routes are handled before Vite middleware
 // This prevents the Vite catch-all from intercepting API requests
 app.use('/api*', (req, res, next) => {
@@ -174,6 +177,7 @@ app.use('/api/pincode', pincodeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
+app.use('/api', printHostRoutes); // Print Host for PDF printing
 // app.use('/api', downloadRoutes); // DISABLED - Using inline download route instead
 
 // Object Storage download proxy - bypass CORS restrictions

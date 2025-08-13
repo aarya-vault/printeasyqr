@@ -18,7 +18,7 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   const filename = file.originalName || file.filename || file;
   console.log(`🖨️ Preparing to print: ${filename}`);
 
-  const printHostUrl = `/print-host.html?file=${encodeURIComponent(fileUrl)}`;
+  const printHostUrl = `/api/print-host?file=${encodeURIComponent(fileUrl)}`;
   
   const printWindow = window.open(printHostUrl, '_blank', 'width=800,height=600');
 
