@@ -436,18 +436,21 @@ class OrderController {
       // This ensures customers can place orders for later processing
 
       // 🔥 PREVENT SHOP OWNER PHONE COLLISION IN ANONYMOUS ORDERS
+      console.log(`🔍 Checking phone number for order creation: ${customerPhone}`);
       let customer = await User.findOne({ 
         where: { phone: customerPhone } 
       });
       
       if (customer) {
+        console.log(`📞 Found existing user with phone ${customerPhone}: role=${customer.role}, name=${customer.name}`);
         // If phone belongs to shop owner or admin, prevent order creation
         if (customer.role === 'shop_owner') {
           await transaction.rollback();
+          console.log(`❌ Blocking order creation - phone ${customerPhone} belongs to shop owner`);
           return res.status(400).json({ 
-            message: 'This phone number belongs to a shop owner. Shop owners cannot place walk-in orders. Please use the shop dashboard to manage orders.',
+            message: 'This phone number belongs to a shop owner. Shop owners cannot place walk-in orders. Please use the shop dashboard to manage orders. Try using a different customer phone number for testing.',
             errorCode: 'SHOP_OWNER_PHONE_IN_WALKIN',
-            suggestion: 'Use shop dashboard for order management'
+            suggestion: 'Use a different phone number (e.g. 9876543210) for testing walk-in orders'
           });
         }
         
