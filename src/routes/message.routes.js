@@ -13,11 +13,18 @@ function createStorage() {
   return multer.memoryStorage();
 }
 
+// 🚀 PERFORMANCE FIX: Optimized message file upload limits (consistent with orders)
 const upload = multer({
   storage: createStorage(),
   limits: {
-    fileSize: 500 * 1024 * 1024, // 500MB per file
-    files: 10 // Up to 10 files per message
+    fileSize: 25 * 1024 * 1024, // 25MB per file (smaller than orders for faster chat)
+    files: 5, // Up to 5 files per message (reduced for better UX)
+    fieldSize: 5 * 1024 * 1024, // 5MB field size limit
+    parts: 10 // Limit form parts
+  },
+  fileFilter: (req, file, cb) => {
+    console.log(`💬 Processing message file: ${file.originalname} (${file.mimetype})`);
+    cb(null, true); // Accept all file types
   }
 });
 
@@ -26,5 +33,6 @@ router.get('/messages/order/:orderId', requireAuth, MessageController.getMessage
 router.post('/messages', requireAuth, upload.array('files'), MessageController.sendMessage);
 router.patch('/messages/mark-read', requireAuth, MessageController.markMessagesAsRead);
 router.get('/messages/unread-count', requireAuth, MessageController.getUnreadCount);
+router.delete('/messages/:messageId/files/:fileIndex', requireAuth, MessageController.deleteMessageFile);
 
 export default router;

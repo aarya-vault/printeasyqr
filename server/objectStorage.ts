@@ -79,6 +79,22 @@ export class ObjectStorageService {
     }
   }
 
+  // Delete an object from storage
+  async deleteObject(objectPath: string): Promise<boolean> {
+    try {
+      console.log('🗑️ Attempting to delete object:', objectPath);
+      
+      const file = await this.getObjectEntityFile(objectPath);
+      await file.delete();
+      
+      console.log('✅ Successfully deleted object:', objectPath);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to delete object:', objectPath, error.message);
+      return false;
+    }
+  }
+
   // Gets the upload URL for an object entity.
   async getObjectEntityUploadURL(): Promise<string> {
     const privateObjectDir = this.getPrivateObjectDir();

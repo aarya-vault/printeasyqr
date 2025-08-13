@@ -65,8 +65,8 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
   
-  // Check if hours object exists but missing isOpen flag or open/close times
-  if (!todayHours.isOpen && !todayHours.open && !todayHours.close) {
+  // Check if hours object exists but missing open/close times
+  if (!todayHours.open && !todayHours.close) {
     console.log('❌ SHOP TIMING - Shop has no valid hours defined for today');
     return false;
   }

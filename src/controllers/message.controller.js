@@ -200,6 +200,75 @@ class MessageController {
       res.status(500).json({ message: 'Failed to get unread count' });
     }
   }
+
+  // Delete file from message (fixes Issue #2)
+  static async deleteMessageFile(req, res) {
+    try {
+      const { messageId, fileIndex } = req.params;
+      const userId = req.user.id;
+      
+      // Get the message and verify permissions
+      const message = await Message.findByPk(parseInt(messageId));
+      if (!message) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+      
+      // Verify user has permission to delete this file
+      if (message.senderId !== userId) {
+        return res.status(403).json({ message: 'Not authorized to delete this file' });
+      }
+      
+      // Parse files array
+      let files = [];
+      if (message.files) {
+        try {
+          files = typeof message.files === 'string' ? JSON.parse(message.files) : message.files;
+        } catch (error) {
+          return res.status(400).json({ message: 'Invalid file data format' });
+        }
+      }
+      
+      const fileIndexNum = parseInt(fileIndex);
+      if (fileIndexNum < 0 || fileIndexNum >= files.length) {
+        return res.status(404).json({ message: 'File not found' });
+      }
+      
+      const fileToDelete = files[fileIndexNum];
+      console.log('Attempting to delete file:', fileToDelete);
+      
+      // Import ObjectStorageService
+      const { ObjectStorageService } = await import('../../server/objectStorage.js');
+      const objectStorage = new ObjectStorageService();
+      
+      // Construct object path for deletion
+      let objectPath = fileToDelete.path;
+      if (!objectPath.startsWith('/objects/')) {
+        objectPath = `/objects/${fileToDelete.path || '.private/uploads/' + fileToDelete.filename}`;
+      }
+      
+      // Delete from object storage
+      const deleted = await objectStorage.deleteObject(objectPath);
+      
+      if (deleted) {
+        // Remove file from array and update message
+        files.splice(fileIndexNum, 1);
+        await message.update({ files: JSON.stringify(files) });
+        
+        console.log('Successfully deleted file and updated message');
+        res.json({ 
+          success: true, 
+          message: 'File deleted successfully',
+          remainingFiles: files.length 
+        });
+      } else {
+        res.status(500).json({ message: 'Failed to delete file from storage' });
+      }
+      
+    } catch (error) {
+      console.error('Delete message file error:', error);
+      res.status(500).json({ message: 'Failed to delete file' });
+    }
+  }
 }
 
 export default MessageController;

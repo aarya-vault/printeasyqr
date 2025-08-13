@@ -22,13 +22,11 @@ export function ShopHoursDisplay({ workingHours, compact = false, showToday = fa
   const today = new Date().getDay();
   const todayKey = DAYS[today]; // Sunday = 0 maps to DAYS[0] = 'sunday'
   
+  // 🚀 24-HOUR FORMAT FIX: Always use 24-hour format (fixes Issue #6)
   const formatTime = (time: string) => {
     if (!time) return '';
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minutes} ${ampm}`;
+    // Return time in 24-hour format directly
+    return time;
   };
 
   const getStatusForDay = (dayKey: string) => {

@@ -599,10 +599,14 @@ export default function UnifiedChatSystem({
                                         <div key={fileIndex} className="flex items-center space-x-2 p-2 bg-white/10 rounded">
                                           {isImage ? (
                                             <img 
-                                              src={file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`} 
+                                              src={file.path ? `/api/download/${file.path.startsWith('.private/') ? file.path : '.private/' + file.path}?originalName=${encodeURIComponent(displayName)}` : `/api/download/.private/uploads/${file.filename}?originalName=${encodeURIComponent(displayName)}`} 
                                               alt={displayName} 
                                               className="w-32 h-20 object-cover rounded cursor-pointer"
-                                              onClick={() => window.open(file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`, '_blank')}
+                                              onClick={() => window.open(file.path ? `/api/download/${file.path.startsWith('.private/') ? file.path : '.private/' + file.path}?originalName=${encodeURIComponent(displayName)}` : `/api/download/.private/uploads/${file.filename}?originalName=${encodeURIComponent(displayName)}`, '_blank')}
+                                              onError={(e) => {
+                                                console.error('🖼️ Image load failed:', displayName);
+                                                e.currentTarget.style.display = 'none';
+                                              }}
                                             />
                                           ) : (
                                             <>
@@ -617,18 +621,58 @@ export default function UnifiedChatSystem({
                                                   </span>
                                                 )}
                                               </div>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                  const link = document.createElement('a');
-                                                  link.href = file.path ? `/objects/.private/${file.path}` : `/objects/.private/uploads/${file.filename}`;
-                                                  link.download = displayName;
-                                                  link.click();
-                                                }}
-                                              >
-                                                <Download className="w-3 h-3" />
-                                              </Button>
+                                              <div className="flex gap-1">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => {
+                                                    console.log('📥 Chat file download:', displayName);
+                                                    const link = document.createElement('a');
+                                                    link.href = file.path ? `/api/download/${file.path.startsWith('.private/') ? file.path : '.private/' + file.path}?originalName=${encodeURIComponent(displayName)}` : `/api/download/.private/uploads/${file.filename}?originalName=${encodeURIComponent(displayName)}`;
+                                                    link.download = displayName;
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                  }}
+                                                >
+                                                  <Download className="w-3 h-3" />
+                                                </Button>
+                                                {/* Delete button - only show for own messages and non-completed orders */}
+                                                {isOwnMessage && selectedOrder?.status !== 'completed' && (
+                                                  <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={async () => {
+                                                      if (confirm(`Delete ${displayName}?`)) {
+                                                        try {
+                                                          const response = await fetch(`/api/messages/${message.id}/files/${fileIndex}`, {
+                                                            method: 'DELETE',
+                                                            headers: {
+                                                              'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                                            }
+                                                          });
+                                                          
+                                                          if (response.ok) {
+                                                            console.log('✅ File deleted successfully');
+                                                            // Refresh messages to show updated file list
+                                                            queryClient.invalidateQueries({ queryKey: [`/api/messages/order/${selectedOrderId}`] });
+                                                          } else {
+                                                            const error = await response.json();
+                                                            console.error('❌ Delete failed:', error);
+                                                            alert('Failed to delete file: ' + error.message);
+                                                          }
+                                                        } catch (error) {
+                                                          console.error('❌ Delete error:', error);
+                                                          alert('Failed to delete file');
+                                                        }
+                                                      }
+                                                    }}
+                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                  >
+                                                    <X className="w-3 h-3" />
+                                                  </Button>
+                                                )}
+                                              </div>
                                             </>
                                           )}
                                         </div>
