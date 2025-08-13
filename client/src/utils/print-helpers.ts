@@ -9,8 +9,16 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   // Handle both old format (filename) and new format (path) - use download proxy for CORS
   let fileUrl;
   if (file.path) {
-    // Use download proxy endpoint to bypass CORS
-    const objectPath = file.path.startsWith('.private/') ? file.path : '.private/' + file.path.replace('/objects/', '');
+    // FIX: Proper path normalization to avoid duplication
+    let objectPath = file.path;
+    // Remove /objects/ prefix if present
+    if (objectPath.startsWith('/objects/')) {
+      objectPath = objectPath.substring(9);
+    }
+    // Ensure .private/ prefix without duplication
+    if (!objectPath.startsWith('.private/')) {
+      objectPath = '.private/' + objectPath;
+    }
     fileUrl = `/api/download/${objectPath}`;
   } else {
     fileUrl = `/api/download/.private/uploads/${file.filename || file}`;
@@ -198,8 +206,16 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   // Use download proxy to bypass CORS restrictions
   let downloadPath;
   if (file.path) {
-    // Remove /objects/ prefix and use download proxy
-    const objectPath = file.path.startsWith('/objects/') ? file.path.substring(9) : file.path;
+    // FIX: Proper path normalization to avoid duplication
+    let objectPath = file.path;
+    // Remove /objects/ prefix if present
+    if (objectPath.startsWith('/objects/')) {
+      objectPath = objectPath.substring(9);
+    }
+    // Ensure .private/ prefix without duplication
+    if (!objectPath.startsWith('.private/')) {
+      objectPath = '.private/' + objectPath;
+    }
     downloadPath = `/api/download/${objectPath}`;
   } else {
     // Fallback for old filename format

@@ -44,17 +44,32 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const [showChat, setShowChat] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState(order);
+  const [stableOrder, setStableOrder] = useState(order); // FIX: Stable order state
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // FIX: Update stable order only when actual order changes
+  useEffect(() => {
+    if (order && order.id) {
+      console.log('📝 Order Details Modal: Updating stable order', order.id);
+      setStableOrder(order);
+      setEditedOrder(order);
+    }
+  }, [order?.id, order?.status, order?.notes]);
 
   // Update order mutation
   const updateOrderMutation = useMutation({
     mutationFn: async (updates: any) => {
-      return await apiClient.patch(`/api/orders/${order.id}`, updates);
+      return await apiClient.patch(`/api/orders/${stableOrder.id}`, updates);
     },
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
       toast({ title: 'Order updated successfully' });
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${order.shopId}`] });
+      // Update stable order with new data
+      if (updatedData) {
+        setStableOrder(prev => ({ ...prev, ...updatedData }));
+      }
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${stableOrder.shopId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${stableOrder.customerId}`] });
       setIsEditing(false);
     },
     onError: () => {
@@ -81,7 +96,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
 
   const handlePrintAll = async () => {
     try {
-      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
       if (Array.isArray(files) && files.length > 0) {
         toast({ title: `Preparing ${files.length} files for printing...` });
         
@@ -89,7 +104,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
           if (current === total) {
             toast({ title: `All ${total} files sent to print` });
           }
-        }, order.status);
+        }, stableOrder.status);
       }
     } catch (error: any) {
       console.error('Error printing files:', error);
@@ -103,13 +118,13 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
 
   const handleDownloadAll = () => {
     try {
-      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
       if (Array.isArray(files)) {
         downloadAllFiles(files, (current, total) => {
           if (current === total) {
             toast({ title: `All ${total} files downloaded` });
           }
-        }, order.status);
+        }, stableOrder.status);
       }
     } catch (error: any) {
       toast({ 
@@ -125,7 +140,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
       <UnifiedChatSystem 
         isOpen={showChat} 
         onClose={() => setShowChat(false)} 
-        initialOrderId={order.id}
+        initialOrderId={stableOrder.id}
         userRole={userRole as 'customer' | 'shop_owner' | 'admin'} 
       />
     );
@@ -141,15 +156,15 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
               <Package className="w-5 h-5 text-rich-black" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-rich-black">Order #{order.id}</h2>
-              <p className="text-medium-gray">{order.title}</p>
+              <h2 className="text-xl font-bold text-rich-black">Order #{stableOrder.id}</h2>
+              <p className="text-medium-gray">{stableOrder.title}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge className={getStatusColor(order.status)}>
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            <Badge className={getStatusColor(stableOrder.status)}>
+              {stableOrder.status.charAt(0).toUpperCase() + stableOrder.status.slice(1)}
             </Badge>
-            {order.isUrgent && (
+            {stableOrder.isUrgent && (
               <Badge className="bg-red-100 text-red-800">Urgent</Badge>
             )}
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -213,7 +228,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
             </Card>
 
             {/* Files Section */}
-            {order.type === 'upload' && order.files && (
+            {stableOrder.type === 'upload' && stableOrder.files && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-lg">
@@ -221,7 +236,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                       <FileText className="w-5 h-5 mr-2 text-brand-yellow" />
                       Files ({(() => {
                         try {
-                          const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+                          const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
                           return Array.isArray(files) ? files.length : 0;
                         } catch {
                           return 0;
@@ -244,7 +259,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                   <div className="space-y-2">
                     {(() => {
                       try {
-                        const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+                        const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
                         if (!Array.isArray(files)) return <p className="text-gray-500">No files available</p>;
                         
                         return files.map((file: any, index: number) => (
@@ -259,7 +274,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                                 variant="ghost" 
                                 onClick={() => {
                                   try {
-                                    downloadFile(file, order.status);
+                                    downloadFile(file, stableOrder.status);
                                     toast({ title: 'Download started', description: `Downloading ${file.originalName || file.filename}` });
                                   } catch (error: any) {
                                     toast({ 
@@ -277,7 +292,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                                 variant="ghost" 
                                 onClick={async () => {
                                   try {
-                                    await printFile(file, order.status);
+                                    await printFile(file, stableOrder.status);
                                     toast({ title: 'File sent to print' });
                                   } catch (error: any) {
                                     toast({ 
@@ -316,7 +331,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                     rows={4}
                   />
                 ) : (
-                  <p className="text-sm text-gray-900">{order.notes || 'No notes added'}</p>
+                  <p className="text-sm text-gray-900">{stableOrder.notes || 'No notes added'}</p>
                 )}
               </CardContent>
             </Card>
@@ -332,13 +347,13 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium text-gray-600">Name</Label>
-                  <p className="text-sm text-gray-900 mt-1">{order.customerName}</p>
+                  <p className="text-sm text-gray-900 mt-1">{stableOrder.customerName}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-600">Phone</Label>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="text-sm text-gray-900">{order.customerPhone}</p>
-                    <Button size="sm" variant="outline" onClick={() => window.open(`tel:${order.customerPhone}`)}>
+                    <p className="text-sm text-gray-900">{stableOrder.customerPhone}</p>
+                    <Button size="sm" variant="outline" onClick={() => window.open(`tel:${stableOrder.customerPhone}`)}>
                       <Phone className="w-4 h-4" />
                     </Button>
                   </div>
@@ -354,11 +369,11 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Created</span>
-                  <span className="text-gray-900">{format(new Date(order.createdAt), 'MMM dd, HH:mm')}</span>
+                  <span className="text-gray-900">{format(new Date(stableOrder.createdAt), 'MMM dd, HH:mm')}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Last Updated</span>
-                  <span className="text-gray-900">{format(new Date(order.updatedAt), 'MMM dd, HH:mm')}</span>
+                  <span className="text-gray-900">{format(new Date(stableOrder.updatedAt), 'MMM dd, HH:mm')}</span>
                 </div>
               </CardContent>
             </Card>
