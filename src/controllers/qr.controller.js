@@ -325,6 +325,7 @@ class QRController {
       console.error('QR Generation Error:', error);
       
       res.status(500).json({
+        success: false,
         message: 'Failed to generate QR code',
         error: error.message,
         timestamp: new Date().toISOString()
