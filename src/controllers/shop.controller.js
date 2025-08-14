@@ -126,6 +126,8 @@ class ShopController {
   // Get all active shops
   static async getActiveShops(req, res) {
     try {
+      console.log('🔍 Fetching active shops - DATABASE_URL present:', !!process.env.DATABASE_URL);
+      
       const shops = await Shop.findAll({
         where: {
           isApproved: true,
@@ -136,27 +138,41 @@ class ShopController {
         order: [['createdAt', 'DESC']]
       });
       
+      console.log('✅ Active shops found:', shops?.length || 0);
       const transformedShops = (shops || []).map(shop => ShopController.transformShopData(shop));
       res.json(transformedShops);
     } catch (error) {
-      console.error('Get all shops error:', error);
-      res.status(500).json({ message: 'Failed to get shops' });
+      console.error('❌ CRITICAL: Get active shops error:', error);
+      console.error('❌ Database URL available:', !!process.env.DATABASE_URL);
+      console.error('❌ Error details:', error.message, error.stack);
+      res.status(500).json({ 
+        message: 'Failed to get shops',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Database connection error'
+      });
     }
   }
 
   // Get all shops (admin)
   static async getAllShops(req, res) {
     try {
+      console.log('🔍 Admin fetching all shops - DATABASE_URL present:', !!process.env.DATABASE_URL);
+      
       const shops = await Shop.findAll({
         include: [{ model: User, as: 'owner' }],
         order: [['createdAt', 'DESC']]
       });
       
+      console.log('✅ All shops found:', shops?.length || 0);
       const transformedShops = shops.map(shop => ShopController.transformShopData(shop));
       res.json(transformedShops);
     } catch (error) {
-      console.error('Error fetching shops:', error);
-      res.status(500).json({ message: 'Failed to fetch shops' });
+      console.error('❌ CRITICAL: Error fetching all shops:', error);
+      console.error('❌ Database URL available:', !!process.env.DATABASE_URL);
+      console.error('❌ Error details:', error.message, error.stack);
+      res.status(500).json({ 
+        message: 'Failed to fetch shops',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Database connection error'
+      });
     }
   }
 
