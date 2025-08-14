@@ -1,91 +1,63 @@
+/**
+ * Lightweight QR Controller - No Puppeteer Dependencies
+ * Uses only the qrcode library for QR generation without any heavy browser dependencies
+ */
+
 import QRCode from 'qrcode';
 
-// Lightweight QR controller without Puppeteer for faster deployments
 class QRLightweightController {
-  // Generate QR code as base64 image without Puppeteer
+  /**
+   * Generate QR code without Puppeteer - Production optimized
+   */
   static async generateQR(req, res) {
     try {
-      const { shopSlug, shopName, htmlContent, filename } = req.body;
-
-      // Support both new API (shopSlug/shopName) and legacy (htmlContent)
-      if (!shopSlug && !shopName && !htmlContent) {
-        return res.status(400).json({ 
-          message: 'Either shopSlug and shopName, or htmlContent is required' 
-        });
-      }
-
-      let finalFilename = filename || 'PrintEasy_QR.png';
-      let qrUrl = '';
+      const { shopSlug, shopName } = req.body;
       
-      if (shopSlug && shopName) {
-        finalFilename = `PrintEasy_${shopName.replace(/\s+/g, '_')}_QR.png`;
-        qrUrl = `https://printeasy.com/shop/${shopSlug}`;
-      } else if (htmlContent) {
-        // For legacy support - extract URL from HTML if possible
-        const urlMatch = htmlContent.match(/https:\/\/[^\s'"]+/);
-        qrUrl = urlMatch ? urlMatch[0] : 'https://printeasy.com';
-      }
-
-      // Generate QR code as data URL
-      const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-        width: 400,
+      // Generate filename
+      const fileName = shopSlug ? 
+        `PrintEasy_${shopName?.replace(/\s+/g, '_') || shopSlug}_QR.png` : 
+        'PrintEasy_QR.png';
+      
+      // Generate QR URL
+      const qrUrl = shopSlug ? 
+        `https://printeasy.com/shop/${shopSlug}` : 
+        'https://printeasy.com';
+      
+      console.log('🔷 Generating lightweight QR for:', qrUrl);
+      
+      // Generate high-quality QR code as PNG buffer
+      const qrBuffer = await QRCode.toBuffer(qrUrl, {
+        width: 800,
         margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
+        color: { 
+          dark: '#000000', 
+          light: '#FFFFFF' 
         },
-        errorCorrectionLevel: 'H'
+        errorCorrectionLevel: 'H',
+        type: 'png'
       });
-
-      // Convert data URL to buffer
-      const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
-
-      // Send as image response
+      
+      // Send as downloadable PNG
       res.setHeader('Content-Type', 'image/png');
-      res.setHeader('Content-Disposition', `attachment; filename="${finalFilename}"`);
-      res.send(buffer);
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', qrBuffer.length);
+      
+      return res.send(qrBuffer);
       
     } catch (error) {
-      console.error('QR generation error:', error);
-      res.status(500).json({ 
+      console.error('❌ QR generation error:', error);
+      return res.status(500).json({ 
         message: 'Failed to generate QR code',
         error: error.message 
       });
     }
   }
 
-  // Generate QR data URL for embedding
-  static async generateQRDataURL(req, res) {
-    try {
-      const { url } = req.body;
-      
-      if (!url) {
-        return res.status(400).json({ message: 'URL is required' });
-      }
-
-      const qrDataUrl = await QRCode.toDataURL(url, {
-        width: 400,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        },
-        errorCorrectionLevel: 'H'
-      });
-
-      res.json({ 
-        success: true,
-        dataUrl: qrDataUrl 
-      });
-      
-    } catch (error) {
-      console.error('QR generation error:', error);
-      res.status(500).json({ 
-        message: 'Failed to generate QR code',
-        error: error.message 
-      });
-    }
+  /**
+   * Generate simple QR code
+   */
+  static async generateSimpleQR(req, res) {
+    return QRLightweightController.generateQR(req, res);
   }
 }
 
