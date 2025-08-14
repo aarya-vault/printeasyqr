@@ -2,22 +2,17 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// UNIFIED DATABASE: Use only Replit's managed DATABASE_URL 
-// Single database for all environments - no development/production split
+// DEVELOPMENT DATABASE ONLY: Use ONLY Replit's development DATABASE_URL
+// Production database deleted - single development database for all environments
 const getDatabaseUrl = () => {
-  // Use Replit's managed DATABASE_URL (whether it's Neon, PostgreSQL, or other provider)
+  // ONLY use Replit's development DATABASE_URL - no external production databases
   if (process.env.DATABASE_URL) {
-    console.log('✅ Using unified Replit managed database:', process.env.DATABASE_URL.split('@')[1]?.split('/')[0] || 'database');
+    console.log('✅ Using DEVELOPMENT database only:', process.env.DATABASE_URL.split('@')[1]?.split('/')[0] || 'database');
+    console.log('🚫 Production database DELETED - development database serves all environments');
     return process.env.DATABASE_URL;
   }
   
-  // Fallback only for testing environments
-  if (process.env.NETLIFY_DATABASE_URL) {
-    console.log('⚠️ Using Netlify testing database');
-    return process.env.NETLIFY_DATABASE_URL;
-  }
-  
-  throw new Error('No DATABASE_URL found - Replit database configuration required');
+  throw new Error('Development DATABASE_URL required - production database has been deleted');
 };
 
 const databaseUrl = getDatabaseUrl();

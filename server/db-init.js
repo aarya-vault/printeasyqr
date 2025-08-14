@@ -11,9 +11,16 @@ const initializeDatabase = async () => {
   logger.info('🔄 Initializing production database...');
   
   try {
-    // UNIFIED DATABASE: Use Replit's managed DATABASE_URL for all environments
-    // No production/development split - single source of truth
+    // DEVELOPMENT DATABASE ONLY: Production database has been DELETED
+    // Only development database exists and serves all environments
     const databaseUrl = process.env.DATABASE_URL;
+    
+    if (!databaseUrl) {
+      logger.error('❌ DEVELOPMENT DATABASE_URL required - production database deleted');
+      throw new Error('Development database required - production database has been deleted');
+    }
+    
+    logger.info('✅ Using DEVELOPMENT database only - production database DELETED');
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
