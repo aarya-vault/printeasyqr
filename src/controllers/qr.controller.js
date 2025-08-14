@@ -1,22 +1,31 @@
 import QRCode from 'qrcode';
+import puppeteer from 'puppeteer-core';
 
-// Conditional Puppeteer loading for deployment optimization
-let puppeteer = null;
-let chromium = null;
-
-// Only load heavy dependencies in development or when explicitly needed
-const loadPuppeteerDependencies = async () => {
-  if (!puppeteer) {
-    try {
-      puppeteer = await import('puppeteer-core');
-      chromium = await import('@sparticuz/chromium');
-      console.log('✅ Puppeteer dependencies loaded');
-    } catch (error) {
-      console.log('⚠️ Puppeteer dependencies not available - using lightweight QR generation');
-      return false;
+// Smart Chromium detection for Replit and other environments
+const getChromiumPath = async () => {
+  const fs = await import('fs');
+  const { execSync } = await import('child_process');
+  
+  // Try to find system Chromium dynamically
+  try {
+    const chromiumPath = execSync('which chromium-browser || which chromium || which google-chrome', { encoding: 'utf8' }).trim();
+    if (chromiumPath && fs.existsSync(chromiumPath)) {
+      console.log('✅ Using system Chromium at:', chromiumPath);
+      return chromiumPath;
     }
+  } catch (e) {
+    // System chromium not found
   }
-  return true;
+  
+  // Fallback to @sparticuz/chromium if needed
+  try {
+    const chromium = await import('@sparticuz/chromium');
+    console.log('✅ Using @sparticuz/chromium package');
+    return await chromium.default.executablePath();
+  } catch (error) {
+    console.log('⚠️ No Chromium found, using fallback QR generation');
+    return null;
+  }
 };
 
 class QRController {
@@ -94,11 +103,11 @@ class QRController {
         return res.status(400).json({ message: 'Unable to generate QR content' });
       }
 
-      // Check if Puppeteer is available
-      const puppeteerAvailable = await loadPuppeteerDependencies();
+      // Get Chromium executable path
+      const chromiumPath = await getChromiumPath();
       
-      if (!puppeteerAvailable) {
-        // Fallback to lightweight QR generation without Puppeteer
+      if (!chromiumPath) {
+        // Fallback to simple QR if no Chromium available
         const qrUrl = shopSlug ? `https://printeasy.com/shop/${shopSlug}` : 'https://printeasy.com';
         const qrDataUrl = await QRCode.toDataURL(qrUrl, {
           width: 400,
@@ -115,10 +124,9 @@ class QRController {
         return res.send(buffer);
       }
 
-      // Launch Puppeteer-Core with @sparticuz/chromium for deployment compatibility
-      const browser = await puppeteer.default.launch({
+      // Launch Puppeteer with system Chromium or fallback
+      const browser = await puppeteer.launch({
         args: [
-          ...chromium.default.args,
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
@@ -129,8 +137,8 @@ class QRController {
           '--mute-audio'
         ],
         defaultViewport: { width: 400, height: 800 },
-        executablePath: await chromium.default.executablePath(),
-        headless: chromium.default.headless,
+        executablePath: chromiumPath,
+        headless: true,
         ignoreHTTPSErrors: true,
         timeout: 30000
       });
