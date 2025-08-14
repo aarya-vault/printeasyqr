@@ -2,12 +2,22 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Get database URL with fallback support for Netlify
+// UNIFIED DATABASE: Use only Replit's managed DATABASE_URL 
+// Single database for all environments - no development/production split
 const getDatabaseUrl = () => {
-  return process.env.DATABASE_URL || 
-         process.env.NETLIFY_DATABASE_URL ||
-         process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
-         `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?sslmode=require`;
+  // Use Replit's managed DATABASE_URL (whether it's Neon, PostgreSQL, or other provider)
+  if (process.env.DATABASE_URL) {
+    console.log('✅ Using unified Replit managed database:', process.env.DATABASE_URL.split('@')[1]?.split('/')[0] || 'database');
+    return process.env.DATABASE_URL;
+  }
+  
+  // Fallback only for testing environments
+  if (process.env.NETLIFY_DATABASE_URL) {
+    console.log('⚠️ Using Netlify testing database');
+    return process.env.NETLIFY_DATABASE_URL;
+  }
+  
+  throw new Error('No DATABASE_URL found - Replit database configuration required');
 };
 
 const databaseUrl = getDatabaseUrl();

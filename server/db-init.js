@@ -11,12 +11,9 @@ const initializeDatabase = async () => {
   logger.info('🔄 Initializing production database...');
   
   try {
-    // Check for DATABASE_URL in multiple ways for Netlify compatibility
-    const databaseUrl = process.env.DATABASE_URL || 
-                       process.env.NETLIFY_DATABASE_URL ||
-                       process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
-                       process.env.NEON_DATABASE_URL ||
-                       `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?sslmode=require`;
+    // UNIFIED DATABASE: Use Replit's managed DATABASE_URL for all environments
+    // No production/development split - single source of truth
+    const databaseUrl = process.env.DATABASE_URL;
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
