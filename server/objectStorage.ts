@@ -43,11 +43,13 @@ export class ObjectStorageService {
       // Get file stats
       const stats = fs.statSync(filePath);
       
-      // Set appropriate headers
+      // Set headers to force download without "Save As" dialog
       res.set({
         "Content-Type": "application/octet-stream",
         "Content-Length": stats.size.toString(),
+        "Content-Disposition": "attachment",
         "Cache-Control": `public, max-age=${cacheTtlSec}`,
+        "X-Content-Type-Options": "nosniff"
       });
 
       // Stream the file to the response

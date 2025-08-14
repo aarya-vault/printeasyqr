@@ -112,8 +112,11 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     const isDownloadRequest = req.query.download === 'true';
     
     if (isDownloadRequest || !isPDF) {
-      // Force download
-      res.setHeader('Content-Disposition', `attachment; filename="${originalName}"`);
+      // Force download without "Save As" dialog
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'no-cache');
     } else {
       // Display inline for PDFs (allows printing without download)
       res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);

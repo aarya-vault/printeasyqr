@@ -71,17 +71,41 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   // Use the original filename if available, otherwise fall back to the generated filename
   const originalName = file.originalName || file.filename || 'document.pdf';
   
-  // Direct download using invisible iframe - bypasses "Save As" dialog
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
-  
-  document.body.appendChild(iframe);
-  
-  // Clean up iframe after download starts
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-  }, 3000);
+  // Use fetch with blob approach for true bypass of "Save As" dialog
+  fetch(`${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      // Create object URL and download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = originalName;
+      link.style.display = 'none';
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up object URL
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('Download failed:', error);
+      // Fallback to iframe method
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 3000);
+    });
   
   console.log(`📥 Direct download triggered: ${originalName}`);
 };
@@ -144,7 +168,7 @@ export const printAllFiles = async (
       await printFile(file, orderStatus); 
       if (onProgress) onProgress(i + 1, files.length);
     } catch (error) {
-      console.error(`Failed to print file ${i + 1}:`, error.message);
+      console.error(`Failed to print file ${i + 1}:`, (error as Error).message);
       // Optional: Update UI to show this specific file failed
     }
     
