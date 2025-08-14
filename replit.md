@@ -56,6 +56,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Shop Status Management System**: Clean, professional feature allowing shop owners to control their shop's availability. Shop owners can open or close their shop at any time using the isOnline master switch, overriding scheduled working hours. The status toggle in the shop dashboard provides instant control with clear visual feedback using standard open/closed indicators.
 - **Production-Ready Architecture Assessment**: Comprehensive CTO-level analysis completed showing 7.5/10 production readiness score. Critical unhandled promise rejections addressed with global error handling system. Architecture supports 500+ concurrent users with optimization potential for 2,000+ users. Technical debt markers (1,782 instances) identified but manageable. Core systems (authentication, database, APIs) are production-grade with modern best practices.
 - **Simplified File Storage**: Removed object storage dependency for hassle-free setup. File uploads now use local storage only, eliminating need for external secrets or configurations. File size limits optimized for performance (50MB/file, 20 files/order).
+- **Database Constraint Fix**: Permanently resolved Sequelize's duplicate constraint issue by eliminating all `sync({ alter: true })` calls. Implemented clean database policy with `validateDatabaseConnection()` for safe connection checks only. Created cleanup scripts for production database migration.
 
 ## External Dependencies
 

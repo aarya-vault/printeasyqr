@@ -11,24 +11,15 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Import database sync function
-import { syncDatabase } from './models/index.js';
+// Import database validation
+import { validateDatabaseConnection } from './models/index.js';
 
 // ES Module compatibility fix for serverless environments
 const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
 const __dirname = import.meta ? dirname(__filename) : __dirname;
 
-// Initialize database tables (development only)
-if (process.env.NODE_ENV === 'development') {
-  console.log('🔄 Initializing database tables...');
-  syncDatabase(false)
-    .then(() => {
-      console.log('✅ Database tables synchronized successfully');
-    })
-    .catch((error) => {
-      console.error('❌ Database synchronization failed:', error);
-    });
-}
+// Validate database connection
+validateDatabaseConnection();
 
 // Import routes
 import authRoutes from './routes/auth.routes.js';

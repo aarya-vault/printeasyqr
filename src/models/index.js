@@ -66,23 +66,16 @@ const defineAssociations = () => {
 // Initialize associations
 defineAssociations();
 
-// Sync database (in development only)
-const syncDatabase = async (force = false) => {
+// Database connection validation
+// NOTE: Never use sync({ alter: true }) - it creates duplicate constraints
+const validateDatabaseConnection = async () => {
   try {
-    if (process.env.NODE_ENV === 'development') {
-      // IMPORTANT: Do NOT use alter:true as it creates duplicate constraints
-      // Only sync if force is explicitly requested
-      if (force) {
-        await sequelize.sync({ force: true });
-        console.log('Database force synchronized successfully.');
-      } else {
-        // Just validate the connection, don't alter schema
-        await sequelize.authenticate();
-        console.log('Database connection validated successfully.');
-      }
-    }
+    await sequelize.authenticate();
+    console.log('✅ Database connection established');
+    return true;
   } catch (error) {
-    console.error('Database synchronization failed:', error);
+    console.error('❌ Database connection failed:', error.message);
+    return false;
   }
 };
 
@@ -97,5 +90,5 @@ export {
   Notification,
   ShopUnlock,
   QRScan,
-  syncDatabase
+  validateDatabaseConnection
 };
