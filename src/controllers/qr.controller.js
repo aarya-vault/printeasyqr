@@ -1,10 +1,31 @@
 import QRCode from 'qrcode';
 import puppeteer from 'puppeteer-core';
 
-// Smart Chromium detection for Replit and other environments
+// Enhanced Chromium detection with production fallbacks
 const getChromiumPath = async () => {
   const fs = await import('fs');
   const { execSync } = await import('child_process');
+  
+  // Production environment paths (common in cloud deployments)
+  const productionPaths = [
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/opt/google/chrome/chrome'
+  ];
+  
+  // Check production paths first
+  for (const path of productionPaths) {
+    try {
+      if (fs.existsSync(path)) {
+        console.log('✅ Using production Chromium at:', path);
+        return path;
+      }
+    } catch (e) {
+      // Continue to next path
+    }
+  }
   
   // Try to find system Chromium dynamically
   try {
@@ -150,28 +171,43 @@ class QRController {
       
       console.log('✅ Using Chromium for branded QR template generation:', chromiumPath);
 
-      // Launch Puppeteer with system Chromium or fallback
+      // Launch Puppeteer with production-optimized settings
       const browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--single-process',
           '--disable-gpu',
           '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--memory-pressure-off',
+          '--max_old_space_size=4096',
+          '--no-first-run',
+          '--no-default-browser-check',
+          '--disable-default-apps',
           '--hide-scrollbars',
           '--mute-audio'
         ],
         defaultViewport: { width: 400, height: 800 },
         executablePath: chromiumPath,
-        headless: true,
+        headless: 'new',
         ignoreHTTPSErrors: true,
-        timeout: 30000
+        timeout: 15000,
+        protocolTimeout: 15000
       });
 
+      let page = null;
       try {
-        const page = await browser.newPage();
-        await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 3 });
+        page = await browser.newPage();
+        
+        // Set a shorter timeout for production
+        page.setDefaultTimeout(10000);
+        page.setDefaultNavigationTimeout(10000);
+        
+        await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 2 });
 
         // Create full HTML with comprehensive PrintEasy styling
         const fullHtml = `
@@ -264,47 +300,38 @@ class QRController {
         `;
 
         await page.setContent(fullHtml, { 
-          waitUntil: ['networkidle0', 'domcontentloaded', 'load'],
-          timeout: 30000
+          waitUntil: ['domcontentloaded'],
+          timeout: 10000
         });
 
-        // Wait for all external resources to load completely
+        // Simplified wait for production reliability
         await page.evaluate(() => {
-          return Promise.all([
-            document.fonts.ready,
-            new Promise(resolve => {
-              if (document.readyState === 'complete') {
-                resolve();
-              } else {
-                window.addEventListener('load', resolve);
-              }
-            })
-          ]);
+          return new Promise(resolve => {
+            if (document.readyState === 'complete') {
+              resolve();
+            } else {
+              window.addEventListener('load', resolve);
+              // Fallback timeout
+              setTimeout(resolve, 2000);
+            }
+          });
         });
         
-        // Extended delay for complete CSS, font, and Tailwind rendering
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Wait for all images to load (if any)
-        await page.evaluate(() => {
-          return Promise.all([...document.images].map(img => {
-            if (img.complete) return;
-            return new Promise(resolve => {
-              img.addEventListener('load', resolve);
-              img.addEventListener('error', resolve);
-            });
-          }));
-        });
+        // Shorter delay for production
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Take screenshot of body
-        const bodyHandle = await page.$('body');
-        const screenshot = await bodyHandle.screenshot({
-          type: 'jpeg',
-          quality: 80,
-          omitBackground: false
-        });
+        // Take screenshot with timeout protection
+        const screenshot = await Promise.race([
+          page.screenshot({
+            type: 'jpeg',
+            quality: 85,
+            omitBackground: false,
+            fullPage: false
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Screenshot timeout')), 8000))
+        ]);
 
-        await browser.close();
+        console.log('✅ QR screenshot captured successfully, size:', screenshot.length);
 
         // Return image as base64 for JSON response
         const base64Image = screenshot.toString('base64');
@@ -317,8 +344,16 @@ class QRController {
         });
 
       } catch (error) {
-        await browser.close();
+        console.error('❌ Page operation failed:', error.message);
         throw error;
+      } finally {
+        // Always cleanup
+        try {
+          if (page) await page.close();
+          await browser.close();
+        } catch (cleanupError) {
+          console.warn('⚠️ Cleanup warning:', cleanupError.message);
+        }
       }
 
     } catch (error) {
