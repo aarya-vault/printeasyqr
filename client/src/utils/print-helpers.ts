@@ -8,9 +8,8 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   // Build the correct file URL for local storage
   let fileUrl;
   if (file.path) {
-    // Handle local file storage path
-    let path = file.path.startsWith('uploads/') ? file.path.substring(8) : file.path;
-    fileUrl = `/api/download/${path}`;
+    // Keep full path with uploads/ prefix for local storage
+    fileUrl = `/api/download/${file.path}`;
   } else {
     fileUrl = `/api/download/${file.filename || file}`;
   }
@@ -53,13 +52,8 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   // Handle both old format (filename) and new format (path) for local storage
   let downloadPath;
   if (file.path) {
-    // Handle local file storage path
-    let path = file.path;
-    // Remove 'uploads/' prefix if present to normalize
-    if (path.startsWith('uploads/')) {
-      path = path.substring(8);
-    }
-    downloadPath = `/api/download/${path}`;
+    // Keep full path with uploads/ prefix for local storage
+    downloadPath = `/api/download/${file.path}`;
   } else if (file.filename) {
     // Use filename directly
     downloadPath = `/api/download/${file.filename}`;
