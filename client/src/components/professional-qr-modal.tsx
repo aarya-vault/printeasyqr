@@ -58,8 +58,8 @@ export default function ProfessionalQRModal({ shop, onClose }: ProfessionalQRMod
         throw new Error('Failed to capture QR content');
       }
 
-      // Send to server for high-quality Puppeteer screenshot
-      const response = await fetch('/api/generate-image', {
+      // Send to server for high-quality puppeteer-core screenshot
+      const response = await fetch('/api/qr/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

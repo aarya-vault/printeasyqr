@@ -78,7 +78,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
     if (!displayShop?.slug || !displayShop?.name) return;
 
     try {
-      // Use the professional Puppeteer-powered QR generation endpoint
+      // Use the professional puppeteer-core QR generation endpoint
       const response = await fetch('/api/qr/generate-qr', {
         method: 'POST',
         headers: {
