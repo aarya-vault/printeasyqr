@@ -141,24 +141,14 @@ class QRController {
       const chromiumPath = await getChromiumPath();
       
       if (!chromiumPath) {
-        // Fallback to simple QR if no Chromium available
-        console.log('⚠️ No Chromium found, using fallback QR generation');
-        const qrUrl = shopSlug ? `https://printeasy.com/shop/${shopSlug}` : 'https://printeasy.com';
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-          width: 400,
-          margin: 2,
-          color: { dark: '#000000', light: '#FFFFFF' },
-          errorCorrectionLevel: 'H'
-        });
-        
-        const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, '');
-        
-        // Return JSON response matching what frontend expects
-        return res.json({
-          success: true,
-          image: base64Data
+        console.log('❌ CRITICAL: No Chromium found - cannot generate branded QR template');
+        return res.status(500).json({ 
+          success: false, 
+          message: 'QR generation failed: Chromium not available for branded template generation' 
         });
       }
+      
+      console.log('✅ Using Chromium for branded QR template generation:', chromiumPath);
 
       // Launch Puppeteer with system Chromium or fallback
       const browser = await puppeteer.launch({
