@@ -75,27 +75,70 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
   }, [displayShop?.slug]);
 
   const handleDownload = async () => {
-    if (!qrRef.current) return;
+    if (!displayShop?.slug || !displayShop?.name) return;
 
     try {
-      const canvas = await html2canvas(qrRef.current, {
-        backgroundColor: '#FFFFFF',
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        width: 500,
-        height: qrRef.current.scrollHeight,
-        scrollX: 0,
-        scrollY: 0,
-        logging: false,
+      // Use the professional Puppeteer-powered QR generation endpoint
+      const response = await fetch('/api/qr/generate-qr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shopSlug: displayShop.slug,
+          shopName: displayShop.name,
+          filename: `PrintEasy_${displayShop.name.replace(/\s+/g, '_')}_QR.jpg`
+        }),
       });
 
-      const link = document.createElement('a');
-      link.download = `PrintEasy_${(displayShop?.name || 'Shop').replace(/\s+/g, '_')}_QR.jpg`;
-      link.href = canvas.toDataURL('image/jpeg', 0.8);
-      link.click();
+      if (!response.ok) {
+        throw new Error('Failed to generate professional QR code');
+      }
+
+      const result = await response.json();
+      
+      if (result.success && (result.imageUrl || result.image)) {
+        // Create download link for the professional QR template
+        const link = document.createElement('a');
+        link.download = `PrintEasy_${displayShop.name.replace(/\s+/g, '_')}_QR.jpg`;
+        
+        // Handle both URL and base64 image responses
+        if (result.imageUrl) {
+          link.href = result.imageUrl;
+        } else if (result.image) {
+          link.href = `data:image/jpeg;base64,${result.image}`;
+        }
+        
+        link.click();
+      } else {
+        throw new Error('Professional QR generation failed');
+      }
     } catch (error) {
-      console.error('Error generating QR code image:', error);
+      console.error('Error generating professional QR code:', error);
+      
+      // Fallback to basic html2canvas if professional generation fails
+      if (qrRef.current) {
+        try {
+          const canvas = await html2canvas(qrRef.current, {
+            backgroundColor: '#FFFFFF',
+            scale: 3,
+            useCORS: true,
+            allowTaint: true,
+            width: 500,
+            height: qrRef.current.scrollHeight,
+            scrollX: 0,
+            scrollY: 0,
+            logging: false,
+          });
+
+          const link = document.createElement('a');
+          link.download = `PrintEasy_${(displayShop?.name || 'Shop').replace(/\s+/g, '_')}_QR.jpg`;
+          link.href = canvas.toDataURL('image/jpeg', 0.8);
+          link.click();
+        } catch (fallbackError) {
+          console.error('Fallback QR generation also failed:', fallbackError);
+        }
+      }
     }
   };
 
