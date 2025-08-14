@@ -1,6 +1,4 @@
 import QRCode from 'qrcode';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 
 class QRController {
   // Generate QR code with professional design
@@ -77,24 +75,15 @@ class QRController {
         return res.status(400).json({ message: 'Unable to generate QR content' });
       }
 
-      // Launch Puppeteer-Core with @sparticuz/chromium for Netlify deployment
-      const browser = await puppeteer.launch({
-        args: [
-          ...chromium.args,
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--single-process',
-          '--disable-gpu',
-          '--disable-web-security',
-          '--hide-scrollbars',
-          '--mute-audio'
-        ],
-        defaultViewport: { width: 400, height: 800 },
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-        timeout: 30000
+      // Generate QR code as data URL using QRCode library
+      const qrCodeUrl = `https://printeasy.com/shop/${shopSlug}`;
+      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeUrl, {
+        width: 192,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
       });
 
       try {
