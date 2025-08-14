@@ -171,6 +171,42 @@ app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 app.use('/api', printHostRoutes); // Print Host for PDF printing
 app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
+
+// 🚨 FALLBACK ROUTE: Redirect old QR routes to new structure for browser cache compatibility
+app.post('/api/generate-image', async (req, res) => {
+  console.log('⚠️ DEPRECATED ROUTE ACCESSED: /api/generate-image - forwarding to QR controller');
+  try {
+    // Import QR controller dynamically based on environment
+    if (process.env.NODE_ENV === 'production') {
+      const { default: QRLightweightController } = await import('./controllers/qr-lightweight.controller.js');
+      return QRLightweightController.generateQR(req, res);
+    } else {
+      const { default: QRController } = await import('./controllers/qr.controller.js');
+      return QRController.generateQR(req, res);
+    }
+  } catch (error) {
+    console.error('Error in fallback route:', error);
+    res.status(500).json({ success: false, message: 'QR generation failed' });
+  }
+});
+
+app.post('/api/generate-qr', async (req, res) => {
+  console.log('⚠️ DEPRECATED ROUTE ACCESSED: /api/generate-qr - forwarding to QR controller');
+  try {
+    // Import QR controller dynamically based on environment
+    if (process.env.NODE_ENV === 'production') {
+      const { default: QRLightweightController } = await import('./controllers/qr-lightweight.controller.js');
+      return QRLightweightController.generateQR(req, res);
+    } else {
+      const { default: QRController } = await import('./controllers/qr.controller.js');
+      return QRController.generateQR(req, res);
+    }
+  } catch (error) {
+    console.error('Error in fallback route:', error);
+    res.status(500).json({ success: false, message: 'QR generation failed' });
+  }
+});
+
 // app.use('/api', downloadRoutes); // DISABLED - Using inline download route instead
 
 // Object Storage download proxy - bypass CORS restrictions
