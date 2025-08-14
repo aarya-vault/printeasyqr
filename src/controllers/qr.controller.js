@@ -48,39 +48,72 @@ class QRController {
       if (shopSlug && shopName) {
         finalFilename = `PrintEasy_${shopName.replace(/\s+/g, '_')}_QR.jpg`;
         
-        // Generate professional QR HTML with shop details
+        // Get shop data for the branded template
+        const Shop = await import('../models/shop.js');
+        const shop = await Shop.default.findOne({ where: { slug: shopSlug } });
+        const shopPhone = shop?.phone || shop?.ownerPhone || '9574744155';
+        
+        // Generate the EXACT branded template you specified
         finalHtmlContent = `
-          <div class="w-full h-auto bg-white p-6 flex flex-col items-center">
-            <!-- PrintEasy Branding -->
-            <div class="text-center mb-4">
-              <h1 class="text-2xl font-bold text-black mb-1">PrintEasy</h1>
-              <p class="text-sm text-gray-600">QR-Powered Printing Revolution</p>
+          <div style="width: 400px; padding: 20px; background: white; font-family: 'Arial', sans-serif; text-align: center; border: 3px solid #FFBF00;">
+            <!-- Shop Name -->
+            <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; color: #000;">${shopName}</h1>
+            
+            <!-- PrintEasy QR Header -->
+            <h2 style="margin: 0 0 15px 0; font-size: 18px; font-weight: bold; color: #FFBF00;">PrintEasy QR</h2>
+            
+            <!-- QR Code -->
+            <div style="margin: 15px 0; padding: 10px; background: white; border: 2px solid #FFBF00; display: inline-block;">
+              <div id="qrcode" style="width: 200px; height: 200px;"></div>
             </div>
             
-            <!-- QR Code Container -->
-            <div class="bg-white p-4 rounded-lg border-2 border-[#FFBF00] mb-4">
-              <div id="qrcode" class="w-48 h-48 mx-auto"></div>
+            <!-- QR Code Label -->
+            <p style="margin: 10px 0; font-size: 16px; font-weight: bold; color: #000;">QR Code</p>
+            
+            <!-- Shop Contact -->
+            <div style="margin: 15px 0; text-align: left; max-width: 300px; margin-left: auto; margin-right: auto;">
+              <h3 style="margin: 0 0 5px 0; font-size: 16px; font-weight: bold; color: #000;">Shop Contact</h3>
+              <p style="margin: 0; font-size: 14px; color: #000;">${shopPhone}</p>
             </div>
             
-            <!-- Shop Information -->
-            <div class="text-center mb-4">
-              <h2 class="text-xl font-semibold text-black mb-1">${shopName}</h2>
-              <p class="text-sm text-gray-600 mb-2">Scan to unlock this shop</p>
-              <div class="bg-[#FFBF00] text-black px-4 py-2 rounded-lg text-sm font-medium">
-                ✓ Verified PrintEasy Partner
+            <!-- Customer Guide -->
+            <div style="margin: 20px 0; text-align: left; max-width: 350px; margin-left: auto; margin-right: auto;">
+              <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: #000;">Customer Guide</h3>
+              
+              <div style="margin-bottom: 8px;">
+                <strong style="color: #FFBF00; font-size: 16px;">1</strong>
+                <span style="margin-left: 8px; font-size: 12px; color: #000;">Scan this QR via your app scanner or visit printeasyqr.com website and scan it</span>
+              </div>
+              
+              <div style="margin-bottom: 8px;">
+                <strong style="color: #FFBF00; font-size: 16px;">2</strong>
+                <span style="margin-left: 8px; font-size: 12px; color: #000;">Enter your name and phone number</span>
+              </div>
+              
+              <div style="margin-bottom: 8px;">
+                <strong style="color: #FFBF00; font-size: 16px;">3</strong>
+                <span style="margin-left: 8px; font-size: 12px; color: #000;">Upload your files or create a walk-in order for tracking purpose</span>
+              </div>
+              
+              <div style="margin-bottom: 8px;">
+                <strong style="color: #FFBF00; font-size: 16px;">4</strong>
+                <span style="margin-left: 8px; font-size: 12px; color: #000;">Explore dashboard, chat with shop owner and don't worry - uploaded files are auto-deleted when complete</span>
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <strong style="color: #FFBF00; font-size: 16px;">5</strong>
+                <span style="margin-left: 8px; font-size: 12px; color: #000;">Voila! That's it - trust the process</span>
               </div>
             </div>
             
-            <!-- Features -->
-            <div class="text-center text-xs text-gray-500 space-y-1">
-              <p>🚀 500MB Files • 100+ Formats</p>
-              <p>💬 Real-time Chat • 📍 Order Tracking</p>
-              <p>🕐 24/7 Support • 🔒 Secure Platform</p>
-            </div>
-            
-            <!-- Footer -->
-            <div class="text-center mt-4 text-xs text-gray-400">
-              <p>printeasy.com • Made in India</p>
+            <!-- Footer with PrintEasy branding -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #FFBF00;">
+              <div style="display: flex; justify-content: space-between; align-items: center; max-width: 300px; margin: 0 auto;">
+                <span style="font-size: 14px; font-weight: bold; color: #000;">PrintEasy</span>
+                <span style="font-size: 12px; color: #000;">Secure</span>
+                <span style="font-size: 12px; color: #000;">Fast</span>
+                <span style="font-size: 12px; color: #000;">Easy</span>
+              </div>
             </div>
           </div>
           
@@ -88,12 +121,13 @@ class QRController {
           <script>
             // Generate QR code pointing to shop URL
             QRCode.toCanvas(document.getElementById('qrcode'), '${process.env.REPLIT_DEPLOY_DOMAIN ? `https://${process.env.REPLIT_DEPLOY_DOMAIN}` : 'https://localhost:5000'}/shop/${shopSlug}', {
-              width: 192,
+              width: 200,
               margin: 2,
               color: {
                 dark: '#000000',
                 light: '#FFFFFF'
-              }
+              },
+              errorCorrectionLevel: 'H'
             });
           </script>
         `;
