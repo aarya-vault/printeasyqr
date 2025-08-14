@@ -4,12 +4,8 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
-import { ObjectStorageService } from '../../server/objectStorage.js';
 
 const router = Router();
-
-// Initialize Object Storage Service for file downloads
-const objectStorageService = new ObjectStorageService();
 
 // Configure multer for file uploads - Lazy initialization to prevent module load failures
 // 🚀 OBJECT STORAGE FIX: Use object storage for all file uploads
