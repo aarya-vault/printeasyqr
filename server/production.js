@@ -69,6 +69,22 @@ if (fs.existsSync(clientPath)) {
 }
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// Create HTTP server for WebSocket support
+import { createServer } from 'http';
+const server = createServer(app);
+
+// Setup WebSocket for production
+try {
+  const { setupWebSocket } = await import('../src/utils/websocket.js');
+  setupWebSocket(server);
+  console.log('✅ WebSocket server configured for production');
+} catch (error) {
+  console.warn('⚠️ WebSocket setup failed:', error.message);
+}
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 PrintEasy QR production server running on port ${PORT}`);
+  console.log(`🌐 Server accessible at http://0.0.0.0:${PORT}`);
+  console.log(`🔌 WebSocket available at ws://0.0.0.0:${PORT}/ws`);
 });

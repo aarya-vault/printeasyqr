@@ -18,10 +18,10 @@ class QRLightweightController {
         `PrintEasy_${shopName?.replace(/\s+/g, '_') || shopSlug}_QR.png` : 
         'PrintEasy_QR.png';
       
-      // Generate QR URL
+      // Generate QR URL - Fix production domain
       const qrUrl = shopSlug ? 
-        `https://printeasy.com/shop/${shopSlug}` : 
-        'https://printeasy.com';
+        `https://printeasyqr.com/shop/${shopSlug}` : 
+        'https://printeasyqr.com';
       
       console.log('🔷 Generating lightweight QR for:', qrUrl);
       

@@ -49,8 +49,8 @@ class QRController {
         finalFilename = `PrintEasy_${shopName.replace(/\s+/g, '_')}_QR.jpg`;
         
         // Get shop data for the branded template
-        const Shop = await import('../models/shop.js');
-        const shop = await Shop.default.findOne({ where: { slug: shopSlug } });
+        const { Shop } = await import('../models/index.js');
+        const shop = await Shop.findOne({ where: { slug: shopSlug } });
         const shopPhone = shop?.phone || shop?.ownerPhone || '9574744155';
         
         // Generate the EXACT branded template you specified
