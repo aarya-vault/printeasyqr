@@ -236,20 +236,26 @@ class MessageController {
       const fileToDelete = files[fileIndexNum];
       console.log('Attempting to delete file:', fileToDelete);
       
-      // Import ObjectStorageService
-      const { ObjectStorageService } = await import('../../server/objectStorage.js');
-      const objectStorage = new ObjectStorageService();
+      // Delete file from local storage
+      const fs = await import('fs');
+      const path = await import('path');
       
-      // Construct object path for deletion
-      let objectPath = fileToDelete.path;
-      if (!objectPath.startsWith('/objects/')) {
-        objectPath = `/objects/${fileToDelete.path || '.private/uploads/' + fileToDelete.filename}`;
-      }
-      
-      // Delete from object storage
-      const deleted = await objectStorage.deleteObject(objectPath);
-      
-      if (deleted) {
+      try {
+        // Construct local file path
+        let filePath = fileToDelete.path;
+        if (filePath.startsWith('/uploads/')) {
+          filePath = path.join(process.cwd(), filePath);
+        } else if (filePath.startsWith('/objects/')) {
+          // Handle legacy object storage paths
+          filePath = path.join(process.cwd(), 'uploads', path.basename(filePath));
+        }
+        
+        // Check if file exists and delete it
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log('Successfully deleted file from local storage:', filePath);
+        }
+        
         // Remove file from array and update message
         files.splice(fileIndexNum, 1);
         await message.update({ files: JSON.stringify(files) });
@@ -260,8 +266,17 @@ class MessageController {
           message: 'File deleted successfully',
           remainingFiles: files.length 
         });
-      } else {
-        res.status(500).json({ message: 'Failed to delete file from storage' });
+      } catch (deleteError) {
+        console.error('Error deleting file:', deleteError);
+        // Even if file deletion fails, remove from database
+        files.splice(fileIndexNum, 1);
+        await message.update({ files: JSON.stringify(files) });
+        
+        res.json({ 
+          success: true, 
+          message: 'File reference removed',
+          remainingFiles: files.length 
+        });
       }
       
     } catch (error) {
