@@ -19,7 +19,7 @@ export interface WorkingHours {
 
 export interface ShopTimingData {
   isOnline: boolean;
-  workingHours?: WorkingHours;
+  workingHours?: WorkingHours | string;
   acceptsWalkinOrders?: boolean;
   autoAvailability?: boolean;
 }
@@ -49,10 +49,71 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
 
-  // SIMPLIFIED LOGIC: If shop owner toggles ONLINE, shop is ALWAYS OPEN
-  // This is the master override - no need to check working hours when manually set to online
-  console.log('🟢 MANUAL OVERRIDE: Shop set to OPEN by owner - ALWAYS OPEN regardless of working hours');
-  return true;
+  // Check if shop has working hours
+  if (!shop.workingHours) {
+    console.log('⚠️ No working hours defined - defaulting to closed');
+    return false;
+  }
+
+  // Handle string format working hours (fallback to always open if isOnline)
+  if (typeof shop.workingHours === 'string') {
+    console.log('⚠️ String format working hours detected:', shop.workingHours);
+    // Simple string format handling - if shop is online, assume it's open
+    return true;
+  }
+
+  // Get current day and time in India timezone
+  const now = new Date();
+  const indiaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+  const currentDay = indiaTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+  const currentTime = indiaTime.toTimeString().slice(0, 5); // HH:MM format
+
+  console.log('🕐 Current India time check:', {
+    day: currentDay,
+    time: currentTime,
+    utcTime: now.toISOString()
+  });
+
+  // Get today's working hours
+  const todayHours = shop.workingHours[currentDay];
+  
+  if (!todayHours) {
+    console.log('❌ No working hours defined for', currentDay);
+    return false;
+  }
+
+  // Check if shop is closed today
+  if (todayHours.closed || (todayHours as any).isOpen === false) {
+    console.log('🔴 Shop is closed on', currentDay);
+    return false;
+  }
+
+  // Check for 24/7 operation
+  if (todayHours.is24Hours || (todayHours.open === '00:00' && todayHours.close === '23:59')) {
+    console.log('🟢 Shop is open 24/7');
+    return true;
+  }
+
+  // Get open and close times (support both formats)
+  const openTime = (todayHours as any).openTime || todayHours.open;
+  const closeTime = (todayHours as any).closeTime || todayHours.close;
+
+  if (!openTime || !closeTime) {
+    console.log('❌ Missing open/close times for', currentDay);
+    return false;
+  }
+
+  // Check if current time is within working hours
+  const isOpen = currentTime >= openTime && currentTime <= closeTime;
+  
+  console.log('🕐 Time comparison:', {
+    current: currentTime,
+    open: openTime,
+    close: closeTime,
+    isOpen: isOpen
+  });
+
+  return isOpen;
 }
 
 /**
@@ -77,6 +138,11 @@ export function getShopStatusText(shop: ShopTimingData): string {
  */
 export function getNextOpeningTime(shop: ShopTimingData): string | null {
   if (!shop?.workingHours || isShopCurrentlyOpen(shop)) return null;
+
+  // Handle string format working hours
+  if (typeof shop.workingHours === 'string') {
+    return null; // Cannot calculate next opening time from string format
+  }
 
   const now = new Date();
   const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
@@ -110,7 +176,11 @@ export function getNextOpeningTime(shop: ShopTimingData): string | null {
 /**
  * Format working hours for display
  */
-export function formatWorkingHours(workingHours: WorkingHours): string {
+export function formatWorkingHours(workingHours: WorkingHours | string): string {
+  // Handle string format
+  if (typeof workingHours === 'string') {
+    return workingHours;
+  }
   if (!workingHours) return '24/7';
 
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

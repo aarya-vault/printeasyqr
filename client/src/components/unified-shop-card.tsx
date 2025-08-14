@@ -5,7 +5,8 @@ import {
   Users, Package, CheckCircle, AlertCircle, Store, ExternalLink 
 } from 'lucide-react';
 import { Shop } from '@/types/shop';
-import { isShopCurrentlyOpen, getWorkingHoursDisplay } from '@/utils/working-hours';
+import { isShopCurrentlyOpen, getShopStatusText } from '@/utils/shop-timing';
+import { getWorkingHoursDisplay } from '@/utils/working-hours';
 
 interface UnifiedShopCardProps {
   shop: Shop;
@@ -20,7 +21,11 @@ export default function UnifiedShopCard({
   onClick, 
   showUnlockStatus = false 
 }: UnifiedShopCardProps) {
-  const isCurrentlyOpen = isShopCurrentlyOpen(shop.workingHours);
+  const isCurrentlyOpen = isShopCurrentlyOpen({
+    isOnline: shop.isOnline,
+    workingHours: shop.workingHours,
+    acceptsWalkinOrders: shop.acceptsWalkinOrders
+  });
   const workingHoursDisplay = getWorkingHoursDisplay(shop.workingHours);
 
   const handleGoogleMapsClick = (e: React.MouseEvent) => {
