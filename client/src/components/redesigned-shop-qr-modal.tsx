@@ -115,30 +115,7 @@ export default function RedesignedShopQRModal({ shop, onClose }: ShopQRModalProp
       }
     } catch (error) {
       console.error('Error generating professional QR code:', error);
-      
-      // Fallback to basic html2canvas if professional generation fails
-      if (qrRef.current) {
-        try {
-          const canvas = await html2canvas(qrRef.current, {
-            backgroundColor: '#FFFFFF',
-            scale: 3,
-            useCORS: true,
-            allowTaint: true,
-            width: 500,
-            height: qrRef.current.scrollHeight,
-            scrollX: 0,
-            scrollY: 0,
-            logging: false,
-          });
-
-          const link = document.createElement('a');
-          link.download = `PrintEasy_${(displayShop?.name || 'Shop').replace(/\s+/g, '_')}_QR.jpg`;
-          link.href = canvas.toDataURL('image/jpeg', 0.8);
-          link.click();
-        } catch (fallbackError) {
-          console.error('Fallback QR generation also failed:', fallbackError);
-        }
-      }
+      alert('Failed to download QR code. Please try again.');
     }
   };
 

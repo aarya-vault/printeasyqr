@@ -87,7 +87,7 @@ class QRController {
           <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
           <script>
             // Generate QR code pointing to shop URL
-            QRCode.toCanvas(document.getElementById('qrcode'), 'https://printeasy.com/shop/${shopSlug}', {
+            QRCode.toCanvas(document.getElementById('qrcode'), '${process.env.REPLIT_DEPLOY_DOMAIN ? `https://${process.env.REPLIT_DEPLOY_DOMAIN}` : 'https://localhost:5000'}/shop/${shopSlug}', {
               width: 192,
               margin: 2,
               color: {

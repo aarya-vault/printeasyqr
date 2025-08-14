@@ -28,7 +28,7 @@ The platform employs a clean, professional, and consistent visual identity using
 - **Role-Based Access Control**: Differentiated functionalities for Customer, Shop Owner, and Admin.
 
 ### Core Features & Implementations
-- **Revolutionary QR Generation**: Hybrid microservice leveraging Vercel serverless functions (with Puppeteer-core fallback) to generate unique, branded QR codes for shop unlocking and direct order page redirection.
+- **Revolutionary QR Generation**: Hybrid microservice leveraging Vercel serverless functions (with Puppeteer-core fallback) to generate unique, branded QR codes for shop unlocking and direct order page redirection. QR download functionality exclusively uses Puppeteer-powered branded templates with PrintEasy branding, shop verification badges, and professional styling. Fixed route registration to ensure /api/qr/generate-qr endpoint accessibility.
 - **Order Flows**: Supports digital file upload and walk-in order booking.
 - **Unified Chat System**: Real-time customer-shop owner communication with file attachments and timestamps.
 - **Comprehensive Admin Dashboard**: Manages users and shops (CRUD, application review, status), including QR Customer Acquisition Analytics.

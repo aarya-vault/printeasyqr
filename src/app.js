@@ -162,7 +162,7 @@ app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', messageRoutes);
 app.use('/api', shopApplicationRoutes);
-app.use('/api', qrRoutes);
+app.use('/api/qr', qrRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/pincode', pincodeRoutes);
