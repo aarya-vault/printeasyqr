@@ -7,6 +7,10 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// CRITICAL: Force production environment for all imports
+process.env.NODE_ENV = 'production';
+console.log('🚀 FORCED NODE_ENV to production for QR controller selection');
+
 // PRODUCTION DATABASE CONFIGURATION - FORCE CORRECT CREDENTIALS
 console.log('🔍 Production Database Environment Check:');
 console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
