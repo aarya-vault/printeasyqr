@@ -17,7 +17,19 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   const filename = file.originalName || file.filename || file;
   console.log(`🖨️ Preparing to print: ${filename}`);
 
-  const printHostUrl = `/api/print-host?file=${encodeURIComponent(fileUrl)}`;
+  // Detect file type for smart printing
+  const getFileType = (file: any) => {
+    const mimetype = file.mimetype || '';
+    const filename = file.originalName || file.filename || '';
+    
+    if (mimetype.startsWith('image/') || filename.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
+      return 'image';
+    }
+    return 'pdf'; // Default to PDF handling
+  };
+  
+  const fileType = getFileType(file);
+  const printHostUrl = `/api/print-host?file=${encodeURIComponent(fileUrl)}&type=${fileType}`;
   
   const printWindow = window.open(printHostUrl, '_blank', 'width=800,height=600');
 
@@ -65,41 +77,16 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   // Use the original filename if available, otherwise fall back to the generated filename
   const originalName = file.originalName || file.filename || 'document.pdf';
   
-  // Use fetch with blob approach for true bypass of "Save As" dialog
-  fetch(`${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Download failed: ${response.status}`);
-      }
-      return response.blob();
-    })
-    .then(blob => {
-      // Create object URL and download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = originalName;
-      link.style.display = 'none';
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up object URL
-      window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-      console.error('Download failed:', error);
-      // Fallback to iframe method
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
-      document.body.appendChild(iframe);
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 3000);
-    });
+  // Force direct download without "Save As" dialog using programmatic approach
+  const link = document.createElement('a');
+  link.href = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
+  link.download = originalName;
+  link.style.display = 'none';
+  
+  // Add to DOM, click, and remove immediately
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   
   console.log(`📥 Direct download triggered: ${originalName}`);
 };
