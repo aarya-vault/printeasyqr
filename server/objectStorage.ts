@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
 
+const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
+
 // Simplified object storage - no external dependencies
 export const objectStorageClient = null;
 
@@ -67,18 +69,21 @@ export class ObjectStorageService {
     }
   }
 
-  // Delete an object from storage
+  // Delete an object from storage - simplified for local files
   async deleteObject(objectPath: string): Promise<boolean> {
     try {
       console.log('🗑️ Attempting to delete object:', objectPath);
       
-      const file = await this.getObjectEntityFile(objectPath);
-      await file.delete();
+      // Simple local file deletion
+      if (fs.existsSync(objectPath)) {
+        fs.unlinkSync(objectPath);
+        console.log('✅ Successfully deleted object:', objectPath);
+        return true;
+      }
       
-      console.log('✅ Successfully deleted object:', objectPath);
-      return true;
+      return false;
     } catch (error) {
-      console.error('❌ Failed to delete object:', objectPath, error.message);
+      console.error('❌ Failed to delete object:', objectPath, error);
       return false;
     }
   }
@@ -125,7 +130,7 @@ export class ObjectStorageService {
     }
     const objectEntityPath = `${entityDir}${entityId}`;
     const { bucketName, objectName } = parseObjectPath(objectEntityPath);
-    const bucket = objectStorageClient.bucket(bucketName);
+    const bucket = objectStorageClient?.bucket(bucketName);
     const objectFile = bucket.file(objectName);
     const [exists] = await objectFile.exists();
     if (!exists) {
