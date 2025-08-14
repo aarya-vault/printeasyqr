@@ -1,6 +1,23 @@
 import QRCode from 'qrcode';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+
+// Conditional Puppeteer loading for deployment optimization
+let puppeteer = null;
+let chromium = null;
+
+// Only load heavy dependencies in development or when explicitly needed
+const loadPuppeteerDependencies = async () => {
+  if (!puppeteer) {
+    try {
+      puppeteer = await import('puppeteer-core');
+      chromium = await import('@sparticuz/chromium');
+      console.log('✅ Puppeteer dependencies loaded');
+    } catch (error) {
+      console.log('⚠️ Puppeteer dependencies not available - using lightweight QR generation');
+      return false;
+    }
+  }
+  return true;
+};
 
 class QRController {
   // Generate QR code with professional design
@@ -77,10 +94,31 @@ class QRController {
         return res.status(400).json({ message: 'Unable to generate QR content' });
       }
 
+      // Check if Puppeteer is available
+      const puppeteerAvailable = await loadPuppeteerDependencies();
+      
+      if (!puppeteerAvailable) {
+        // Fallback to lightweight QR generation without Puppeteer
+        const qrUrl = shopSlug ? `https://printeasy.com/shop/${shopSlug}` : 'https://printeasy.com';
+        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
+          width: 400,
+          margin: 2,
+          color: { dark: '#000000', light: '#FFFFFF' },
+          errorCorrectionLevel: 'H'
+        });
+        
+        const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Disposition', `attachment; filename="${finalFilename}"`);
+        return res.send(buffer);
+      }
+
       // Launch Puppeteer-Core with @sparticuz/chromium for deployment compatibility
-      const browser = await puppeteer.launch({
+      const browser = await puppeteer.default.launch({
         args: [
-          ...chromium.args,
+          ...chromium.default.args,
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
@@ -91,8 +129,8 @@ class QRController {
           '--mute-audio'
         ],
         defaultViewport: { width: 400, height: 800 },
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
+        executablePath: await chromium.default.executablePath(),
+        headless: chromium.default.headless,
         ignoreHTTPSErrors: true,
         timeout: 30000
       });
