@@ -70,8 +70,16 @@ defineAssociations();
 const syncDatabase = async (force = false) => {
   try {
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ force, alter: !force });
-      console.log('Database synchronized successfully.');
+      // IMPORTANT: Do NOT use alter:true as it creates duplicate constraints
+      // Only sync if force is explicitly requested
+      if (force) {
+        await sequelize.sync({ force: true });
+        console.log('Database force synchronized successfully.');
+      } else {
+        // Just validate the connection, don't alter schema
+        await sequelize.authenticate();
+        console.log('Database connection validated successfully.');
+      }
     }
   } catch (error) {
     console.error('Database synchronization failed:', error);
