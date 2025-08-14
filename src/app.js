@@ -37,6 +37,7 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import otpRoutes from './routes/otp.routes.js';
 import downloadRoutes from './routes/download.routes.js';
 import printHostRoutes from './routes/print-host.routes.js';
+import googleMapsImportRoutes from './routes/google-maps-import.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -169,6 +170,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 app.use('/api', printHostRoutes); // Print Host for PDF printing
+app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
 // app.use('/api', downloadRoutes); // DISABLED - Using inline download route instead
 
 // Object Storage download proxy - bypass CORS restrictions
