@@ -61,14 +61,15 @@ const initializeDatabase = async () => {
     await sequelize.authenticate();
     logger.info('✅ Database connection established successfully');
     
-    // Sync database (be careful in production)
+    // IMPORTANT: Never use alter:true - it creates duplicate constraints
+    // Only sync database if explicitly forced (for initial setup only)
     if (process.env.FORCE_DB_SYNC === 'true') {
-      await sequelize.sync({ alter: true });
-      logger.info('✅ Database tables synchronized');
+      await sequelize.sync({ force: true }); // Use force instead of alter
+      logger.info('✅ Database tables force synchronized (initial setup)');
     } else {
-      // Just test if tables exist without altering
+      // Just test connection, never alter schema automatically
       await sequelize.authenticate();
-      logger.info('✅ Database connection verified');
+      logger.info('✅ Database connection verified (no schema changes)');
     }
     
     return sequelize;
