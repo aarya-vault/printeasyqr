@@ -2,17 +2,19 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// DEVELOPMENT DATABASE ONLY: Use ONLY Replit's development DATABASE_URL
-// Production database deleted - single development database for all environments
+// DEVELOPMENT DATABASE ONLY: Production database manually deleted by user
+// System now STRICTLY uses development database for ALL environments
 const getDatabaseUrl = () => {
-  // ONLY use Replit's development DATABASE_URL - no external production databases
-  if (process.env.DATABASE_URL) {
-    console.log('✅ Using DEVELOPMENT database only:', process.env.DATABASE_URL.split('@')[1]?.split('/')[0] || 'database');
-    console.log('🚫 Production database DELETED - development database serves all environments');
-    return process.env.DATABASE_URL;
+  const devDatabaseUrl = process.env.DATABASE_URL;
+  
+  if (!devDatabaseUrl) {
+    throw new Error('CRITICAL: Development DATABASE_URL required - production database manually deleted');
   }
   
-  throw new Error('Development DATABASE_URL required - production database has been deleted');
+  console.log('🔒 STRICT DEVELOPMENT MODE: Production database manually deleted');
+  console.log('✅ Using development database for ALL environments');
+  
+  return devDatabaseUrl;
 };
 
 const databaseUrl = getDatabaseUrl();

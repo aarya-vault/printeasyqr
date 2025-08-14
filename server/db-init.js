@@ -11,16 +11,17 @@ const initializeDatabase = async () => {
   logger.info('🔄 Initializing production database...');
   
   try {
-    // DEVELOPMENT DATABASE ONLY: Production database has been DELETED
-    // Only development database exists and serves all environments
+    // STRICT DEVELOPMENT MODE: Production database manually deleted by user
+    // System enforces development database usage for ALL environments
     const databaseUrl = process.env.DATABASE_URL;
     
     if (!databaseUrl) {
-      logger.error('❌ DEVELOPMENT DATABASE_URL required - production database deleted');
-      throw new Error('Development database required - production database has been deleted');
+      logger.error('❌ CRITICAL: Development DATABASE_URL missing - production database manually deleted');
+      throw new Error('STRICT DEVELOPMENT MODE: Development DATABASE_URL required');
     }
     
-    logger.info('✅ Using DEVELOPMENT database only - production database DELETED');
+    logger.info('🔒 STRICT DEVELOPMENT MODE: Production database manually deleted by user');
+    logger.info('✅ Enforcing development database for ALL environments');
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
