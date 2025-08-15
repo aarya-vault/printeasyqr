@@ -17,6 +17,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
 import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
+import { uploadFilesDirectlyToR2, DirectUploadProgress } from '@/utils/direct-upload';
 
 interface Order {
   id: number;
@@ -109,68 +110,102 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   // Use stable order for rendering to prevent data vanishing
   const currentOrder = stableOrder || order;
 
-  // 🚀 ULTRA-FAST Upload additional files mutation with progress tracking
+  // 🚀 ULTRA-FAST Upload additional files mutation with DIRECT R2 UPLOAD (bypassing server)
   const uploadFilesMutation = useMutation({
     mutationFn: async (files: File[]) => {
-      return new Promise<any>((resolve, reject) => {
-        const formData = new FormData();
-        files.forEach((file) => {
-          formData.append('files', file);
-        });
-
-        const xhr = new XMLHttpRequest();
-        const startTime = Date.now();
-        
-        xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
-          if (progressEvent.lengthComputable) {
-            const currentTime = Date.now();
-            const elapsedTime = (currentTime - startTime) / 1000;
-            const bytesLoaded = progressEvent.loaded;
-            const bytesTotal = progressEvent.total;
-            
-            // Calculate upload speed
-            const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
-            const bytesRemaining = bytesTotal - bytesLoaded;
-            const estimatedTimeRemaining = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
-            
+      console.log(`🚀 Add More Files: Starting DIRECT R2 upload for ${files.length} files...`);
+      
+      try {
+        // Try direct R2 upload first (bypasses server for 2x speed)
+        const uploadResult = await uploadFilesDirectlyToR2(
+          files,
+          currentOrder.id,
+          (progress: DirectUploadProgress) => {
             setUploadProgress({
-              totalFiles: files.length,
-              completedFiles: 0,
-              currentFileIndex: 0,
-              currentFileName: files[0]?.name || '',
-              overallProgress: Math.round((bytesLoaded / bytesTotal) * 100),
-              bytesUploaded: bytesLoaded,
-              totalBytes: bytesTotal,
-              uploadSpeed: uploadSpeed,
-              estimatedTimeRemaining: estimatedTimeRemaining
+              totalFiles: progress.totalFiles,
+              completedFiles: progress.completedFiles,
+              currentFileIndex: progress.completedFiles,
+              currentFileName: progress.currentFile,
+              overallProgress: progress.overallProgress,
+              bytesUploaded: progress.bytesUploaded,
+              totalBytes: progress.totalBytes,
+              uploadSpeed: progress.uploadSpeed,
+              estimatedTimeRemaining: progress.estimatedTime
             });
           }
-        };
-        
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const result = JSON.parse(xhr.responseText);
-              resolve(result);
-            } catch {
-              resolve(xhr.responseText);
-            }
-          } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
-          }
-        };
-        
-        xhr.onerror = () => reject(new Error('Upload failed'));
-        
-        // Get JWT token from localStorage and include in request
-        const token = localStorage.getItem('token');
-        if (token) {
-          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        );
+
+        if (uploadResult.success) {
+          console.log('✅ Direct R2 upload completed for add more files!');
+          console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
+          return { message: 'Files uploaded successfully', newFiles: uploadResult.uploadedFiles };
+        } else {
+          throw new Error('Direct upload failed, using server fallback');
         }
+      } catch (error) {
+        console.log('⚠️ Direct upload failed, falling back to server upload...', error);
         
-        xhr.open('POST', `/api/orders/${order.id}/add-files`);
-        xhr.send(formData);
-      });
+        // Fallback to server upload
+        return new Promise<any>((resolve, reject) => {
+          const formData = new FormData();
+          files.forEach((file) => {
+            formData.append('files', file);
+          });
+
+          const xhr = new XMLHttpRequest();
+          const startTime = Date.now();
+          
+          xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
+            if (progressEvent.lengthComputable) {
+              const currentTime = Date.now();
+              const elapsedTime = (currentTime - startTime) / 1000;
+              const bytesLoaded = progressEvent.loaded;
+              const bytesTotal = progressEvent.total;
+              
+              // Calculate upload speed
+              const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
+              const bytesRemaining = bytesTotal - bytesLoaded;
+              const estimatedTimeRemaining = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
+              
+              setUploadProgress({
+                totalFiles: files.length,
+                completedFiles: 0,
+                currentFileIndex: 0,
+                currentFileName: files[0]?.name || '',
+                overallProgress: Math.round((bytesLoaded / bytesTotal) * 100),
+                bytesUploaded: bytesLoaded,
+                totalBytes: bytesTotal,
+                uploadSpeed: uploadSpeed,
+                estimatedTimeRemaining: estimatedTimeRemaining
+              });
+            }
+          };
+          
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const result = JSON.parse(xhr.responseText);
+                resolve(result);
+              } catch {
+                resolve(xhr.responseText);
+              }
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          };
+          
+          xhr.onerror = () => reject(new Error('Upload failed'));
+          
+          // Get JWT token from localStorage and include in request
+          const token = localStorage.getItem('token');
+          if (token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          }
+          
+          xhr.open('POST', `/api/orders/${currentOrder.id}/add-files`);
+          xhr.send(formData);
+        });
+      }
     },
     onSuccess: (data) => {
       toast({ title: 'Files uploaded successfully!' });
