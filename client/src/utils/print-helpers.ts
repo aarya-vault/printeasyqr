@@ -101,7 +101,8 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
   
   // Force direct download without "Save As" dialog using programmatic approach
   const link = document.createElement('a');
-  link.href = `${downloadPath}?download=true&originalName=${encodeURIComponent(originalName)}`;
+  // FIX: downloadPath already contains query parameters, don't add them again!
+  link.href = downloadPath;
   link.download = originalName;
   link.style.display = 'none';
   

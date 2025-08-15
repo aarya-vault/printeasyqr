@@ -23,11 +23,11 @@ class R2Client {
           accessKeyId: process.env.R2_ACCESS_KEY_ID,
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
         },
-        // Performance optimizations
-        maxAttempts: 3,
+        // ULTRA PERFORMANCE: Optimized for 1GB files and parallel uploads
+        maxAttempts: 5, // More retries for large files
         requestHandler: {
-          connectionTimeout: 5000,
-          socketTimeout: 60000
+          connectionTimeout: 10000, // 10s for initial connection
+          socketTimeout: 300000 // 5 minutes for large file transfers
         }
       });
       

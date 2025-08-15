@@ -172,36 +172,23 @@ class OrderController {
         // Create a temporary order ID for R2 storage (will be updated after order creation)
         const tempOrderId = `temp-${Date.now()}`;
         
-        // Process files using storage manager (R2 or local fallback)
-        files = await Promise.all(
-          req.files.map(async (file, index) => {
-            try {
-              const fileData = await storageManager.saveFile(
-                {
-                  buffer: file.buffer,
-                  originalname: file.originalname,
-                  originalName: file.originalname,
-                  mimetype: file.mimetype,
-                  size: file.size
-                },
-                'ORDER',
-                { 
-                  orderId: tempOrderId, 
-                  index: index 
-                }
-              );
-              
-              console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
-              return fileData;
-            } catch (error) {
-              console.error(`❌ Failed to save file ${file.originalname}:`, error);
-              // Return null for failed uploads
-              return null;
-            }
-          })
+        // ULTRA FAST: Process files using parallel batch processing
+        const filesForUpload = req.files.map(file => ({
+          buffer: file.buffer,
+          originalname: file.originalname,
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        }));
+        
+        // Use the new parallel batch processing for massive speed
+        files = await storageManager.saveMultipleFiles(
+          filesForUpload,
+          'ORDER',
+          { orderId: tempOrderId }
         );
         
-        // Filter out failed uploads
+        // Filter out any failed uploads (saveMultipleFiles already handles errors)
         files = files.filter(file => file !== null);
         console.log(`✅ Successfully saved ${files.length} files for authenticated order`);
       }
@@ -440,35 +427,23 @@ class OrderController {
         existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
       }
 
-      // Process new files using storage manager (R2 or local fallback)
-      const newFiles = await Promise.all(
-        req.files.map(async (file, index) => {
-          try {
-            const fileData = await storageManager.saveFile(
-              {
-                buffer: file.buffer,
-                originalname: file.originalname,
-                originalName: file.originalname,
-                mimetype: file.mimetype,
-                size: file.size
-              },
-              'ORDER',
-              { 
-                orderId: orderId, 
-                index: index 
-              }
-            );
-            
-            console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
-            return fileData;
-          } catch (error) {
-            console.error(`❌ Failed to save file ${file.originalname}:`, error);
-            return null;
-          }
-        })
+      // ULTRA FAST: Process new files using parallel batch processing
+      const filesForUpload = req.files.map(file => ({
+        buffer: file.buffer,
+        originalname: file.originalname,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      }));
+      
+      // Use the new parallel batch processing for massive speed
+      const newFiles = await storageManager.saveMultipleFiles(
+        filesForUpload,
+        'ORDER',
+        { orderId: orderId }
       );
       
-      // Filter out failed uploads
+      // Filter out failed uploads (saveMultipleFiles already handles errors)
       const validNewFiles = newFiles.filter(file => file !== null);
 
       // Combine existing and new files
@@ -655,35 +630,23 @@ class OrderController {
         // Create a temporary order ID for R2 storage
         const tempOrderId = `anon-${Date.now()}`;
         
-        // Process files using storage manager (R2 or local fallback)
-        files = await Promise.all(
-          req.files.map(async (file, index) => {
-            try {
-              const fileData = await storageManager.saveFile(
-                {
-                  buffer: file.buffer,
-                  originalname: file.originalname,
-                  originalName: file.originalname,
-                  mimetype: file.mimetype,
-                  size: file.size
-                },
-                'ORDER',
-                { 
-                  orderId: tempOrderId, 
-                  index: index 
-                }
-              );
-              
-              console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
-              return fileData;
-            } catch (error) {
-              console.error(`❌ Failed to save file ${file.originalname}:`, error);
-              return null;
-            }
-          })
+        // ULTRA FAST: Process files using parallel batch processing for anonymous orders
+        const filesForUpload = req.files.map(file => ({
+          buffer: file.buffer,
+          originalname: file.originalname,
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        }));
+        
+        // Use the new parallel batch processing for massive speed
+        files = await storageManager.saveMultipleFiles(
+          filesForUpload,
+          'ORDER',
+          { orderId: tempOrderId }
         );
         
-        // Filter out failed uploads
+        // Filter out any failed uploads (saveMultipleFiles already handles errors)
         files = files.filter(file => file !== null);
         console.log(`✅ Successfully saved ${files.length} files for anonymous order`);
       }

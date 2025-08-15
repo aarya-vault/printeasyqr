@@ -42,8 +42,12 @@ class StorageManager {
       // Generate R2 key
       const key = r2Client.generateKey(orderId, file.originalname || file.originalName);
       
-      // Upload to R2
+      // PERFORMANCE: Upload to R2 with optimized settings
+      const startTime = Date.now();
       const result = await r2Client.upload(key, file.buffer, file.mimetype);
+      const uploadTime = Date.now() - startTime;
+      
+      console.log(`⚡ R2 upload completed in ${uploadTime}ms for ${file.originalname}`);
       
       return {
         filename: path.basename(key),
@@ -146,28 +150,65 @@ class StorageManager {
   }
   
   /**
-   * Get presigned URLs for multiple files
+   * Get presigned URLs for multiple files - OPTIMIZED FOR PARALLEL PROCESSING
    */
   async getBatchUrls(files, accessType = 'download') {
-    const urls = await Promise.all(
-      files.map(async (file) => {
-        try {
-          const url = await this.getFileAccess(file, accessType);
-          return {
-            fileId: file.id || file.filename,
-            originalName: file.originalName,
-            mimetype: file.mimetype,
-            url: url,
-            storageType: file.storageType || 'local'
-          };
-        } catch (error) {
-          console.error(`Failed to get URL for file ${file.originalName}:`, error);
-          return null;
-        }
-      })
-    );
+    // Process in batches of 10 for optimal performance
+    const batchSize = 10;
+    const results = [];
     
-    return urls.filter(url => url !== null);
+    for (let i = 0; i < files.length; i += batchSize) {
+      const batch = files.slice(i, i + batchSize);
+      const batchUrls = await Promise.all(
+        batch.map(async (file) => {
+          try {
+            const url = await this.getFileAccess(file, accessType);
+            return {
+              fileId: file.id || file.filename,
+              originalName: file.originalName,
+              mimetype: file.mimetype,
+              url: url,
+              storageType: file.storageType || 'local'
+            };
+          } catch (error) {
+            console.error(`Failed to get URL for file ${file.originalName}:`, error);
+            return null;
+          }
+        })
+      );
+      results.push(...batchUrls);
+    }
+    
+    return results.filter(url => url !== null);
+  }
+  
+  /**
+   * ULTRA FAST: Save multiple files in parallel batches
+   */
+  async saveMultipleFiles(files, category, metadata = {}) {
+    // Process files in parallel batches for optimal performance
+    const batchSize = 5; // Process 5 files at a time to avoid memory issues
+    const results = [];
+    
+    console.log(`🚀 Processing ${files.length} files in parallel batches...`);
+    const startTime = Date.now();
+    
+    for (let i = 0; i < files.length; i += batchSize) {
+      const batch = files.slice(i, i + batchSize);
+      const batchResults = await Promise.all(
+        batch.map((file, index) => 
+          this.saveFile(file, category, { ...metadata, index: i + index })
+        )
+      );
+      results.push(...batchResults);
+      
+      console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${batchResults.length} files`);
+    }
+    
+    const totalTime = Date.now() - startTime;
+    console.log(`⚡ All ${files.length} files saved in ${totalTime}ms (${Math.round(totalTime/files.length)}ms per file)`);
+    
+    return results;
   }
 }
 

@@ -95,7 +95,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   // Use stable order for rendering to prevent data vanishing
   const currentOrder = stableOrder || order;
 
-  // Upload additional files mutation
+  // Upload additional files mutation with JWT authentication
   const uploadFilesMutation = useMutation({
     mutationFn: async (files: File[]) => {
       const formData = new FormData();
@@ -103,8 +103,14 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         formData.append('files', file);
       });
 
+      // FIX: Get JWT token from localStorage and include in request
+      const token = localStorage.getItem('token');
+      
       const response = await fetch(`/api/orders/${order.id}/add-files`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 
@@ -286,12 +292,38 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setSelectedFiles(files);
+    
+    // VALIDATION: Check file sizes (1GB limit per file)
+    const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+    
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: 'Files too large',
+        description: `${oversizedFiles.length} file(s) exceed the 1GB limit. Please use smaller files or compress them.`,
+        variant: 'destructive'
+      });
+      // Remove oversized files from selection
+      const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE);
+      setSelectedFiles(validFiles);
+    } else {
+      setSelectedFiles(files);
+    }
   };
 
   const handleUploadFiles = () => {
     if (selectedFiles.length > 0) {
       setIsUploading(true);
+      
+      // PERFORMANCE: Show upload progress for large files
+      const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+      const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+      
+      toast({
+        title: 'Uploading files...',
+        description: `Uploading ${selectedFiles.length} file(s) (${totalSizeMB} MB total)`,
+      });
+      
       uploadFilesMutation.mutate(selectedFiles);
     } else {
       toast({ title: 'Please select files to upload', variant: 'destructive' });

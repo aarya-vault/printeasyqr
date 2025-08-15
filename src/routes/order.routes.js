@@ -15,14 +15,14 @@ function createStorage() {
   return multer.memoryStorage();
 }
 
-// 🚀 PERFORMANCE FIX: Optimized file upload limits for better performance (fixes Issue #3)
+// 🚀 ULTRA PERFORMANCE: Optimized for 1GB files and hundreds of small files
 const upload = multer({
   storage: createStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB per file (reduced from 500MB for better memory usage)
-    files: 20, // Up to 20 files at once (reduced from 100 to prevent memory overflow)
-    fieldSize: 10 * 1024 * 1024, // 10MB field size limit
-    parts: 25 // Limit form parts to prevent memory exhaustion
+    fileSize: 1024 * 1024 * 1024, // 1GB per file - Support huge files!
+    files: 200, // Up to 200 files at once - Support bulk uploads!
+    fieldSize: 50 * 1024 * 1024, // 50MB field size limit
+    parts: 250 // Increased for handling many files
   },
   fileFilter: (req, file, cb) => {
     // Enhanced file filtering with size validation
@@ -61,6 +61,48 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
 // Anonymous order route (no auth required)
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
+
+// 🚀 SPEED BOOST: Direct R2 upload with presigned URLs for massive performance
+router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
+  try {
+    const orderId = parseInt(req.params.id);
+    const { files } = req.body; // Array of {name, type, size}
+    
+    if (!files || !Array.isArray(files)) {
+      return res.status(400).json({ error: 'Files array required' });
+    }
+    
+    // Import storageManager
+    const storageManager = (await import('../../server/storage/storageManager.js')).default;
+    const r2Client = (await import('../../server/storage/r2Client.js')).default;
+    
+    // Check if R2 is available for direct uploads
+    if (!r2Client.isAvailable()) {
+      return res.status(200).json({ useDirectUpload: false });
+    }
+    
+    // Generate presigned URLs for direct upload
+    const uploadUrls = await Promise.all(
+      files.map(async (file) => {
+        const key = r2Client.generateKey(orderId, file.name);
+        const url = await r2Client.getPresignedUploadUrl(key, file.type);
+        return {
+          filename: file.name,
+          key: key,
+          uploadUrl: url
+        };
+      })
+    );
+    
+    res.json({ 
+      useDirectUpload: true,
+      uploadUrls 
+    });
+  } catch (error) {
+    console.error('Error generating upload URLs:', error);
+    res.status(500).json({ error: 'Failed to generate upload URLs' });
+  }
+});
 
 // Frontend compatibility routes
 router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
