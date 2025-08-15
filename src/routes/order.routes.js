@@ -56,7 +56,8 @@ router.get('/orders/:id/details', optionalAuth, OrderController.getOrder); // Pu
 router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
 router.patch('/orders/:id', requireAuth, OrderController.updateOrder); // General order update
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
-router.post('/orders/:id/add-files', requireAuth, upload.array('files'), OrderController.addFilesToOrder);
+// Allow anonymous users to add files to their orders (they created the order, they should be able to add files)
+router.post('/orders/:id/add-files', optionalAuth, upload.array('files'), OrderController.addFilesToOrder);
 router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
 // Anonymous order route (no auth required)

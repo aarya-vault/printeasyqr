@@ -134,13 +134,28 @@ export async function uploadFilesDirectlyToR2(
     return { success: false, uploadedFiles: [] };
   }
 
-  const uploadFiles: DirectUploadFile[] = files.map((file, index) => ({
-    file,
-    uploadUrl: uploadUrls[index]?.uploadUrl,
-    key: uploadUrls[index]?.key,
-    progress: 0,
-    status: 'pending' as const
-  }));
+  const uploadFiles: DirectUploadFile[] = files.map((file, index) => {
+    const urlInfo = uploadUrls[index];
+    // Handle both direct and multipart upload types
+    if (urlInfo?.uploadType === 'multipart') {
+      console.log(`⚠️ File ${file.name} requires multipart upload (>100MB), using server fallback`);
+      return {
+        file,
+        uploadUrl: undefined, // No direct URL for multipart
+        key: urlInfo.key,
+        progress: 0,
+        status: 'error' as const,
+        error: 'File too large for direct upload'
+      };
+    }
+    return {
+      file,
+      uploadUrl: urlInfo?.uploadUrl,
+      key: urlInfo?.key,
+      progress: 0,
+      status: 'pending' as const
+    };
+  });
 
   let completedCount = 0;
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
@@ -156,8 +171,13 @@ export async function uploadFilesDirectlyToR2(
     
     const batchPromises = batch.map(async (uploadFile) => {
       if (!uploadFile.uploadUrl) {
-        uploadFile.status = 'error';
-        uploadFile.error = 'No upload URL';
+        // Already marked as error (likely multipart file)
+        if (uploadFile.status === 'error') {
+          console.log(`⏭️ Skipping ${uploadFile.file.name}: ${uploadFile.error}`);
+        } else {
+          uploadFile.status = 'error';
+          uploadFile.error = 'No upload URL';
+        }
         return;
       }
 

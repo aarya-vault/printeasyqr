@@ -47,9 +47,13 @@ export async function apiRequest(
     perf.mark(`${requestId}-end`);
     perf.measure(`API Request: ${method} ${url}`, `${requestId}-start`, `${requestId}-end`);
 
-    // Handle 401 errors globally
+    // Handle 401 errors globally - but not for anonymous endpoints
     if (res.status === 401) {
-      handle401Error();
+      // Only trigger logout if user was actually logged in
+      const hasToken = localStorage.getItem('token') || localStorage.getItem('authToken');
+      if (hasToken && !url.includes('/orders/anonymous') && !url.includes('/add-files')) {
+        handle401Error();
+      }
     }
 
     await throwIfResNotOk(res);
@@ -108,7 +112,8 @@ const handle401Error = () => {
   // Clear all auth-related local storage
   localStorage.removeItem('user');
   localStorage.removeItem('persistentUserData');
-  localStorage.removeItem('authToken'); // Clear JWT token
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('token'); // Clear JWT token
   
   // Call auth logout handler if available
   if (authLogoutHandler) {

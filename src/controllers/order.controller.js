@@ -402,10 +402,21 @@ class OrderController {
         return res.status(404).json({ message: 'Order not found' });
       }
 
-      // Check permissions - only order customer can add files
-      if (order.customerId !== req.user.id && req.user.role !== 'admin') {
-        await transaction.rollback();
-        return res.status(403).json({ message: 'Access denied. Only the order customer can add files.' });
+      // Check permissions - allow anonymous users to add files to recently created orders
+      if (req.user && req.user.id) {
+        // For authenticated users, check if they own the order
+        if (order.customerId !== req.user.id && req.user.role !== 'admin') {
+          await transaction.rollback();
+          return res.status(403).json({ message: 'Access denied. Only the order customer can add files.' });
+        }
+      } else {
+        // For anonymous users, allow adding files to orders created in last 30 minutes
+        const orderAge = Date.now() - new Date(order.createdAt).getTime();
+        const thirtyMinutes = 30 * 60 * 1000;
+        if (orderAge > thirtyMinutes) {
+          await transaction.rollback();
+          return res.status(403).json({ message: 'Session expired. Anonymous users can only add files within 30 minutes of order creation.' });
+        }
       }
 
       // Prevent adding files to completed orders

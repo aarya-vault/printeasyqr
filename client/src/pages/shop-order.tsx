@@ -267,10 +267,16 @@ export default function ShopOrder() {
             // Fallback to server upload if direct upload fails
             await uploadFilesViaServer(order.id, selectedFiles);
           }
-        } catch (error) {
-          console.error('Direct upload failed, using server fallback:', error);
-          // Fallback to server upload
-          await uploadFilesViaServer(order.id, selectedFiles);
+        } catch (directError) {
+          console.warn('Direct upload error, trying server fallback:', directError);
+          // Fallback to server upload with progress tracking
+          try {
+            await uploadFilesViaServer(order.id, selectedFiles);
+          } catch (serverError) {
+            console.error('Server upload also failed:', serverError);
+            // Don't throw - let the mutation handle the error gracefully
+            throw new Error('Upload failed. Please try again.');
+          }
         }
       }
 
@@ -285,12 +291,14 @@ export default function ShopOrder() {
       // Navigate to order confirmation  
       navigate(`/order-confirmation/${data.id}`);
     },
-    onError: () => {
+    onError: (error: any) => {
       setUploadProgress(null); // Clear progress on error
+      console.error('Order creation error:', error);
+      // Don't trigger page refresh - handle error gracefully
       toast({
         variant: 'destructive',
         title: 'Order Failed',
-        description: 'Unable to create order. Please try again.',
+        description: error?.message || 'Unable to create order. Please try again.',
       });
     },
     onSettled: () => {

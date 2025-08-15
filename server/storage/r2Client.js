@@ -38,7 +38,7 @@ class R2Client {
       this.bucket = process.env.R2_BUCKET_NAME;
       
       // 🚀 MULTIPART UPLOAD CONFIGURATION
-      this.multipartThreshold = 100 * 1024 * 1024; // 100MB - Use multipart for files larger than this
+      this.multipartThreshold = 500 * 1024 * 1024; // 500MB - Use multipart for very large files only
       this.partSize = 10 * 1024 * 1024; // 10MB per part for optimal speed
       this.maxConcurrentParts = 10; // Upload 10 parts simultaneously
       
