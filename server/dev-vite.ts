@@ -13,6 +13,10 @@ console.log('✅ Vite + Sequelize integration');
 
 (async () => {
   try {
+    // Initialize storage manager
+    const storageManagerModule = await import('../server/storage/storageManager.js');
+    await storageManagerModule.default.initialize();
+    
     // Load the Sequelize app
     const appModule = await import("../src/app.js");
     const sequelizeApp = appModule.default;

@@ -4,6 +4,7 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
+import storageManager from '../../server/storage/storageManager.js';
 
 const router = Router();
 
@@ -64,7 +65,7 @@ router.post('/orders/anonymous', upload.array('files'), OrderController.createAn
 router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
 router.post('/orders/walkin', upload.array('files'), OrderController.createAnonymousOrder);
 
-// 📁 SIMPLE FILE DOWNLOAD: Serve files from local uploads directory
+// 📁 HYBRID FILE DOWNLOAD: Serve files from R2 or local storage
 router.get('/download/*', optionalAuth, async (req, res) => {
   try {
     console.log('📥 Download request for:', req.params[0]);
@@ -72,7 +73,32 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     const fs = await import('fs');
     const path = await import('path');
     
-    // Handle both uploads/filename and just filename patterns
+    // Parse query params
+    const originalName = req.query.originalName || 'download';
+    const isDownloadRequest = req.query.download === 'true';
+    const storageType = req.query.storageType || 'local';
+    
+    // If this is an R2 file with a key
+    if (storageType === 'r2' || req.params[0].includes('orders/')) {
+      console.log('🔍 R2 file detected, generating presigned URL...');
+      
+      const fileInfo = {
+        r2Key: req.params[0],
+        path: req.params[0],
+        storageType: 'r2',
+        originalName: originalName,
+        mimetype: req.query.mimetype || 'application/octet-stream'
+      };
+      
+      // Get appropriate URL based on request type
+      const accessType = isDownloadRequest ? 'download' : 'print';
+      const presignedUrl = await storageManager.getFileAccess(fileInfo, accessType);
+      
+      // Redirect to presigned URL
+      return res.redirect(presignedUrl);
+    }
+    
+    // Otherwise handle local file
     let filePath = req.params[0];
     if (!filePath.startsWith('uploads/')) {
       filePath = `uploads/${filePath}`;
@@ -108,9 +134,6 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     
     // For print/view requests, use inline disposition for PDFs
     // For download requests, always use attachment
-    const originalName = req.query.originalName || path.basename(filePath);
-    const isDownloadRequest = req.query.download === 'true';
-    
     if (isDownloadRequest || !isPDF) {
       // Force download without "Save As" dialog
       res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
@@ -131,7 +154,7 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     console.log('✅ Local file download completed:', originalName);
     
   } catch (error) {
-    console.error('❌ Local file download error:', error.message);
+    console.error('❌ File download error:', error.message);
     res.status(500).json({ 
       error: 'Download failed',
       message: error.message 

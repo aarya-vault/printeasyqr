@@ -5,13 +5,18 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
     throw new Error('Files are no longer available for completed orders');
   }
   
-  // Build the correct file URL for local storage
+  // Build the correct file URL based on storage type
   let fileUrl;
-  if (file.path) {
+  const storageType = file.storageType || 'local';
+  
+  if (storageType === 'r2' && file.r2Key) {
+    // For R2 files, use the key and indicate it's from R2
+    fileUrl = `/api/download/${file.r2Key}?storageType=r2&originalName=${encodeURIComponent(file.originalName || file.filename || 'file')}`;
+  } else if (file.path) {
     // Keep full path with uploads/ prefix for local storage
-    fileUrl = `/api/download/${file.path}`;
+    fileUrl = `/api/download/${file.path}?storageType=local`;
   } else {
-    fileUrl = `/api/download/${file.filename || file}`;
+    fileUrl = `/api/download/${file.filename || file}?storageType=local`;
   }
   
   const filename = file.originalName || file.filename || file;
@@ -61,17 +66,22 @@ export const downloadFile = (file: any, orderStatus?: string): void => {
     throw new Error('File no longer available - deleted after order completion');
   }
 
-  // Handle both old format (filename) and new format (path) for local storage
+  // Handle both R2 and local storage
   let downloadPath;
-  if (file.path) {
+  const storageType = file.storageType || 'local';
+  
+  if (storageType === 'r2' && file.r2Key) {
+    // For R2 files, use the key and force download
+    downloadPath = `/api/download/${file.r2Key}?download=true&storageType=r2&originalName=${encodeURIComponent(file.originalName || file.filename || 'download')}`;
+  } else if (file.path) {
     // Keep full path with uploads/ prefix for local storage
-    downloadPath = `/api/download/${file.path}`;
+    downloadPath = `/api/download/${file.path}?download=true&storageType=local`;
   } else if (file.filename) {
     // Use filename directly
-    downloadPath = `/api/download/${file.filename}`;
+    downloadPath = `/api/download/${file.filename}?download=true&storageType=local`;
   } else {
     // Fallback for string filename
-    downloadPath = `/api/download/${file}`;
+    downloadPath = `/api/download/${file}?download=true&storageType=local`;
   }
   
   // Use the original filename if available, otherwise fall back to the generated filename

@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { sendToUser, broadcast } from '../utils/websocket.js';
 import { uploadFilesToObjectStorage } from '../utils/objectStorageUpload.js';
+import storageManager from '../../server/storage/storageManager.js';
 
 class OrderController {
   // Data transformation helper for consistent API responses
@@ -163,40 +164,46 @@ class OrderController {
       
       const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
       
-      // 📁 SIMPLE LOCAL FILE STORAGE: Save files locally for authenticated orders
+      // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for authenticated order (local storage)...`);
+        console.log(`📤 Processing ${req.files.length} files for authenticated order...`);
         
-        const fs = await import('fs');
-        const path = await import('path');
+        // Create a temporary order ID for R2 storage (will be updated after order creation)
+        const tempOrderId = `temp-${Date.now()}`;
         
-        // Ensure uploads directory exists
-        if (!fs.existsSync('uploads')) {
-          fs.mkdirSync('uploads', { recursive: true });
-        }
+        // Process files using storage manager (R2 or local fallback)
+        files = await Promise.all(
+          req.files.map(async (file, index) => {
+            try {
+              const fileData = await storageManager.saveFile(
+                {
+                  buffer: file.buffer,
+                  originalname: file.originalname,
+                  originalName: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size
+                },
+                'ORDER',
+                { 
+                  orderId: tempOrderId, 
+                  index: index 
+                }
+              );
+              
+              console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
+              return fileData;
+            } catch (error) {
+              console.error(`❌ Failed to save file ${file.originalname}:`, error);
+              // Return null for failed uploads
+              return null;
+            }
+          })
+        );
         
-        // Save files locally - simple and reliable
-        files = req.files.map((file, index) => {
-          const timestamp = Date.now();
-          const filename = `${timestamp}-${index}-${file.originalname}`;
-          const localPath = `uploads/${filename}`;
-          
-          // Write file to disk
-          fs.writeFileSync(localPath, file.buffer);
-          console.log(`💾 File saved locally: ${localPath}`);
-          
-          return {
-            filename: filename,
-            originalName: file.originalname,
-            mimetype: file.mimetype,
-            size: file.size,
-            path: localPath,
-            isLocalFile: true
-          };
-        });
-        
-        console.log(`✅ Successfully saved ${files.length} files locally for authenticated order`);
+        // Filter out failed uploads
+        files = files.filter(file => file !== null);
+        console.log(`✅ Successfully saved ${files.length} files for authenticated order`);
       }
       
       // Extract additional order details from request body
@@ -370,43 +377,45 @@ class OrderController {
         existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
       }
 
-      // Process new files using local storage
-      const fs = await import('fs');
-      const path = await import('path');
+      // Process new files using storage manager (R2 or local fallback)
+      const newFiles = await Promise.all(
+        req.files.map(async (file, index) => {
+          try {
+            const fileData = await storageManager.saveFile(
+              {
+                buffer: file.buffer,
+                originalname: file.originalname,
+                originalName: file.originalname,
+                mimetype: file.mimetype,
+                size: file.size
+              },
+              'ORDER',
+              { 
+                orderId: orderId, 
+                index: index 
+              }
+            );
+            
+            console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
+            return fileData;
+          } catch (error) {
+            console.error(`❌ Failed to save file ${file.originalname}:`, error);
+            return null;
+          }
+        })
+      );
       
-      // Ensure uploads directory exists
-      if (!fs.existsSync('uploads')) {
-        fs.mkdirSync('uploads', { recursive: true });
-      }
-      
-      // Save new files locally
-      const newFiles = req.files.map((file, index) => {
-        const timestamp = Date.now();
-        const filename = `${timestamp}-${index}-${file.originalname}`;
-        const localPath = `uploads/${filename}`;
-        
-        // Write file to disk
-        fs.writeFileSync(localPath, file.buffer);
-        console.log(`💾 File saved locally: ${localPath}`);
-        
-        return {
-          filename: filename,
-          originalName: file.originalname,
-          mimetype: file.mimetype,
-          size: file.size,
-          path: localPath,
-          isLocalFile: true
-        };
-      });
+      // Filter out failed uploads
+      const validNewFiles = newFiles.filter(file => file !== null);
 
       // Combine existing and new files
-      const allFiles = [...existingFiles, ...newFiles];
+      const allFiles = [...existingFiles, ...validNewFiles];
       
       // Update order with new files
       await order.update({ files: allFiles }, { transaction });
       await transaction.commit();
       
-      console.log(`✅ Successfully added ${newFiles.length} files to order ${orderId}`);
+      console.log(`✅ Successfully added ${validNewFiles.length} files to order ${orderId}`);
       
       // Return updated order
       const updatedOrder = await Order.findByPk(orderId, {
@@ -424,7 +433,7 @@ class OrderController {
         orderId: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
-        newFilesCount: newFiles.length,
+        newFilesCount: validNewFiles.length,
         order: transformedOrder,
         timestamp: new Date().toISOString()
       });
@@ -465,30 +474,17 @@ class OrderController {
 
       console.log(`🗑️  Deleting ${filesToDelete.length} files for completed order ${orderId}`);
       
+      // Use storage manager to delete files (handles both R2 and local)
       for (const file of filesToDelete) {
         try {
-          // Try multiple path variations
-          let filePath;
-          
-          if (file.path && file.path.startsWith('uploads/')) {
-            // If path already includes 'uploads/', use it directly
-            filePath = path.join(process.cwd(), file.path);
-          } else if (file.filename) {
-            // Use filename with uploads folder
-            filePath = path.join(process.cwd(), 'uploads', file.filename);
-          } else if (file.path) {
-            // Add uploads folder to path
-            filePath = path.join(process.cwd(), 'uploads', file.path);
+          const deleted = await storageManager.deleteFile(file);
+          if (deleted) {
+            console.log(`✅ Successfully deleted file: ${file.originalName || file.filename}`);
           } else {
-            console.error('❌ No valid file path found for file:', file);
-            continue;
+            console.log(`⚠️ Could not delete file: ${file.originalName || file.filename}`);
           }
-
-          console.log(`🗑️  Attempting to delete: ${filePath}`);
-          await fs.unlink(filePath);
-          console.log(`✅ Successfully deleted file: ${filePath}`);
         } catch (fileError) {
-          console.error(`❌ Failed to delete file ${file.filename || file.path}:`, fileError.message);
+          console.error(`❌ Failed to delete file ${file.originalName || file.filename}:`, fileError.message);
           // Continue with other files even if one fails
         }
       }
@@ -588,40 +584,45 @@ class OrderController {
         }, { transaction });
       }
       
-      // 📁 SIMPLE LOCAL FILE STORAGE: Save files locally without object storage complexity
+      // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for anonymous order (local storage)...`);
+        console.log(`📤 Processing ${req.files.length} files for anonymous order...`);
         
-        const fs = await import('fs');
-        const path = await import('path');
+        // Create a temporary order ID for R2 storage
+        const tempOrderId = `anon-${Date.now()}`;
         
-        // Ensure uploads directory exists
-        if (!fs.existsSync('uploads')) {
-          fs.mkdirSync('uploads', { recursive: true });
-        }
+        // Process files using storage manager (R2 or local fallback)
+        files = await Promise.all(
+          req.files.map(async (file, index) => {
+            try {
+              const fileData = await storageManager.saveFile(
+                {
+                  buffer: file.buffer,
+                  originalname: file.originalname,
+                  originalName: file.originalname,
+                  mimetype: file.mimetype,
+                  size: file.size
+                },
+                'ORDER',
+                { 
+                  orderId: tempOrderId, 
+                  index: index 
+                }
+              );
+              
+              console.log(`✅ File saved (${fileData.storageType}): ${fileData.originalName}`);
+              return fileData;
+            } catch (error) {
+              console.error(`❌ Failed to save file ${file.originalname}:`, error);
+              return null;
+            }
+          })
+        );
         
-        // Save files locally - simple and reliable
-        files = req.files.map((file, index) => {
-          const timestamp = Date.now();
-          const filename = `${timestamp}-${index}-${file.originalname}`;
-          const localPath = `uploads/${filename}`;
-          
-          // Write file to disk
-          fs.writeFileSync(localPath, file.buffer);
-          console.log(`💾 File saved locally: ${localPath}`);
-          
-          return {
-            filename: filename,
-            originalName: file.originalname,
-            mimetype: file.mimetype,
-            size: file.size,
-            path: localPath,
-            isLocalFile: true
-          };
-        });
-        
-        console.log(`✅ Successfully saved ${files.length} files locally for anonymous order`);
+        // Filter out failed uploads
+        files = files.filter(file => file !== null);
+        console.log(`✅ Successfully saved ${files.length} files for anonymous order`);
       }
       
       // Get next order number

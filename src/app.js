@@ -38,6 +38,7 @@ import otpRoutes from './routes/otp.routes.js';
 import downloadRoutes from './routes/download.routes.js';
 import printHostRoutes from './routes/print-host.routes.js';
 import googleMapsImportRoutes from './routes/google-maps-import.routes.js';
+import r2Routes from './routes/r2.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 
 // Create Express app
@@ -171,6 +172,7 @@ app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
 app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 app.use('/api', printHostRoutes); // Print Host for PDF printing
 app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
+app.use('/api', r2Routes); // R2 storage routes for order files
 
 // 🚨 FALLBACK ROUTE: Redirect old QR routes to new structure for browser cache compatibility
 app.post('/api/generate-image', async (req, res) => {
