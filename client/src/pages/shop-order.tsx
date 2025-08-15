@@ -237,46 +237,46 @@ export default function ShopOrder() {
       if (!response.ok) throw new Error('Failed to create order');
       const order = await response.json();
 
-      // 🚀 DIRECT R2 UPLOAD: Now upload files directly to R2 (bypassing server)
+      // 🚀 UPLOAD FILES: For anonymous orders, use server upload with progress tracking
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        console.log('🚀 Starting DIRECT R2 upload (bypassing server for 2x speed)...');
+        // Check if user is logged in
+        const hasAuth = !!localStorage.getItem('token');
         
-        try {
-          const uploadResult = await uploadFilesDirectlyToR2(
-            selectedFiles,
-            order.id,
-            (progress: DirectUploadProgress) => {
-              setUploadProgress({
-                progress: progress.overallProgress,
-                currentFile: progress.currentFile,
-                filesProcessed: progress.completedFiles,
-                totalFiles: progress.totalFiles,
-                uploadSpeed: progress.uploadSpeed,
-                estimatedTime: progress.estimatedTime,
-                bytesUploaded: progress.bytesUploaded,
-                totalBytes: progress.totalBytes
-              });
-            }
-          );
-
-          if (uploadResult.success) {
-            console.log('✅ Direct R2 upload completed successfully!');
-            console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
-          } else {
-            console.log('⚠️ Some files failed, falling back to server upload...');
-            // Fallback to server upload if direct upload fails
-            await uploadFilesViaServer(order.id, selectedFiles);
-          }
-        } catch (directError) {
-          console.warn('Direct upload error, trying server fallback:', directError);
-          // Fallback to server upload with progress tracking
+        if (hasAuth) {
+          // Try direct R2 upload for authenticated users
+          console.log('🚀 Authenticated user - trying DIRECT R2 upload...');
           try {
+            const uploadResult = await uploadFilesDirectlyToR2(
+              selectedFiles,
+              order.id,
+              (progress: DirectUploadProgress) => {
+                setUploadProgress({
+                  progress: progress.overallProgress,
+                  currentFile: progress.currentFile,
+                  filesProcessed: progress.completedFiles,
+                  totalFiles: progress.totalFiles,
+                  uploadSpeed: progress.uploadSpeed,
+                  estimatedTime: progress.estimatedTime,
+                  bytesUploaded: progress.bytesUploaded,
+                  totalBytes: progress.totalBytes
+                });
+              }
+            );
+
+            if (uploadResult.success) {
+              console.log('✅ Direct R2 upload completed!');
+            } else {
+              console.log('⚠️ Direct upload failed, using server fallback');
+              await uploadFilesViaServer(order.id, selectedFiles);
+            }
+          } catch (error) {
+            console.warn('Direct upload failed, using server:', error);
             await uploadFilesViaServer(order.id, selectedFiles);
-          } catch (serverError) {
-            console.error('Server upload also failed:', serverError);
-            // Don't throw - let the mutation handle the error gracefully
-            throw new Error('Upload failed. Please try again.');
           }
+        } else {
+          // For anonymous users, go directly to server upload
+          console.log('💻 Anonymous order - using server upload with progress tracking');
+          await uploadFilesViaServer(order.id, selectedFiles);
         }
       }
 

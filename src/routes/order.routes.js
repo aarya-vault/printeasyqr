@@ -38,6 +38,8 @@ router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrder
 router.get('/orders/:id', requireAuth, OrderController.getOrder);
 // Add middleware for optional auth - tries to authenticate but doesn't fail if no token
 const optionalAuth = (req, res, next) => {
+  req.user = null; // Default to no user
+  
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
