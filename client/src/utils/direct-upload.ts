@@ -111,15 +111,16 @@ export async function uploadFileDirectly(
       reject(new Error('Network error during upload'));
     };
 
-    // Use proxy endpoint to bypass CORS issues
-    if (orderId !== undefined && fileIndex !== undefined) {
-      // Use proxy for anonymous orders
-      const proxyUrl = `/api/orders/${orderId}/direct-upload/${fileIndex}?uploadUrl=${encodeURIComponent(uploadUrl)}&filename=${encodeURIComponent(file.name)}`;
-      xhr.open('PUT', proxyUrl);
-    } else {
-      // Direct upload to R2 (for authenticated users if needed)
-      xhr.open('PUT', uploadUrl);
+    // 🔥 ALWAYS use proxy endpoint to bypass CORS issues for ALL uploads
+    // This ensures maximum compatibility and reliability
+    if (orderId === undefined || fileIndex === undefined) {
+      console.error('❌ Order ID and file index required for R2 upload');
+      reject(new Error('Order ID and file index required'));
+      return;
     }
+    
+    const proxyUrl = `/api/orders/${orderId}/direct-upload/${fileIndex}?uploadUrl=${encodeURIComponent(uploadUrl)}&filename=${encodeURIComponent(file.name)}`;
+    xhr.open('PUT', proxyUrl);
     
     xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
     xhr.send(file);
@@ -139,8 +140,8 @@ export async function uploadFilesDirectlyToR2(
   // Get presigned URLs for direct upload
   const { useDirectUpload, uploadUrls } = await getDirectUploadUrls(files, orderId);
   
-  if (!useDirectUpload || !uploadUrls) {
-    console.log('⚠️ Direct upload not available');
+  if (!useDirectUpload || !uploadUrls || uploadUrls.length === 0) {
+    console.log('⚠️ Direct upload not available - R2 may not be configured');
     return { success: false, uploadedFiles: [] };
   }
 
