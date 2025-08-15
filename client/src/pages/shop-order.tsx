@@ -144,77 +144,6 @@ export default function ShopOrder() {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🚀 ULTRA-FAST SERVER UPLOAD: Optimized fallback when R2 direct upload is not available
-  const uploadFilesViaServer = async (orderId: number, files: File[]) => {
-    console.log(`💻 Ultra-Fast Server Upload: Processing ${files.length} files for order ${orderId}...`);
-    
-    return new Promise<any>((resolve, reject) => {
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file));
-      
-      const xhr = new XMLHttpRequest();
-      const startTime = Date.now();
-      let lastLoaded = 0;
-      let lastTime = startTime;
-      
-      xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
-        if (progressEvent.lengthComputable) {
-          const currentTime = Date.now();
-          const timeDiff = (currentTime - lastTime) / 1000;
-          const bytesDiff = progressEvent.loaded - lastLoaded;
-          const instantSpeed = timeDiff > 0 ? bytesDiff / timeDiff : 0;
-          
-          // Calculate average speed
-          const totalTime = (currentTime - startTime) / 1000;
-          const avgSpeed = totalTime > 0 ? progressEvent.loaded / totalTime : 0;
-          
-          // Use weighted average for stable speed
-          const uploadSpeed = instantSpeed * 0.3 + avgSpeed * 0.7;
-          
-          const bytesRemaining = progressEvent.total - progressEvent.loaded;
-          const estimatedTime = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
-          
-          setUploadProgress({
-            progress: Math.round((progressEvent.loaded / progressEvent.total) * 100),
-            currentFile: files[0]?.name || 'Uploading files...',
-            filesProcessed: Math.floor((progressEvent.loaded / progressEvent.total) * files.length),
-            totalFiles: files.length,
-            uploadSpeed: uploadSpeed,
-            estimatedTime: estimatedTime,
-            bytesUploaded: progressEvent.loaded,
-            totalBytes: progressEvent.total
-          });
-          
-          lastLoaded = progressEvent.loaded;
-          lastTime = currentTime;
-        }
-      };
-      
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          console.log('✅ Server upload completed successfully!');
-          resolve({ success: true });
-        } else {
-          console.error(`❌ Server upload failed: ${xhr.status}`);
-          reject(new Error(`Upload failed with status ${xhr.status}`));
-        }
-      };
-      
-      xhr.onerror = () => {
-        console.error('❌ Server upload network error');
-        reject(new Error('Network error during upload'));
-      };
-      
-      // Include JWT token if available (for authenticated users)
-      const token = localStorage.getItem('token');
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-      
-      xhr.open('POST', `/api/orders/${orderId}/add-files`);
-      xhr.send(formData);
-    });
-  };
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderForm) => {
@@ -247,11 +176,10 @@ export default function ShopOrder() {
       if (!response.ok) throw new Error('Failed to create order');
       const order = await response.json();
 
-      // 🚀 HYBRID UPLOAD: Try direct R2 first, fallback to server upload
+      // 🚀 ULTRA-FAST DIRECT R2 UPLOAD: Via proxy to bypass CORS
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        console.log('🚀 Starting file upload...');
+        console.log('🚀 Starting ULTRA-FAST R2 upload via secure proxy...');
         
-        // Try direct R2 upload first for maximum speed
         const uploadResult = await uploadFilesDirectlyToR2(
           selectedFiles,
           order.id,
@@ -269,21 +197,13 @@ export default function ShopOrder() {
           }
         );
 
-        if (uploadResult.success) {
-          console.log('✅ Direct R2 upload completed successfully!');
-          console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
-        } else {
-          console.log('⚠️ Direct R2 upload not available, falling back to server upload...');
-          
-          // Fallback to server upload (this always works!)
-          try {
-            await uploadFilesViaServer(order.id, selectedFiles);
-            console.log('✅ Server upload completed successfully!');
-          } catch (error) {
-            console.error('❌ Server upload also failed:', error);
-            throw error;
-          }
+        if (!uploadResult.success) {
+          console.error('❌ R2 upload failed - check server logs for details');
+          throw new Error('Upload failed. Please try again.');
         }
+        
+        console.log('✅ R2 upload completed successfully!');
+        console.log(`⚡ Upload speed: ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s`);
       }
 
       return order;
