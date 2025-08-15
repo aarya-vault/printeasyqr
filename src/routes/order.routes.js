@@ -103,6 +103,41 @@ router.post('/orders/:id/get-upload-urls', optionalAuth, async (req, res) => {
   }
 });
 
+// 🚀 DIRECT R2 UPLOAD PROXY: Handle direct uploads through server to bypass CORS
+router.put('/orders/:id/direct-upload/:fileIndex', optionalAuth, async (req, res) => {
+  try {
+    const orderId = parseInt(req.params.id);
+    const fileIndex = parseInt(req.params.fileIndex);
+    const { uploadUrl, filename } = req.query;
+    
+    console.log(`🚀 Proxying direct upload for file ${filename} (order ${orderId})`);
+    
+    // Stream the file directly to R2
+    const fetch = (await import('node-fetch')).default;
+    
+    // Forward the upload to R2
+    const r2Response = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: req,
+      headers: {
+        'Content-Type': req.headers['content-type'] || 'application/octet-stream',
+        'Content-Length': req.headers['content-length']
+      }
+    });
+    
+    if (r2Response.ok) {
+      console.log(`✅ Direct upload completed for ${filename}`);
+      res.json({ success: true, filename });
+    } else {
+      console.error(`❌ Direct upload failed: ${r2Response.status}`);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  } catch (error) {
+    console.error('Direct upload proxy error:', error);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
 // Frontend compatibility routes
 router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
 router.post('/orders/walkin', upload.array('files'), OrderController.createAnonymousOrder);

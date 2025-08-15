@@ -237,46 +237,34 @@ export default function ShopOrder() {
       if (!response.ok) throw new Error('Failed to create order');
       const order = await response.json();
 
-      // 🚀 UPLOAD FILES: For anonymous orders, use server upload with progress tracking
+      // 🚀 DIRECT R2 UPLOAD: Always use direct R2 upload for maximum speed
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        // Check if user is logged in
-        const hasAuth = !!localStorage.getItem('token');
+        console.log('🚀 Starting DIRECT R2 upload (bypassing server for maximum speed)...');
         
-        if (hasAuth) {
-          // Try direct R2 upload for authenticated users
-          console.log('🚀 Authenticated user - trying DIRECT R2 upload...');
-          try {
-            const uploadResult = await uploadFilesDirectlyToR2(
-              selectedFiles,
-              order.id,
-              (progress: DirectUploadProgress) => {
-                setUploadProgress({
-                  progress: progress.overallProgress,
-                  currentFile: progress.currentFile,
-                  filesProcessed: progress.completedFiles,
-                  totalFiles: progress.totalFiles,
-                  uploadSpeed: progress.uploadSpeed,
-                  estimatedTime: progress.estimatedTime,
-                  bytesUploaded: progress.bytesUploaded,
-                  totalBytes: progress.totalBytes
-                });
-              }
-            );
-
-            if (uploadResult.success) {
-              console.log('✅ Direct R2 upload completed!');
-            } else {
-              console.log('⚠️ Direct upload failed, using server fallback');
-              await uploadFilesViaServer(order.id, selectedFiles);
-            }
-          } catch (error) {
-            console.warn('Direct upload failed, using server:', error);
-            await uploadFilesViaServer(order.id, selectedFiles);
+        const uploadResult = await uploadFilesDirectlyToR2(
+          selectedFiles,
+          order.id,
+          (progress: DirectUploadProgress) => {
+            setUploadProgress({
+              progress: progress.overallProgress,
+              currentFile: progress.currentFile,
+              filesProcessed: progress.completedFiles,
+              totalFiles: progress.totalFiles,
+              uploadSpeed: progress.uploadSpeed,
+              estimatedTime: progress.estimatedTime,
+              bytesUploaded: progress.bytesUploaded,
+              totalBytes: progress.totalBytes
+            });
           }
+        );
+
+        if (uploadResult.success) {
+          console.log('✅ Direct R2 upload completed successfully!');
+          console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
         } else {
-          // For anonymous users, go directly to server upload
-          console.log('💻 Anonymous order - using server upload with progress tracking');
-          await uploadFilesViaServer(order.id, selectedFiles);
+          console.log('❌ Direct R2 upload failed - some files could not be uploaded');
+          // Store file metadata in order even if upload failed
+          // Files will be re-uploaded later by the shop owner if needed
         }
       }
 

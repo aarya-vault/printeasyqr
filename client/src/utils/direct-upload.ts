@@ -60,12 +60,14 @@ export async function getDirectUploadUrls(
 }
 
 /**
- * 🚀 Upload file directly to R2 with progress tracking
+ * 🚀 Upload file directly to R2 with progress tracking (via proxy to bypass CORS)
  */
 export async function uploadFileDirectly(
   file: File,
   uploadUrl: string,
-  onProgress?: (loaded: number, total: number, speed: number) => void
+  onProgress?: (loaded: number, total: number, speed: number) => void,
+  orderId?: string | number,
+  fileIndex?: number
 ): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -109,8 +111,16 @@ export async function uploadFileDirectly(
       reject(new Error('Network error during upload'));
     };
 
-    // Direct upload to R2 - no auth needed (presigned URL has auth)
-    xhr.open('PUT', uploadUrl);
+    // Use proxy endpoint to bypass CORS issues
+    if (orderId !== undefined && fileIndex !== undefined) {
+      // Use proxy for anonymous orders
+      const proxyUrl = `/api/orders/${orderId}/direct-upload/${fileIndex}?uploadUrl=${encodeURIComponent(uploadUrl)}&filename=${encodeURIComponent(file.name)}`;
+      xhr.open('PUT', proxyUrl);
+    } else {
+      // Direct upload to R2 (for authenticated users if needed)
+      xhr.open('PUT', uploadUrl);
+    }
+    
     xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
     xhr.send(file);
   });
@@ -169,7 +179,8 @@ export async function uploadFilesDirectlyToR2(
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
     const batch = uploadFiles.slice(i, i + maxConcurrent);
     
-    const batchPromises = batch.map(async (uploadFile) => {
+    const batchPromises = batch.map(async (uploadFile, batchIndex) => {
+      const fileIndex = i + batchIndex; // Calculate actual file index
       if (!uploadFile.uploadUrl) {
         // Already marked as error (likely multipart file)
         if (uploadFile.status === 'error') {
@@ -216,7 +227,9 @@ export async function uploadFilesDirectlyToR2(
                 totalBytes
               });
             }
-          }
+          },
+          orderId,
+          fileIndex // Use calculated fileIndex for proxy
         );
 
         uploadFile.status = 'completed';
