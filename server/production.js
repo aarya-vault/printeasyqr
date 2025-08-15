@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 process.env.NODE_ENV = 'production';
 console.log('🚀 FORCED NODE_ENV to production for QR controller selection');
 
-// PRODUCTION DATABASE CONFIGURATION - FORCE CORRECT CREDENTIALS
+// PRODUCTION DATABASE CONFIGURATION
 console.log('🔍 Production Database Environment Check:');
 console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
 console.log('   NODE_ENV:', process.env.NODE_ENV || 'undefined');
@@ -19,28 +19,12 @@ console.log('   PORT:', process.env.PORT || 'undefined');
 console.log('   PGPASSWORD available:', !!process.env.PGPASSWORD);
 console.log('   PGHOST:', process.env.PGHOST || 'undefined');
 
-// CRITICAL FIX: Force correct database URL if production has cached old one
-const CORRECT_DATABASE_URL = 'postgresql://neondb_owner:npg_Di0XSQx1ONHM@ep-falling-king-aee7jn9x.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
-
 if (!process.env.DATABASE_URL) {
   console.error('❌ CRITICAL: DATABASE_URL missing in production environment!');
-  console.error('   Setting correct DATABASE_URL programmatically...');
-  process.env.DATABASE_URL = CORRECT_DATABASE_URL;
-  process.env.PGHOST = 'ep-falling-king-aee7jn9x.c-2.us-east-2.aws.neon.tech';
-  process.env.PGUSER = 'neondb_owner';
-  process.env.PGPASSWORD = 'npg_Di0XSQx1ONHM';
-  process.env.PGDATABASE = 'neondb';
-} else if (process.env.DATABASE_URL.includes('ep-still-sound') || !process.env.DATABASE_URL.includes('npg_Di0XSQx1ONHM')) {
-  console.warn('⚠️ WARNING: Production using OLD database credentials!');
-  console.log('   Overriding with correct production database...');
-  process.env.DATABASE_URL = CORRECT_DATABASE_URL;
-  process.env.PGHOST = 'ep-falling-king-aee7jn9x.c-2.us-east-2.aws.neon.tech';
-  process.env.PGUSER = 'neondb_owner';
-  process.env.PGPASSWORD = 'npg_Di0XSQx1ONHM';
-  process.env.PGDATABASE = 'neondb';
+  console.error('   Please configure DATABASE_URL in environment variables');
 }
 
-console.log('✅ DATABASE_URL configured with correct production credentials');
+console.log('✅ Using PostgreSQL database from environment variables');
 
 // Test database connection on production startup
 console.log('🔍 Testing production database connection...');
