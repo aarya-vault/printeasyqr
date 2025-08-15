@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class R2Client {
@@ -23,15 +23,25 @@ class R2Client {
           accessKeyId: process.env.R2_ACCESS_KEY_ID,
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
         },
-        // ULTRA PERFORMANCE: Optimized for 1GB files and parallel uploads
-        maxAttempts: 5, // More retries for large files
+        // 🚀 ULTRA PERFORMANCE V2: Maximum speed optimizations
+        maxAttempts: 3, // Faster retries
         requestHandler: {
-          connectionTimeout: 10000, // 10s for initial connection
-          socketTimeout: 300000 // 5 minutes for large file transfers
-        }
+          connectionTimeout: 5000, // 5s for faster connection
+          socketTimeout: 300000, // 5 minutes for large file transfers
+          requestTimeout: 300000 // 5 minutes request timeout
+        },
+        // 🔥 ADVANCED: Enhanced throughput settings
+        forcePathStyle: false, // Use virtual-hosted style for better performance
+        useAccelerateEndpoint: false // Disable acceleration for R2
       });
       
       this.bucket = process.env.R2_BUCKET_NAME;
+      
+      // 🚀 MULTIPART UPLOAD CONFIGURATION
+      this.multipartThreshold = 100 * 1024 * 1024; // 100MB - Use multipart for files larger than this
+      this.partSize = 10 * 1024 * 1024; // 10MB per part for optimal speed
+      this.maxConcurrentParts = 10; // Upload 10 parts simultaneously
+      
       console.log('✅ R2 Client initialized with bucket:', this.bucket);
     } else {
       console.log('⚠️ R2 Client not configured - missing credentials');
@@ -115,7 +125,7 @@ class R2Client {
     });
     
     const url = await getSignedUrl(this.client, command, { 
-      expiresIn: 3600 // 1 hour
+      expiresIn: 7200 // 2 hours for large file uploads
     });
     
     return url;
@@ -203,6 +213,186 @@ class R2Client {
     } catch (error) {
       return false;
     }
+  }
+  
+  /**
+   * 🚀 ULTRA-FAST MULTIPART UPLOAD for massive files
+   * Breaks large files into chunks and uploads them in parallel
+   */
+  async multipartUpload(key, buffer, mimetype) {
+    if (!this.isAvailable()) {
+      throw new Error('R2 client not configured');
+    }
+    
+    const fileSize = buffer.length;
+    console.log(`🚀 Starting multipart upload for ${key} (${Math.round(fileSize/1024/1024)}MB)`);
+    
+    let UploadId;
+    try {
+      // Create multipart upload
+      const createCommand = new CreateMultipartUploadCommand({
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: mimetype,
+        Metadata: {
+          'uploaded-at': new Date().toISOString(),
+          'upload-type': 'multipart'
+        }
+      });
+      
+      const createResult = await this.client.send(createCommand);
+      UploadId = createResult.UploadId;
+      console.log(`✅ Multipart upload initiated: ${UploadId}`);
+      
+      // Calculate parts
+      const parts = [];
+      const totalParts = Math.ceil(fileSize / this.partSize);
+      
+      // Upload parts in parallel batches
+      const uploadPromises = [];
+      
+      for (let i = 0; i < totalParts; i++) {
+        const start = i * this.partSize;
+        const end = Math.min(start + this.partSize, fileSize);
+        const partBuffer = buffer.slice(start, end);
+        
+        const uploadPromise = this.uploadPart(key, UploadId, i + 1, partBuffer)
+          .then(etag => {
+            console.log(`✅ Part ${i + 1}/${totalParts} uploaded`);
+            return { PartNumber: i + 1, ETag: etag };
+          });
+        
+        uploadPromises.push(uploadPromise);
+        
+        // Process in batches to avoid overwhelming the connection
+        if (uploadPromises.length >= this.maxConcurrentParts || i === totalParts - 1) {
+          const batchResults = await Promise.all(uploadPromises);
+          parts.push(...batchResults);
+          uploadPromises.length = 0; // Clear array
+        }
+      }
+      
+      // Complete multipart upload
+      const completeCommand = new CompleteMultipartUploadCommand({
+        Bucket: this.bucket,
+        Key: key,
+        UploadId,
+        MultipartUpload: {
+          Parts: parts.sort((a, b) => a.PartNumber - b.PartNumber)
+        }
+      });
+      
+      const result = await this.client.send(completeCommand);
+      console.log(`🎉 Multipart upload completed: ${key}`);
+      
+      return {
+        key,
+        bucket: this.bucket,
+        url: `https://${this.bucket}.r2.cloudflarestorage.com/${key}`,
+        uploadType: 'multipart',
+        totalParts: parts.length
+      };
+      
+    } catch (error) {
+      console.error('❌ Multipart upload failed:', error);
+      
+      // Attempt to abort the multipart upload
+      if (UploadId) {
+        try {
+          await this.client.send(new AbortMultipartUploadCommand({
+            Bucket: this.bucket,
+            Key: key,
+            UploadId
+          }));
+          console.log('🗑️ Aborted failed multipart upload');
+        } catch (abortError) {
+          console.error('Failed to abort multipart upload:', abortError);
+        }
+      }
+      
+      throw error;
+    }
+  }
+  
+  /**
+   * Upload a single part of a multipart upload
+   */
+  async uploadPart(key, uploadId, partNumber, buffer) {
+    const command = new UploadPartCommand({
+      Bucket: this.bucket,
+      Key: key,
+      UploadId: uploadId,
+      PartNumber: partNumber,
+      Body: buffer
+    });
+    
+    const result = await this.client.send(command);
+    return result.ETag;
+  }
+  
+  /**
+   * 💨 INTELLIGENT UPLOAD: Automatically choose between regular and multipart
+   */
+  async intelligentUpload(key, buffer, mimetype) {
+    const fileSize = buffer.length;
+    
+    // Use multipart for large files (>100MB)
+    if (fileSize > this.multipartThreshold) {
+      console.log(`🚀 Large file detected (${Math.round(fileSize/1024/1024)}MB) - Using multipart upload`);
+      return await this.multipartUpload(key, buffer, mimetype);
+    } else {
+      console.log(`📤 Standard upload for ${Math.round(fileSize/1024/1024)}MB file`);
+      return await this.upload(key, buffer, mimetype);
+    }
+  }
+  
+  /**
+   * 🔥 BATCH PRESIGNED URLs for direct frontend uploads
+   */
+  async getBatchPresignedUrls(files, orderId) {
+    if (!this.isAvailable()) {
+      throw new Error('R2 client not configured');
+    }
+    
+    console.log(`🚀 Generating ${files.length} presigned URLs for direct upload`);
+    
+    // Process in parallel for maximum speed
+    const urlPromises = files.map(async (file, index) => {
+      const key = this.generateKey(orderId, file.name);
+      
+      // For large files, create multipart upload
+      if (file.size > this.multipartThreshold) {
+        const createCommand = new CreateMultipartUploadCommand({
+          Bucket: this.bucket,
+          Key: key,
+          ContentType: file.type
+        });
+        
+        const { UploadId } = await this.client.send(createCommand);
+        
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'multipart',
+          uploadId: UploadId,
+          size: file.size
+        };
+      } else {
+        const url = await this.getPresignedUploadUrl(key, file.type);
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'direct',
+          uploadUrl: url,
+          size: file.size
+        };
+      }
+    });
+    
+    const results = await Promise.all(urlPromises);
+    console.log(`✅ Generated ${results.length} presigned URLs`);
+    
+    return results;
   }
 }
 

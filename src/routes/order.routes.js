@@ -62,7 +62,7 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 // Anonymous order route (no auth required)
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
-// 🚀 SPEED BOOST: Direct R2 upload with presigned URLs for massive performance
+// 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
 router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
@@ -72,31 +72,26 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Files array required' });
     }
     
-    // Import storageManager
-    const storageManager = (await import('../../server/storage/storageManager.js')).default;
+    console.log(`🚀 Generating direct upload URLs for ${files.length} files (order ${orderId})`);
+    
+    // Import R2 client for direct uploads
     const r2Client = (await import('../../server/storage/r2Client.js')).default;
     
     // Check if R2 is available for direct uploads
     if (!r2Client.isAvailable()) {
+      console.log('⚠️ R2 not available, falling back to server upload');
       return res.status(200).json({ useDirectUpload: false });
     }
     
-    // Generate presigned URLs for direct upload
-    const uploadUrls = await Promise.all(
-      files.map(async (file) => {
-        const key = r2Client.generateKey(orderId, file.name);
-        const url = await r2Client.getPresignedUploadUrl(key, file.type);
-        return {
-          filename: file.name,
-          key: key,
-          uploadUrl: url
-        };
-      })
-    );
+    // 🚀 NEW: Use batch presigned URL generation for maximum speed
+    const uploadUrls = await r2Client.getBatchPresignedUrls(files, orderId);
+    
+    console.log(`✅ Generated ${uploadUrls.length} direct upload URLs`);
     
     res.json({ 
       useDirectUpload: true,
-      uploadUrls 
+      uploadUrls,
+      serverBypass: true // Flag indicating server is completely bypassed
     });
   } catch (error) {
     console.error('Error generating upload URLs:', error);

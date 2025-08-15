@@ -42,9 +42,9 @@ class StorageManager {
       // Generate R2 key
       const key = r2Client.generateKey(orderId, file.originalname || file.originalName);
       
-      // PERFORMANCE: Upload to R2 with optimized settings
+      // 🚀 ULTRA PERFORMANCE: Use intelligent upload (multipart for large files)
       const startTime = Date.now();
-      const result = await r2Client.upload(key, file.buffer, file.mimetype);
+      const result = await r2Client.intelligentUpload(key, file.buffer, file.mimetype);
       const uploadTime = Date.now() - startTime;
       
       console.log(`⚡ R2 upload completed in ${uploadTime}ms for ${file.originalname}`);
@@ -153,8 +153,8 @@ class StorageManager {
    * Get presigned URLs for multiple files - OPTIMIZED FOR PARALLEL PROCESSING
    */
   async getBatchUrls(files, accessType = 'download') {
-    // Process in batches of 10 for optimal performance
-    const batchSize = 10;
+    // 🚀 ENHANCED: Process in larger batches for ultra-fast URL generation
+    const batchSize = 15;
     const results = [];
     
     for (let i = 0; i < files.length; i += batchSize) {
@@ -186,8 +186,8 @@ class StorageManager {
    * ULTRA FAST: Save multiple files in parallel batches
    */
   async saveMultipleFiles(files, category, metadata = {}) {
-    // Process files in parallel batches for optimal performance
-    const batchSize = 5; // Process 5 files at a time to avoid memory issues
+    // 🔥 ULTRA SPEED: Process files in larger parallel batches for maximum throughput
+    const batchSize = 10; // Process 10 files at a time for massive speed boost
     const results = [];
     
     console.log(`🚀 Processing ${files.length} files in parallel batches...`);
