@@ -16,6 +16,7 @@ import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
+import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 
 interface Order {
   id: number;
@@ -52,6 +53,18 @@ interface StatusHistoryItem {
   note?: string;
 }
 
+interface UploadProgressInfo {
+  totalFiles: number;
+  completedFiles: number;
+  currentFileIndex: number;
+  currentFileName: string;
+  overallProgress: number;
+  bytesUploaded: number;
+  totalBytes: number;
+  uploadSpeed: number;
+  estimatedTimeRemaining: number;
+}
+
 interface EnhancedCustomerOrderDetailsProps {
   order: Order;
   onClose: () => void;
@@ -62,6 +75,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const [showChat, setShowChat] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -95,31 +109,68 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   // Use stable order for rendering to prevent data vanishing
   const currentOrder = stableOrder || order;
 
-  // Upload additional files mutation with JWT authentication
+  // 🚀 ULTRA-FAST Upload additional files mutation with progress tracking
   const uploadFilesMutation = useMutation({
     mutationFn: async (files: File[]) => {
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append('files', file);
+      return new Promise<any>((resolve, reject) => {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const xhr = new XMLHttpRequest();
+        const startTime = Date.now();
+        
+        xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
+          if (progressEvent.lengthComputable) {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            const bytesLoaded = progressEvent.loaded;
+            const bytesTotal = progressEvent.total;
+            
+            // Calculate upload speed
+            const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
+            const bytesRemaining = bytesTotal - bytesLoaded;
+            const estimatedTimeRemaining = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
+            
+            setUploadProgress({
+              totalFiles: files.length,
+              completedFiles: 0,
+              currentFileIndex: 0,
+              currentFileName: files[0]?.name || '',
+              overallProgress: Math.round((bytesLoaded / bytesTotal) * 100),
+              bytesUploaded: bytesLoaded,
+              totalBytes: bytesTotal,
+              uploadSpeed: uploadSpeed,
+              estimatedTimeRemaining: estimatedTimeRemaining
+            });
+          }
+        };
+        
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const result = JSON.parse(xhr.responseText);
+              resolve(result);
+            } catch {
+              resolve(xhr.responseText);
+            }
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        };
+        
+        xhr.onerror = () => reject(new Error('Upload failed'));
+        
+        // Get JWT token from localStorage and include in request
+        const token = localStorage.getItem('token');
+        if (token) {
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        }
+        
+        xhr.open('POST', `/api/orders/${order.id}/add-files`);
+        xhr.send(formData);
       });
-
-      // FIX: Get JWT token from localStorage and include in request
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`/api/orders/${order.id}/add-files`, {
-        method: 'POST',
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to upload files');
-      }
-
-      return response.json();
     },
     onSuccess: (data) => {
       toast({ title: 'Files uploaded successfully!' });
@@ -685,54 +736,53 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                     ))
                   )}
 
-                  {/* Add Files Section */}
+                  {/* 🚀 ULTRA-FAST Add Files Section */}
                   {canAddFiles && (
                     <>
                       <Separator />
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <Plus className="w-4 h-4 text-brand-yellow" />
                           <span className="font-medium text-sm">Add More Files</span>
+                          <Badge variant="outline" className="text-xs bg-[#FFBF00]/10 text-[#FFBF00] border-[#FFBF00]/30">
+                            Ultra-Fast Upload
+                          </Badge>
                         </div>
                         
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          multiple
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
-                          onChange={handleFileSelect}
-                          className="hidden"
+                        {/* Enhanced File Upload Component */}
+                        <EnhancedFileUpload
+                          files={selectedFiles}
+                          onFilesChange={setSelectedFiles}
+                          isUploading={isUploading || uploadFilesMutation.isPending}
+                          disabled={isUploading || uploadFilesMutation.isPending}
+                          maxFiles={200}
+                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt', '.ppt', '.pptx', '.xls', '.xlsx']}
+                          uploadProgress={uploadProgress || undefined}
                         />
                         
-                        <Button
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Select Files
-                        </Button>
-
+                        {/* Upload Button */}
                         {selectedFiles.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium">Selected Files:</p>
-                            {selectedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm bg-blue-50 p-2 rounded">
-                                <Paperclip className="w-4 h-4 text-blue-600" />
-                                <span className="flex-1 truncate">{file.name}</span>
-                                <span className="text-xs text-gray-500">
-                                  {(file.size / 1024).toFixed(1)} KB
-                                </span>
+                          <Button
+                            onClick={handleUploadFiles}
+                            disabled={isUploading || uploadFilesMutation.isPending}
+                            className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black font-semibold"
+                          >
+                            {(isUploading || uploadFilesMutation.isPending) ? (
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-rich-black border-t-transparent rounded-full animate-spin" />
+                                {uploadProgress ? (
+                                  `Uploading... ${Math.round(uploadProgress.overallProgress)}%`
+                                ) : (
+                                  'Processing Files...'
+                                )}
                               </div>
-                            ))}
-                            <Button
-                              onClick={handleUploadFiles}
-                              disabled={isUploading || uploadFilesMutation.isPending}
-                              className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black"
-                            >
-                              {(isUploading || uploadFilesMutation.isPending) ? 'Uploading...' : 'Upload Files'}
-                            </Button>
-                          </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4" />
+                                Upload {selectedFiles.length} File{selectedFiles.length !== 1 ? 's' : ''} to Order
+                              </div>
+                            )}
+                          </Button>
                         )}
                       </div>
                     </>
