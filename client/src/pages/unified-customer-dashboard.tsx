@@ -727,9 +727,9 @@ export default function UnifiedCustomerDashboard() {
           onClose={() => {
             setShowUploadOrder(false);
             queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
+            queryClient.invalidateQueries({ queryKey: ['/api/shops/unlocked'] });
           }}
-          shops={[]}
-          onSubmit={() => {}}
+          shops={allShops || []}
         />
       )}
 
@@ -739,8 +739,9 @@ export default function UnifiedCustomerDashboard() {
           onClose={() => {
             setShowWalkinOrder(false);
             queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${user?.id}`] });
+            queryClient.invalidateQueries({ queryKey: ['/api/shops/unlocked'] });
           }}
-          shops={[]}
+          shops={allShops || []}
           onSubmit={() => {}}
         />
       )}

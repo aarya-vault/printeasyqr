@@ -11,12 +11,26 @@ import { useToast } from '@/hooks/use-toast';
 import { fileValidation } from '@/lib/validation';
 import { Shop, OrderFormData } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
+import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
+import { apiRequest } from '@/lib/queryClient';
+
+interface UploadProgressInfo {
+  totalFiles: number;
+  completedFiles: number;
+  currentFileIndex: number;
+  currentFileName: string;
+  overallProgress: number;
+  bytesUploaded: number;
+  totalBytes: number;
+  uploadSpeed: number;
+  estimatedTimeRemaining: number;
+}
 
 interface UploadOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
   shops: Shop[];
-  onSubmit: (orderData: OrderFormData, files: File[]) => void;
+  onSubmit?: (orderData: OrderFormData, files: File[]) => void;
 }
 
 export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrderModalProps) {
@@ -32,6 +46,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
     isUrgent: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -104,34 +119,10 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
   };
 
   const handleSubmit = async () => {
-    // Validation for simple form
-    if (!formData.name.trim()) {
-      toast({
-        title: "Name is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.phoneNumber || !/^[6-9][0-9]{9}$/.test(formData.phoneNumber)) {
-      toast({
-        title: "Please enter a valid phone number",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // Validation for form
     if (!formData.orderType) {
       toast({
         title: "Please select an order type",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.uploadOrWalkin) {
-      toast({
-        title: "Please select upload or walk-in",
         variant: "destructive",
       });
       return;
@@ -145,29 +136,113 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const orderData: OrderFormData = {
-        shopId: selectedShop!,
-        type: formData.uploadOrWalkin as 'upload' | 'walkin',
-        title: formData.orderType,
-        description: formData.printingDescription,
-        specifications: {
-          customerName: formData.name,
-          orderType: formData.orderType,
-          uploadOrWalkin: formData.uploadOrWalkin,
-          printingDescription: formData.printingDescription,
-        },
-        isUrgent: formData.isUrgent,
-      };
-
-      await onSubmit(orderData, files);
-      handleClose();
+    if (files.length === 0) {
       toast({
-        title: "Order placed successfully!",
-        description: "You will receive updates on order status.",
+        title: "Please upload at least one file",
+        variant: "destructive",
       });
+      return;
+    }
+
+    setIsLoading(true);
+    setUploadProgress({
+      totalFiles: files.length,
+      completedFiles: 0,
+      currentFileIndex: 0,
+      currentFileName: files[0]?.name || '',
+      overallProgress: 0,
+      bytesUploaded: 0,
+      totalBytes: files.reduce((sum, file) => sum + file.size, 0),
+      uploadSpeed: 0,
+      estimatedTimeRemaining: 0
+    });
+
+    try {
+      // Create FormData for multipart upload
+      const formDataUpload = new FormData();
+      
+      // Add all files
+      files.forEach(file => {
+        formDataUpload.append('files', file);
+      });
+      
+      // Add order details
+      formDataUpload.append('shopId', selectedShop!.toString());
+      formDataUpload.append('type', 'digital');
+      formDataUpload.append('title', formData.orderType);
+      formDataUpload.append('description', formData.printingDescription);
+      formDataUpload.append('isUrgent', formData.isUrgent.toString());
+      
+      // Track upload progress
+      const startTime = Date.now();
+      let lastLoaded = 0;
+      
+      // 🚀 ULTRA-FAST UPLOAD: Use optimized endpoint with native fetch for progress tracking
+      const response = await new Promise<Response>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
+          if (progressEvent.lengthComputable && uploadProgress) {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            const bytesLoaded = progressEvent.loaded;
+            const bytesTotal = progressEvent.total;
+            
+            // Calculate upload speed
+            const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
+            const bytesRemaining = bytesTotal - bytesLoaded;
+            const estimatedTimeRemaining = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
+            
+            setUploadProgress({
+              totalFiles: files.length,
+              completedFiles: 0,
+              currentFileIndex: 0,
+              currentFileName: files[0]?.name || '',
+              overallProgress: Math.round((bytesLoaded / bytesTotal) * 100),
+              bytesUploaded: bytesLoaded,
+              totalBytes: bytesTotal,
+              uploadSpeed: uploadSpeed,
+              estimatedTimeRemaining: estimatedTimeRemaining
+            });
+          }
+        };
+        
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(new Response(xhr.responseText, {
+              status: xhr.status,
+              statusText: xhr.statusText
+            }));
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        };
+        
+        xhr.onerror = () => reject(new Error('Upload failed'));
+        
+        // Add auth header if user is authenticated
+        if (user) {
+          const token = localStorage.getItem('token');
+          if (token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          }
+        }
+        
+        xhr.open('POST', '/api/orders');
+        xhr.send(formDataUpload);
+      });
+
+      if (response.ok) {
+        handleClose();
+        toast({
+          title: "Order placed successfully!",
+          description: `Uploaded ${files.length} file${files.length > 1 ? 's' : ''} successfully. You will receive updates on order status.`,
+        });
+      } else {
+        throw new Error('Upload failed');
+      }
     } catch (error: any) {
+      console.error('Upload error:', error);
       toast({
         title: "Failed to place order",
         description: error.message || "Something went wrong. Please try again.",
@@ -175,6 +250,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
       });
     } finally {
       setIsLoading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -183,7 +259,7 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-rich-black">
-            Simple Order Form
+            🚀 Ultra-Fast File Upload Order
           </DialogTitle>
         </DialogHeader>
 
@@ -236,42 +312,20 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
 
         {step === 2 && (
           <div className="space-y-6">
-            {/* Name */}
+            {/* 🚀 ULTRA-FAST FILE UPLOAD */}
             <div>
-              <Label htmlFor="name" className="text-sm font-medium text-rich-black mb-2 block">
-                Name *
+              <Label className="text-sm font-medium text-rich-black mb-2 block">
+                Upload Files *
               </Label>
-              <Input
-                id="name"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="input-field"
+              <EnhancedFileUpload
+                files={files}
+                onFilesChange={setFiles}
+                isUploading={isLoading}
+                disabled={isLoading}
+                maxFiles={200}
+                acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt', '.ppt', '.pptx', '.xls', '.xlsx']}
+                uploadProgress={uploadProgress || undefined}
               />
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <Label htmlFor="phoneNumber" className="text-sm font-medium text-rich-black mb-2 block">
-                Phone Number *
-              </Label>
-              <Input
-                id="phoneNumber"
-                type="tel"
-                placeholder="9876543210"
-                value={formData.phoneNumber}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 10) {
-                    setFormData(prev => ({ ...prev, phoneNumber: value }));
-                  }
-                }}
-                maxLength={10}
-                className="input-field"
-              />
-              <p className="text-xs text-medium-gray mt-1">
-                WhatsApp OTP will be sent for verification
-              </p>
             </div>
 
             {/* Order Type */}
@@ -295,25 +349,6 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
                   <SelectItem value="Lamination">Lamination</SelectItem>
                   <SelectItem value="Scanning">Scanning</SelectItem>
                   <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Upload or Walk-in */}
-            <div>
-              <Label htmlFor="uploadOrWalkin" className="text-sm font-medium text-rich-black mb-2 block">
-                Upload or Walk-in *
-              </Label>
-              <Select 
-                value={formData.uploadOrWalkin} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, uploadOrWalkin: value }))}
-              >
-                <SelectTrigger className="input-field">
-                  <SelectValue placeholder="Select service type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="upload">Upload Files (Digital)</SelectItem>
-                  <SelectItem value="walkin">Walk-in Service</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -349,19 +384,20 @@ export function UploadOrderModal({ isOpen, onClose, shops, onSubmit }: UploadOrd
               <Button 
                 variant="outline"
                 onClick={() => setStep(1)}
+                disabled={isLoading}
                 className="flex-1"
               >
                 Back
               </Button>
               <Button 
                 onClick={handleSubmit}
-                disabled={isLoading}
+                disabled={isLoading || files.length === 0}
                 className="flex-1 bg-brand-yellow text-rich-black hover:bg-yellow-400"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-rich-black border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  'Submit Order with OTP'
+                  `Upload ${files.length} File${files.length !== 1 ? 's' : ''} & Create Order`
                 )}
               </Button>
             </div>
