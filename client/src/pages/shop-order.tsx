@@ -22,6 +22,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
 import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
+import { uploadFilesDirectlyToR2, DirectUploadProgress } from '@/utils/direct-upload';
 
 
 
@@ -49,6 +50,8 @@ export default function ShopOrder() {
     totalFiles: number;
     uploadSpeed: number;
     estimatedTime: number;
+    bytesUploaded: number;
+    totalBytes: number;
   } | null>(null);
   const { getPersistentUserData, user } = useAuth();
 
@@ -141,54 +144,97 @@ export default function ShopOrder() {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Fallback server upload function
+  const uploadFilesViaServer = async (orderId: number, files: File[]) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+    
+    const response = await fetch(`/api/orders/${orderId}/add-files`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload files via server');
+    }
+    
+    return response.json();
+  };
+
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderForm) => {
-      const startTime = Date.now();
-      let totalBytes = 0;
-      
-      // Calculate total file size for progress tracking
-      selectedFiles.forEach(file => totalBytes += file.size);
-      
+      // 🚀 ULTRA-FAST DIRECT R2 UPLOAD SYSTEM
+      // First create the order without files
+      const orderData = {
+        shopId: shop!.id.toString(),
+        customerName: data.name,
+        customerPhone: data.contactNumber,
+        type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
+        title: `Order from ${data.name}`,
+        description: data.description || '',
+        specifications: data.isUrgent ? 'URGENT ORDER' : ''
+      };
+
+      // Create order first (without files)
       const formData = new FormData();
-      formData.append('shopId', shop!.id.toString());
-      formData.append('customerName', data.name);
-      formData.append('customerPhone', data.contactNumber);
-      formData.append('type', data.orderType === 'upload' ? 'file_upload' : 'walkin');
-      formData.append('title', `Order from ${data.name}`);
-      formData.append('description', data.description || '');
-      formData.append('specifications', data.isUrgent ? 'URGENT ORDER' : '');
-      
-      if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        selectedFiles.forEach((file, index) => {
-          formData.append('files', file);
-          
-          // Simulate progress tracking for large files
-          if (file.size > 10 * 1024 * 1024) { // Files > 10MB
-            const elapsedTime = (Date.now() - startTime) / 1000;
-            const uploadSpeed = totalBytes / elapsedTime;
-            const estimatedTime = Math.max(0, (totalBytes - (index + 1) * file.size / selectedFiles.length) / uploadSpeed);
-            
-            setUploadProgress({
-              progress: ((index + 1) / selectedFiles.length) * 100,
-              currentFile: file.name,
-              filesProcessed: index + 1,
-              totalFiles: selectedFiles.length,
-              uploadSpeed,
-              estimatedTime
-            });
-          }
-        });
-      }
+      Object.entries(orderData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
       const response = await fetch('/api/orders/anonymous', {
         method: 'POST',
         body: formData,
+        headers: {
+          ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+        }
       });
-      
+
       if (!response.ok) throw new Error('Failed to create order');
-      return response.json();
+      const order = await response.json();
+
+      // 🚀 DIRECT R2 UPLOAD: Now upload files directly to R2 (bypassing server)
+      if (data.orderType === 'upload' && selectedFiles.length > 0) {
+        console.log('🚀 Starting DIRECT R2 upload (bypassing server for 2x speed)...');
+        
+        try {
+          const uploadResult = await uploadFilesDirectlyToR2(
+            selectedFiles,
+            order.id,
+            (progress: DirectUploadProgress) => {
+              setUploadProgress({
+                progress: progress.overallProgress,
+                currentFile: progress.currentFile,
+                filesProcessed: progress.completedFiles,
+                totalFiles: progress.totalFiles,
+                uploadSpeed: progress.uploadSpeed,
+                estimatedTime: progress.estimatedTime,
+                bytesUploaded: progress.bytesUploaded,
+                totalBytes: progress.totalBytes
+              });
+            }
+          );
+
+          if (uploadResult.success) {
+            console.log('✅ Direct R2 upload completed successfully!');
+            console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
+          } else {
+            console.log('⚠️ Some files failed, falling back to server upload...');
+            // Fallback to server upload if direct upload fails
+            await uploadFilesViaServer(order.id, selectedFiles);
+          }
+        } catch (error) {
+          console.error('Direct upload failed, using server fallback:', error);
+          // Fallback to server upload
+          await uploadFilesViaServer(order.id, selectedFiles);
+        }
+      }
+
+      return order;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: 'Order Created Successfully!',
         description: `Order #${data.orderNumber || data.id} has been placed`,
@@ -242,7 +288,7 @@ export default function ShopOrder() {
       return;
     }
 
-    // Direct order creation without OTP verification
+    // Direct order creation with enhanced upload tracking
     createOrderMutation.mutate({ ...data, orderType });
   };
 
@@ -420,8 +466,8 @@ export default function ShopOrder() {
                           onFilesChange={setSelectedFiles}
                           isUploading={createOrderMutation.isPending}
                           disabled={createOrderMutation.isPending}
-                          maxFiles={10}
-                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
+                          maxFiles={200}
+                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt', '.ppt', '.pptx', '.xls', '.xlsx']}
                         />
                       </TabsContent>
 
@@ -447,8 +493,8 @@ export default function ShopOrder() {
                           onFilesChange={setSelectedFiles}
                           isUploading={createOrderMutation.isPending}
                           disabled={createOrderMutation.isPending}
-                          maxFiles={10}
-                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt']}
+                          maxFiles={200}
+                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt', '.ppt', '.pptx', '.xls', '.xlsx']}
                         />
                       </div>
                       
@@ -515,7 +561,10 @@ export default function ShopOrder() {
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {uploadProgress ? (
-                        <span>Uploading... {Math.round(uploadProgress.progress)}%</span>
+                        <span>
+                          🚀 Direct Upload: {uploadProgress.progress}% 
+                          ({(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s)
+                        </span>
                       ) : (
                         <span>Creating Order...</span>
                       )}
