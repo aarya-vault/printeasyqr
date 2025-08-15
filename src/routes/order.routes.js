@@ -77,6 +77,7 @@ router.get('/download/*', optionalAuth, async (req, res) => {
     // Parse query params
     const originalName = req.query.originalName || 'download';
     const isDownloadRequest = req.query.download === 'true';
+    const isPrintRequest = req.query.print === 'true';  // NEW: Check for print request
     const storageType = req.query.storageType || 'local';
     
     // If this is an R2 file with a key
@@ -91,8 +92,8 @@ router.get('/download/*', optionalAuth, async (req, res) => {
         mimetype: req.query.mimetype || 'application/octet-stream'
       };
       
-      // Get appropriate URL based on request type
-      const accessType = isDownloadRequest ? 'download' : 'print';
+      // Get appropriate URL based on request type - prioritize print over download
+      const accessType = isPrintRequest ? 'print' : (isDownloadRequest ? 'download' : 'view');
       const presignedUrl = await storageManager.getFileAccess(fileInfo, accessType);
       
       // Redirect to presigned URL
@@ -133,17 +134,26 @@ router.get('/download/*', optionalAuth, async (req, res) => {
       res.setHeader('Content-Type', 'application/octet-stream');
     }
     
-    // For print/view requests, use inline disposition for PDFs
-    // For download requests, always use attachment
-    if (isDownloadRequest || !isPDF) {
-      // Force download without "Save As" dialog
+    // EXECUTIVE DECISION: Content-Disposition Header Fix
+    // For print requests: ALWAYS use inline disposition (for all file types)
+    // For download requests: ALWAYS use attachment disposition
+    if (isPrintRequest) {
+      // Print mode: Use inline for ALL file types to enable in-browser display
+      res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (isDownloadRequest) {
+      // Download mode: Force download without "Save As" dialog
       res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
       res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'no-cache');
     } else {
-      // Display inline for PDFs (allows printing without download)
-      res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
+      // Default view mode: Use inline for PDFs, attachment for others
+      if (isPDF) {
+        res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
+      } else {
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+      }
     }
     
     res.setHeader('Content-Length', stats.size);
