@@ -271,6 +271,69 @@ class OrderController {
     }
   }
 
+  // General order update (handles all order fields)
+  static async updateOrder(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const orderId = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const order = await Order.findByPk(orderId, {
+        include: [{ model: Shop, as: 'shop' }]
+      });
+      
+      if (!order) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Order not found' });
+      }
+
+      // Check permissions
+      if (order.shop.ownerId !== req.user.id && req.user.role !== 'admin') {
+        await transaction.rollback();
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Update order with provided data
+      await order.update(updateData, { transaction });
+      
+      // Auto delete files if order is completed
+      if (updateData.status === 'completed') {
+        console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
+        await OrderController.deleteOrderFiles(orderId, transaction);
+      }
+      
+      await transaction.commit();
+      
+      const updatedOrder = await Order.findByPk(orderId, {
+        include: [
+          { model: User, as: 'customer' },
+          { model: Shop, as: 'shop' }
+        ]
+      });
+      
+      // Broadcast order update to all connected users for real-time sync
+      const transformedOrder = OrderController.transformOrderData(updatedOrder);
+      
+      broadcast({
+        type: 'ORDER_UPDATED',
+        orderId: orderId,
+        shopId: order.shopId,
+        customerId: order.customerId,
+        order: transformedOrder,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`📡 Broadcasting order update: Order ${orderId} updated`);
+      
+      res.json(transformedOrder);
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Update order error:', error);
+      res.status(500).json({ message: 'Failed to update order' });
+    }
+  }
+
   // Update order status
   static async updateOrderStatus(req, res) {
     const transaction = await sequelize.transaction();
