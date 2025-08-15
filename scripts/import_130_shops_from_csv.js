@@ -292,7 +292,7 @@ async function main() {
     console.log('✅ Database models synchronized');
     
     const shops = [];
-    const csvPath = 'attached_assets/updated filtered data!_1755023573628.csv';
+    const csvPath = '../attached_assets/updated filtered data!_1755023573628.csv';
     
     // Read and parse CSV - first get headers manually
     const headers = [];
