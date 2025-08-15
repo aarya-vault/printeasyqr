@@ -84,33 +84,13 @@ export default function OrderConfirmation() {
   };
 
   const handleChatWithShop = async () => {
-    if (!user && order) {
-      try {
-        await login({ phone: order.customer.phone });
-        setShowChat(true);
-      } catch (error) {
-        console.error('Login failed:', error);
-        setShowChat(true);
-      }
-    } else {
-      setShowChat(true);
-    }
+    // User should already be authenticated from JIT auth during order placement
+    setShowChat(true);
   };
 
   const handleGoToDashboard = async () => {
-    if (!user && order) {
-      try {
-        await login({ phone: order.customer.phone });
-        setTimeout(() => {
-          navigate('/customer-dashboard');
-        }, 100);
-      } catch (error) {
-        console.error('Login failed:', error);
-        navigate('/customer-dashboard');
-      }
-    } else {
-      navigate('/customer-dashboard');
-    }
+    // User is already authenticated from JIT auth during order placement
+    navigate('/customer-dashboard');
   };
 
   // Helper function to get customer-friendly status

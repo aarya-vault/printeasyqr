@@ -4,6 +4,87 @@ import { Op } from 'sequelize';
 import { generateToken } from '../config/jwt-auth.js';
 
 class AuthController {
+  // Just-in-Time Authentication for Anonymous Orders
+  static async justInTimeAuth(req, res) {
+    try {
+      const { name, phone } = req.body;
+      
+      // Validate required fields
+      if (!name || !phone) {
+        return res.status(400).json({ 
+          message: 'Name and phone number are required',
+          errorCode: 'MISSING_FIELDS'
+        });
+      }
+      
+      // Validate phone format
+      if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        return res.status(400).json({ 
+          message: 'Invalid phone number format. Please use 10-digit number starting with 6-9',
+          errorCode: 'INVALID_PHONE'
+        });
+      }
+
+      // Check if user exists
+      let user = await User.findOne({ where: { phone } });
+      let isNewUser = false;
+      
+      if (user) {
+        // Block shop owners and admins from placing orders
+        if (user.role === 'shop_owner') {
+          return res.status(403).json({ 
+            message: 'Shop owners cannot place orders. Please use the shop dashboard.',
+            errorCode: 'SHOP_OWNER_CANNOT_ORDER'
+          });
+        }
+        
+        if (user.role === 'admin') {
+          return res.status(403).json({ 
+            message: 'Admins cannot place orders.',
+            errorCode: 'ADMIN_CANNOT_ORDER'
+          });
+        }
+        
+        // Update name if different
+        if (user.name !== name) {
+          await user.update({ name });
+        }
+      } else {
+        // Create new customer user
+        user = await User.create({
+          phone,
+          name,
+          role: 'customer',
+          isActive: true
+        });
+        isNewUser = true;
+      }
+      
+      // Generate JWT token
+      const token = generateToken(user.toJSON());
+      
+      // Return user data with token
+      return res.json({
+        token,
+        userId: user.id,
+        isNewUser,
+        user: {
+          id: user.id,
+          name: user.name,
+          phone: user.phone,
+          role: user.role
+        }
+      });
+      
+    } catch (error) {
+      console.error('JIT Auth error:', error);
+      res.status(500).json({ 
+        message: 'Authentication failed',
+        errorCode: 'AUTH_FAILED'
+      });
+    }
+  }
+
   // Phone login for customers
   static async phoneLogin(req, res) {
     try {

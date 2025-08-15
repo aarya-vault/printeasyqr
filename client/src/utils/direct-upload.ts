@@ -31,11 +31,18 @@ export async function getDirectUploadUrls(
 ): Promise<{ useDirectUpload: boolean; uploadUrls?: any[] }> {
   try {
     const token = localStorage.getItem('token');
+    
+    // JWT token is REQUIRED for R2 direct upload
+    if (!token) {
+      console.error('❌ No authentication token found - cannot use direct upload');
+      return { useDirectUpload: false };
+    }
+    
     const response = await fetch(`/api/orders/${orderId}/get-upload-urls`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         files: files.map(f => ({
@@ -47,7 +54,7 @@ export async function getDirectUploadUrls(
     });
 
     if (!response.ok) {
-      console.log('⚠️ Direct upload not available, falling back to server upload');
+      console.log(`⚠️ R2 upload not available: ${response.status}`);
       return { useDirectUpload: false };
     }
 
@@ -119,10 +126,18 @@ export async function uploadFileDirectly(
       return;
     }
     
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('❌ No authentication token - cannot upload');
+      reject(new Error('Authentication required for upload'));
+      return;
+    }
+    
     const proxyUrl = `/api/orders/${orderId}/direct-upload/${fileIndex}?uploadUrl=${encodeURIComponent(uploadUrl)}&filename=${encodeURIComponent(file.name)}`;
     xhr.open('PUT', proxyUrl);
     
     xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(file);
   });
 }
@@ -135,13 +150,20 @@ export async function uploadFilesDirectlyToR2(
   orderId: string | number,
   onProgress?: (progress: DirectUploadProgress) => void
 ): Promise<{ success: boolean; uploadedFiles: DirectUploadFile[] }> {
-  console.log(`🚀 Starting ultra-fast direct upload for ${files.length} files...`);
+  console.log(`🚀 Starting AUTHENTICATED R2 upload for ${files.length} files...`);
+  
+  // Check authentication first
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.error('❌ Cannot upload without authentication');
+    return { success: false, uploadedFiles: [] };
+  }
   
   // Get presigned URLs for direct upload
   const { useDirectUpload, uploadUrls } = await getDirectUploadUrls(files, orderId);
   
   if (!useDirectUpload || !uploadUrls || uploadUrls.length === 0) {
-    console.log('⚠️ Direct upload not available - R2 may not be configured');
+    console.log('⚠️ Direct upload not available');
     return { success: false, uploadedFiles: [] };
   }
 

@@ -5,6 +5,9 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
+// Just-in-Time Authentication for anonymous orders
+router.post('/auth/just-in-time', AuthController.justInTimeAuth);
+
 // Traditional authentication routes
 router.post('/auth/phone-login', AuthController.phoneLogin);
 router.post('/auth/email-login', AuthController.emailLogin);

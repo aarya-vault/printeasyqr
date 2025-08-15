@@ -208,38 +208,59 @@ export default function ShopOrder() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderForm) => {
-      // 🚀 ULTRA-FAST DIRECT R2 UPLOAD SYSTEM
-      // First create the order without files
-      const orderData = {
-        shopId: shop!.id.toString(),
-        customerName: data.name,
-        customerPhone: data.contactNumber,
-        type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
-        title: `Order from ${data.name}`,
-        description: data.description || '',
-        specifications: data.isUrgent ? 'URGENT ORDER' : ''
-      };
-
-      // Create order first (without files)
-      const formData = new FormData();
-      Object.entries(orderData).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      const response = await fetch('/api/orders/anonymous', {
+      // 🚀 JUST-IN-TIME AUTHENTICATION FLOW
+      
+      // Step 1: Just-in-Time Authentication
+      console.log('🔐 Step 1: Just-in-Time Authentication...');
+      const authResponse = await fetch('/api/auth/just-in-time', {
         method: 'POST',
-        body: formData,
-        headers: {
-          ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          phone: data.contactNumber
+        })
       });
 
-      if (!response.ok) throw new Error('Failed to create order');
-      const order = await response.json();
+      if (!authResponse.ok) {
+        const error = await authResponse.json();
+        throw new Error(error.message || 'Authentication failed');
+      }
+      
+      const authData = await authResponse.json();
+      console.log(`✅ Authenticated: ${authData.isNewUser ? 'New' : 'Existing'} user ${authData.user.name}`);
+      
+      // Store JWT token for authenticated requests
+      localStorage.setItem('token', authData.token);
+      localStorage.setItem('user', JSON.stringify(authData.user));
+      
+      // Step 2: Create authenticated order
+      console.log('📦 Step 2: Creating authenticated order...');
+      const orderResponse = await fetch('/api/orders/authenticated', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authData.token}`
+        },
+        body: JSON.stringify({
+          shopId: shop!.id.toString(),
+          type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
+          title: `Order from ${data.name}`,
+          description: data.description || '',
+          specifications: data.isUrgent ? 'URGENT ORDER' : ''
+        })
+      });
 
-      // 🚀 DIRECT R2 UPLOAD: Always use direct R2 upload for maximum speed
+      if (!orderResponse.ok) {
+        const error = await orderResponse.json();
+        throw new Error(error.message || 'Failed to create order');
+      }
+      
+      const order = await orderResponse.json();
+      console.log(`✅ Order created: #${order.id}`);
+
+      // Step 3: ULTRA-FAST DIRECT R2 UPLOAD (Authenticated)
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        console.log('🚀 Starting DIRECT R2 upload (bypassing server for maximum speed)...');
+        console.log('🚀 Step 3: Starting AUTHENTICATED R2 upload...');
         
         const uploadResult = await uploadFilesDirectlyToR2(
           selectedFiles,
@@ -259,12 +280,11 @@ export default function ShopOrder() {
         );
 
         if (uploadResult.success) {
-          console.log('✅ Direct R2 upload completed successfully!');
-          console.log(`⚡ Achieved ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s average speed`);
+          console.log('✅ R2 upload completed successfully!');
+          console.log(`⚡ Speed: ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s`);
         } else {
-          console.log('❌ Direct R2 upload failed - some files could not be uploaded');
-          // Store file metadata in order even if upload failed
-          // Files will be re-uploaded later by the shop owner if needed
+          console.error('❌ R2 upload failed');
+          throw new Error('File upload failed. Please try again.');
         }
       }
 

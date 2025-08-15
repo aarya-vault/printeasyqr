@@ -562,7 +562,71 @@ class OrderController {
     }
   }
 
-  // Create anonymous order
+  // Create authenticated order (replaces anonymous order)
+  static async createAuthenticatedOrder(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const { 
+        shopId, type, title, description, specifications, walkinTime 
+      } = req.body;
+      
+      // User comes from JWT authentication
+      const customerId = req.user.id;
+      const customer = await User.findByPk(customerId);
+      
+      if (!customer) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Validate required fields
+      if (!shopId || !type || !title) {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+      
+      // Check if shop exists
+      const shop = await Shop.findByPk(parseInt(shopId));
+      if (!shop) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Shop not found' });
+      }
+      
+      // Create order (no files - they come separately via direct R2 upload)
+      const order = await Order.create({
+        customerId,
+        shopId: parseInt(shopId),
+        type,
+        title,
+        description,
+        specifications,
+        status: 'pending',
+        isUrgent: specifications === 'URGENT ORDER',
+        walkinTime: walkinTime || null
+      }, { transaction });
+      
+      await transaction.commit();
+      
+      console.log(`✅ Authenticated order created: ${order.id} for customer ${customer.name} (${customer.phone})`);
+      
+      res.status(201).json({
+        id: order.id,
+        orderNumber: order.id,
+        customerId: order.customerId,
+        shopId: order.shopId,
+        status: order.status,
+        message: 'Order created successfully'
+      });
+      
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Order creation error:', error);
+      res.status(500).json({ message: 'Failed to create order' });
+    }
+  }
+
+  // Legacy anonymous order (kept for backward compatibility)
   static async createAnonymousOrder(req, res) {
     const transaction = await sequelize.transaction();
     

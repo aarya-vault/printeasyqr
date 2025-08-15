@@ -32,6 +32,7 @@ const upload = multer({
 });
 
 // Order routes
+router.post('/orders/authenticated', requireAuth, OrderController.createAuthenticatedOrder); // New authenticated order creation
 router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop);
 router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getOrdersByShop); // History alias
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
@@ -66,14 +67,27 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
 // 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
-// Support both authenticated and anonymous orders
-router.post('/orders/:id/get-upload-urls', optionalAuth, async (req, res) => {
+// Requires authentication for security
+router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
     
     if (!files || !Array.isArray(files)) {
       return res.status(400).json({ error: 'Files array required' });
+    }
+    
+    // Verify order belongs to authenticated user
+    const Order = (await import('../models/index.js')).Order;
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        customerId: req.user.id
+      }
+    });
+    
+    if (!order) {
+      return res.status(403).json({ error: 'Order not found or access denied' });
     }
     
     console.log(`🚀 Generating direct upload URLs for ${files.length} files (order ${orderId})`);
@@ -104,11 +118,24 @@ router.post('/orders/:id/get-upload-urls', optionalAuth, async (req, res) => {
 });
 
 // 🚀 DIRECT R2 UPLOAD PROXY: Handle direct uploads through server to bypass CORS
-router.put('/orders/:id/direct-upload/:fileIndex', optionalAuth, async (req, res) => {
+router.put('/orders/:id/direct-upload/:fileIndex', requireAuth, async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
     const fileIndex = parseInt(req.params.fileIndex);
     const { uploadUrl, filename } = req.query;
+    
+    // Verify order belongs to authenticated user
+    const Order = (await import('../models/index.js')).Order;
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        customerId: req.user.id
+      }
+    });
+    
+    if (!order) {
+      return res.status(403).json({ error: 'Order not found or access denied' });
+    }
     
     console.log(`🚀 Proxying direct upload for file ${filename} (order ${orderId})`);
     
