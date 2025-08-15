@@ -146,22 +146,64 @@ export default function ShopOrder() {
 
   // Fallback server upload function
   const uploadFilesViaServer = async (orderId: number, files: File[]) => {
-    const formData = new FormData();
-    files.forEach(file => formData.append('files', file));
+    console.log(`💻 Server Upload: Processing ${files.length} files for order ${orderId}...`);
     
-    const response = await fetch(`/api/orders/${orderId}/add-files`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        ...(localStorage.getItem('token') ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {})
+    return new Promise<any>((resolve, reject) => {
+      const formData = new FormData();
+      files.forEach(file => formData.append('files', file));
+      
+      const xhr = new XMLHttpRequest();
+      const startTime = Date.now();
+      
+      xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
+        if (progressEvent.lengthComputable) {
+          const currentTime = Date.now();
+          const elapsedTime = (currentTime - startTime) / 1000;
+          const bytesLoaded = progressEvent.loaded;
+          const bytesTotal = progressEvent.total;
+          
+          // Calculate upload speed
+          const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
+          const bytesRemaining = bytesTotal - bytesLoaded;
+          const estimatedTime = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
+          
+          setUploadProgress({
+            progress: Math.round((bytesLoaded / bytesTotal) * 100),
+            currentFile: files[0]?.name || 'Uploading...',
+            filesProcessed: bytesLoaded === bytesTotal ? files.length : 0,
+            totalFiles: files.length,
+            uploadSpeed: uploadSpeed,
+            estimatedTime: estimatedTime,
+            bytesUploaded: bytesLoaded,
+            totalBytes: bytesTotal
+          });
+        }
+      };
+      
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log('✅ Server upload completed successfully!');
+          resolve({ success: true });
+        } else {
+          console.error(`❌ Server upload failed: ${xhr.status}`);
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      };
+      
+      xhr.onerror = () => {
+        console.error('❌ Server upload network error');
+        reject(new Error('Network error during upload'));
+      };
+      
+      // Include JWT token if available (for authenticated users)
+      const token = localStorage.getItem('token');
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }
+      
+      xhr.open('POST', `/api/orders/${orderId}/add-files`);
+      xhr.send(formData);
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to upload files via server');
-    }
-    
-    return response.json();
   };
 
   const createOrderMutation = useMutation({
@@ -551,6 +593,36 @@ export default function ShopOrder() {
                   )}
                 />
 
+                {/* Upload Progress Display */}
+                {uploadProgress && (
+                  <div className="bg-brand-yellow/10 border border-brand-yellow/30 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Uploading Files...</span>
+                      <span className="text-sm text-gray-600">
+                        {uploadProgress.filesProcessed}/{uploadProgress.totalFiles} files
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                      <div 
+                        className="bg-brand-yellow h-2 rounded-full transition-all duration-300" 
+                        style={{ width: `${uploadProgress.progress}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <span>Current: {uploadProgress.currentFile}</span>
+                      <span className="font-bold text-brand-yellow">
+                        🚀 {(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s
+                      </span>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {(uploadProgress.bytesUploaded / (1024 * 1024)).toFixed(1)} MB / {(uploadProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB
+                      {uploadProgress.estimatedTime > 0 && (
+                        <span> • ETA: {uploadProgress.estimatedTime}s</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -562,7 +634,7 @@ export default function ShopOrder() {
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {uploadProgress ? (
                         <span>
-                          🚀 Direct Upload: {uploadProgress.progress}% 
+                          Uploading: {uploadProgress.progress}% 
                           ({(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s)
                         </span>
                       ) : (

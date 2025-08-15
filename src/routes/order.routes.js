@@ -63,7 +63,8 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
 // 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
-router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
+// Support both authenticated and anonymous orders
+router.post('/orders/:id/get-upload-urls', optionalAuth, async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
