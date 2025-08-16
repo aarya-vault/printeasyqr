@@ -34,7 +34,85 @@ export default function UnifiedCustomerDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const deleteOrderMutation = useDeleteOrder();
+  // 🔧 FIX: Per-order component to handle individual delete states
+  const OrderItem = ({ order }: { order: Order }) => {
+    const deleteOrderMutation = useDeleteOrder(order.id);
+    
+    return (
+      <div 
+        key={order.id}
+        className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+        onClick={() => setSelectedOrderForDetails(order)}
+      >
+        <div className="flex items-start gap-3 mb-3">
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
+              {order.status === 'ready' ? (
+                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+              ) : order.status === 'processing' ? (
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
+              ) : (
+                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
+              )}
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1 mb-1.5 flex-wrap">
+              <Badge className={`${getStatusColor(order.status)} font-medium text-xs`}>
+                {getStatusIcon(order.status)}
+                <span className="ml-1 capitalize">{order.status}</span>
+              </Badge>
+              {order.isUrgent && (
+                <Badge variant="destructive" className="text-xs">Urgent</Badge>
+              )}
+            </div>
+            <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{order.title}</h3>
+            <p className="text-xs text-gray-600 mb-1">
+              at {order.shop?.name || 'Print Shop'}
+            </p>
+            <p className="text-xs text-gray-500">
+              Ordered {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
+            </p>
+          </div>
+        </div>
+        
+        {/* Mobile Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="sm"
+            className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
+            onClick={() => setSelectedOrderForDetails(order)}
+          >
+            <Eye className="w-3 h-3 mr-1" />
+            Details
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
+            onClick={() => setSelectedOrderForChat(order.id)}
+          >
+            <MessageCircle className="w-3 h-3 mr-1" />
+            {order.status === 'completed' ? 'Chat History' : 'Chat'}
+          </Button>
+          
+          {/* Delete Button - Only for customers before processing */}
+          {canDeleteOrder(order, user?.role || '', user?.id || 0).canDelete && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50 text-xs h-8 sm:h-9"
+              onClick={() => deleteOrderMutation.mutate(order.id)}
+              disabled={deleteOrderMutation.isPending}
+            >
+              <X className="w-3 h-3 mr-1" />
+              {deleteOrderMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
   
   // Modal states
   const [showUploadOrder, setShowUploadOrder] = useState(false);
@@ -439,78 +517,7 @@ export default function UnifiedCustomerDashboard() {
                 {activeOrders.length > 0 ? (
                   <div className="space-y-3 mb-4">
                     {activeOrders.map((order) => (
-                      <div 
-                        key={order.id}
-                        className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setSelectedOrderForDetails(order)}
-                      >
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-yellow rounded-full flex items-center justify-center shadow-sm">
-                              {order.status === 'ready' ? (
-                                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
-                              ) : order.status === 'processing' ? (
-                                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black animate-pulse" />
-                              ) : (
-                                <Package className="w-5 h-5 sm:w-6 sm:h-6 text-rich-black" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1 mb-1.5 flex-wrap">
-                              <Badge className={`${getStatusColor(order.status)} font-medium text-xs`}>
-                                {getStatusIcon(order.status)}
-                                <span className="ml-1 capitalize">{order.status}</span>
-                              </Badge>
-                              {order.isUrgent && (
-                                <Badge variant="destructive" className="text-xs">Urgent</Badge>
-                              )}
-                            </div>
-                            <h3 className="font-semibold text-rich-black text-sm sm:text-base leading-tight mb-1">{order.title}</h3>
-                            <p className="text-xs text-gray-600 mb-1">
-                              at {order.shop?.name || 'Print Shop'}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Ordered {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {/* Mobile Action Buttons */}
-                        <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            size="sm"
-                            className="bg-rich-black text-white hover:bg-rich-black/90 text-xs h-8 sm:h-9"
-                            onClick={() => setSelectedOrderForDetails(order)}
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            Details
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black text-xs h-8 sm:h-9"
-                            onClick={() => setSelectedOrderForChat(order.id)}
-                          >
-                            <MessageCircle className="w-3 h-3 mr-1" />
-                            {order.status === 'completed' ? 'Chat History' : 'Chat'}
-                          </Button>
-                          
-                          {/* Delete Button - Only for customers before processing */}
-                          {canDeleteOrder(order, user?.role || '', user?.id || 0).canDelete && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-red-200 text-red-600 hover:bg-red-50 text-xs h-8 sm:h-9"
-                              onClick={() => deleteOrderMutation.mutate(order.id)}
-                              disabled={deleteOrderMutation.isPending}
-                            >
-                              <X className="w-3 h-3 mr-1" />
-                              Delete
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      <OrderItem key={order.id} order={order} />
                     ))}
                   </div>
                 ) : (

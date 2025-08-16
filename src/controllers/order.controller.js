@@ -319,28 +319,11 @@ class OrderController {
       // Update order with provided data
       await order.update(updateData, { transaction });
       
-      // Auto delete files if order is completed
+      // 🔧 FIX: Remove duplicate completion logic - handled in updateOrderStatus only
+      // Auto delete files if order is completed - DISABLED to prevent double execution
       if (updateData.status === 'completed') {
-        console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
-        await OrderController.deleteOrderFiles(orderId, transaction);
-        
-        // 🎯 DYNAMIC ORDER NUMBERING: Check if this completion causes a reset
-        const remainingActiveOrders = await Order.count({
-          where: {
-            shopId: order.shopId,
-            status: {
-              [Op.in]: ['new', 'pending', 'processing', 'ready']
-            },
-            deletedAt: { [Op.is]: null },
-            id: { [Op.ne]: orderId }  // Exclude current order
-          }
-        });
-        
-        if (remainingActiveOrders === 0) {
-          console.log(`🔄 RESET TRIGGER: Shop ${order.shopId} now has 0 active orders - next order will be #1`);
-        } else {
-          console.log(`📊 Shop ${order.shopId} still has ${remainingActiveOrders} active orders after completion`);
-        }
+        console.log(`⚠️  Order ${orderId} completion detected in updateOrder - delegating to updateOrderStatus`);
+        // Completion logic moved to updateOrderStatus to prevent duplication
       }
       
       await transaction.commit();

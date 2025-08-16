@@ -155,7 +155,8 @@ export default function RedesignedShopOwnerDashboard() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
-  const deleteOrderMutation = useDeleteOrder();
+  // 🔧 FIX: Remove global delete state - will use per-order in render
+  // const deleteOrderMutation = useDeleteOrder();
   const [searchQuery, setSearchQuery] = useState('');
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -482,7 +483,11 @@ export default function RedesignedShopOwnerDashboard() {
     </Card>
   );
 
-  const OrderCard = ({ order }: { order: Order }) => (
+  const OrderCard = ({ order }: { order: Order }) => {
+    // 🔧 FIX: Per-order delete mutation to prevent global state
+    const deleteOrderMutation = useDeleteOrder(order.id);
+    
+    return (
     <Card 
       className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow cursor-pointer"
       onClick={() => setSelectedOrderForDetails(order)}
@@ -663,7 +668,8 @@ export default function RedesignedShopOwnerDashboard() {
         )}
       </CardContent>
     </Card>
-  );
+    );
+  };
 
   if (shopLoading || ordersLoading) {
     return (

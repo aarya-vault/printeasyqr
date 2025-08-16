@@ -7,13 +7,15 @@ interface DeleteOrderResponse {
   orderId: number;
 }
 
-export const useDeleteOrder = () => {
+// 🔧 FIX: Per-order delete state to prevent global "deleting" state
+export const useDeleteOrder = (orderId?: number) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (orderId: number): Promise<DeleteOrderResponse> => {
-      return await apiClient.delete(`/api/orders/${orderId}`);
+    mutationKey: orderId ? ['deleteOrder', orderId] : ['deleteOrder'], // Per-order mutation key
+    mutationFn: async (targetOrderId: number): Promise<DeleteOrderResponse> => {
+      return await apiClient.delete(`/api/orders/${targetOrderId}`);
     },
     onSuccess: (data) => {
       // Invalidate all order-related queries to refresh data

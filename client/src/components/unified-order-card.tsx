@@ -108,7 +108,7 @@ export default function UnifiedOrderCard({
   const statusInfo = getStatusInfo(order.status);
   const files = parseFiles(order.files);
   const StatusIcon = statusInfo.icon;
-  const deleteOrderMutation = useDeleteOrder();
+  const deleteOrderMutation = useDeleteOrder(order.id); // 🔧 FIX: Per-order delete state
 
   // Check if order is deleted
   const isDeleted = !!(order.deletedAt);
