@@ -11,15 +11,24 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Import database validation
-import { validateDatabaseConnection } from './models/index.js';
+// Import database functions
+import { validateDatabaseConnection, initializeDatabase } from './models/index.js';
 
 // ES Module compatibility fix for serverless environments
 const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
 const __dirname = import.meta ? dirname(__filename) : __dirname;
 
-// Validate database connection
-validateDatabaseConnection();
+// Initialize database (validate connection and create tables)
+const initApp = async () => {
+  const dbConnected = await validateDatabaseConnection();
+  if (dbConnected) {
+    await initializeDatabase();
+  } else {
+    console.error('❌ Cannot initialize database - connection failed');
+  }
+};
+
+initApp();
 
 // Import routes
 import authRoutes from './routes/auth.routes.js';

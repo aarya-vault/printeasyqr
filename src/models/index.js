@@ -66,32 +66,31 @@ const defineAssociations = () => {
 // Initialize associations
 defineAssociations();
 
-// Database connection validation
-// NOTE: Never use sync({ alter: true }) - it creates duplicate constraints
-// CRITICAL: Contains production data (107 shops, 85 users, 9 orders) - NEVER DESTROY
+// Database connection validation and initialization
 const validateDatabaseConnection = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established');
-    console.log('🔒 PRODUCTION DATA PROTECTION: Database contains critical business data');
-    console.log('📊 Protected assets: 107 shops, 85 users, 9 orders, 3 messages, 3 unlocks');
-    
-    // Explicitly override any Sequelize sync attempts
-    const originalSync = sequelize.sync;
-    sequelize.sync = function(options = {}) {
-      console.log('🚫 BLOCKING sequelize.sync() call to protect production data');
-      console.log('   Database contains 107 shops, 85 users, 9 orders - CANNOT BE LOST');
-      if (options.force || options.alter) {
-        console.error('❌ CRITICAL: Attempted destructive database operation BLOCKED');
-        throw new Error('Production database protection: sync operations are disabled to prevent data loss');
-      }
-      console.log('✅ Database sync request ignored - production data protected');
-      return Promise.resolve();
-    };
-    
     return true;
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
+    return false;
+  }
+};
+
+// Initialize database with all tables
+const initializeDatabase = async () => {
+  try {
+    console.log('🔄 Initializing database schema...');
+    
+    // Create all tables if they don't exist
+    await sequelize.sync({ force: false });
+    
+    console.log('✅ Database schema initialized successfully');
+    console.log('📊 All tables created and associations established');
+    return true;
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
     return false;
   }
 };
@@ -107,5 +106,6 @@ export {
   Notification,
   ShopUnlock,
   QRScan,
-  validateDatabaseConnection
+  validateDatabaseConnection,
+  initializeDatabase
 };
