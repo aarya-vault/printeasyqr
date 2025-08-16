@@ -67,6 +67,7 @@ import type { Shop } from '@shared/types';
 
 interface Order {
   id: number;
+  orderNumber: number;
   customerId: number;
   shopId: number;
   customerName: string;
@@ -491,7 +492,7 @@ export default function RedesignedShopOwnerDashboard() {
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-brand-yellow/20 rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold text-rich-black">#{order.id}</span>
+              <span className="text-sm font-bold text-rich-black">#{order.orderNumber || order.id}</span>
             </div>
             <div>
               <h3 className="font-semibold text-rich-black">{order.customerName}</h3>
@@ -522,7 +523,13 @@ export default function RedesignedShopOwnerDashboard() {
         <div className="space-y-2 mb-3">
           <div className="flex items-center text-sm text-gray-600">
             <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="truncate" title={order.title}>{order.title}</span>
+            <span className="truncate">
+              {order.files && Array.isArray(order.files) && order.files.length > 0 
+                ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
+                : (typeof order.files === 'string' && order.files !== '[]' 
+                  ? `${JSON.parse(order.files).length || 0} files` 
+                  : order.description || 'No files')}
+            </span>
           </div>
           {order.type === 'upload' && order.files && (
             <div className="flex items-center text-sm text-gray-600">
