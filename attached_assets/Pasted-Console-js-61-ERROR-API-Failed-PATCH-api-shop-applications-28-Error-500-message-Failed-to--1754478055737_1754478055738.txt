@@ -1,0 +1,37 @@
+Console.js:61 [ERROR] API Failed: PATCH /api/shop-applications/28 Error: 500: {"message":"Failed to update application"}
+    at throwIfResNotOk (queryClient.ts:9:11)
+    at async apiRequest (queryClient.ts:54:5)
+    at async Object.mutationFn (enhanced-admin-dashboard.tsx:105:24)
+Mt.forEach.n.<computed> @ Console.js:61
+error @ debug.ts:18
+apiRequest @ queryClient.ts:59
+await in apiRequest
+mutationFn @ enhanced-admin-dashboard.tsx:105
+fn @ @tanstack_react-query.js?v=75b4f597:1189
+run @ @tanstack_react-query.js?v=75b4f597:494
+start @ @tanstack_react-query.js?v=75b4f597:536
+execute @ @tanstack_react-query.js?v=75b4f597:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=75b4f597:2630
+(anonymous) @ @tanstack_react-query.js?v=75b4f597:3295
+handleApplicationAction @ enhanced-admin-dashboard.tsx:131
+onClick @ enhanced-admin-dashboard.tsx:401
+callCallback2 @ chunk-RPCDYKBN.js?v=75b4f597:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=75b4f597:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=75b4f597:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=75b4f597:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=75b4f597:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=75b4f597:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=75b4f597:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=75b4f597:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=75b4f597:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=75b4f597:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=75b4f597:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=75b4f597:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=75b4f597:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=75b4f597:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=75b4f597:5449Understand this error
+Console.js:61 [WARN] Mutation retry attempt 0 Error: 500: {"message":"Failed to update application"}
+    at throwIfResNotOk (queryClient.ts:9:11)
+    at async apiRequest (queryClient.ts:54:5)
+    at async Object.mutationFn (enhanced-admin-dashboard.tsx:105:24)

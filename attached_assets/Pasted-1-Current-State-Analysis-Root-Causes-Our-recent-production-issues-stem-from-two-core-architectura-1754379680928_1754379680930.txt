@@ -1,0 +1,24 @@
+1. Current State Analysis & Root Causes
+Our recent production issues stem from two core architectural problems:
+* Hybrid Authentication Conflict: The system currently operates with two conflicting authentication models:
+    * Stateful Sessions (Server-Side): A legacy cookie-based system using express-session. This has been the source of all recent 401 Unauthorized errors due to the complexities of managing cookies in a modern, proxied, cross-origin environment (CORS, SameSite policies, etc.).
+    * Stateless JWT (Client-Side): A modern token-based approach that is undermined and conflicted by the failing session system.
+* Redundant ORM Configuration: The codebase contains configurations for two different ORMs:
+    * Sequelize: The active, production-ready ORM managing all current database interactions with PostgreSQL.
+    * Drizzle: A dormant configuration that is not in use but creates confusion and technical debt.
+2. Proposed Architectural Changes
+We will execute a full-stack refactor to unify and simplify our architecture.
+2.1. Database Layer: ORM Unification The first step is to clean our foundation by standardizing on Sequelize as the single source of truth for database interaction.
+* Action: Remove all Drizzle-related dependencies (drizzle-orm, drizzle-kit), configuration files (drizzle.config.ts), and associated scripts (e.g., db:push) from the project. This ensures a clean, single-ORM architecture.
+2.2. Back-End Refactor: Transition to Pure JWT Authentication We will completely deprecate the stateful session model in favor of a stateless JWT architecture.
+* Action 1 (Remove Sessions): The express-session middleware and all associated cookie-parsing logic will be removed from the Express application. This eliminates the entire class of cookie-related bugs.
+* Action 2 (Update API): The all necessary API endpoint will be modified. Upon successful credential validation, it will no longer create a session or set a cookie. Instead, it will generate a signed JWT and return it directly within the JSON response body.
+* Action 3 (Implement JWT Middleware): A new, lightweight authentication middleware will be implemented. This middleware will protect all necessary API endpoints by expecting an Authorization: Bearer <token> header, cryptographically verifying the JWT signature, and attaching the authenticated user's data to the request object for use in our controllers.
+2.3. Front-End Refactor: Client-Side JWT Management The client-side React application will be updated to manage the JWT lifecycle, decoupling it from browser cookie behavior.
+* Action 1 (Token Storage): Upon a successful login, the client will extract the JWT from the API response and store it securely in the browser's localStorage for mqximum time possible.
+* Action 2 (Automated Authorization): Our central API client will be configured with an interceptor—a function that automatically reads the token from localStorage and attaches the Authorization: Bearer <token> header to every single outgoing request.
+* Action 3 (Update Logout): The logout process will become a purely client-side action, responsible for simply deleting the token from localStorage and resetting the application's user state.
+3. Impact Analysis & Verification
+A critical part of this refactor is ensuring no existing functionality breaks.
+* API Mapping: All API routes currently protected by session middleware will be mapped and transitioned to the new JWT verification middleware.
+* Verification Process: A full regression test will be performed using an API client like Postman. We will execute requests against every endpoint both before and after the refactor to validate that responses, data formats, and business logic remain intact, thus ensuring a seamless transition and fixing all broken functionality (order status updates, chat, etc.).
