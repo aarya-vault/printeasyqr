@@ -210,8 +210,20 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     onSuccess: (data) => {
       toast({ title: 'Files uploaded successfully!' });
       
-      // Immediately refetch the current order to show updated files
-      refetchOrder();
+      // Force immediate state refresh by refetching and updating parent
+      refetchOrder().then((result) => {
+        // Force update stable order with fresh data immediately
+        if (result.data) {
+          console.log('🔄 Forcing stable order update after file upload');
+          const clonedOrder = JSON.parse(JSON.stringify(result.data));
+          setStableOrder(clonedOrder);
+        }
+        
+        // Force parent component to refresh as well
+        if (onRefresh) {
+          onRefresh();
+        }
+      });
       
       // Invalidate related queries to refresh order data across the app
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${order.customerId}`] });
@@ -221,11 +233,6 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
       setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
-      }
-      
-      // Call onRefresh callback if provided
-      if (onRefresh) {
-        onRefresh();
       }
     },
     onError: (error: any) => {
@@ -718,13 +725,15 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                     </span>
                     {currentFiles.length > 1 && currentOrder.status !== 'completed' && (
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={handlePrintAll}>
-                          <Printer className="w-4 h-4 mr-1" />
-                          Print All
+                        <Button size="sm" variant="outline" onClick={handlePrintAll} className="text-xs sm:text-sm">
+                          <Printer className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          <span className="hidden sm:inline">Print All</span>
+                          <span className="sm:hidden">Print</span>
                         </Button>
-                        <Button size="sm" variant="outline" onClick={handleDownloadAll}>
-                          <Download className="w-4 h-4 mr-1" />
-                          Download All
+                        <Button size="sm" variant="outline" onClick={handleDownloadAll} className="text-xs sm:text-sm">
+                          <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          <span className="hidden sm:inline">Download All</span>
+                          <span className="sm:hidden">Download</span>
                         </Button>
                       </div>
                     )}

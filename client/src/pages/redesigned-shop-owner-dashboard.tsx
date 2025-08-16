@@ -619,12 +619,12 @@ export default function RedesignedShopOwnerDashboard() {
 
         {/* Status Update Actions */}
         {order.status !== 'completed' && (
-          <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
+          <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
             {(order.status === 'new' || order.status === 'pending') && (
               <Button
                 size="sm"
                 onClick={() => updateOrderStatus.mutate({ orderId: order.id, status: 'processing' })}
-                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
+                className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
               >
                 Start Processing
               </Button>
@@ -633,7 +633,7 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 size="sm"
                 onClick={() => updateOrderStatus.mutate({ orderId: order.id, status: 'ready' })}
-                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
+                className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
               >
                 Mark Ready
               </Button>
@@ -642,7 +642,7 @@ export default function RedesignedShopOwnerDashboard() {
               <Button
                 size="sm"
                 onClick={() => updateOrderStatus.mutate({ orderId: order.id, status: 'completed' })}
-                className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
+                className="w-full bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 text-xs"
               >
                 Complete Order
               </Button>
@@ -659,7 +659,7 @@ export default function RedesignedShopOwnerDashboard() {
                   }
                 }}
                 disabled={deleteOrderMutation.isPending}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 text-xs col-span-2"
+                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 text-xs"
               >
                 {deleteOrderMutation.isPending ? 'Deleting...' : 'Delete Order'}
               </Button>

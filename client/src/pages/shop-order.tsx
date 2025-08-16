@@ -233,30 +233,21 @@ export default function ShopOrder() {
       localStorage.setItem('token', authData.token);
       localStorage.setItem('user', JSON.stringify(authData.user));
       
-      // Step 2: Create authenticated order with files (like regular flow)
-      console.log('📦 Step 2: Creating authenticated order with files...');
-      const formData = new FormData();
-      
-      // Add order data
-      formData.append('shopId', shop!.id.toString());
-      formData.append('type', data.orderType === 'upload' ? 'file_upload' : 'walkin');
-      formData.append('description', data.description || '');
-      formData.append('specifications', data.isUrgent ? 'URGENT ORDER' : '');
-      
-      // Add files if present
-      if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        selectedFiles.forEach(file => {
-          formData.append('files', file);
-        });
-      }
+      // Step 2: Create authenticated order WITHOUT files first (R2 Direct Upload Pattern)
+      console.log('📦 Step 2: Creating authenticated order (no files yet)...');
       
       const orderResponse = await fetch('/api/orders/authenticated', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${authData.token}`
-          // No Content-Type header - let browser set multipart/form-data
+          'Authorization': `Bearer ${authData.token}`,
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify({
+          shopId: shop!.id,
+          type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
+          description: data.description || '',
+          specifications: data.isUrgent ? 'URGENT ORDER' : ''
+        })
       });
 
       if (!orderResponse.ok) {
@@ -265,7 +256,35 @@ export default function ShopOrder() {
       }
       
       const order = await orderResponse.json();
-      console.log(`✅ Order created: #${order.id} with files included`);
+      console.log(`✅ Order created: #${order.id}`);
+
+      // Step 3: Upload files directly to R2 if present (Anonymous R2 Direct Upload)
+      if (data.orderType === 'upload' && selectedFiles.length > 0) {
+        console.log(`🚀 Step 3: Starting DIRECT R2 upload for ${selectedFiles.length} files...`);
+        
+        try {
+          const uploadResult = await uploadFilesDirectlyToR2(
+            selectedFiles,
+            order.id,
+            (progress: DirectUploadProgress) => {
+              setUploadProgress({
+                totalFiles: progress.totalFiles,
+                filesProcessed: progress.completedFiles,
+                currentFileName: progress.currentFile
+              });
+            }
+          );
+          
+          console.log(`✅ All ${uploadResult.uploadedFiles.length} files uploaded directly to R2`);
+          
+          if (!uploadResult.success) {
+            console.warn('⚠️  Some files may have failed to upload');
+          }
+        } catch (uploadError) {
+          console.error('R2 Direct Upload failed:', uploadError);
+          throw new Error('Failed to upload files to cloud storage');
+        }
+      }
 
       return order;
     },

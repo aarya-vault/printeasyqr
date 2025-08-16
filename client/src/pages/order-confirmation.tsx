@@ -50,7 +50,7 @@ interface OrderDetails {
 export default function OrderConfirmation() {
   const [, params] = useRoute('/order-confirmation/:orderId');
   const [, navigate] = useLocation();
-  const { user, login, refreshUser } = useAuth();
+  const { user, login } = useAuth();
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [countdown, setCountdown] = useState(10); // 10 seconds countdown
@@ -58,10 +58,8 @@ export default function OrderConfirmation() {
   useEffect(() => {
     setMounted(true);
     // 🔧 FIX: Force refresh user context after JIT auth
-    if (refreshUser) {
-      refreshUser();
-    }
-  }, [refreshUser]);
+    // User context should be automatically updated after JIT auth
+  }, []);
 
   // Get order details
   const { data: orderData, isLoading, error } = useQuery<{ order: OrderDetails }>({
@@ -93,13 +91,16 @@ export default function OrderConfirmation() {
   };
 
   const handleGoToDashboard = async () => {
-    // 🔧 FIX: Role-based redirect with fallback logic
+    // 🔧 FIX: Role-based redirect with enhanced fallback logic and debugging
+    console.log('🎯 Starting redirect process...');
+    console.log('Current user context:', user);
     
     // Try to get user from localStorage if auth context is stale
     let currentUser = user;
     if (!currentUser) {
       try {
         const storedUser = localStorage.getItem('user');
+        console.log('Stored user in localStorage:', storedUser);
         if (storedUser) {
           currentUser = JSON.parse(storedUser);
           console.log('🔄 Using stored user for redirect:', currentUser?.role);
@@ -109,49 +110,82 @@ export default function OrderConfirmation() {
       }
     }
     
-    // Redirect based on user role
+    // Redirect based on user role with enhanced logging
     if (currentUser?.role) {
       console.log('🎯 Redirecting user role:', currentUser.role);
-      switch (currentUser.role) {
-        case 'shop_owner':
-          navigate('/shop-owner-dashboard');
-          break;
-        case 'admin':
-          navigate('/admin-dashboard');
-          break;
-        case 'customer':
-        default:
-          navigate('/customer-dashboard');
-          break;
+      const targetRoute = currentUser.role === 'shop_owner' ? '/shop-owner-dashboard' : 
+                         currentUser.role === 'admin' ? '/admin-dashboard' : 
+                         '/customer-dashboard';
+      
+      console.log('Target route:', targetRoute);
+      
+      try {
+        navigate(targetRoute);
+        console.log('✅ Navigate called successfully');
+        
+        // Fallback: Use window.location if navigate fails
+        setTimeout(() => {
+          if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
+            console.log('🔄 Navigate may have failed, using window.location fallback');
+            window.location.href = targetRoute;
+          }
+        }, 1000);
+        
+      } catch (navError) {
+        console.error('Navigate failed, using window.location:', navError);
+        window.location.href = targetRoute;
       }
     } else {
       // Ultimate fallback - check token and decode role
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        console.log('Checking token for role...', token ? 'Token found' : 'No token');
+        
         if (token) {
           // Decode JWT payload (basic decode without verification)
           const payload = JSON.parse(atob(token.split('.')[1]));
           console.log('🔑 Token payload role:', payload.role);
           
-          switch (payload.role) {
-            case 'shop_owner':
-              navigate('/shop-owner-dashboard');
-              break;
-            case 'admin':
-              navigate('/admin-dashboard');
-              break;
-            case 'customer':
-            default:
-              navigate('/customer-dashboard');
-              break;
+          const targetRoute = payload.role === 'shop_owner' ? '/shop-owner-dashboard' : 
+                             payload.role === 'admin' ? '/admin-dashboard' : 
+                             '/customer-dashboard';
+          
+          console.log('Token-based target route:', targetRoute);
+          
+          try {
+            navigate(targetRoute);
+            
+            // Fallback for token-based redirect too
+            setTimeout(() => {
+              if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
+                console.log('🔄 Token-based navigate may have failed, using window.location');
+                window.location.href = targetRoute;
+              }
+            }, 1000);
+          } catch (navError) {
+            console.error('Token-based navigate failed:', navError);
+            window.location.href = targetRoute;
           }
         } else {
           console.log('🚑 No user context or token - defaulting to customer dashboard');
-          navigate('/customer-dashboard');
+          try {
+            navigate('/customer-dashboard');
+            
+            // Fallback for default redirect
+            setTimeout(() => {
+              if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
+                console.log('🔄 Default navigate may have failed, using window.location');
+                window.location.href = '/customer-dashboard';
+              }
+            }, 1000);
+          } catch (navError) {
+            console.error('Default navigate failed:', navError);
+            window.location.href = '/customer-dashboard';
+          }
         }
       } catch (e) {
-        console.error('Failed to decode token:', e);
-        navigate('/customer-dashboard');
+        console.error('Failed to decode token, using absolute fallback:', e);
+        window.location.href = '/customer-dashboard';
       }
     }
   };
