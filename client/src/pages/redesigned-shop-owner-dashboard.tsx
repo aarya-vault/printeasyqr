@@ -721,32 +721,6 @@ export default function RedesignedShopOwnerDashboard() {
                 </Button>
               </div>
 
-              {/* Shop Status Toggle - Override working hours */}
-              <div className="flex items-center">
-                <button
-                  onClick={() => {
-                    if (shopData?.shop?.id) {
-                      toggleShopStatus.mutate();
-                    }
-                  }}
-                  disabled={toggleShopStatus.isPending}
-                  className={`
-                    flex items-center px-4 py-2 rounded-md font-bold text-sm transition-all duration-200 min-w-[140px] shadow-lg
-                    ${shopData?.shop?.isOnline 
-                      ? 'bg-green-500 text-white hover:bg-green-600 border-2 border-green-600' 
-                      : 'bg-red-500 text-white hover:bg-red-600 border-2 border-red-600'
-                    }
-                    ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                  `}
-                  title={shopData?.shop?.isOnline 
-                    ? 'Click to close your shop' 
-                    : 'Click to open your shop'
-                  }
-                >
-                  <Power className={`w-4 h-4 mr-2 ${toggleShopStatus.isPending ? 'animate-spin' : ''}`} />
-                  {shopData?.shop?.isOnline ? 'Shop is OPEN' : 'Shop is CLOSED'}
-                </button>
-              </div>
 
               {/* Logout Button */}
               <button 
