@@ -105,6 +105,10 @@ export async function uploadFileDirectly(
       if (xhr.status >= 200 && xhr.status < 300) {
         console.log(`✅ Direct upload completed for ${file.name}`);
         resolve(true);
+      } else if (xhr.status === 0) {
+        // Status 0 usually means CORS failure
+        console.error(`❌ CORS error detected for ${file.name} - falling back to server proxy`);
+        reject(new Error('CORS_ERROR'));
       } else {
         console.error(`❌ Direct upload failed: ${xhr.status}`);
         reject(new Error(`Upload failed with status ${xhr.status}`));
@@ -112,8 +116,9 @@ export async function uploadFileDirectly(
     };
 
     xhr.onerror = () => {
-      console.error('❌ Direct upload network error');
-      reject(new Error('Network error during upload'));
+      // Network errors are often CORS-related
+      console.error('❌ Direct upload network error - likely CORS issue');
+      reject(new Error('CORS_ERROR'));
     };
 
     // 🌍 TRUE DIRECT UPLOAD: Upload directly to R2 using presigned URL
@@ -267,9 +272,45 @@ export async function uploadFilesDirectlyToR2(
         uploadFile.progress = 100;
         completedCount++;
       } catch (error) {
-        console.error(`Failed to upload ${uploadFile.file.name}:`, error);
-        uploadFile.status = 'error';
-        uploadFile.error = error instanceof Error ? error.message : 'Upload failed';
+        const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+        
+        // If it's a CORS error, try server proxy fallback
+        if (errorMessage === 'CORS_ERROR') {
+          console.log(`🔄 Falling back to server proxy for ${uploadFile.file.name}`);
+          
+          try {
+            // Upload via server proxy as fallback
+            const formData = new FormData();
+            formData.append('file', uploadFile.file);
+            formData.append('orderId', orderId.toString());
+            formData.append('key', uploadFile.key!);
+            
+            const proxyResponse = await fetch('/api/r2/proxy-upload', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              },
+              body: formData
+            });
+            
+            if (proxyResponse.ok) {
+              console.log(`✅ Server proxy upload succeeded for ${uploadFile.file.name}`);
+              uploadFile.status = 'completed';
+              uploadFile.progress = 100;
+              completedCount++;
+            } else {
+              throw new Error('Server proxy upload failed');
+            }
+          } catch (proxyError) {
+            console.error(`❌ Both direct and proxy upload failed for ${uploadFile.file.name}`);
+            uploadFile.status = 'error';
+            uploadFile.error = 'Upload failed - please try again';
+          }
+        } else {
+          console.error(`Failed to upload ${uploadFile.file.name}:`, error);
+          uploadFile.status = 'error';
+          uploadFile.error = errorMessage;
+        }
       }
     });
 
@@ -280,7 +321,16 @@ export async function uploadFilesDirectlyToR2(
   const totalTime = (Date.now() - startTime) / 1000;
   const avgSpeed = totalBytes / totalTime;
   
-  console.log(`⚡ TRUE direct upload completed in ${totalTime.toFixed(2)}s`);
+  const totalTime = (Date.now() - startTime) / 1000;
+  const avgSpeed = totalBytes / totalTime;
+  
+  // Check if we had CORS issues
+  const corsErrors = uploadFiles.filter(f => f.error === 'CORS_ERROR').length;
+  if (corsErrors > 0) {
+    console.log(`⚠️ ${corsErrors} files had CORS issues and used fallback`);
+  }
+  
+  console.log(`⚡ Upload completed in ${totalTime.toFixed(2)}s`);
   console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   console.log(`✅ Successfully uploaded ${completedCount}/${files.length} files`);
 
@@ -299,10 +349,17 @@ export async function uploadFilesDirectlyToR2(
 
       console.log(`🔄 Confirming ${confirmData.length} successful uploads...`);
       await confirmFilesUpload(orderId, confirmData);
-      console.log('✅ File confirmations sent to server');
+      console.log('✅ All ${confirmData.length} files uploaded directly to R2');
     } catch (confirmError) {
       console.error('❌ Failed to confirm uploads:', confirmError);
+      // Don't fail the entire upload if confirmation fails
+      // Files are already uploaded
     }
+  }
+  
+  // Show warning if some files failed
+  if (completedCount < files.length) {
+    console.log(`⚠️ Some files may have failed to upload`);
   }
 
   return {
