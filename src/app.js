@@ -275,6 +275,16 @@ app.get('/api/download/:filePath(*)', async (req, res) => {
         return res.status(404).json({ error: 'File not found' });
       }
       
+      // Check if direct URL is requested (for PDF viewer)
+      if (urlParams.get('direct') === 'true') {
+        console.log('✅ Returning R2 presigned URL as JSON for direct access');
+        return res.json({ 
+          presignedUrl: signedUrl,
+          filename: originalName,
+          mimetype: fileInfo.mimetype || 'application/pdf'
+        });
+      }
+      
       console.log('✅ Got R2 presigned URL, redirecting...');
       return res.redirect(signedUrl);
       

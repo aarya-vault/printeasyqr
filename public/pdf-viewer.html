@@ -185,27 +185,50 @@
       }
       
       try {
-        // For R2 files, get the presigned URL by making a proper request
+        // For R2 files, get the presigned URL directly
         let actualFileUrl = fileUrl;
         if (fileUrl.includes('storageType=r2')) {
-          console.log('🔍 R2 file detected, getting presigned URL...');
+          console.log('🔍 R2 file detected, getting presigned URL directly...');
           try {
-            // Make a GET request to follow the redirect and get the actual presigned URL
-            const response = await fetch(fileUrl, { 
-              method: 'GET',
-              redirect: 'follow' 
-            });
-            
-            if (response.ok) {
-              // The response should contain the PDF data or redirect to presigned URL
-              actualFileUrl = response.url;
-              console.log('✅ Got presigned URL for PDF loading:', actualFileUrl);
+            // Extract the file path from the download URL
+            const urlParts = fileUrl.split('/api/download/');
+            if (urlParts.length > 1) {
+              const filePath = urlParts[1];
+              console.log('🔍 Extracted file path:', filePath);
+              
+              // Create a new URL that gets the presigned URL directly without redirect
+              const directUrlEndpoint = `/api/download/${filePath}&direct=true`;
+              console.log('🔍 Requesting direct URL from:', directUrlEndpoint);
+              
+              const response = await fetch(directUrlEndpoint, { 
+                method: 'GET'
+              });
+              
+              if (response.ok) {
+                // Check if this is a JSON response with the presigned URL
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                  const data = await response.json();
+                  if (data.presignedUrl) {
+                    actualFileUrl = data.presignedUrl;
+                    console.log('✅ Got presigned URL from JSON response');
+                  } else {
+                    throw new Error('No presigned URL in response');
+                  }
+                } else {
+                  // This is the PDF content directly
+                  actualFileUrl = response.url;
+                  console.log('✅ Got direct PDF URL');
+                }
+              } else {
+                console.error('❌ Failed to get presigned URL, response:', response.status);
+                throw new Error(`Failed to access R2 file: ${response.status}`);
+              }
             } else {
-              console.error('❌ Failed to get presigned URL, response:', response.status);
-              throw new Error(`Failed to access R2 file: ${response.status}`);
+              throw new Error('Invalid download URL format');
             }
           } catch (fetchError) {
-            console.error('❌ Error fetching R2 presigned URL:', fetchError);
+            console.error('❌ Error getting R2 presigned URL:', fetchError);
             throw new Error(`R2 file access failed: ${fetchError.message}`);
           }
         }
