@@ -234,49 +234,55 @@ export function EnhancedFileUpload({
         </div>
       )}
 
-      {/* Enhanced Upload Progress with Real-time Data */}
+      {/* Unified Upload Progress Display */}
       {isUploading && files.length > 0 && (
         <div className="bg-[#FFBF00]/10 border border-[#FFBF00]/30 rounded-lg p-4 space-y-4">
           <div className="flex items-center gap-3">
             <Loader2 className="w-5 h-5 text-[#FFBF00] animate-spin" />
             <div className="flex-1">
-              <p className="text-black font-semibold">
-                {uploadProgress ? 'Uploading Files...' : 'Creating your order...'}
-              </p>
-              <p className="text-gray-600 text-sm">
-                {uploadProgress ? (
-                  `${uploadProgress.currentFileName} (${uploadProgress.completedFiles + 1}/${uploadProgress.totalFiles})`
-                ) : (
-                  `Processing ${files.length} file${files.length > 1 ? 's' : ''} and creating your order.`
-                )}
-              </p>
+              {uploadProgress ? (
+                <>
+                  <p className="text-black font-semibold">Uploading Files...</p>
+                  <p className="text-gray-600 text-sm">
+                    {uploadProgress.completedFiles}/{uploadProgress.totalFiles} files
+                    Current: {uploadProgress.currentFileName}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-black font-semibold">Creating your order...</p>
+                  <p className="text-gray-600 text-sm">
+                    Processing {files.length} file{files.length > 1 ? 's' : ''} and creating your order.
+                  </p>
+                </>
+              )}
             </div>
             {uploadProgress && (
               <div className="text-right text-sm">
-                <div className="text-black font-semibold">{Math.round(uploadProgress.overallProgress)}%</div>
-                <div className="text-gray-500">{formatSpeed(uploadProgress.uploadSpeed)}</div>
+                <div className="text-black font-semibold">🚀 {formatSpeed(uploadProgress.uploadSpeed)}</div>
+                <div className="text-gray-500">{formatFileSize(uploadProgress.bytesUploaded)} / {formatFileSize(uploadProgress.totalBytes)} • ETA: {uploadProgress.estimatedTimeRemaining > 0 ? formatTime(uploadProgress.estimatedTimeRemaining) : 'Done!'}</div>
               </div>
             )}
           </div>
           
-          {/* Real-time Progress Bar */}
-          <div className="space-y-2">
-            <div className="bg-[#FFBF00]/20 rounded-full h-3 overflow-hidden">
-              <div 
-                className="bg-[#FFBF00] h-full rounded-full transition-transform duration-500 ease-out"
-                style={{ 
-                  transform: `translateX(-${100 - (uploadProgress?.overallProgress || 0)}%)` 
-                }}
-              />
-            </div>
-            
-            {uploadProgress && (
+          {/* Progress Bar - Only show when actually uploading */}
+          {uploadProgress && (
+            <div className="space-y-2">
+              <div className="bg-[#FFBF00]/20 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-[#FFBF00] h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ 
+                    width: `${uploadProgress.overallProgress}%` 
+                  }}
+                />
+              </div>
+              
               <div className="flex justify-between text-xs text-gray-600">
-                <span>{formatFileSize(uploadProgress.bytesUploaded)} / {formatFileSize(uploadProgress.totalBytes)}</span>
+                <span>{Math.round(uploadProgress.overallProgress)}% complete</span>
                 <span>{uploadProgress.estimatedTimeRemaining > 0 ? `${formatTime(uploadProgress.estimatedTimeRemaining)} remaining` : 'Almost done...'}</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
