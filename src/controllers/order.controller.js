@@ -669,7 +669,33 @@ class OrderController {
       // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
       const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
       
-      // Create order (files will be added separately via update)
+      // 📁 HANDLE FILES EXACTLY LIKE REGULAR createOrder
+      let files = [];
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        console.log(`📤 Processing ${req.files.length} files for authenticated order...`);
+        
+        // ULTRA FAST: Process files using parallel batch processing
+        const filesForUpload = req.files.map(file => ({
+          buffer: file.buffer,
+          originalname: file.originalname,
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size
+        }));
+        
+        // Use the new parallel batch processing for massive speed
+        files = await storageManager.saveMultipleFiles(
+          filesForUpload,
+          'ORDER',
+          { orderId: `temp-${Date.now()}` }
+        );
+        
+        // Filter out any failed uploads (saveMultipleFiles already handles errors)
+        files = files.filter(file => file !== null);
+        console.log(`✅ Successfully saved ${files.length} files for authenticated order`);
+      }
+      
+      // Create order WITH files (exactly like regular createOrder)
       const order = await Order.create({
         customerId,
         shopId: parseInt(shopId),
@@ -678,6 +704,7 @@ class OrderController {
         title: title || `Order #${orderNumber}`,
         description,
         specifications,
+        files,  // Include files like regular createOrder
         status: 'pending',
         isUrgent: specifications === 'URGENT ORDER',
         walkinTime: walkinTime || null

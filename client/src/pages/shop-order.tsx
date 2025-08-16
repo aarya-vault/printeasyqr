@@ -233,20 +233,30 @@ export default function ShopOrder() {
       localStorage.setItem('token', authData.token);
       localStorage.setItem('user', JSON.stringify(authData.user));
       
-      // Step 2: Create authenticated order
-      console.log('📦 Step 2: Creating authenticated order...');
+      // Step 2: Create authenticated order with files (like regular flow)
+      console.log('📦 Step 2: Creating authenticated order with files...');
+      const formData = new FormData();
+      
+      // Add order data
+      formData.append('shopId', shop!.id.toString());
+      formData.append('type', data.orderType === 'upload' ? 'file_upload' : 'walkin');
+      formData.append('description', data.description || '');
+      formData.append('specifications', data.isUrgent ? 'URGENT ORDER' : '');
+      
+      // Add files if present
+      if (data.orderType === 'upload' && selectedFiles.length > 0) {
+        selectedFiles.forEach(file => {
+          formData.append('files', file);
+        });
+      }
+      
       const orderResponse = await fetch('/api/orders/authenticated', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${authData.token}`
+          // No Content-Type header - let browser set multipart/form-data
         },
-        body: JSON.stringify({
-          shopId: shop!.id.toString(),
-          type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
-          description: data.description || '',
-          specifications: data.isUrgent ? 'URGENT ORDER' : ''
-        })
+        body: formData
       });
 
       if (!orderResponse.ok) {
@@ -255,58 +265,7 @@ export default function ShopOrder() {
       }
       
       const order = await orderResponse.json();
-      console.log(`✅ Order created: #${order.id}`);
-
-      // Step 3: Upload files and link them to order
-      if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        console.log('🚀 Step 3: Starting R2 upload...');
-        
-        const uploadResult = await uploadFilesDirectlyToR2(
-          selectedFiles,
-          order.id,
-          (progress: DirectUploadProgress) => {
-            setUploadProgress({
-              progress: progress.overallProgress,
-              currentFile: progress.currentFile,
-              filesProcessed: progress.completedFiles,
-              totalFiles: progress.totalFiles,
-              uploadSpeed: progress.uploadSpeed,
-              estimatedTime: progress.estimatedTime,
-              bytesUploaded: progress.bytesUploaded,
-              totalBytes: progress.totalBytes
-            });
-          }
-        );
-
-        if (uploadResult.success) {
-          console.log('✅ R2 upload completed successfully!');
-          console.log(`⚡ Speed: ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s`);
-          
-          // Step 4: Link files to order via database update
-          console.log('📎 Step 4: Linking files to order...');
-          const updateResponse = await fetch(`/api/orders/${order.id}`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${authData.token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              files: uploadResult.uploadedFiles
-            })
-          });
-          
-          if (!updateResponse.ok) {
-            console.error('❌ Failed to link files to order');
-            // Don't throw error since files are uploaded and order exists
-            console.error('Files uploaded but not linked to order');
-          } else {
-            console.log('✅ Files successfully linked to order');
-          }
-        } else {
-          console.error('❌ R2 upload failed');
-          throw new Error('File upload failed. Please try again.');
-        }
-      }
+      console.log(`✅ Order created: #${order.id} with files included`);
 
       return order;
     },
