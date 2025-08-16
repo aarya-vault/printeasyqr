@@ -185,19 +185,43 @@
       }
       
       try {
-        // For R2 files, first fetch the redirect URL to get the presigned URL
+        // For R2 files, get the presigned URL by making a proper request
         let actualFileUrl = fileUrl;
         if (fileUrl.includes('storageType=r2')) {
-          console.log('🔍 R2 file detected, fetching presigned URL...');
-          const response = await fetch(fileUrl, { method: 'HEAD' });
-          if (response.redirected) {
-            actualFileUrl = response.url;
-            console.log('✅ Got presigned URL for PDF loading');
+          console.log('🔍 R2 file detected, getting presigned URL...');
+          try {
+            // Make a GET request to follow the redirect and get the actual presigned URL
+            const response = await fetch(fileUrl, { 
+              method: 'GET',
+              redirect: 'follow' 
+            });
+            
+            if (response.ok) {
+              // The response should contain the PDF data or redirect to presigned URL
+              actualFileUrl = response.url;
+              console.log('✅ Got presigned URL for PDF loading:', actualFileUrl);
+            } else {
+              console.error('❌ Failed to get presigned URL, response:', response.status);
+              throw new Error(`Failed to access R2 file: ${response.status}`);
+            }
+          } catch (fetchError) {
+            console.error('❌ Error fetching R2 presigned URL:', fetchError);
+            throw new Error(`R2 file access failed: ${fetchError.message}`);
           }
         }
         
-        // Load the PDF document
-        pdfDoc = await pdfjsLib.getDocument(actualFileUrl).promise;
+        console.log('🔍 Loading PDF from URL:', actualFileUrl);
+        
+        // Load the PDF document with proper error handling
+        const loadingTask = pdfjsLib.getDocument({
+          url: actualFileUrl,
+          cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+          cMapPacked: true,
+          disableAutoFetch: false,
+          disableStream: false
+        });
+        
+        pdfDoc = await loadingTask.promise;
         totalPages = pdfDoc.numPages;
         
         // Clear loading state
