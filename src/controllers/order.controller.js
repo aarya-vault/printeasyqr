@@ -809,7 +809,7 @@ class OrderController {
         shopId: parseInt(shopId),
         orderNumber,
         type: type === 'file_upload' ? 'upload' : type,
-        title,
+        title: title || `Order #${orderNumber}`,
         description: description || '',
         status: 'new',
         files: files,
