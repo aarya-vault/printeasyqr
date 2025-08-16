@@ -233,37 +233,14 @@ export default function ShopOrder() {
       localStorage.setItem('token', authData.token);
       localStorage.setItem('user', JSON.stringify(authData.user));
       
-      // Step 2: Create authenticated order
-      console.log('📦 Step 2: Creating authenticated order...');
-      const orderResponse = await fetch('/api/orders/authenticated', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authData.token}`
-        },
-        body: JSON.stringify({
-          shopId: shop!.id.toString(),
-          type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
-          description: data.description || '',
-          specifications: data.isUrgent ? 'URGENT ORDER' : ''
-        })
-      });
-
-      if (!orderResponse.ok) {
-        const error = await orderResponse.json();
-        throw new Error(error.message || 'Failed to create order');
-      }
-      
-      const order = await orderResponse.json();
-      console.log(`✅ Order created: #${order.id}`);
-
-      // Step 3: ULTRA-FAST DIRECT R2 UPLOAD (Authenticated)
+      // Step 2: Upload files first if needed, then create order with file data
+      let uploadedFiles: any[] = [];
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
-        console.log('🚀 Step 3: Starting AUTHENTICATED R2 upload...');
+        console.log('🚀 Step 2A: Starting R2 upload BEFORE order creation...');
         
         const uploadResult = await uploadFilesDirectlyToR2(
           selectedFiles,
-          order.id,
+          `pending-${Date.now()}`, // Temporary ID for upload
           (progress: DirectUploadProgress) => {
             setUploadProgress({
               progress: progress.overallProgress,
@@ -279,34 +256,37 @@ export default function ShopOrder() {
         );
 
         if (uploadResult.success) {
-          console.log('✅ R2 upload completed successfully!');
-          console.log(`⚡ Speed: ${(uploadResult.uploadedFiles.reduce((sum, f) => sum + (f.speed || 0), 0) / uploadResult.uploadedFiles.length / (1024 * 1024)).toFixed(2)} MB/s`);
-          
-          // Step 4: Add uploaded files to the order
-          console.log('📎 Step 4: Adding files to order...');
-          const addFilesResponse = await fetch(`/api/orders/${order.id}/add-files`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${authData.token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              files: uploadResult.uploadedFiles
-            })
-          });
-          
-          if (!addFilesResponse.ok) {
-            console.error('❌ Failed to add files to order');
-            // Don't throw error since files are uploaded, just log it
-            console.error('Files uploaded but not linked to order');
-          } else {
-            console.log('✅ Files successfully added to order');
-          }
+          uploadedFiles = uploadResult.uploadedFiles;
+          console.log('✅ Files uploaded successfully!');
         } else {
-          console.error('❌ R2 upload failed');
           throw new Error('File upload failed. Please try again.');
         }
       }
+      
+      // Step 2B: Create authenticated order WITH files data
+      console.log('📦 Step 2B: Creating authenticated order with files...');
+      const orderResponse = await fetch('/api/orders/authenticated', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authData.token}`
+        },
+        body: JSON.stringify({
+          shopId: shop!.id.toString(),
+          type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
+          description: data.description || '',
+          specifications: data.isUrgent ? 'URGENT ORDER' : '',
+          files: uploadedFiles.length > 0 ? uploadedFiles : null  // Include uploaded files
+        })
+      });
+
+      if (!orderResponse.ok) {
+        const error = await orderResponse.json();
+        throw new Error(error.message || 'Failed to create order');
+      }
+      
+      const order = await orderResponse.json();
+      console.log(`✅ Order created: #${order.id} with ${uploadedFiles.length} files`);
 
       return order;
     },

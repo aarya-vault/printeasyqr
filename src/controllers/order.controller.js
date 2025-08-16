@@ -639,7 +639,7 @@ class OrderController {
     
     try {
       const { 
-        shopId, type, title, description, specifications, walkinTime 
+        shopId, type, title, description, specifications, walkinTime, files 
       } = req.body;
       
       // User comes from JWT authentication
@@ -669,7 +669,7 @@ class OrderController {
       // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
       const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
       
-      // Create order (no files - they come separately via direct R2 upload)
+      // Create order with files if provided (from R2 upload)
       const order = await Order.create({
         customerId,
         shopId: parseInt(shopId),
@@ -678,6 +678,7 @@ class OrderController {
         title: title || `Order #${orderNumber}`,
         description,
         specifications,
+        files: files || null,  // Include files if provided from R2 upload
         status: 'pending',
         isUrgent: specifications === 'URGENT ORDER',
         walkinTime: walkinTime || null
