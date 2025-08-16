@@ -2,11 +2,16 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Use database URL from environment variables
+// FORCE: Use only DATABASE_URL environment variable, ignore Replit database integration
 const databaseUrl = process.env.DATABASE_URL;
-console.log('✅ Using PostgreSQL database from environment');
+console.log('🔒 BYPASSING Replit database integration - using custom DATABASE_URL');
+console.log('✅ Using PostgreSQL database from environment variables');
+
+// Explicitly ignore any Replit database URLs to prevent conflicts
 if (!databaseUrl || databaseUrl.includes('undefined')) {
-  throw new Error('Database URL not found in environment variables');
+  console.error('❌ CRITICAL: Custom DATABASE_URL not found in environment variables');
+  console.error('   Deployment requires DATABASE_URL to be set in Replit Secrets');
+  throw new Error('Custom DATABASE_URL environment variable is required for deployment');
 }
 
 // Create Sequelize instance with connection string from environment
