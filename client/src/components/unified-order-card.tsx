@@ -134,7 +134,7 @@ export default function UnifiedOrderCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-gray-900 truncate">
-                {order.title || `Order #${order.id}`}
+                #{order.orderNumber || order.id}
               </h3>
               {order.isUrgent && (
                 <Badge variant="destructive" className="text-xs">
@@ -142,7 +142,9 @@ export default function UnifiedOrderCard({
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-gray-600 truncate">{order.title}</p>
+            <p className="text-sm text-gray-600 truncate">
+              {files.length > 0 ? `${files.length} file${files.length > 1 ? 's' : ''}` : order.description || 'No files'}
+            </p>
             <p className="text-xs text-gray-500">{displayName}</p>
           </div>
           
