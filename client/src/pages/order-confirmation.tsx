@@ -50,14 +50,18 @@ interface OrderDetails {
 export default function OrderConfirmation() {
   const [, params] = useRoute('/order-confirmation/:orderId');
   const [, navigate] = useLocation();
-  const { user, login } = useAuth();
+  const { user, login, refreshUser } = useAuth();
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [countdown, setCountdown] = useState(10); // 10 seconds countdown
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // 🔧 FIX: Force refresh user context after JIT auth
+    if (refreshUser) {
+      refreshUser();
+    }
+  }, [refreshUser]);
 
   // Get order details
   const { data: orderData, isLoading, error } = useQuery<{ order: OrderDetails }>({
@@ -89,25 +93,66 @@ export default function OrderConfirmation() {
   };
 
   const handleGoToDashboard = async () => {
-    // 🔧 FIX: Role-based redirect instead of hardcoded customer dashboard
-    if (!user) {
-      // If no user context, default to customer dashboard
-      navigate('/customer-dashboard');
-      return;
+    // 🔧 FIX: Role-based redirect with fallback logic
+    
+    // Try to get user from localStorage if auth context is stale
+    let currentUser = user;
+    if (!currentUser) {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          currentUser = JSON.parse(storedUser);
+          console.log('🔄 Using stored user for redirect:', currentUser?.role);
+        }
+      } catch (e) {
+        console.error('Failed to parse stored user:', e);
+      }
     }
     
     // Redirect based on user role
-    switch (user.role) {
-      case 'shop_owner':
-        navigate('/shop-owner-dashboard');
-        break;
-      case 'admin':
-        navigate('/admin-dashboard');
-        break;
-      case 'customer':
-      default:
+    if (currentUser?.role) {
+      console.log('🎯 Redirecting user role:', currentUser.role);
+      switch (currentUser.role) {
+        case 'shop_owner':
+          navigate('/shop-owner-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        case 'customer':
+        default:
+          navigate('/customer-dashboard');
+          break;
+      }
+    } else {
+      // Ultimate fallback - check token and decode role
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (token) {
+          // Decode JWT payload (basic decode without verification)
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('🔑 Token payload role:', payload.role);
+          
+          switch (payload.role) {
+            case 'shop_owner':
+              navigate('/shop-owner-dashboard');
+              break;
+            case 'admin':
+              navigate('/admin-dashboard');
+              break;
+            case 'customer':
+            default:
+              navigate('/customer-dashboard');
+              break;
+          }
+        } else {
+          console.log('🚑 No user context or token - defaulting to customer dashboard');
+          navigate('/customer-dashboard');
+        }
+      } catch (e) {
+        console.error('Failed to decode token:', e);
         navigate('/customer-dashboard');
-        break;
+      }
     }
   };
 
