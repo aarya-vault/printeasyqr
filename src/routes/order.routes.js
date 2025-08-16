@@ -31,8 +31,8 @@ const upload = multer({
   }
 });
 
-// Order routes
-router.post('/orders/authenticated', requireAuth, upload.array('files'), OrderController.createAuthenticatedOrder); // New authenticated order creation
+// Order routes - Files handled via R2 direct upload, not multer
+router.post('/orders/authenticated', requireAuth, OrderController.createAuthenticatedOrder); // Authenticated order creation (no files via multer)
 router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop);
 router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getOrdersByShop); // History alias
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
@@ -56,15 +56,15 @@ const optionalAuth = (req, res, next) => {
 };
 
 router.get('/orders/:id/details', optionalAuth, OrderController.getOrder); // Public endpoint with optional auth
-router.post('/orders', requireAuth, upload.array('files'), OrderController.createOrder);
+router.post('/orders', requireAuth, OrderController.createOrder); // Legacy route (files handled separately)
 router.patch('/orders/:id', requireAuth, OrderController.updateOrder); // General order update
 router.patch('/orders/:id/status', requireAuth, OrderController.updateOrderStatus);
-// Allow anonymous users to add files to their orders (they created the order, they should be able to add files)
-router.post('/orders/:id/add-files', optionalAuth, upload.array('files'), OrderController.addFilesToOrder);
+// Add files endpoint - now uses R2 direct upload instead of multer
+router.post('/orders/:id/add-files', requireAuth, OrderController.addFilesToOrderR2);
 router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
-// Anonymous order route (no auth required)
-router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
+// Anonymous order route - deprecated (use authenticated flow)
+// router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
 // 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
 // Requires authentication for security
@@ -104,6 +104,11 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
     // 🚀 NEW: Use batch presigned URL generation for maximum speed
     const uploadUrls = await r2Client.getBatchPresignedUrls(files, orderId);
     
+    console.log(`🌍 Generated presigned URLs for DIRECT R2 upload (no proxy):`);
+    uploadUrls.forEach((url, i) => {
+      console.log(`  ${i + 1}. ${files[i].name} -> Direct to R2`);
+    });
+    
     console.log(`✅ Generated ${uploadUrls.length} direct upload URLs`);
     
     res.json({ 
@@ -117,53 +122,11 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
   }
 });
 
-// 🚀 DIRECT R2 UPLOAD PROXY: Handle direct uploads through server to bypass CORS
-router.put('/orders/:id/direct-upload/:fileIndex', requireAuth, async (req, res) => {
-  try {
-    const orderId = parseInt(req.params.id);
-    const fileIndex = parseInt(req.params.fileIndex);
-    const { uploadUrl, filename } = req.query;
-    
-    // Verify order belongs to authenticated user
-    const Order = (await import('../models/index.js')).Order;
-    const order = await Order.findOne({
-      where: {
-        id: orderId,
-        customerId: req.user.id
-      }
-    });
-    
-    if (!order) {
-      return res.status(403).json({ error: 'Order not found or access denied' });
-    }
-    
-    console.log(`🚀 Proxying direct upload for file ${filename} (order ${orderId})`);
-    
-    // Stream the file directly to R2
-    const fetch = (await import('node-fetch')).default;
-    
-    // Forward the upload to R2
-    const r2Response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: req,
-      headers: {
-        'Content-Type': req.headers['content-type'] || 'application/octet-stream',
-        'Content-Length': req.headers['content-length']
-      }
-    });
-    
-    if (r2Response.ok) {
-      console.log(`✅ Direct upload completed for ${filename}`);
-      res.json({ success: true, filename });
-    } else {
-      console.error(`❌ Direct upload failed: ${r2Response.status}`);
-      res.status(500).json({ error: 'Upload failed' });
-    }
-  } catch (error) {
-    console.error('Direct upload proxy error:', error);
-    res.status(500).json({ error: 'Upload failed' });
-  }
-});
+// 🚀 R2 DIRECT UPLOAD: File confirmation after direct upload to R2
+router.post('/orders/:orderId/confirm-files', requireAuth, OrderController.confirmFilesUpload);
+
+// 🚀 TRUE R2 DIRECT UPLOAD: No proxy - files go directly to R2
+// Proxy endpoint removed - files now upload directly to R2 using presigned URLs
 
 // Frontend compatibility routes
 router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);

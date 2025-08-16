@@ -652,31 +652,9 @@ class OrderController {
       // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
       const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
       
-      // 📁 HANDLE FILES EXACTLY LIKE REGULAR createOrder
-      let files = [];
-      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for authenticated order...`);
-        
-        // ULTRA FAST: Process files using parallel batch processing
-        const filesForUpload = req.files.map(file => ({
-          buffer: file.buffer,
-          originalname: file.originalname,
-          originalName: file.originalname,
-          mimetype: file.mimetype,
-          size: file.size
-        }));
-        
-        // Use the new parallel batch processing for massive speed
-        files = await storageManager.saveMultipleFiles(
-          filesForUpload,
-          'ORDER',
-          { orderId: `temp-${Date.now()}` }
-        );
-        
-        // Filter out any failed uploads (saveMultipleFiles already handles errors)
-        files = files.filter(file => file !== null);
-        console.log(`✅ Successfully saved ${files.length} files for authenticated order`);
-      }
+      // 🚀 R2 DIRECT UPLOAD: Files handled separately via direct R2 upload
+      // Order created without files first, files uploaded directly to R2, then confirmed via API
+      const files = []; // Files will be added later via /confirm-files endpoint
       
       // Create order WITH files (exactly like regular createOrder)
       const order = await Order.create({
@@ -687,7 +665,7 @@ class OrderController {
         title: title || `Order #${orderNumber}`,
         description,
         specifications,
-        files,  // Include files like regular createOrder
+        files: [], // Files added separately via R2 direct upload + confirmation
         status: 'pending',
         isUrgent: specifications === 'URGENT ORDER',
         walkinTime: walkinTime || null
@@ -697,13 +675,15 @@ class OrderController {
       
       console.log(`✅ Authenticated order created: ${order.id} for customer ${customer.name} (${customer.phone})`);
       
+      // Return order details for R2 direct upload flow
       res.status(201).json({
         id: order.id,
-        orderNumber: order.id,
+        orderNumber: order.orderNumber,
         customerId: order.customerId,
         shopId: order.shopId,
         status: order.status,
-        message: 'Order created successfully'
+        files: [],
+        message: 'Order created successfully - ready for file uploads'
       });
       
     } catch (error) {
@@ -978,6 +958,83 @@ class OrderController {
       console.error('Delete order error:', error);
       res.status(500).json({ message: 'Failed to delete order' });
     }
+  }
+  
+  // 🚀 NEW: R2 Direct Upload File Confirmation
+  static async confirmFilesUpload(req, res) {
+    const transaction = await sequelize.transaction();
+    
+    try {
+      const orderId = parseInt(req.params.orderId);
+      const { files } = req.body;
+      
+      if (!files || !Array.isArray(files)) {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'Files array required' });
+      }
+      
+      // Verify order exists and user has access
+      const order = await Order.findOne({
+        where: { 
+          id: orderId,
+          customerId: req.user.id
+        }
+      });
+      
+      if (!order) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Order not found or access denied' });
+      }
+      
+      // Format files with unified metadata structure
+      const formattedFiles = files.map((file, index) => ({
+        id: `${orderId}-${index}-${Date.now()}`,
+        filename: file.filename || file.originalName,
+        originalName: file.originalName,
+        r2Key: file.r2Key,
+        bucket: file.bucket || process.env.R2_BUCKET_NAME,
+        size: file.size,
+        mimetype: file.mimetype,
+        path: file.r2Key, // For compatibility
+        storageType: 'r2',
+        uploadedAt: new Date().toISOString(),
+        status: 'completed'
+      }));
+      
+      // Update order with confirmed files
+      await order.update({ files: formattedFiles }, { transaction });
+      await transaction.commit();
+      
+      console.log(`✅ Confirmed ${files.length} files for order ${orderId}`);
+      
+      // Return updated order
+      const updatedOrder = await Order.findByPk(orderId, {
+        include: [
+          { model: User, as: 'customer' },
+          { model: Shop, as: 'shop' }
+        ]
+      });
+      
+      res.json({ 
+        success: true, 
+        order: OrderController.transformOrderData(updatedOrder),
+        filesConfirmed: files.length
+      });
+      
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Confirm files error:', error);
+      res.status(500).json({ message: 'Failed to confirm file uploads' });
+    }
+  }
+  
+  // 🚀 NEW: R2 Direct Upload for Add More Files
+  static async addFilesToOrderR2(req, res) {
+    // This is a placeholder - files are uploaded directly to R2 first,
+    // then this endpoint is called to confirm the uploads
+    res.status(501).json({ 
+      message: 'Use /confirm-files endpoint after uploading files directly to R2' 
+    });
   }
 }
 

@@ -1,5 +1,5 @@
-// 🚀 ULTRA-FAST DIRECT R2 UPLOAD SYSTEM
-// Bypasses server completely for 2x speed improvement
+// 🚀 TRUE R2 DIRECT UPLOAD SYSTEM
+// Files upload directly to R2 with NO server proxy for maximum speed
 
 export interface DirectUploadFile {
   file: File;
@@ -23,7 +23,7 @@ export interface DirectUploadProgress {
 }
 
 /**
- * 🚀 Get presigned URLs for direct R2 upload (bypasses server)
+ * 🚀 Get presigned URLs for direct R2 upload (no proxy)
  */
 export async function getDirectUploadUrls(
   files: File[],
@@ -67,14 +67,12 @@ export async function getDirectUploadUrls(
 }
 
 /**
- * 🚀 Upload file directly to R2 with progress tracking (via proxy to bypass CORS)
+ * 🌍 Upload file DIRECTLY to R2 (no proxy) with progress tracking
  */
 export async function uploadFileDirectly(
   file: File,
   uploadUrl: string,
-  onProgress?: (loaded: number, total: number, speed: number) => void,
-  orderId?: string | number,
-  fileIndex?: number
+  onProgress?: (loaded: number, total: number, speed: number) => void
 ): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -118,28 +116,41 @@ export async function uploadFileDirectly(
       reject(new Error('Network error during upload'));
     };
 
-    // 🔥 ALWAYS use proxy endpoint to bypass CORS issues for ALL uploads
-    // This ensures maximum compatibility and reliability
-    if (orderId === undefined || fileIndex === undefined) {
-      console.error('❌ Order ID and file index required for R2 upload');
-      reject(new Error('Order ID and file index required'));
-      return;
-    }
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('❌ No authentication token - cannot upload');
-      reject(new Error('Authentication required for upload'));
-      return;
-    }
-    
-    const proxyUrl = `/api/orders/${orderId}/direct-upload/${fileIndex}?uploadUrl=${encodeURIComponent(uploadUrl)}&filename=${encodeURIComponent(file.name)}`;
-    xhr.open('PUT', proxyUrl);
-    
+    // 🌍 TRUE DIRECT UPLOAD: Upload directly to R2 using presigned URL
+    console.log(`🚀 Uploading ${file.name} directly to R2 (no server proxy)`);
+    xhr.open('PUT', uploadUrl); // Direct to R2!
     xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    // No Authorization header needed - presigned URL has built-in auth
     xhr.send(file);
   });
+}
+
+/**
+ * 🚀 Confirm files after successful R2 upload
+ */
+export async function confirmFilesUpload(
+  orderId: string | number,
+  files: { r2Key: string; originalName: string; size: number; mimetype: string }[]
+) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Authentication required for file confirmation');
+  }
+
+  const response = await fetch(`/api/orders/${orderId}/confirm-files`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ files })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to confirm files: ${response.status}`);
+  }
+
+  return response.json();
 }
 
 /**
@@ -150,7 +161,7 @@ export async function uploadFilesDirectlyToR2(
   orderId: string | number,
   onProgress?: (progress: DirectUploadProgress) => void
 ): Promise<{ success: boolean; uploadedFiles: DirectUploadFile[] }> {
-  console.log(`🚀 Starting AUTHENTICATED R2 upload for ${files.length} files...`);
+  console.log(`🚀 Starting TRUE R2 direct upload for ${files.length} files...`);
   
   // Check authentication first
   const token = localStorage.getItem('token');
@@ -202,8 +213,7 @@ export async function uploadFilesDirectlyToR2(
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
     const batch = uploadFiles.slice(i, i + maxConcurrent);
     
-    const batchPromises = batch.map(async (uploadFile, batchIndex) => {
-      const fileIndex = i + batchIndex; // Calculate actual file index
+    const batchPromises = batch.map(async (uploadFile) => {
       if (!uploadFile.uploadUrl) {
         // Already marked as error (likely multipart file)
         if (uploadFile.status === 'error') {
@@ -221,7 +231,7 @@ export async function uploadFilesDirectlyToR2(
       try {
         await uploadFileDirectly(
           uploadFile.file,
-          uploadFile.uploadUrl,
+          uploadFile.uploadUrl, // Direct R2 URL - no proxy!
           (loaded, total, speed) => {
             // Update individual file progress
             uploadFile.progress = Math.round((loaded / total) * 100);
@@ -250,9 +260,7 @@ export async function uploadFilesDirectlyToR2(
                 totalBytes
               });
             }
-          },
-          orderId,
-          fileIndex // Use calculated fileIndex for proxy
+          }
         );
 
         uploadFile.status = 'completed';
@@ -272,9 +280,30 @@ export async function uploadFilesDirectlyToR2(
   const totalTime = (Date.now() - startTime) / 1000;
   const avgSpeed = totalBytes / totalTime;
   
-  console.log(`⚡ Direct upload completed in ${totalTime.toFixed(2)}s`);
+  console.log(`⚡ TRUE direct upload completed in ${totalTime.toFixed(2)}s`);
   console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   console.log(`✅ Successfully uploaded ${completedCount}/${files.length} files`);
+
+  // Confirm successful uploads with server
+  if (completedCount > 0) {
+    try {
+      const successfulFiles = uploadFiles.filter(f => f.status === 'completed');
+      const confirmData = successfulFiles.map(f => ({
+        r2Key: f.key!,
+        originalName: f.file.name,
+        size: f.file.size,
+        mimetype: f.file.type,
+        bucket: process.env.VITE_R2_BUCKET_NAME || 'printeasy-qr',
+        filename: f.key!.split('/').pop() || f.file.name
+      }));
+
+      console.log(`🔄 Confirming ${confirmData.length} successful uploads...`);
+      await confirmFilesUpload(orderId, confirmData);
+      console.log('✅ File confirmations sent to server');
+    } catch (confirmError) {
+      console.error('❌ Failed to confirm uploads:', confirmError);
+    }
+  }
 
   return {
     success: completedCount === files.length,

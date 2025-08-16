@@ -270,13 +270,12 @@ export default function ShopOrder() {
               setUploadProgress({
                 totalFiles: progress.totalFiles,
                 filesProcessed: progress.completedFiles,
-                currentFileName: progress.currentFile,
+                currentFile: progress.currentFile,
                 progress: progress.overallProgress,
                 uploadSpeed: progress.uploadSpeed,
                 bytesUploaded: progress.bytesUploaded,
                 totalBytes: progress.totalBytes,
-                estimatedTime: progress.estimatedTime,
-                currentFile: progress.currentFile
+                estimatedTime: progress.estimatedTime
               });
             }
           );
