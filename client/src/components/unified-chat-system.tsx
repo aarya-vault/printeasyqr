@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { 
   X, Send, Phone, User, Package, MessageSquare, 
   Clock, CheckCheck, Circle, Paperclip, File, Download,
-  Search, ArrowLeft, Store, MessageCircle, CheckCircle
+  Search, ArrowLeft, Store, MessageCircle, CheckCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
@@ -43,6 +43,7 @@ export default function UnifiedChatSystem({
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showOrderList, setShowOrderList] = useState(!initialOrderId);
+  const [showCompletedOrders, setShowCompletedOrders] = useState(false);
   
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -287,8 +288,8 @@ export default function UnifiedChatSystem({
     }
   }, [messages, selectedOrderId, user?.id]);
 
-  // Filter orders for search
-  const filteredOrders = orders.filter(order => {
+  // Filter and separate orders
+  const allFilteredOrders = orders.filter(order => {
     if (!searchQuery) return true;
     const search = searchQuery.toLowerCase();
     return (
@@ -298,6 +299,10 @@ export default function UnifiedChatSystem({
       order.id.toString().includes(search)
     );
   });
+
+  // Separate active and completed orders
+  const activeOrders = allFilteredOrders.filter(order => order.status !== 'completed');
+  const completedOrders = allFilteredOrders.filter(order => order.status === 'completed');
 
   // Status color helper
   const getStatusColor = (status: string) => {
@@ -329,9 +334,9 @@ export default function UnifiedChatSystem({
             <DialogTitle className="text-rich-black font-bold flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
               <span>Chat Center</span>
-              {filteredOrders.length > 0 && (
+              {allFilteredOrders.length > 0 && (
                 <span className="text-sm font-normal">
-                  ({filteredOrders.length} active)
+                  ({allFilteredOrders.length} active)
                 </span>
               )}
             </DialogTitle>
@@ -385,7 +390,7 @@ export default function UnifiedChatSystem({
                       <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
                     </div>
                   </div>
-                ) : filteredOrders.length === 0 ? (
+                ) : allFilteredOrders.length === 0 ? (
                   <div className="p-8 text-center">
                     <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <h4 className="font-medium text-gray-700 mb-1">
@@ -403,55 +408,137 @@ export default function UnifiedChatSystem({
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-2 p-3">
-                    {filteredOrders.map((order) => (
-                      <div
-                        key={order.id}
-                        onClick={() => {
-                          setSelectedOrderId(order.id);
-                          if (isMobileView) setShowOrderList(false);
-                        }}
-                        className={`p-4 rounded-xl cursor-pointer transition-all duration-200 relative border ${
-                          selectedOrderId === order.id
-                            ? 'bg-brand-yellow border-brand-yellow text-rich-black shadow-md'
-                            : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0 pr-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-sm truncate">{order.title}</h4>
-                              <Badge className={`text-xs px-2 py-1 ${getStatusColor(order.status)}`}>
-                                {order.status === 'completed' ? 'completed ✓' : 
-                                 order.status === 'processing' ? 'processing' :
-                                 order.status === 'ready' ? 'ready' : 
-                                 order.status === 'new' ? 'pending' : order.status}
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-gray-600 truncate mb-2">
-                              {effectiveUserRole === 'shop_owner' 
-                                ? `Customer: ${order.customerName || 'Customer'}` 
-                                : `Shop: ${order.shop?.name || order.shopName || 'Print Shop'}`}
-                            </p>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                Order #{order.id}
-                              </span>
-                              <span className="text-xs text-gray-400">
-                                {formatToIndiaDateTime(order.createdAt)}
-                              </span>
+                  <div className="space-y-3 p-3">
+                    {/* Active Orders Section */}
+                    {activeOrders.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2">Active Orders</h3>
+                        {activeOrders.map((order) => (
+                          <div
+                            key={order.id}
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              if (isMobileView) setShowOrderList(false);
+                            }}
+                            className={`p-4 rounded-xl cursor-pointer transition-all duration-200 relative border ${
+                              selectedOrderId === order.id
+                                ? 'bg-brand-yellow border-brand-yellow text-rich-black shadow-md'
+                                : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0 pr-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold text-sm truncate">{order.title}</h4>
+                                  <Badge className={`text-xs px-2 py-1 ${getStatusColor(order.status)}`}>
+                                    {order.status === 'processing' ? 'processing' :
+                                     order.status === 'ready' ? 'ready' : 
+                                     order.status === 'new' ? 'pending' : order.status}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-gray-600 truncate mb-2">
+                                  {effectiveUserRole === 'shop_owner' 
+                                    ? `Customer: ${order.customerName || 'Customer'}` 
+                                    : `Shop: ${order.shop?.name || order.shopName || 'Print Shop'}`}
+                                </p>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                    Order #{order.id}
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {formatToIndiaDateTime(order.createdAt)}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Unread message indicator - only show if > 0 */}
+                              {(order.unreadCount || 0) > 0 && (
+                                <div className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm">
+                                  {(order.unreadCount || 0) > 99 ? '99+' : (order.unreadCount || 0)}
+                                </div>
+                              )}
                             </div>
                           </div>
-                          
-                          {/* Unread message indicator - only show if > 0 */}
-                          {(order.unreadCount || 0) > 0 && (
-                            <div className="bg-brand-yellow text-rich-black text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm border border-rich-black">
-                              {(order.unreadCount || 0) > 99 ? '99+' : (order.unreadCount || 0)}
-                            </div>
-                          )}
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {/* Completed Orders Section - Collapsible */}
+                    {completedOrders.length > 0 && (
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => setShowCompletedOrders(!showCompletedOrders)}
+                          className="flex items-center justify-between w-full px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            Completed Orders ({completedOrders.length})
+                          </h3>
+                          {showCompletedOrders ? (
+                            <ChevronUp className="w-4 h-4 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                          )}
+                        </button>
+                        
+                        {showCompletedOrders && (
+                          <div className="space-y-2 border-l-2 border-gray-200 pl-3 ml-2">
+                            {completedOrders.map((order) => (
+                              <div
+                                key={order.id}
+                                onClick={() => {
+                                  setSelectedOrderId(order.id);
+                                  if (isMobileView) setShowOrderList(false);
+                                }}
+                                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 relative border ${
+                                  selectedOrderId === order.id
+                                    ? 'bg-brand-yellow border-brand-yellow text-rich-black shadow-md'
+                                    : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1 min-w-0 pr-3">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="font-medium text-sm truncate">{order.title}</h4>
+                                      <Badge className="text-xs px-2 py-1 bg-green-100 text-green-800">
+                                        completed ✓
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-gray-600 truncate mb-2">
+                                      {effectiveUserRole === 'shop_owner' 
+                                        ? `Customer: ${order.customerName || 'Customer'}` 
+                                        : `Shop: ${order.shop?.name || order.shopName || 'Print Shop'}`}
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+                                        Order #{order.id}
+                                      </span>
+                                      <span className="text-xs text-gray-400">
+                                        {formatToIndiaDateTime(order.createdAt)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Unread message indicator for completed orders */}
+                                  {(order.unreadCount || 0) > 0 && (
+                                    <div className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center font-medium shadow-sm">
+                                      {(order.unreadCount || 0) > 99 ? '99+' : (order.unreadCount || 0)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Empty state */}
+                    {activeOrders.length === 0 && completedOrders.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p>No orders found. Start by placing an order!</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </ScrollArea>
