@@ -21,7 +21,7 @@ import EnhancedCustomerOrderDetails from '@/components/enhanced-customer-order-d
 import BottomNavigation from '@/components/common/bottom-navigation';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import QRScanner from '@/components/qr-scanner';
-import DetailedShopModal from '@/components/detailed-shop-modal';
+import UnifiedShopModal from '@/components/unified-shop-modal';
 import UserGuides, { useUserGuides } from '@/components/user-guides';
 import { useToast } from '@/hooks/use-toast';
 import PrintEasyLogo from '@/components/common/printeasy-logo';
@@ -956,8 +956,8 @@ export default function UnifiedCustomerDashboard() {
         />
       )}
 
-      {/* Detailed Shop Modal */}
-      <DetailedShopModal
+      {/* Unified Shop Modal */}
+      <UnifiedShopModal
         shop={selectedShopForDetails}
         isOpen={showShopDetails}
         onClose={() => setShowShopDetails(false)}
