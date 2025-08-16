@@ -185,8 +185,19 @@
       }
       
       try {
+        // For R2 files, first fetch the redirect URL to get the presigned URL
+        let actualFileUrl = fileUrl;
+        if (fileUrl.includes('storageType=r2')) {
+          console.log('🔍 R2 file detected, fetching presigned URL...');
+          const response = await fetch(fileUrl, { method: 'HEAD' });
+          if (response.redirected) {
+            actualFileUrl = response.url;
+            console.log('✅ Got presigned URL for PDF loading');
+          }
+        }
+        
         // Load the PDF document
-        pdfDoc = await pdfjsLib.getDocument(fileUrl).promise;
+        pdfDoc = await pdfjsLib.getDocument(actualFileUrl).promise;
         totalPages = pdfDoc.numPages;
         
         // Clear loading state
