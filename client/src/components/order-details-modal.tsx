@@ -21,7 +21,7 @@ interface Order {
   customerName: string;
   customerPhone: string;
   shopId: number;
-  type: 'upload' | 'walkin';
+  type: 'upload' | 'walkin' | 'file_upload';
   title: string;
   description?: string;
   status: string;

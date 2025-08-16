@@ -71,7 +71,7 @@ interface Order {
   shopId: number;
   customerName: string;
   customerPhone: string;
-  type: 'upload' | 'walkin';
+  type: 'upload' | 'walkin' | 'file_upload';
   title: string;
   description: string;
   status: string;
@@ -283,7 +283,7 @@ export default function RedesignedShopOwnerDashboard() {
   });
 
   // Separate orders by type for better organization
-  const uploadOrders = filteredOrders.filter(order => order.type === 'upload');
+  const uploadOrders = filteredOrders.filter(order => order.type === 'upload' || order.type === 'file_upload');
   const walkinOrders = filteredOrders.filter(order => order.type === 'walkin');
 
   const updateOrderStatus = useMutation({
