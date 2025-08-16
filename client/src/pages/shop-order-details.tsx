@@ -142,6 +142,7 @@ export default function ShopOrderDetails() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-brand-yellow/20 text-rich-black';
       case 'ready': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-gray-100 text-gray-800';
@@ -152,6 +153,7 @@ export default function ShopOrderDetails() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'new': return <AlertCircle className="w-4 h-4" />;
+      case 'pending': return <Clock className="w-4 h-4" />;
       case 'processing': return <Clock className="w-4 h-4" />;
       case 'ready': return <CheckCircle2 className="w-4 h-4" />;
       case 'completed': return <CheckCircle2 className="w-4 h-4" />;

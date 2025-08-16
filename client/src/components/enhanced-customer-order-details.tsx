@@ -248,6 +248,15 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
           label: 'Order Placed',
           description: 'Your order has been received and is waiting to be processed'
         };
+      case 'pending':
+        return {
+          color: 'bg-blue-500',
+          textColor: 'text-blue-800',
+          bgColor: 'bg-blue-50',
+          icon: Clock,
+          label: 'Pending Approval',
+          description: 'Your order is waiting for shop confirmation'
+        };
       case 'processing':
         return {
           color: 'bg-brand-yellow',
@@ -290,6 +299,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const getProgressPercentage = (status: string) => {
     switch (status) {
       case 'new': return 25;
+      case 'pending': return 25;
       case 'processing': return 50;
       case 'ready': return 75;
       case 'completed': return 100;

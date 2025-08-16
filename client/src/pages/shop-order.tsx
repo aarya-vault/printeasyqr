@@ -244,7 +244,6 @@ export default function ShopOrder() {
         body: JSON.stringify({
           shopId: shop!.id.toString(),
           type: data.orderType === 'upload' ? 'file_upload' : 'walkin',
-          title: `Order from ${data.name}`,
           description: data.description || '',
           specifications: data.isUrgent ? 'URGENT ORDER' : ''
         })

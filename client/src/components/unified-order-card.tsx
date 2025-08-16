@@ -47,6 +47,14 @@ const getStatusInfo = (status: string) => {
         icon: Package,
         label: 'Processing'
       };
+    case 'pending':
+      return {
+        color: 'bg-blue-500',
+        textColor: 'text-blue-700',
+        bgColor: 'bg-blue-50',
+        icon: Clock,
+        label: 'Pending'
+      };
     case 'ready':
       return {
         color: 'bg-green-500',

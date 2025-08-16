@@ -445,6 +445,7 @@ export default function RedesignedShopOwnerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-brand-yellow/20 text-rich-black border-brand-yellow/40';
+      case 'pending': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'processing': return 'bg-brand-yellow/40 text-rich-black border-brand-yellow/60';
       case 'ready': return 'bg-brand-yellow/60 text-rich-black border-brand-yellow/80';
       case 'completed': return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -455,6 +456,7 @@ export default function RedesignedShopOwnerDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'new': return <AlertCircle className="w-4 h-4" />;
+      case 'pending': return <Clock className="w-4 h-4" />;
       case 'processing': return <Clock className="w-4 h-4" />;
       case 'ready': return <CheckCircle2 className="w-4 h-4" />;
       case 'completed': return <CheckCircle2 className="w-4 h-4" />;

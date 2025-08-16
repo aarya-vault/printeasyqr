@@ -82,6 +82,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-yellow-100 text-yellow-800';
       case 'ready': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-gray-100 text-gray-800';

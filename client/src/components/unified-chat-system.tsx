@@ -308,6 +308,7 @@ export default function UnifiedChatSystem({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-brand-yellow/20 text-rich-black';
+      case 'pending': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-brand-yellow/40 text-rich-black';
       case 'ready': return 'bg-brand-yellow/60 text-rich-black';
       case 'completed': return 'bg-gray-100 text-gray-800';

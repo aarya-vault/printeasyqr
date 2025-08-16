@@ -74,6 +74,7 @@ export default function CustomerOrders() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-800';
+      case 'pending': return 'bg-blue-100 text-blue-800';
       case 'processing': return 'bg-brand-yellow/20 text-rich-black';
       case 'ready': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-gray-100 text-gray-800';
@@ -84,6 +85,7 @@ export default function CustomerOrders() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'new': return <Package className="w-3 h-3" />;
+      case 'pending': return <Clock className="w-3 h-3" />;
       case 'processing': return <Clock className="w-3 h-3 animate-pulse" />;
       case 'ready': return <CheckCircle2 className="w-3 h-3" />;
       case 'completed': return <CheckCircle2 className="w-3 h-3" />;
