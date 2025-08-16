@@ -615,7 +615,7 @@ export default function RedesignedShopOwnerDashboard() {
         {/* Status Update Actions */}
         {order.status !== 'completed' && (
           <div className="grid grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
-            {order.status === 'new' && (
+            {(order.status === 'new' || order.status === 'pending') && (
               <Button
                 size="sm"
                 onClick={() => updateOrderStatus.mutate({ orderId: order.id, status: 'processing' })}
