@@ -652,7 +652,7 @@ class OrderController {
       }
       
       // Validate required fields
-      if (!shopId || !type || !title) {
+      if (!shopId || !type) {
         await transaction.rollback();
         return res.status(400).json({ message: 'Missing required fields' });
       }
@@ -673,7 +673,7 @@ class OrderController {
         shopId: parseInt(shopId),
         orderNumber,
         type,
-        title,
+        title: title || `Order #${orderNumber}`,
         description,
         specifications,
         status: 'pending',
@@ -712,7 +712,7 @@ class OrderController {
       } = req.body;
       
       // Validate required fields
-      if (!shopId || !customerName || !customerPhone || !type || !title) {
+      if (!shopId || !customerName || !customerPhone || !type) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
