@@ -721,6 +721,32 @@ export default function RedesignedShopOwnerDashboard() {
                 </Button>
               </div>
 
+              {/* Shop Status Toggle - Desktop */}
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    if (shopData?.shop?.id) {
+                      toggleShopStatus.mutate();
+                    }
+                  }}
+                  disabled={toggleShopStatus.isPending}
+                  className={`
+                    flex items-center px-3 py-2 rounded-md font-semibold text-sm transition-all duration-200
+                    ${shopData?.shop?.isOnline 
+                      ? 'bg-[#FFBF00] text-black' 
+                      : 'bg-gray-200 text-gray-600'
+                    }
+                    ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  `}
+                  title={shopData?.shop?.isOnline 
+                    ? 'Click to close your shop' 
+                    : 'Click to open your shop'
+                  }
+                >
+                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
+                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                </button>
+              </div>
 
               {/* Logout Button */}
               <button 
