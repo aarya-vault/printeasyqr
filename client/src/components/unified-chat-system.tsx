@@ -729,7 +729,7 @@ export default function UnifiedChatSystem({
                           <h4 className="font-semibold text-gray-800">Order Completed</h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This order has been completed successfully. All conversation history, files, and images remain accessible above for your reference. No new messages can be sent.
+                          This order has been completed successfully. For your reference, only the chat history will remain accessible. All shared files and images have been deleted, and no new messages can be sent.
                         </p>
                       </div>
                     ) : (
