@@ -648,12 +648,14 @@ class OrderController {
       
       if (!customer) {
         await transaction.rollback();
+        console.log('❌ Customer not found:', customerId);
         return res.status(404).json({ message: 'User not found' });
       }
       
       // Validate required fields
       if (!shopId || !type) {
         await transaction.rollback();
+        console.log('❌ Missing required fields:', { shopId: !!shopId, type: !!type });
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
