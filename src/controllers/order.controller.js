@@ -7,6 +7,46 @@ import { uploadFilesToObjectStorage } from '../utils/objectStorageUpload.js';
 import storageManager from '../../server/storage/storageManager.js';
 
 class OrderController {
+  // 🎯 DYNAMIC ORDER NUMBERING: Calculate next order number with reset logic
+  static async calculateDynamicOrderNumber(shopId) {
+    try {
+      // Count active orders (pending, processing, ready, new)
+      const activeOrders = await Order.findAll({
+        where: {
+          shopId: parseInt(shopId),
+          status: {
+            [Op.in]: ['new', 'pending', 'processing', 'ready']
+          },
+          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
+        },
+        order: [['orderNumber', 'DESC']]
+      });
+
+      console.log(`🔢 Shop ${shopId} has ${activeOrders.length} active orders`);
+
+      // If no active orders, reset to #1
+      if (activeOrders.length === 0) {
+        console.log(`🔄 Resetting order numbering for shop ${shopId} - starting fresh with #1`);
+        return 1;
+      }
+
+      // Find highest orderNumber among active orders and increment
+      const highestActiveNumber = Math.max(...activeOrders.map(order => order.orderNumber || 0));
+      const nextNumber = highestActiveNumber + 1;
+      console.log(`📈 Shop ${shopId} - highest active order #${highestActiveNumber}, assigning #${nextNumber}`);
+      
+      return nextNumber;
+    } catch (error) {
+      console.error(`❌ Error calculating dynamic order number for shop ${shopId}:`, error);
+      // Fallback to old logic
+      const lastOrder = await Order.findOne({
+        where: { shopId: parseInt(shopId) },
+        order: [['orderNumber', 'DESC']]
+      });
+      return lastOrder ? lastOrder.orderNumber + 1 : 1;
+    }
+  }
+
   // Data transformation helper for consistent API responses
   static transformOrderData(order) {
     if (!order) return null;
@@ -156,13 +196,8 @@ class OrderController {
         });
       }
       
-      // Get next order number for the shop
-      const lastOrder = await Order.findOne({
-        where: { shopId: parseInt(shopId) },
-        order: [['orderNumber', 'DESC']]
-      });
-      
-      const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
+      // 🎯 DYNAMIC ORDER NUMBERING: Get next order number with reset logic
+      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
       
       // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
@@ -288,6 +323,24 @@ class OrderController {
       if (updateData.status === 'completed') {
         console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
         await OrderController.deleteOrderFiles(orderId, transaction);
+        
+        // 🎯 DYNAMIC ORDER NUMBERING: Check if this completion causes a reset
+        const remainingActiveOrders = await Order.count({
+          where: {
+            shopId: order.shopId,
+            status: {
+              [Op.in]: ['new', 'pending', 'processing', 'ready']
+            },
+            deletedAt: { [Op.is]: null },
+            id: { [Op.ne]: orderId }  // Exclude current order
+          }
+        });
+        
+        if (remainingActiveOrders === 0) {
+          console.log(`🔄 RESET TRIGGER: Shop ${order.shopId} now has 0 active orders - next order will be #1`);
+        } else {
+          console.log(`📊 Shop ${order.shopId} still has ${remainingActiveOrders} active orders after completion`);
+        }
       }
       
       await transaction.commit();
@@ -352,6 +405,24 @@ class OrderController {
       if (status === 'completed') {
         console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
         await OrderController.deleteOrderFiles(orderId, transaction);
+        
+        // 🎯 DYNAMIC ORDER NUMBERING: Check if this completion causes a reset
+        const remainingActiveOrders = await Order.count({
+          where: {
+            shopId: order.shopId,
+            status: {
+              [Op.in]: ['new', 'pending', 'processing', 'ready']
+            },
+            deletedAt: { [Op.is]: null },
+            id: { [Op.ne]: orderId }  // Exclude current order
+          }
+        });
+        
+        if (remainingActiveOrders === 0) {
+          console.log(`🔄 RESET TRIGGER: Shop ${order.shopId} now has 0 active orders - next order will be #1`);
+        } else {
+          console.log(`📊 Shop ${order.shopId} still has ${remainingActiveOrders} active orders after completion`);
+        }
       }
       
       await transaction.commit();
@@ -593,10 +664,14 @@ class OrderController {
         return res.status(404).json({ message: 'Shop not found' });
       }
       
+      // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
+      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
+      
       // Create order (no files - they come separately via direct R2 upload)
       const order = await Order.create({
         customerId,
         shopId: parseInt(shopId),
+        orderNumber,
         type,
         title,
         description,
@@ -726,13 +801,8 @@ class OrderController {
         console.log(`✅ Successfully saved ${files.length} files for anonymous order`);
       }
       
-      // Get next order number
-      const lastOrder = await Order.findOne({
-        where: { shopId: parseInt(shopId) },
-        order: [['orderNumber', 'DESC']]
-      });
-      
-      const orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
+      // 🎯 DYNAMIC ORDER NUMBERING: Use dynamic numbering for anonymous orders too
+      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
       
       const newOrder = await Order.create({
         customerId: customer.id,
