@@ -175,6 +175,26 @@ app.use('/api', printHostRoutes); // Print Host for PDF printing
 app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
 app.use('/api', r2Routes); // R2 storage routes for order files
 
+// PDF Viewer Route - Serve dedicated pdf-viewer.html via API route to avoid Vite conflicts  
+app.get('/api/pdf-viewer', (req, res) => {
+  try {
+    const pdfViewerPath = path.join(__dirname, '..', 'public', 'pdf-viewer.html');
+    console.log('📄 Serving pdf-viewer.html from:', pdfViewerPath);
+    
+    const htmlContent = fs.readFileSync(pdfViewerPath, 'utf8');
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    res.send(htmlContent);
+  } catch (error) {
+    console.error('❌ Error serving pdf-viewer.html:', error);
+    res.status(404).send('PDF viewer not found');
+  }
+});
+
 // 🚨 FALLBACK ROUTE: Redirect old QR routes to new structure for browser cache compatibility
 app.post('/api/generate-image', async (req, res) => {
   console.log('⚠️ DEPRECATED ROUTE ACCESSED: /api/generate-image - forwarding to QR controller');
@@ -376,25 +396,6 @@ app.get('/objects/*', async (req, res) => {
   }
 });
 
-// PDF Viewer Route - Serve dedicated pdf-viewer.html via API route to avoid Vite conflicts
-app.get('/api/pdf-viewer', (req, res) => {
-  try {
-    const pdfViewerPath = path.join(__dirname, '..', 'public', 'pdf-viewer.html');
-    console.log('📄 Serving pdf-viewer.html from:', pdfViewerPath);
-    
-    const htmlContent = fs.readFileSync(pdfViewerPath, 'utf8');
-    
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    
-    res.send(htmlContent);
-  } catch (error) {
-    console.error('❌ Error serving pdf-viewer.html:', error);
-    res.status(404).send('PDF viewer not found');
-  }
-});
 
 // Remove old download route - moved above
 
