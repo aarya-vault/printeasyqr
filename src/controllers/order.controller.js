@@ -5,10 +5,22 @@ import path from 'path';
 import { sendToUser, broadcast } from '../utils/websocket.js';
 import { uploadFilesToObjectStorage } from '../utils/objectStorageUpload.js';
 import storageManager from '../../server/storage/storageManager.js';
+import { generateToken } from '../config/jwt-auth.js';
 
 class OrderController {
-  // 🎯 DYNAMIC ORDER NUMBERING: Calculate next order number with reset logic
-  static async calculateDynamicOrderNumber(shopId) {
+  // 🆔 PUBLIC ID GENERATION: Generate short alphanumeric IDs for external display
+  static generatePublicId() {
+    const prefix = 'ORD';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 7; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `${prefix}-${result}`;
+  }
+
+  // 🎯 DYNAMIC QUEUE NUMBERING: Calculate next queue number with reset logic (renamed for clarity)
+  static async calculateDynamicQueueNumber(shopId) {
     try {
       // Count active orders (pending, processing, ready, new)
       const activeOrders = await Order.findAll({
@@ -26,18 +38,18 @@ class OrderController {
 
       // If no active orders, reset to #1
       if (activeOrders.length === 0) {
-        console.log(`🔄 Resetting order numbering for shop ${shopId} - starting fresh with #1`);
+        console.log(`🔄 Resetting queue numbering for shop ${shopId} - starting fresh with #1`);
         return 1;
       }
 
       // Find highest orderNumber among active orders and increment
       const highestActiveNumber = Math.max(...activeOrders.map(order => order.orderNumber || 0));
       const nextNumber = highestActiveNumber + 1;
-      console.log(`📈 Shop ${shopId} - highest active order #${highestActiveNumber}, assigning #${nextNumber}`);
+      console.log(`📈 Shop ${shopId} - highest active queue #${highestActiveNumber}, assigning #${nextNumber}`);
       
       return nextNumber;
     } catch (error) {
-      console.error(`❌ Error calculating dynamic order number for shop ${shopId}:`, error);
+      console.error(`❌ Error calculating dynamic queue number for shop ${shopId}:`, error);
       // Fallback to old logic
       const lastOrder = await Order.findOne({
         where: { shopId: parseInt(shopId) },
@@ -55,6 +67,7 @@ class OrderController {
     
     return {
       id: orderData.id,
+      publicId: orderData.publicId,
       customerId: orderData.customerId,
       shopId: orderData.shopId,
       orderNumber: orderData.orderNumber,
@@ -196,8 +209,9 @@ class OrderController {
         });
       }
       
-      // 🎯 DYNAMIC ORDER NUMBERING: Get next order number with reset logic
-      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
+      // 🎯 DYNAMIC QUEUE NUMBERING: Get next queue number with reset logic
+      const orderNumber = await OrderController.calculateDynamicQueueNumber(shopId);
+      const publicId = OrderController.generatePublicId();
       
       // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
@@ -244,6 +258,7 @@ class OrderController {
         shopId: parseInt(shopId),
         customerId: parseInt(customerId),
         orderNumber,
+        publicId,
         type,
         title: title || `Order #${orderNumber}`,
         description: description || instructions || '',
@@ -650,7 +665,8 @@ class OrderController {
       }
       
       // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
-      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
+      const orderNumber = await OrderController.calculateDynamicQueueNumber(shopId);
+      const publicId = OrderController.generatePublicId();
       
       // 🚀 R2 DIRECT UPLOAD: Files handled separately via direct R2 upload
       // Order created without files first, files uploaded directly to R2, then confirmed via API
@@ -661,6 +677,7 @@ class OrderController {
         customerId,
         shopId: parseInt(shopId),
         orderNumber,
+        publicId,
         type,
         title: title || `Order #${orderNumber}`,
         description,
@@ -678,6 +695,7 @@ class OrderController {
       // Return order details for R2 direct upload flow
       res.status(201).json({
         id: order.id,
+        publicId: order.publicId,
         orderNumber: order.orderNumber,
         customerId: order.customerId,
         shopId: order.shopId,
@@ -793,13 +811,15 @@ class OrderController {
         console.log(`✅ Successfully saved ${files.length} files for anonymous order`);
       }
       
-      // 🎯 DYNAMIC ORDER NUMBERING: Use dynamic numbering for anonymous orders too
-      const orderNumber = await OrderController.calculateDynamicOrderNumber(shopId);
+      // 🎯 DYNAMIC QUEUE NUMBERING: Use dynamic numbering for anonymous orders too
+      const orderNumber = await OrderController.calculateDynamicQueueNumber(shopId);
+      const publicId = OrderController.generatePublicId();
       
       const newOrder = await Order.create({
         customerId: customer.id,
         shopId: parseInt(shopId),
         orderNumber,
+        publicId,
         type: type === 'file_upload' ? 'upload' : type,
         title: title || `Order #${orderNumber}`,
         description: description || '',
@@ -820,7 +840,15 @@ class OrderController {
       });
       
       const transformedOrder = OrderController.transformOrderData(orderWithDetails);
-      res.json(transformedOrder);
+      
+      // 🔐 JWT GENERATION: Generate JWT token for anonymous-to-authenticated user
+      const token = generateToken(customer.toJSON());
+      
+      res.json({
+        ...transformedOrder,
+        token,
+        userId: customer.id
+      });
     } catch (error) {
       await transaction.rollback();
       console.error('Create anonymous order error:', error);

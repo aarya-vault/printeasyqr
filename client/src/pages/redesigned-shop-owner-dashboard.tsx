@@ -497,7 +497,7 @@ export default function RedesignedShopOwnerDashboard() {
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-brand-yellow/20 rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold text-rich-black">#{order.orderNumber || order.id}</span>
+              <span className="text-sm font-bold text-rich-black">Queue #{order.orderNumber}</span>
             </div>
             <div>
               <h3 className="font-semibold text-rich-black">{order.customerName}</h3>

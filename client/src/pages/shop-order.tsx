@@ -256,7 +256,7 @@ export default function ShopOrder() {
       }
       
       const order = await orderResponse.json();
-      console.log(`✅ Order created: #${order.id}`);
+      console.log(`✅ Order created: #${order.publicId || order.id}`);
 
       // Step 3: Upload files directly to R2 if present (Anonymous R2 Direct Upload)
       if (data.orderType === 'upload' && selectedFiles.length > 0) {
@@ -296,7 +296,7 @@ export default function ShopOrder() {
     onSuccess: (data: any) => {
       toast({
         title: 'Order Created Successfully!',
-        description: `Order #${data.orderNumber || data.id} has been placed`,
+        description: `Order placed with Queue #${data.orderNumber} (ID: ${data.publicId || data.id})`,
       });
       
       // Navigate to order confirmation  

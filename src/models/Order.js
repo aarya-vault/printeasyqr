@@ -31,6 +31,12 @@ const Order = sequelize.define('Order', {
     defaultValue: 0,
     field: 'order_number'
   },
+  publicId: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    unique: true,
+    field: 'public_id'
+  },
   type: {
     type: DataTypes.STRING,
     allowNull: false,

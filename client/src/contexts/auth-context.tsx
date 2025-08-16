@@ -25,6 +25,8 @@ interface AuthContextType {
   getPersistentUserData: () => PersistentUserData | null;
   savePersistentUserData: (data: Partial<PersistentUserData>) => void;
   clearPersistentUserData: () => void;
+  // Auth context refresh method
+  refreshAuthContext: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
