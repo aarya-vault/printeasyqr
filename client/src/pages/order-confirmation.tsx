@@ -203,7 +203,7 @@ export default function OrderConfirmation() {
             <CheckCircle className="w-12 h-12 text-[#FFBF00] mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-black mb-2">Order Confirmed!</h2>
             <p className="text-gray-700 mb-3">
-              Order #{order.id} has been successfully placed with {order.shop.name}
+              {order.title} has been successfully placed with {order.shop.name}
             </p>
             {order.isUrgent && (
               <Badge className="bg-[#FFBF00] text-black mb-4">

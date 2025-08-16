@@ -256,7 +256,7 @@ export default function RedesignedShopOwnerDashboard() {
     totalOrdersToday: orders.filter(o => 
       new Date(o.createdAt).toDateString() === new Date().toDateString()
     ).length,
-    pendingOrders: (statusCounts.new || 0) + (statusCounts.processing || 0),
+    pendingOrders: (statusCounts.new || 0) + (statusCounts.pending || 0) + (statusCounts.processing || 0),
     completedToday: orders.filter(o => 
       o.status === 'completed' && 
       new Date(o.updatedAt).toDateString() === new Date().toDateString()
