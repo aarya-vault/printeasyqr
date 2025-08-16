@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 // Order routes
-router.post('/orders/authenticated', requireAuth, OrderController.createAuthenticatedOrder); // New authenticated order creation
+router.post('/orders/authenticated', requireAuth, upload.array('files'), OrderController.createAuthenticatedOrder); // New authenticated order creation
 router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop);
 router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getOrdersByShop); // History alias
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
