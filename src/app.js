@@ -40,6 +40,7 @@ import printHostRoutes from './routes/print-host.routes.js';
 import googleMapsImportRoutes from './routes/google-maps-import.routes.js';
 import r2Routes from './routes/r2.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
+import storageManager from '../server/storage/storageManager.js';
 
 // Create Express app
 const app = express();
@@ -204,115 +205,96 @@ app.post('/api/generate-qr', async (req, res) => {
 
 // app.use('/api', downloadRoutes); // DISABLED - Using inline download route instead
 
-// Object Storage download proxy - bypass CORS restrictions
-app.get('/api/download/:objectPath(*)', async (req, res) => {
+// File download/print proxy - FIXED with proper R2 support
+app.get('/api/download/:filePath(*)', async (req, res) => {
   try {
-    let objectPath = req.params.objectPath;
-    const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
+    const filePath = req.params.filePath;
+    const urlParams = new URLSearchParams(req.query);
+    const storageType = urlParams.get('storageType') || 'local';
+    const originalName = urlParams.get('originalName') || path.basename(filePath);
+    const isPrint = urlParams.get('print') === 'true';
+    const isDownload = urlParams.get('download') === 'true';
     
-    // Ensure proper /objects/ prefix for object storage
-    if (!objectPath.startsWith('/objects/')) {
-      objectPath = `/objects/${objectPath}`;
-    }
-    
-    // Extract originalName from URL query parameter manually
-    const urlParts = req.url.split('?');
-    const queryString = urlParts[1] || '';
-    const urlParams = new URLSearchParams(queryString);
-    const originalName = urlParams.get('originalName');
-    
-    console.log('📥 Download proxy request:', {
-      requestPath: req.path,
-      originalObjectPath: req.params.objectPath,
-      correctedObjectPath: objectPath,
-      bucketName: bucketName,
-      queryString: queryString,
-      originalNameParam: originalName,
+    console.log('📥 File access request:', {
+      filePath,
+      storageType,
+      originalName,
+      isPrint,
+      isDownload,
       fullUrl: req.url
     });
+
+    // Create file info object based on storage type
+    let fileInfo;
+    if (storageType === 'r2') {
+      fileInfo = {
+        r2Key: filePath,
+        path: filePath,
+        storageType: 'r2',
+        originalName: originalName,
+        mimetype: 'application/pdf' // Default for most files, will be overridden by R2
+      };
+    } else {
+      // Local file
+      fileInfo = {
+        path: filePath,
+        storageType: 'local',
+        originalName: originalName
+      };
+    }
     
-    // Generate signed URL for downloading - using local file system fallback
-    console.log('📥 Download request for:', objectPath);
+    // Determine access type
+    const accessType = isPrint ? 'print' : 'download';
     
-    // For local development, try direct file access first
-    const fs = await import('fs');
-    const path = await import('path');
-    const localPath = path.join(process.cwd(), objectPath);
-    
-    // Check if file exists locally
-    if (fs.existsSync(localPath)) {
-      console.log('✅ Found local file:', localPath);
-      const stream = fs.createReadStream(localPath);
+    if (storageType === 'r2') {
+      // Use storage manager for R2 files
+      const signedUrl = await storageManager.getFileAccess(fileInfo, accessType);
+      
+      if (!signedUrl) {
+        console.error('❌ Failed to get signed URL for R2 file:', filePath);
+        return res.status(404).json({ error: 'File not found' });
+      }
+      
+      console.log('✅ Got R2 presigned URL, redirecting...');
+      return res.redirect(signedUrl);
+      
+    } else {
+      // Handle local files
+      const localFilePath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
+      
+      if (!fs.existsSync(localFilePath)) {
+        console.error('❌ Local file not found:', localFilePath);
+        return res.status(404).json({ error: 'File not found' });
+      }
+      
+      // Determine content type
+      const ext = path.extname(originalName).toLowerCase();
+      let contentType = 'application/octet-stream';
+      
+      if (ext === '.pdf') contentType = 'application/pdf';
+      else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+      else if (ext === '.png') contentType = 'image/png';
+      else if (ext === '.gif') contentType = 'image/gif';
+      else if (ext === '.txt') contentType = 'text/plain';
+      
+      // Set appropriate headers
+      const disposition = isPrint ? 'inline' : 'attachment';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `${disposition}; filename="${originalName}"`);
+      res.setHeader('Cache-Control', 'private, max-age=3600');
+      
+      console.log(`✅ Serving local file: ${originalName} (${contentType}, ${disposition})`);
+      
+      // Stream the file
+      const stream = fs.createReadStream(localFilePath);
       return stream.pipe(res);
     }
     
-    // Fallback to object storage
-    const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bucketName: bucketName,
-        objectPath: objectPath,
-        action: 'read',
-        expiresIn: 3600
-      }),
-    });
-
-    if (!signedUrlResponse.ok) {
-      const errorText = await signedUrlResponse.text();
-      console.error('Failed to get signed URL for download:', signedUrlResponse.status, errorText);
-      return res.status(404).json({ error: 'File not found' });
-    }
-
-    const { signedUrl } = await signedUrlResponse.json(); // Changed from signed_url
-    
-    // Fetch and stream the file
-    const fileResponse = await fetch(signedUrl);
-    
-    if (!fileResponse.ok) {
-      console.error('Failed to fetch file from storage:', fileResponse.status);
-      return res.status(404).json({ error: 'File not found' });
-    }
-    
-    // Extract filename - prioritize originalName from query parameter, then object path
-    let filename = originalName || objectPath.split('/').pop() || 'file';
-    
-    // Clean up filename to ensure it's safe for download
-    filename = filename.replace(/[\/\\:*?"<>|]/g, '_'); // Replace unsafe characters
-    
-    // Try to extract original filename from Content-Disposition header if available
-    const contentDisposition = fileResponse.headers.get('Content-Disposition');
-    if (!originalName && contentDisposition && contentDisposition.includes('filename=')) {
-      const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      if (matches && matches[1]) {
-        filename = matches[1].replace(/['"]/g, '');
-      }
-    }
-    
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', fileResponse.headers.get('content-type') || 'application/octet-stream');
-    res.setHeader('Content-Length', fileResponse.headers.get('content-length') || '');
-    
-    console.log('✅ Streaming file download:', filename);
-    
-    // Stream the file to client
-    const reader = fileResponse.body.getReader();
-    const pump = () => {
-      return reader.read().then(({ done, value }) => {
-        if (done) return res.end();
-        res.write(value);
-        return pump();
-      });
-    };
-    
-    pump().catch(error => {
-      console.error('Stream error:', error);
-      if (!res.headersSent) res.status(500).json({ error: 'Download failed' });
-    });
-    
   } catch (error) {
-    console.error('Download proxy error:', error);
-    if (!res.headersSent) res.status(500).json({ error: 'Download failed' });
+    console.error('❌ File access error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to access file' });
+    }
   }
 });
 
@@ -391,6 +373,30 @@ app.get('/objects/*', async (req, res) => {
   } catch (error) {
     console.error('Error serving object:', error);
     res.status(500).json({ error: 'Failed to serve object' });
+  }
+});
+
+// Serve pdf-viewer.html for printing functionality
+app.get('/pdf-viewer.html', (req, res) => {
+  try {
+    const pdfViewerPath = path.join(__dirname, '..', 'public', 'pdf-viewer.html');
+    console.log('📄 Serving pdf-viewer.html from:', pdfViewerPath);
+    
+    if (fs.existsSync(pdfViewerPath)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      const htmlContent = fs.readFileSync(pdfViewerPath, 'utf8');
+      res.send(htmlContent);
+    } else {
+      console.error('❌ pdf-viewer.html not found at:', pdfViewerPath);
+      res.status(404).send('PDF viewer not found');
+    }
+  } catch (error) {
+    console.error('❌ Error serving pdf-viewer.html:', error);
+    res.status(500).send('Error serving PDF viewer');
   }
 });
 
