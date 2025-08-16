@@ -89,8 +89,26 @@ export default function OrderConfirmation() {
   };
 
   const handleGoToDashboard = async () => {
-    // User is already authenticated from JIT auth during order placement
-    navigate('/customer-dashboard');
+    // 🔧 FIX: Role-based redirect instead of hardcoded customer dashboard
+    if (!user) {
+      // If no user context, default to customer dashboard
+      navigate('/customer-dashboard');
+      return;
+    }
+    
+    // Redirect based on user role
+    switch (user.role) {
+      case 'shop_owner':
+        navigate('/shop-owner-dashboard');
+        break;
+      case 'admin':
+        navigate('/admin-dashboard');
+        break;
+      case 'customer':
+      default:
+        navigate('/customer-dashboard');
+        break;
+    }
   };
 
   // Helper function to get customer-friendly status
