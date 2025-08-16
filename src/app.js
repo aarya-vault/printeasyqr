@@ -87,6 +87,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// 🔥 CRITICAL: Serve static files from public directory BEFORE Vite middleware
+// This ensures pdf-viewer.html, print-host.html, etc. are served correctly
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
+
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
