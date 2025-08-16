@@ -19,7 +19,7 @@ interface Order {
   id: number;
   customerId: number;
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string;
   shopId: number;
   type: 'upload' | 'walkin' | 'file_upload';
   title: string;
@@ -32,6 +32,11 @@ interface Order {
   updatedAt: string;
   isUrgent: boolean;
   notes?: string;
+  customer?: {
+    id: number;
+    name: string;
+    phone: string;
+  };
 }
 
 interface OrderDetailsModalProps {
@@ -364,8 +369,8 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                 <div>
                   <Label className="text-sm font-medium text-gray-600">Phone</Label>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="text-sm text-gray-900">{stableOrder.customerPhone}</p>
-                    <Button size="sm" variant="outline" onClick={() => window.open(`tel:${stableOrder.customerPhone}`)}>
+                    <p className="text-sm text-gray-900">{stableOrder.customer?.phone || stableOrder.customerPhone}</p>
+                    <Button size="sm" variant="outline" onClick={() => window.open(`tel:${stableOrder.customer?.phone || stableOrder.customerPhone}`)}>
                       <Phone className="w-4 h-4" />
                     </Button>
                   </div>
