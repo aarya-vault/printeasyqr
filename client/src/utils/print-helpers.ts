@@ -41,8 +41,8 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   // EXECUTIVE DECISION: Use PDF.js for all PDF files
   let printWindow: Window | null;
   if (fileType === 'pdf') {
-    // Use PDF.js viewer for consistent PDF rendering
-    const pdfViewerUrl = `/pdf-viewer.html?file=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(filename)}&autoprint=true`;
+    // Use PDF.js viewer via API route to avoid Vite conflicts
+    const pdfViewerUrl = `/api/pdf-viewer?file=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(filename)}&autoprint=true`;
     printWindow = window.open(pdfViewerUrl, '_blank', 'width=900,height=700');
   } else {
     // Use existing print-host for images and other files

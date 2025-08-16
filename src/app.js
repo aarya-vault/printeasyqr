@@ -87,11 +87,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔥 CRITICAL: Serve static files from public directory BEFORE Vite middleware
-// This ensures pdf-viewer.html, print-host.html, etc. are served correctly
-const publicPath = path.join(__dirname, '..', 'public');
-app.use(express.static(publicPath));
-
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -381,27 +376,23 @@ app.get('/objects/*', async (req, res) => {
   }
 });
 
-// Serve pdf-viewer.html for printing functionality
-app.get('/pdf-viewer.html', (req, res) => {
+// PDF Viewer Route - Serve dedicated pdf-viewer.html via API route to avoid Vite conflicts
+app.get('/api/pdf-viewer', (req, res) => {
   try {
     const pdfViewerPath = path.join(__dirname, '..', 'public', 'pdf-viewer.html');
     console.log('📄 Serving pdf-viewer.html from:', pdfViewerPath);
     
-    if (fs.existsSync(pdfViewerPath)) {
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      
-      const htmlContent = fs.readFileSync(pdfViewerPath, 'utf8');
-      res.send(htmlContent);
-    } else {
-      console.error('❌ pdf-viewer.html not found at:', pdfViewerPath);
-      res.status(404).send('PDF viewer not found');
-    }
+    const htmlContent = fs.readFileSync(pdfViewerPath, 'utf8');
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    res.send(htmlContent);
   } catch (error) {
     console.error('❌ Error serving pdf-viewer.html:', error);
-    res.status(500).send('Error serving PDF viewer');
+    res.status(404).send('PDF viewer not found');
   }
 });
 
