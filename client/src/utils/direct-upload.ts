@@ -280,9 +280,6 @@ export async function uploadFilesDirectlyToR2(
   const totalTime = (Date.now() - startTime) / 1000;
   const avgSpeed = totalBytes / totalTime;
   
-  const totalTime = (Date.now() - startTime) / 1000;
-  const avgSpeed = totalBytes / totalTime;
-  
   console.log(`⚡ TRUE direct upload completed in ${totalTime.toFixed(2)}s`);
   console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   console.log(`✅ Successfully uploaded ${completedCount}/${files.length} files`);
