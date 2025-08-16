@@ -26,18 +26,6 @@ if (!process.env.DATABASE_URL) {
 
 console.log('✅ Using PostgreSQL database from environment variables');
 
-// CRITICAL: Run safe constraint cleanup to prevent destructive migrations
-console.log('🔧 Running safe constraint cleanup to prevent data loss...');
-try {
-  const { safeConstraintCleanup } = await import('../scripts/safe-constraint-cleanup.js');
-  await safeConstraintCleanup();
-  console.log('✅ Constraint cleanup completed - database ready for deployment');
-} catch (error) {
-  console.error('❌ CRITICAL: Constraint cleanup failed:', error.message);
-  console.error('   This may cause deployment to attempt destructive migration');
-  // Continue anyway - app might still work
-}
-
 // Test database connection on production startup
 console.log('🔍 Testing production database connection...');
 import { testConnection } from '../src/config/database.js';

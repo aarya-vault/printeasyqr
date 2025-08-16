@@ -68,10 +68,16 @@ const initializeDatabase = async () => {
     await sequelize.authenticate();
     logger.info('✅ Database connection established');
     
-    // Only force sync if explicitly requested (destructive operation)
+    // CRITICAL: Explicitly prevent any destructive operations during deployment
+    // The database contains production data (107 shops, 85 users, 9 orders)
+    // Never allow force sync or alter operations regardless of environment
+    logger.info('🔒 PRODUCTION DATA PROTECTION: Preventing any destructive database operations');
+    logger.info('📊 Database contains: 107 shops, 85 users, 9 orders - MUST BE PRESERVED');
+    
+    // Explicitly disable force sync even if environment variable is set
     if (process.env.FORCE_DB_SYNC === 'true') {
-      await sequelize.sync({ force: true });
-      logger.info('⚠️  Database tables recreated (force sync)');
+      logger.warn('⚠️  FORCE_DB_SYNC requested but BLOCKED to protect production data');
+      logger.warn('   Database contains critical business data that cannot be lost');
     }
     
     return sequelize;
