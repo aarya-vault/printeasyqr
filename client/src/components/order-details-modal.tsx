@@ -240,7 +240,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
             </Card>
 
             {/* Files Section */}
-            {stableOrder.type === 'upload' && stableOrder.files && (
+            {(stableOrder.type === 'upload' || stableOrder.type === 'file_upload') && stableOrder.files && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-lg">

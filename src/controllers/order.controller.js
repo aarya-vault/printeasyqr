@@ -108,7 +108,7 @@ class OrderController {
           { model: User, as: 'customer' },
           { model: Shop, as: 'shop' }
         ],
-        order: [['createdAt', 'DESC']]
+        order: [['createdAt', 'ASC']]
       });
       
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
