@@ -9,7 +9,8 @@ import {
   Store, MapPin, Phone, Mail, User, Building2, Clock, CheckCircle, 
   AlertCircle, Star, Wrench, Package, Calendar, ExternalLink
 } from 'lucide-react';
-import { formatWorkingHoursForDisplay, getWorkingHoursDisplay, isShopCurrentlyOpen } from '@/utils/working-hours';
+import { formatWorkingHoursForDisplay, getWorkingHoursDisplay } from '@/utils/working-hours';
+import { calculateUnifiedShopStatus } from '@/utils/shop-timing';
 
 interface Shop {
   id: number;
@@ -124,13 +125,17 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
   // Get working hours formatted for display
   const formattedWorkingHours = formatWorkingHoursForDisplay(shop.workingHours);
   
-  // Get shop status
+  // Get shop status using unified logic
   const getShopStatus = () => {
-    const isOpen = isShopCurrentlyOpen(shop.workingHours);
+    const unifiedStatus = calculateUnifiedShopStatus({
+      isOnline: shop.isOnline,
+      workingHours: shop.workingHours,
+      acceptsWalkinOrders: shop.acceptsWalkinOrders
+    });
     return {
-      isOpen,
-      text: isOpen ? 'Open Now' : 'Closed',
-      className: isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+      isOpen: unifiedStatus.isOpen,
+      text: unifiedStatus.statusText === 'OPEN' ? 'Open Now' : 'Closed',
+      className: unifiedStatus.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
     };
   };
   
@@ -167,11 +172,7 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
         <div className="space-y-6">
           {/* Status and Overview */}
           <div className="flex flex-wrap items-center gap-3">
-            {shop.isOnline && (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
-                Online Available
-              </span>
-            )}
+
             {shop.acceptsWalkinOrders && (
               <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">
                 Walk-in Orders
