@@ -5,7 +5,7 @@ import {
   Users, Package, CheckCircle, AlertCircle, Store, ExternalLink 
 } from 'lucide-react';
 import { Shop } from '@/types/shop';
-import { isShopCurrentlyOpen, getShopStatusText } from '@/utils/shop-timing';
+import { calculateUnifiedShopStatus } from '@/utils/shop-timing';
 import { getWorkingHoursDisplay } from '@/utils/working-hours';
 
 interface UnifiedShopCardProps {
@@ -21,7 +21,7 @@ export default function UnifiedShopCard({
   onClick, 
   showUnlockStatus = false 
 }: UnifiedShopCardProps) {
-  const isCurrentlyOpen = isShopCurrentlyOpen({
+  const unifiedStatus = shop.unifiedStatus || calculateUnifiedShopStatus({
     isOnline: shop.isOnline,
     workingHours: shop.workingHours,
     acceptsWalkinOrders: shop.acceptsWalkinOrders
@@ -70,18 +70,15 @@ export default function UnifiedShopCard({
             
             {/* Status badges overlay on image */}
             <div className="absolute top-2 left-2 flex gap-2">
-              {/* Normal status */}
-              {isCurrentlyOpen && shop.isOnline ? (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Open Now
+              {/* Unified status */}
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                unifiedStatus.isOpen 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {unifiedStatus.isOpen ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
+                {unifiedStatus.statusText}
               </span>
-            ) : !shop.isOnline ? (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                Closed
-              </span>
-            ) : null}
             
             {shop.acceptsWalkinOrders && (
               <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
@@ -95,18 +92,15 @@ export default function UnifiedShopCard({
         {/* Status badges when no image */}
         {!shop.exteriorImage && (
           <div className="flex gap-2 mb-4">
-            {/* Normal status */}
-            {isCurrentlyOpen && shop.isOnline ? (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Open Now
-              </span>
-            ) : !shop.isOnline ? (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                Closed
-              </span>
-            ) : null}
+            {/* Unified status */}
+            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+              unifiedStatus.isOpen 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {unifiedStatus.isOpen ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
+              {unifiedStatus.statusText}
+            </span>
             
             {shop.acceptsWalkinOrders && (
               <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">

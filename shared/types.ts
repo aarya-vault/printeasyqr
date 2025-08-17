@@ -66,6 +66,13 @@ export interface Shop extends Timestamps {
   acceptsWalkinOrders: boolean;
   isOnline: boolean;
   autoAvailability: boolean;
+  // NEW: Unified shop status combining working hours + manual override
+  unifiedStatus?: {
+    isOpen: boolean;
+    canAcceptOrders: boolean;
+    statusText: 'OPEN' | 'CLOSED';
+    reason: string;
+  };
   // Admin and Status
   isApproved: boolean;
   isPublic: boolean;

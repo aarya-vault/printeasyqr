@@ -19,7 +19,7 @@ import { Navbar } from "@/components/layout/navbar";
 import UnifiedShopModal from "@/components/unified-shop-modal";
 import UnifiedShopCard from "@/components/unified-shop-card";
 import { Shop } from "@/types/shop";
-import { isShopCurrentlyOpen } from "@/utils/working-hours";
+import { calculateUnifiedShopStatus } from "@/utils/shop-timing";
 
 export default function AnonymousVisitorBrowseShops() {
   const [, navigate] = useLocation();
@@ -56,7 +56,11 @@ export default function AnonymousVisitorBrowseShops() {
       filterOnline === null || shop.isOnline === filterOnline;
     
     const matchesOpenNow = filterOpenNow 
-      ? isShopCurrentlyOpen(shop.workingHours) 
+      ? calculateUnifiedShopStatus({
+          isOnline: shop.isOnline,
+          workingHours: shop.workingHours,
+          acceptsWalkinOrders: shop.acceptsWalkinOrders
+        }).isOpen 
       : true;
 
     return matchesSearch && matchesCity && matchesOnline && matchesOpenNow;

@@ -112,9 +112,9 @@ export default function CustomerVisitedShops() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-lg font-semibold text-rich-black">{shop.name}</h3>
-                        <div className={`w-2 h-2 rounded-full ${shop.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <span className={`text-xs ${shop.isOnline ? 'text-green-600' : 'text-red-600'}`}>
-                          {shop.isOnline ? 'Online' : 'Offline'}
+                        <div className={`w-2 h-2 rounded-full ${shop.unifiedStatus?.isOpen ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <span className={`text-xs ${shop.unifiedStatus?.isOpen ? 'text-green-600' : 'text-red-600'}`}>
+                          {shop.unifiedStatus?.statusText || (shop.isOnline ? 'Online' : 'Offline')}
                         </span>
                       </div>
                       
@@ -138,7 +138,7 @@ export default function CustomerVisitedShops() {
                     <Button
                       className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
                       onClick={() => navigate(`/shop/${shop.slug}?type=upload`)}
-                      disabled={!shop.isOnline}
+                      disabled={!shop.unifiedStatus?.isOpen && !shop.isOnline}
                     >
                       <Upload className="w-4 h-4 mr-2" />
                       Upload Files
@@ -146,16 +146,16 @@ export default function CustomerVisitedShops() {
                     <Button
                       variant="outline"
                       onClick={() => navigate(`/shop/${shop.slug}?type=walkin`)}
-                      disabled={!shop.isOnline}
+                      disabled={!shop.unifiedStatus?.isOpen && !shop.isOnline}
                     >
                       <Users className="w-4 h-4 mr-2" />
                       Walk-in Order
                     </Button>
                   </div>
 
-                  {!shop.isOnline && (
+                  {!shop.unifiedStatus?.isOpen && !shop.isOnline && (
                     <p className="text-xs text-red-500 mt-2 text-center">
-                      Shop is currently offline
+                      Shop is currently {shop.unifiedStatus?.statusText?.toLowerCase() || 'offline'}
                     </p>
                   )}
                 </CardContent>

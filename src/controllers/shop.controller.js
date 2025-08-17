@@ -3,6 +3,95 @@ import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
 class ShopController {
+  // Calculate unified shop status combining working hours and manual override
+  static calculateUnifiedStatus(shopData) {
+    if (!shopData) {
+      return {
+        isOpen: false,
+        canAcceptOrders: false,
+        statusText: 'CLOSED',
+        reason: 'No shop data'
+      };
+    }
+
+    // Step 1: Check if within working hours
+    const isWithinWorkingHours = ShopController.isWithinWorkingHours(shopData);
+    
+    // Step 2: Check manual override
+    const manualOverride = Boolean(shopData.isOnline);
+    
+    // UNIFIED LOGIC: Shop is OPEN only if BOTH conditions are true
+    const isOpen = isWithinWorkingHours && manualOverride;
+    
+    // Determine reason for status
+    let reason = '';
+    if (!manualOverride) {
+      reason = 'Manually closed by shop owner';
+    } else if (!isWithinWorkingHours) {
+      reason = 'Outside working hours';
+    } else {
+      reason = 'Open and accepting orders';
+    }
+
+    return {
+      isOpen,
+      canAcceptOrders: isOpen,
+      statusText: isOpen ? 'OPEN' : 'CLOSED',
+      reason
+    };
+  }
+
+  // Check if shop is within working hours
+  static isWithinWorkingHours(shopData) {
+    if (!shopData.workingHours) {
+      return false;
+    }
+
+    // Handle string format working hours (fallback to true if shop is online)
+    if (typeof shopData.workingHours === 'string') {
+      return true;
+    }
+
+    // Get current day and time in India timezone
+    const now = new Date();
+    const indiaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const currentDay = indiaTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    
+    let workingHours = shopData.workingHours;
+    if (typeof workingHours === 'string') {
+      try {
+        workingHours = JSON.parse(workingHours);
+      } catch (e) {
+        return true; // Default to open if can't parse
+      }
+    }
+
+    const todayHours = workingHours[currentDay];
+    if (!todayHours) {
+      return false;
+    }
+
+    // Check if closed today
+    if (todayHours.closed === true) {
+      return false;
+    }
+
+    // Check 24/7 operation
+    if (todayHours.is24Hours === true) {
+      return true;
+    }
+
+    // Parse time from different formats
+    const openTime = todayHours.open || todayHours.openTime;
+    const closeTime = todayHours.close || todayHours.closeTime;
+
+    if (!openTime || !closeTime) {
+      return false;
+    }
+
+    const currentTime = indiaTime.toTimeString().slice(0, 5); // HH:MM format
+    return currentTime >= openTime && currentTime <= closeTime;
+  }
   // Data transformation helper for consistent API responses
   static transformShopData(shop) {
     if (!shop) return null;
@@ -42,6 +131,10 @@ class ShopController {
       isOnline: Boolean(shopData.isOnline),
       isOpen: Boolean(shopData.isOnline), // Alias for frontend
       autoAvailability: shopData.autoAvailability,
+      // UNIFIED STATUS - Calculate real-time status combining hours + manual override
+      unifiedStatus: ShopController.calculateUnifiedStatus(shopData),
+      // UNIFIED STATUS - Calculate real-time status combining hours + manual override
+      unifiedStatus: ShopController.calculateUnifiedStatus(shopData),
       // Admin and Status
       isApproved: shopData.isApproved,
       isPublic: shopData.isPublic,

@@ -759,13 +759,10 @@ export default function RedesignedShopOwnerDashboard() {
                     }
                     ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
-                  title={shopData?.shop?.isOnline 
-                    ? 'Click to close your shop' 
-                    : 'Click to open your shop'
-                  }
+                  title={`Manual Override: ${shopData?.shop?.isOnline ? 'Shop is manually opened' : 'Shop is manually closed'} - Click to toggle`}
                 >
-                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
-                  {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.unifiedStatus?.isOpen ? 'bg-green-600' : 'bg-red-500'}`}></div>
+                  {shopData?.shop?.unifiedStatus?.statusText || (shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED')}
                 </button>
               </div>
 
@@ -816,8 +813,8 @@ export default function RedesignedShopOwnerDashboard() {
                   ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <div className={`w-2 h-2 rounded-full mr-1 ${shopData?.shop?.isOnline ? 'bg-green-600' : 'bg-red-500'}`}></div>
-                {shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED'}
+                <div className={`w-2 h-2 rounded-full mr-1 ${shopData?.shop?.unifiedStatus?.isOpen ? 'bg-green-600' : 'bg-red-500'}`}></div>
+                {shopData?.shop?.unifiedStatus?.statusText || (shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED')}
               </button>
 
               {/* Mobile Menu Button */}

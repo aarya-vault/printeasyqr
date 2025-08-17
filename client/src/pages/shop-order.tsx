@@ -21,7 +21,7 @@ import { EnhancedFileUpload } from '@/components/enhanced-file-upload';
 import { useAuth } from '@/hooks/use-auth';
 import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Shop, OrderFormInput } from '@shared/types';
-import { isShopCurrentlyOpen, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
+import { calculateUnifiedShopStatus, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
 import { uploadFilesDirectlyToR2, DirectUploadProgress } from '@/utils/direct-upload';
 
 
@@ -107,31 +107,14 @@ export default function ShopOrder() {
     return () => clearInterval(timer);
   }, []);
 
-  // Use centralized timing utility for consistent shop availability checking
-  const isShopOpen = (): boolean => {
-    return shop ? isShopCurrentlyOpen(shop) : false;
-  };
+  // REMOVED: Use unified status instead of legacy isShopOpen function
 
   // Check if walk-in orders are available using centralized utility
   const canPlaceWalkinOrderCheck = (): boolean => {
     return shop ? canPlaceWalkinOrderUtil(shop) : false;
   };
 
-  // Add debugging for shop status
-  useEffect(() => {
-    if (shop) {
-      const openStatus = isShopOpen();
-      console.log('🔍 SHOP ORDER PAGE - Shop status check:', {
-        name: shop.name,
-        isOnline: shop.isOnline,
-        workingHours: shop.workingHours,
-        acceptsWalkinOrders: shop.acceptsWalkinOrders,
-        currentTime: currentTime.toLocaleTimeString(),
-        isShopOpen: openStatus,
-        calculatedClosed: !openStatus
-      });
-    }
-  }, [shop, currentTime]);
+  // REMOVED: Legacy debugging - using unified status now
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -381,14 +364,24 @@ export default function ShopOrder() {
     );
   }
 
-  // Calculate shop open status - updates when shop data or time changes
-  const shopOpen = isShopOpen();
+  // Calculate unified shop status - combines working hours AND manual override
+  const unifiedStatus = useMemo(() => {
+    if (!shop) return { isOpen: false, canAcceptOrders: false, statusText: 'CLOSED', reason: 'No shop data' };
+    
+    // Use unified status from backend if available, otherwise calculate
+    if (shop.unifiedStatus) {
+      return shop.unifiedStatus;
+    }
+    
+    // Fallback calculation using frontend utility
+    return calculateUnifiedShopStatus(shop);
+  }, [shop]);
   
-  console.log('🏪 SHOP ORDER PAGE - Final status:', {
+  console.log('🏪 SHOP ORDER PAGE - Unified Status:', {
     shopName: shop.name,
     isOnline: shop.isOnline, 
-    calculatedOpen: shopOpen,
-    shouldShowClosedMessage: !shopOpen
+    unifiedStatus,
+    canAcceptOrders: unifiedStatus.canAcceptOrders
   });
 
   return (
@@ -434,8 +427,8 @@ export default function ShopOrder() {
                   </Badge>
                 </div>
               </div>
-              <Badge variant={shopOpen ? 'default' : 'secondary'} className="bg-white/90 text-rich-black">
-                {shopOpen ? 'Open Now' : 'Closed'}
+              <Badge variant={unifiedStatus.isOpen ? 'default' : 'secondary'} className="bg-white/90 text-rich-black">
+                {unifiedStatus.statusText}
               </Badge>
             </div>
             
@@ -455,12 +448,12 @@ export default function ShopOrder() {
 
       {/* Order Form */}
       <div className="max-w-4xl mx-auto p-6">
-        {!shopOpen && (
+        {!unifiedStatus.canAcceptOrders && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-orange-600">
                 <AlertCircle className="w-5 h-5" />
-                <p>This shop is currently closed. You can still place an order for later.</p>
+                <p>{unifiedStatus.reason}. Orders are currently not being accepted.</p>
               </div>
             </CardContent>
           </Card>
@@ -517,7 +510,7 @@ export default function ShopOrder() {
                         </TabsTrigger>
                         <TabsTrigger value="walkin" disabled={!canPlaceWalkinOrderCheck()}>
                           <Users className="w-4 h-4 mr-2" />
-                          Walk-in Order {!shopOpen && '(Closed)'}
+                          Walk-in Order {!unifiedStatus.canAcceptOrders && '(Closed)'}
                         </TabsTrigger>
                       </TabsList>
 

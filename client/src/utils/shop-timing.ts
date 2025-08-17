@@ -24,11 +24,74 @@ export interface ShopTimingData {
   autoAvailability?: boolean;
 }
 
+export interface UnifiedShopStatus {
+  isOpen: boolean;
+  canAcceptOrders: boolean;
+  statusText: 'OPEN' | 'CLOSED';
+  reason: string;
+}
+
 /**
- * Calculate if shop is currently open with comprehensive 24/7 support
+ * NEW UNIFIED SHOP STATUS CALCULATION
+ * Combines working hours AND manual override for single customer-facing status
  * This is the single source of truth for shop availability
  */
-export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
+export function calculateUnifiedShopStatus(shop: ShopTimingData): UnifiedShopStatus {
+  console.log('🔍 UNIFIED STATUS - Calculating shop status:', {
+    isOnline: shop?.isOnline,
+    hasWorkingHours: !!shop?.workingHours,
+    workingHoursType: typeof shop?.workingHours
+  });
+
+  // Basic checks
+  if (!shop) {
+    return {
+      isOpen: false,
+      canAcceptOrders: false,
+      statusText: 'CLOSED',
+      reason: 'No shop data'
+    };
+  }
+  
+  // Step 1: Check if within working hours
+  const isWithinWorkingHours = isShopCurrentlyOpenByHours(shop);
+  
+  // Step 2: Check manual override
+  const manualOverride = shop.isOnline;
+  
+  // UNIFIED LOGIC: Shop is OPEN only if BOTH conditions are true
+  const isOpen = isWithinWorkingHours && manualOverride;
+  
+  // Determine reason for status
+  let reason = '';
+  if (!manualOverride) {
+    reason = 'Manually closed by shop owner';
+  } else if (!isWithinWorkingHours) {
+    reason = 'Outside working hours';
+  } else {
+    reason = 'Open and accepting orders';
+  }
+  
+  console.log('🔍 UNIFIED STATUS Result:', {
+    isWithinWorkingHours,
+    manualOverride,
+    finalStatus: isOpen ? 'OPEN' : 'CLOSED',
+    reason
+  });
+
+  return {
+    isOpen,
+    canAcceptOrders: isOpen,
+    statusText: isOpen ? 'OPEN' : 'CLOSED',
+    reason
+  };
+}
+
+/**
+ * Calculate if shop is currently open with comprehensive 24/7 support
+ * This is for working hours calculation only (internal use)
+ */
+export function isShopCurrentlyOpenByHours(shop: ShopTimingData): boolean {
   console.log('🔍 SHOP TIMING - Checking shop availability:', {
     isOnline: shop?.isOnline,
     hasWorkingHours: !!shop?.workingHours,
@@ -42,12 +105,8 @@ export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
     return false;
   }
   
-  // MASTER OVERRIDE: Manual shop toggle takes absolute priority
-  // If shop owner manually toggles OFFLINE, shop is closed regardless of working hours
-  if (!shop.isOnline) {
-    console.log('🔴 MANUAL OVERRIDE: Shop set to CLOSED by owner (ignoring working hours)');
-    return false;
-  }
+  // Note: Manual override logic moved to calculateUnifiedShopStatus()
+  // This function now only calculates working hours availability
 
   // Check if shop has working hours
   if (!shop.workingHours) {
@@ -200,4 +259,13 @@ export function formatWorkingHours(workingHours: WorkingHours | string): string 
   });
 
   return formattedDays.join(', ');
+}
+
+/**
+ * LEGACY FUNCTION - Use calculateUnifiedShopStatus() instead
+ * Kept for backward compatibility
+ */
+export function isShopCurrentlyOpen(shop: ShopTimingData): boolean {
+  const unifiedStatus = calculateUnifiedShopStatus(shop);
+  return unifiedStatus.isOpen;
 }
