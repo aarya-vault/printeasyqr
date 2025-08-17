@@ -17,6 +17,8 @@ import { apiClient } from '@/lib/api-client';
 
 interface Order {
   id: number;
+  orderNumber?: number;
+  publicId?: string;
   customerId: number;
   customerName: string;
   customerPhone?: string;
@@ -173,7 +175,10 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
               <Package className="w-5 h-5 text-rich-black" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-rich-black">Order #{displayOrder.id}</h2>
+              <h2 className="text-xl font-bold text-rich-black">
+                Queue #{displayOrder.orderNumber || displayOrder.id}
+                <Badge variant="outline" className="ml-2">{displayOrder.publicId || `ORD-${displayOrder.id}`}</Badge>
+              </h2>
               <p className="text-medium-gray">{displayOrder.title || 'Order Details'}</p>
             </div>
           </div>

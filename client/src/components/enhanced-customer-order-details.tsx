@@ -75,6 +75,7 @@ interface EnhancedCustomerOrderDetailsProps {
 export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh }: EnhancedCustomerOrderDetailsProps) {
   const [showChat, setShowChat] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFileIndices, setSelectedFileIndices] = useState<Set<number>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -207,29 +208,48 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         });
       }
     },
-    onSuccess: (data) => {
-      toast({ title: 'Files uploaded successfully!' });
+    onSuccess: async (data) => {
+      // CRITICAL FIX: Enhanced immediate refresh for "Add more files"
+      console.log('✅ Add More Files: Upload successful, forcing immediate refresh...');
       
-      // Force immediate state refresh by refetching and updating parent
-      refetchOrder().then((result) => {
-        // Force update stable order with fresh data immediately
-        if (result.data) {
-          console.log('🔄 Forcing stable order update after file upload');
-          const clonedOrder = JSON.parse(JSON.stringify(result.data));
-          setStableOrder(clonedOrder);
-        }
-        
-        // Force parent component to refresh as well
-        if (onRefresh) {
-          onRefresh();
-        }
+      // Step 1: Invalidate all related queries first
+      await queryClient.invalidateQueries({ queryKey: [`/api/orders/${currentOrder.id}`] });
+      await queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${order.customerId}`] });
+      
+      // Step 2: Force immediate refetch with await
+      const freshResult = await refetchOrder();
+      if (freshResult.data) {
+        console.log('🔄 Updating stable order with fresh files:', freshResult.data.files);
+        const clonedOrder = JSON.parse(JSON.stringify(freshResult.data));
+        setStableOrder(clonedOrder);
+      }
+      
+      // Step 3: If we have new files data from response, update immediately
+      if (data?.newFiles && Array.isArray(data.newFiles)) {
+        setStableOrder((prev: any) => {
+          const existingFiles = parseFiles(prev.files);
+          const updatedOrder = {
+            ...prev,
+            files: [...existingFiles, ...data.newFiles]
+          };
+          console.log('📁 Immediately added new files to stable order:', data.newFiles.length);
+          return updatedOrder;
+        });
+      }
+      
+      // Step 4: Force parent refresh
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
+      toast({ 
+        title: 'Files uploaded successfully!',
+        description: `${selectedFiles.length} file(s) added to order`
       });
       
-      // Invalidate related queries to refresh order data across the app
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${order.customerId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer`] });
-      
+      // Reset upload state
       setSelectedFiles([]);
+      setUploadProgress(null);
       setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -497,6 +517,58 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     }
   };
 
+  const handlePrintSelected = async () => {
+    if (selectedFileIndices.size === 0) {
+      toast({ title: 'No files selected', description: 'Please select files to print', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const selectedFiles = Array.from(selectedFileIndices).map(index => currentFiles[index]).filter(Boolean);
+      
+      if (selectedFiles.length > 0) {
+        toast({ title: `Preparing ${selectedFiles.length} selected files for printing...` });
+        await printAllFiles(selectedFiles, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} selected files sent to print` });
+          }
+        }, currentOrder.status);
+      }
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot print selected files', 
+        description: error.message || 'Files may no longer be available',
+        variant: 'destructive' 
+      });
+    }
+  };
+
+  const handleDownloadSelected = async () => {
+    if (selectedFileIndices.size === 0) {
+      toast({ title: 'No files selected', description: 'Please select files to download', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const selectedFiles = Array.from(selectedFileIndices).map(index => currentFiles[index]).filter(Boolean);
+      
+      if (selectedFiles.length > 0) {
+        toast({ title: `Downloading ${selectedFiles.length} selected files...` });
+        downloadAllFiles(selectedFiles, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} selected files downloaded` });
+          }
+        }, currentOrder.status);
+      }
+    } catch (error: any) {
+      toast({ 
+        title: 'Cannot download selected files', 
+        description: error.message || 'Files may no longer be available',
+        variant: 'destructive' 
+      });
+    }
+  };
+
   if (showChat) {
     return (
       <UnifiedChatSystem
@@ -514,7 +586,12 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-rich-black">Order #{currentOrder.id}</h2>
+            <h2 className="text-2xl font-bold text-rich-black">
+              Queue #{currentOrder.orderNumber || currentOrder.id}
+              <span className="text-sm text-gray-500 ml-2 font-normal">
+                (ID: {currentOrder.publicId || `ORD-${currentOrder.id}`})
+              </span>
+            </h2>
             <p className="text-gray-600">{currentOrder.title}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -724,15 +801,44 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                       Files ({currentFiles.length})
                     </span>
                     {currentFiles.length > 1 && currentOrder.status !== 'completed' && (
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={handlePrintAll} className="text-xs sm:text-sm">
+                      <div className="flex gap-2 items-center">
+                        <div className="text-xs text-gray-500 mr-2">
+                          {selectedFileIndices.size > 0 ? `${selectedFileIndices.size} selected` : 'Select files'}
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => {
+                            if (selectedFileIndices.size === currentFiles.length) {
+                              setSelectedFileIndices(new Set());
+                            } else {
+                              setSelectedFileIndices(new Set(Array.from({ length: currentFiles.length }, (_, i) => i)));
+                            }
+                          }}
+                          className="text-xs"
+                        >
+                          {selectedFileIndices.size === currentFiles.length ? 'Deselect All' : 'Select All'}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handlePrintSelected} 
+                          className="text-xs sm:text-sm"
+                          disabled={selectedFileIndices.size === 0}
+                        >
                           <Printer className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          <span className="hidden sm:inline">Print All</span>
+                          <span className="hidden sm:inline">Print Selected</span>
                           <span className="sm:hidden">Print</span>
                         </Button>
-                        <Button size="sm" variant="outline" onClick={handleDownloadAll} className="text-xs sm:text-sm">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleDownloadSelected} 
+                          className="text-xs sm:text-sm"
+                          disabled={selectedFileIndices.size === 0}
+                        >
                           <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          <span className="hidden sm:inline">Download All</span>
+                          <span className="hidden sm:inline">Download Selected</span>
                           <span className="sm:hidden">Download</span>
                         </Button>
                       </div>
@@ -748,6 +854,20 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   ) : (
                     currentFiles.map((file: any, index: number) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={selectedFileIndices.has(index)}
+                          onChange={(e) => {
+                            const newSelection = new Set(selectedFileIndices);
+                            if (e.target.checked) {
+                              newSelection.add(index);
+                            } else {
+                              newSelection.delete(index);
+                            }
+                            setSelectedFileIndices(newSelection);
+                          }}
+                          className="w-4 h-4 text-brand-yellow bg-white border-gray-300 rounded focus:ring-brand-yellow focus:ring-2"
+                        />
                         <FileText className="w-8 h-8 text-brand-yellow" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">
@@ -810,7 +930,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                           isUploading={isUploading || uploadFilesMutation.isPending}
                           disabled={isUploading || uploadFilesMutation.isPending}
                           maxFiles={200}
-                          acceptedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt', '.ppt', '.pptx', '.xls', '.xlsx']}
+                          acceptedFileTypes={['*']}
                           uploadProgress={uploadProgress || undefined}
                         />
                         

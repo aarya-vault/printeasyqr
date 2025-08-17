@@ -113,7 +113,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
                   <div class="w-2 h-2 bg-[#FFBF00] rounded-full animate-pulse"></div>
                   <div>
                     <div class="font-semibold">Order Status Updated</div>
-                    <div class="text-sm">Order #${data.order.id} is now ${data.order.status}</div>
+                    <div class="text-sm">Queue #${data.order.orderNumber || data.order.id} is now ${data.order.status}</div>
                   </div>
                 </div>
               `;
@@ -142,7 +142,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
                     <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     <div>
                       <div class="font-semibold">New Order Received!</div>
-                      <div class="text-sm">Order #${data.order.id} from ${data.order.customerName}</div>
+                      <div class="text-sm">Queue #${data.order.orderNumber || data.order.id} from ${data.order.customerName}</div>
                     </div>
                   </div>
                 `;

@@ -38,17 +38,10 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
   
   const fileType = getFileType(file);
   
-  // EXECUTIVE DECISION: Use PDF.js for all PDF files
-  let printWindow: Window | null;
-  if (fileType === 'pdf') {
-    // Use PDF.js viewer via API route to avoid Vite conflicts
-    const pdfViewerUrl = `/api/pdf-viewer?file=${encodeURIComponent(fileUrl)}&name=${encodeURIComponent(filename)}&autoprint=true`;
-    printWindow = window.open(pdfViewerUrl, '_blank', 'width=900,height=700');
-  } else {
-    // Use existing print-host for images and other files
-    const printHostUrl = `/api/print-host?file=${encodeURIComponent(fileUrl)}&type=${fileType}`;
-    printWindow = window.open(printHostUrl, '_blank', 'width=800,height=600');
-  }
+  // UNIFIED APPROACH: Use iframe print-host for ALL file types including PDFs
+  console.log(`🖨️ Using unified iframe approach for ${fileType}: ${filename}`);
+  const printHostUrl = `/api/print-host?file=${encodeURIComponent(fileUrl)}&type=${fileType}&name=${encodeURIComponent(filename)}`;
+  const printWindow = window.open(printHostUrl, '_blank', 'width=900,height=700');
 
   if (!printWindow) {
     // This is the ONLY correct fallback. Inform the user.

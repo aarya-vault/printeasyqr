@@ -39,7 +39,7 @@ export function EnhancedFileUpload({
   isUploading = false,
   disabled = false,
   maxFiles = Infinity, // Unlimited files
-  acceptedFileTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.txt'],
+  acceptedFileTypes = ['*'], // Accept ALL file types including .zip, .csv, .xlsx, etc.
   uploadProgress,
   onUploadProgress
 }: EnhancedFileUploadProps) {
@@ -167,7 +167,7 @@ export function EnhancedFileUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept={acceptedFileTypes.join(',')}
+          accept={acceptedFileTypes[0] === '*' ? undefined : acceptedFileTypes.join(',')}
           onChange={handleInputChange}
           className="hidden"
           disabled={disabled}
@@ -188,7 +188,7 @@ export function EnhancedFileUpload({
               <div className="text-center">
                 <p className="text-black font-medium">Drop files here or click to upload</p>
                 <p className="text-gray-600 text-sm">
-                  Support: {acceptedFileTypes.join(', ')} • Unlimited file size
+                  {acceptedFileTypes[0] === '*' ? 'All file types supported • Unlimited file size' : `Support: ${acceptedFileTypes.join(', ')} • Unlimited file size`}
                 </p>
               </div>
             </>
