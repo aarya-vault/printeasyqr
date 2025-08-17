@@ -91,128 +91,15 @@ export default function OrderConfirmation() {
   };
 
   const handleGoToDashboard = async () => {
-    // 🔧 FIX: Enhanced redirect logic with proper JWT token handling
-    console.log('🎯 Starting redirect process...');
-    console.log('Current user context:', user);
+    // Simplified redirect logic - always go to customer dashboard for customers
+    console.log('🎯 Redirecting to customer dashboard...');
     
-    // Force refresh of auth context if needed
-    let currentUser = user;
-    if (!currentUser) {
-      try {
-        // Try multiple token storage locations
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        const storedUser = localStorage.getItem('user');
-        
-        console.log('Token found:', token ? 'Yes' : 'No');
-        console.log('Stored user found:', storedUser ? 'Yes' : 'No');
-        
-        if (token && !storedUser) {
-          // If we have token but no user, decode it
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            currentUser = { 
-              id: payload.userId || payload.id, 
-              role: payload.role || 'customer',
-              name: payload.name || '',
-              phone: payload.phone || '',
-              isActive: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            };
-            console.log('🔑 Decoded user from token:', currentUser);
-            
-            // Store user in localStorage for future use
-            localStorage.setItem('user', JSON.stringify(currentUser));
-          } catch (decodeError) {
-            console.error('Failed to decode token:', decodeError);
-          }
-        } else if (storedUser) {
-          currentUser = JSON.parse(storedUser);
-          console.log('📦 Using stored user:', currentUser?.role);
-        }
-      } catch (e) {
-        console.error('Failed to restore user from storage:', e);
-      }
-    }
+    // Since this is the order confirmation page, user is always a customer
+    // Shop owners would access their orders through shop dashboard
+    const targetRoute = '/customer-dashboard';
     
-    // Redirect based on user role with enhanced logging
-    if (currentUser?.role) {
-      console.log('🎯 Redirecting user role:', currentUser.role);
-      const targetRoute = currentUser.role === 'shop_owner' ? '/shop-owner-dashboard' : 
-                         currentUser.role === 'admin' ? '/admin-dashboard' : 
-                         '/customer-dashboard';
-      
-      console.log('Target route:', targetRoute);
-      
-      try {
-        navigate(targetRoute);
-        console.log('✅ Navigate called successfully');
-        
-        // Fallback: Use window.location if navigate fails
-        setTimeout(() => {
-          if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
-            console.log('🔄 Navigate may have failed, using window.location fallback');
-            window.location.href = targetRoute;
-          }
-        }, 1000);
-        
-      } catch (navError) {
-        console.error('Navigate failed, using window.location:', navError);
-        window.location.href = targetRoute;
-      }
-    } else {
-      // Ultimate fallback - check token and decode role
-      try {
-        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-        console.log('Checking token for role...', token ? 'Token found' : 'No token');
-        
-        if (token) {
-          // Decode JWT payload (basic decode without verification)
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          console.log('🔑 Token payload role:', payload.role);
-          
-          const targetRoute = payload.role === 'shop_owner' ? '/shop-owner-dashboard' : 
-                             payload.role === 'admin' ? '/admin-dashboard' : 
-                             '/customer-dashboard';
-          
-          console.log('Token-based target route:', targetRoute);
-          
-          try {
-            navigate(targetRoute);
-            
-            // Fallback for token-based redirect too
-            setTimeout(() => {
-              if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
-                console.log('🔄 Token-based navigate may have failed, using window.location');
-                window.location.href = targetRoute;
-              }
-            }, 1000);
-          } catch (navError) {
-            console.error('Token-based navigate failed:', navError);
-            window.location.href = targetRoute;
-          }
-        } else {
-          console.log('🚑 No user context or token - defaulting to customer dashboard');
-          try {
-            navigate('/customer-dashboard');
-            
-            // Fallback for default redirect
-            setTimeout(() => {
-              if (window.location.pathname === '/order-confirmation/' + params?.orderId) {
-                console.log('🔄 Default navigate may have failed, using window.location');
-                window.location.href = '/customer-dashboard';
-              }
-            }, 1000);
-          } catch (navError) {
-            console.error('Default navigate failed:', navError);
-            window.location.href = '/customer-dashboard';
-          }
-        }
-      } catch (e) {
-        console.error('Failed to decode token, using absolute fallback:', e);
-        window.location.href = '/customer-dashboard';
-      }
-    }
+    // Use direct window.location for most reliable redirect
+    window.location.href = targetRoute;
   };
 
   // Helper function to get customer-friendly status
