@@ -344,6 +344,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Refresh auth context - force re-check of JWT token
+  const refreshAuthContext = async () => {
+    try {
+      console.log('🔄 Refreshing auth context...');
+      
+      // Get JWT token from localStorage
+      const authToken = localStorage.getItem('authToken');
+      
+      if (!authToken) {
+        console.log('No JWT token found during refresh');
+        return;
+      }
+      
+      // Verify token with server
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log('✅ Auth context refreshed:', userData.role);
+      } else {
+        console.log('Token invalid during refresh');
+        setUser(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('authToken');
+      }
+    } catch (error) {
+      console.error('Error refreshing auth context:', error);
+    }
+  };
+
   // 🚀 SMART JWT-FIRST WhatsApp OTP authentication
   const sendWhatsAppOTP = async (phone: string): Promise<{ skipOTP: boolean; user?: User }> => {
     try {
@@ -451,7 +490,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       verifyWhatsAppOTP,
       getPersistentUserData,
       savePersistentUserData,
-      clearPersistentUserData
+      clearPersistentUserData,
+      refreshAuthContext
     }}>
       {children}
     </AuthContext.Provider>

@@ -50,15 +50,15 @@ interface OrderDetails {
 export default function OrderConfirmation() {
   const [, params] = useRoute('/order-confirmation/:orderId');
   const [, navigate] = useLocation();
-  const { user, login } = useAuth();
+  const { user, login, refreshAuthContext } = useAuth();
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [countdown, setCountdown] = useState(10); // 10 seconds countdown
 
   useEffect(() => {
     setMounted(true);
-    // 🔧 FIX: Force refresh user context after JIT auth
-    // User context should be automatically updated after JIT auth
+    // Force refresh auth context to pick up JWT token from order creation
+    refreshAuthContext();
   }, []);
 
   // Get order details

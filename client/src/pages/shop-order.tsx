@@ -212,8 +212,9 @@ export default function ShopOrder() {
       const authData = await authResponse.json();
       console.log(`✅ Authenticated: ${authData.isNewUser ? 'New' : 'Existing'} user ${authData.user.name}`);
       
-      // Store JWT token for authenticated requests
-      localStorage.setItem('token', authData.token);
+      // Store JWT token for authenticated requests - use 'authToken' key to match auth context
+      localStorage.setItem('authToken', authData.token); // Match auth context key
+      localStorage.setItem('token', authData.token); // Keep for backward compatibility
       localStorage.setItem('user', JSON.stringify(authData.user));
       
       // Step 2: Create authenticated order WITHOUT files first (R2 Direct Upload Pattern)
