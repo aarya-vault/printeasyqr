@@ -72,4 +72,12 @@ export interface Shop {
   
   // Computed properties
   isOpen?: boolean;
+  
+  // Unified status (combines manual override and working hours)
+  unifiedStatus?: {
+    isOpen: boolean;
+    canAcceptOrders: boolean;
+    statusText: string;
+    reason?: string;
+  };
 }

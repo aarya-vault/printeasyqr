@@ -61,6 +61,7 @@ import UnifiedChatSystem from '@/components/unified-chat-system';
 import UnifiedFloatingChatButton from '@/components/unified-floating-chat-button';
 import OrderDetailsModal from '@/components/order-details-modal';
 import { format } from 'date-fns';
+import { calculateUnifiedShopStatus } from '@/utils/shop-timing';
 
 // Using the shared Shop type from types
 import type { Shop } from '@shared/types';
@@ -761,8 +762,16 @@ export default function RedesignedShopOwnerDashboard() {
                   `}
                   title={`Manual Override: ${shopData?.shop?.isOnline ? 'Shop is manually opened' : 'Shop is manually closed'} - Click to toggle`}
                 >
-                  <div className={`w-2 h-2 rounded-full mr-2 ${shopData?.shop?.unifiedStatus?.isOpen ? 'bg-green-600' : 'bg-red-500'}`}></div>
-                  {shopData?.shop?.unifiedStatus?.statusText || (shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED')}
+                  <div className={`w-2 h-2 rounded-full mr-2 ${(() => {
+                    if (!shopData?.shop) return 'bg-red-500';
+                    const status = calculateUnifiedShopStatus(shopData.shop);
+                    return status.isOpen ? 'bg-green-600' : 'bg-red-500';
+                  })()}`}></div>
+                  {(() => {
+                    if (!shopData?.shop) return 'CLOSED';
+                    const status = calculateUnifiedShopStatus(shopData.shop);
+                    return status.statusText;
+                  })()}
                 </button>
               </div>
 
@@ -806,15 +815,24 @@ export default function RedesignedShopOwnerDashboard() {
                 disabled={toggleShopStatus.isPending}
                 className={`
                   flex items-center px-2 py-1.5 rounded-md font-semibold text-xs transition-all duration-200
-                  ${shopData?.shop?.unifiedStatus?.isOpen 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-red-500 text-white'
-                  }
+                  ${(() => {
+                    if (!shopData?.shop) return 'bg-red-500 text-white';
+                    const status = calculateUnifiedShopStatus(shopData.shop);
+                    return status.isOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+                  })()}
                   ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
-                <div className={`w-2 h-2 rounded-full mr-1 ${shopData?.shop?.unifiedStatus?.isOpen ? 'bg-green-600' : 'bg-red-500'}`}></div>
-                {shopData?.shop?.unifiedStatus?.statusText || (shopData?.shop?.isOnline ? 'OPEN' : 'CLOSED')}
+                <div className={`w-2 h-2 rounded-full mr-1 ${(() => {
+                  if (!shopData?.shop) return 'bg-red-500';
+                  const status = calculateUnifiedShopStatus(shopData.shop);
+                  return status.isOpen ? 'bg-green-600' : 'bg-red-500';
+                })()}`}></div>
+                {(() => {
+                  if (!shopData?.shop) return 'CLOSED';
+                  const status = calculateUnifiedShopStatus(shopData.shop);
+                  return status.statusText;
+                })()}
               </button>
 
               {/* Mobile Menu Button */}
