@@ -60,6 +60,29 @@ export async function getDirectUploadUrls(
     }
 
     const data = await response.json();
+    
+    // Check if CORS is properly configured
+    // If we detect CORS errors, fall back to server upload
+    if (data.useDirectUpload && data.uploadUrls?.length > 0) {
+      // Test CORS with a small OPTIONS request first
+      try {
+        const testUrl = data.uploadUrls[0].uploadUrl;
+        const urlObj = new URL(testUrl);
+        const corsTestResponse = await fetch(urlObj.origin, {
+          method: 'OPTIONS',
+          mode: 'cors'
+        }).catch(() => null);
+        
+        if (!corsTestResponse) {
+          console.warn('⚠️ CORS test failed - falling back to server upload');
+          return { useDirectUpload: false };
+        }
+      } catch (corsError) {
+        console.warn('⚠️ CORS check failed - falling back to server upload');
+        return { useDirectUpload: false };
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error('Failed to get upload URLs:', error);
