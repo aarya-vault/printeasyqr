@@ -81,20 +81,21 @@ export function EnhancedFileUpload({
 
     // Validate each file
     newFiles.forEach(file => {
-      // Check file type
+      // Check file type - handle wildcard case
       const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-      if (!acceptedFileTypes.includes(fileExtension)) {
-        toast({
-          title: "Invalid file type",
-          description: `${file.name} is not supported. Please upload: ${acceptedFileTypes.join(', ')}`,
-          variant: "destructive",
-        });
+      
+      // If acceptedFileTypes contains '*', accept all files
+      if (acceptedFileTypes.includes('*') || acceptedFileTypes.includes(fileExtension)) {
+        validFiles.push(file);
         return;
       }
-
-      // No file size limit - unlimited file uploads
-
-      validFiles.push(file);
+      
+      // File type not accepted
+      toast({
+        title: "Invalid file type",
+        description: `${file.name} is not supported. Please upload: ${acceptedFileTypes.join(', ')}`,
+        variant: "destructive",
+      });
     });
 
     // No file count restrictions - unlimited uploads

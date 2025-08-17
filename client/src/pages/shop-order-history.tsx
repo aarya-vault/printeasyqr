@@ -27,6 +27,8 @@ import { Link } from 'wouter';
 
 interface Order {
   id: number;
+  orderNumber: number;
+  publicId?: string;
   customerId: number;
   shopId: number;
   customerName: string;
@@ -325,7 +327,7 @@ export default function ShopOrderHistory() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
-                Chat History - Order #{selectedOrder.id}
+                Chat History - Queue #{selectedOrder.orderNumber} (ID: {selectedOrder.publicId || selectedOrder.id})
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600">
                 Conversation with {selectedOrder.customerName}

@@ -316,23 +316,26 @@ export default function RedesignedShopOwnerDashboard() {
       // Snapshot the previous value
       const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
       
-      // Optimistically update to the new value
-      queryClient.setQueryData<Order[]>(
-        [`/api/orders/shop/${shopData?.shop?.id}`],
-        (old) => {
-          if (!old) return old;
-          return old.map(order => 
-            order.id === orderId 
-              ? { ...order, status, updatedAt: new Date().toISOString() }
-              : order
-          );
-        }
-      );
+      // For "completed" status, don't show optimistic update to prevent UI flashing
+      if (status !== 'completed') {
+        // Optimistically update to the new value for non-completed statuses
+        queryClient.setQueryData<Order[]>(
+          [`/api/orders/shop/${shopData?.shop?.id}`],
+          (old) => {
+            if (!old) return old;
+            return old.map(order => 
+              order.id === orderId 
+                ? { ...order, status, updatedAt: new Date().toISOString() }
+                : order
+            );
+          }
+        );
+      }
       
       // Show instant feedback to user
       toast({ 
         title: 'Status Updated!', 
-        description: `Order #${orderId} status changed to ${status}` 
+        description: `Queue #${orderId} status changed to ${status}` 
       });
       
       // Return a context object with the snapshotted value
@@ -380,11 +383,14 @@ export default function RedesignedShopOwnerDashboard() {
       if (!response.ok) throw new Error('Failed to update shop status');
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedShop) => {
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      
+      // Use the NEW status from the response, not the old cached status
+      const newStatus = updatedShop?.isOnline;
       toast({ 
-        title: shopData?.shop?.isOnline ? 'Shop Closed' : 'Shop Opened',
-        description: shopData?.shop?.isOnline ? 'You are no longer accepting orders' : 'You are now accepting orders'
+        title: newStatus ? 'Shop Opened' : 'Shop Closed',
+        description: newStatus ? 'You are now accepting orders' : 'You are no longer accepting orders'
       });
     },
     onError: (error: any) => {

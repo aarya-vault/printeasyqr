@@ -91,22 +91,47 @@ export default function OrderConfirmation() {
   };
 
   const handleGoToDashboard = async () => {
-    // 🔧 FIX: Role-based redirect with enhanced fallback logic and debugging
+    // 🔧 FIX: Enhanced redirect logic with proper JWT token handling
     console.log('🎯 Starting redirect process...');
     console.log('Current user context:', user);
     
-    // Try to get user from localStorage if auth context is stale
+    // Force refresh of auth context if needed
     let currentUser = user;
     if (!currentUser) {
       try {
+        // Try multiple token storage locations
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        console.log('Stored user in localStorage:', storedUser);
-        if (storedUser) {
+        
+        console.log('Token found:', token ? 'Yes' : 'No');
+        console.log('Stored user found:', storedUser ? 'Yes' : 'No');
+        
+        if (token && !storedUser) {
+          // If we have token but no user, decode it
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUser = { 
+              id: payload.userId || payload.id, 
+              role: payload.role || 'customer',
+              name: payload.name || '',
+              phone: payload.phone || '',
+              isActive: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            console.log('🔑 Decoded user from token:', currentUser);
+            
+            // Store user in localStorage for future use
+            localStorage.setItem('user', JSON.stringify(currentUser));
+          } catch (decodeError) {
+            console.error('Failed to decode token:', decodeError);
+          }
+        } else if (storedUser) {
           currentUser = JSON.parse(storedUser);
-          console.log('🔄 Using stored user for redirect:', currentUser?.role);
+          console.log('📦 Using stored user:', currentUser?.role);
         }
       } catch (e) {
-        console.error('Failed to parse stored user:', e);
+        console.error('Failed to restore user from storage:', e);
       }
     }
     

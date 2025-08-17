@@ -30,7 +30,8 @@ export async function getDirectUploadUrls(
   orderId: string | number
 ): Promise<{ useDirectUpload: boolean; uploadUrls?: any[] }> {
   try {
-    const token = localStorage.getItem('token');
+    // Try multiple token storage locations for compatibility
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
     
     // JWT token is REQUIRED for R2 direct upload
     if (!token) {
@@ -132,7 +133,8 @@ export async function confirmFilesUpload(
   orderId: string | number,
   files: { r2Key: string; originalName: string; size: number; mimetype: string }[]
 ) {
-  const token = localStorage.getItem('token');
+  // Try multiple token storage locations for compatibility
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
   if (!token) {
     throw new Error('Authentication required for file confirmation');
   }
@@ -163,8 +165,8 @@ export async function uploadFilesDirectlyToR2(
 ): Promise<{ success: boolean; uploadedFiles: DirectUploadFile[] }> {
   console.log(`🚀 Starting TRUE R2 direct upload for ${files.length} files...`);
   
-  // Check authentication first
-  const token = localStorage.getItem('token');
+  // Check authentication first - try multiple token locations
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
   if (!token) {
     console.error('❌ Cannot upload without authentication');
     return { success: false, uploadedFiles: [] };
