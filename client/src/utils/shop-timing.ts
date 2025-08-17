@@ -59,15 +59,17 @@ export function calculateUnifiedShopStatus(shop: ShopTimingData): UnifiedShopSta
   // Step 2: Check manual override
   const manualOverride = shop.isOnline;
   
-  // UNIFIED LOGIC: Shop is OPEN only if BOTH conditions are true
-  const isOpen = isWithinWorkingHours && manualOverride;
+  // UPDATED LOGIC: For shop owner dashboard, manual override takes precedence
+  // Shop shows as OPEN if manually set to online (regardless of working hours)
+  // Shop shows as CLOSED only if manually set to offline
+  const isOpen = manualOverride; // Simple: follow the manual toggle
   
   // Determine reason for status
   let reason = '';
   if (!manualOverride) {
     reason = 'Manually closed by shop owner';
   } else if (!isWithinWorkingHours) {
-    reason = 'Outside working hours';
+    reason = 'Open (outside working hours)';
   } else {
     reason = 'Open and accepting orders';
   }
@@ -81,7 +83,7 @@ export function calculateUnifiedShopStatus(shop: ShopTimingData): UnifiedShopSta
 
   return {
     isOpen,
-    canAcceptOrders: isOpen,
+    canAcceptOrders: isOpen, // If shop is manually open, it can accept orders
     statusText: isOpen ? 'OPEN' : 'CLOSED',
     reason
   };
