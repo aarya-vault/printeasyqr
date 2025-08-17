@@ -20,15 +20,17 @@ class ShopController {
     // Step 2: Check manual override
     const manualOverride = Boolean(shopData.isOnline);
     
-    // UNIFIED LOGIC: Shop is OPEN only if BOTH conditions are true
-    const isOpen = isWithinWorkingHours && manualOverride;
+    // UPDATED LOGIC: Manual override takes precedence
+    // Shop shows as OPEN if manually set to online (regardless of working hours)
+    // Shop shows as CLOSED only if manually set to offline
+    const isOpen = manualOverride;
     
     // Determine reason for status
     let reason = '';
     if (!manualOverride) {
       reason = 'Manually closed by shop owner';
     } else if (!isWithinWorkingHours) {
-      reason = 'Outside working hours';
+      reason = 'Open (outside working hours)';
     } else {
       reason = 'Open and accepting orders';
     }
@@ -131,8 +133,6 @@ class ShopController {
       isOnline: Boolean(shopData.isOnline),
       isOpen: Boolean(shopData.isOnline), // Alias for frontend
       autoAvailability: shopData.autoAvailability,
-      // UNIFIED STATUS - Calculate real-time status combining hours + manual override
-      unifiedStatus: ShopController.calculateUnifiedStatus(shopData),
       // UNIFIED STATUS - Calculate real-time status combining hours + manual override
       unifiedStatus: ShopController.calculateUnifiedStatus(shopData),
       // Admin and Status

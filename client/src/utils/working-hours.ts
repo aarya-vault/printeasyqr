@@ -143,6 +143,8 @@ export function isShopCurrentlyOpen(workingHours: WorkingHours | string): boolea
 
 /**
  * Get display string for working hours
+ * Note: This only shows the working hours schedule, not the actual open/closed status
+ * For actual status, use calculateUnifiedShopStatus from shop-timing.ts
  */
 export function getWorkingHoursDisplay(workingHours: WorkingHours | string): string {
   if (typeof workingHours === 'string') {
@@ -158,19 +160,19 @@ export function getWorkingHoursDisplay(workingHours: WorkingHours | string): str
       // Handle database format: { isOpen: true/false, openTime: "10:00", closeTime: "20:30" }
       if (todayHours.isOpen === false) return 'Closed Today';
       if (todayHours.isOpen === true && todayHours.openTime && todayHours.closeTime) {
-        return `${todayHours.openTime} - ${todayHours.closeTime}`;
+        return `Today: ${todayHours.openTime} - ${todayHours.closeTime}`;
       }
       
       // Handle legacy format
       if (todayHours.closed) return 'Closed Today';
       if (todayHours.is24Hours) return '24/7 Open';
       if (todayHours.open && todayHours.close) {
-        return `${todayHours.open} - ${todayHours.close}`;
+        return `Today: ${todayHours.open} - ${todayHours.close}`;
       }
     }
   }
   
-  return 'Business hours not available';
+  return 'Hours not available';
 }
 
 /**
