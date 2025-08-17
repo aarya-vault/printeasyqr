@@ -753,9 +753,9 @@ export default function RedesignedShopOwnerDashboard() {
                   disabled={toggleShopStatus.isPending}
                   className={`
                     flex items-center px-3 py-2 rounded-md font-semibold text-sm transition-all duration-200
-                    ${shopData?.shop?.isOnline 
-                      ? 'bg-[#FFBF00] text-black' 
-                      : 'bg-gray-200 text-gray-600'
+                    ${shopData?.shop?.unifiedStatus?.isOpen 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-red-500 text-white'
                     }
                     ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                   `}
@@ -806,9 +806,9 @@ export default function RedesignedShopOwnerDashboard() {
                 disabled={toggleShopStatus.isPending}
                 className={`
                   flex items-center px-2 py-1.5 rounded-md font-semibold text-xs transition-all duration-200
-                  ${shopData?.shop?.isOnline 
-                    ? 'bg-[#FFBF00] text-black' 
-                    : 'bg-gray-200 text-gray-600'
+                  ${shopData?.shop?.unifiedStatus?.isOpen 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-red-500 text-white'
                   }
                   ${toggleShopStatus.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}

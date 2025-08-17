@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -338,6 +338,20 @@ export default function ShopOrder() {
 
 
 
+  // Calculate unified shop status - combines working hours AND manual override
+  // Move this before early returns to fix hooks order
+  const unifiedStatus = useMemo(() => {
+    if (!shop) return { isOpen: false, canAcceptOrders: false, statusText: 'CLOSED', reason: 'No shop data' };
+    
+    // Use unified status from backend if available, otherwise calculate
+    if (shop.unifiedStatus) {
+      return shop.unifiedStatus;
+    }
+    
+    // Fallback calculation using frontend utility
+    return calculateUnifiedShopStatus(shop);
+  }, [shop]);
+
   if (isLoading) {
     return (
       <DashboardLoading 
@@ -363,19 +377,6 @@ export default function ShopOrder() {
       </div>
     );
   }
-
-  // Calculate unified shop status - combines working hours AND manual override
-  const unifiedStatus = useMemo(() => {
-    if (!shop) return { isOpen: false, canAcceptOrders: false, statusText: 'CLOSED', reason: 'No shop data' };
-    
-    // Use unified status from backend if available, otherwise calculate
-    if (shop.unifiedStatus) {
-      return shop.unifiedStatus;
-    }
-    
-    // Fallback calculation using frontend utility
-    return calculateUnifiedShopStatus(shop);
-  }, [shop]);
   
   console.log('🏪 SHOP ORDER PAGE - Unified Status:', {
     shopName: shop.name,

@@ -294,16 +294,23 @@ export async function uploadFilesDirectlyToR2(
         r2Key: f.key!,
         originalName: f.file.name,
         size: f.file.size,
-        mimetype: f.file.type,
-        bucket: process.env.VITE_R2_BUCKET_NAME || 'printeasy-qr',
+        mimetype: f.file.type || 'application/octet-stream',
+        bucket: 'printeasy-qr', // Use hardcoded bucket name
         filename: f.key!.split('/').pop() || f.file.name
       }));
 
-      console.log(`🔄 Confirming ${confirmData.length} successful uploads...`);
-      await confirmFilesUpload(orderId, confirmData);
-      console.log('✅ File confirmations sent to server');
+      console.log(`🔄 Confirming ${confirmData.length} successful uploads with details:`, confirmData);
+      const confirmResult = await confirmFilesUpload(orderId, confirmData);
+      console.log('✅ File confirmations sent to server. Result:', confirmResult);
     } catch (confirmError) {
-      console.error('❌ Failed to confirm uploads:', confirmError);
+      console.error('❌ Failed to confirm uploads. Error details:', confirmError);
+      // Log more details about the error
+      if (confirmError instanceof Error) {
+        console.error('Error message:', confirmError.message);
+        console.error('Error stack:', confirmError.stack);
+      }
+      // Don't throw - allow order creation to complete even if confirmation fails
+      console.warn('⚠️ Order created but files may not be linked. Manual intervention required.');
     }
   }
 
