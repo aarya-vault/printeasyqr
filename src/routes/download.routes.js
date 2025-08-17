@@ -56,11 +56,32 @@ router.get('/download/*', async (req, res) => {  // Removed requireAuth temporar
       return res.status(404).json({ message: 'File not found' });
     }
     
-    // Set headers to force automatic download without "Save As" dialog
-    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cache-Control', 'no-cache');
+    // Check if this is a print request or download request
+    const isPrintRequest = req.query.print === 'true';
+    
+    if (isPrintRequest) {
+      // For print requests, serve inline so the file can be displayed in iframe
+      // Detect file type from extension
+      const ext = originalName.split('.').pop()?.toLowerCase();
+      let contentType = 'application/octet-stream';
+      
+      if (ext === 'pdf') {
+        contentType = 'application/pdf';
+      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext || '')) {
+        contentType = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+      }
+      
+      res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      // For download requests, force attachment
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'no-cache');
+    }
     
     // Stream the response
     const reader = fileResponse.body.getReader();

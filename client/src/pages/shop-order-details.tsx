@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   ArrowLeft,
   Package,
@@ -44,6 +46,7 @@ interface OrderDetails {
 export default function ShopOrderDetails() {
   const { orderId } = useParams();
   const { toast } = useToast();
+  const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
 
   const { data: order, isLoading, error } = useQuery<OrderDetails>({
     queryKey: [`/api/orders/${orderId}`],
@@ -54,6 +57,81 @@ export default function ShopOrderDetails() {
     },
     staleTime: 30000, // Keep data fresh for 30 seconds
   });
+
+  // File selection handlers
+  const handleFileSelect = (index: number, checked: boolean) => {
+    const newSelected = new Set(selectedFiles);
+    if (checked) {
+      newSelected.add(index);
+    } else {
+      newSelected.delete(index);
+    }
+    setSelectedFiles(newSelected);
+  };
+
+  const handleSelectAll = (files: any[]) => {
+    if (selectedFiles.size === files.length) {
+      setSelectedFiles(new Set());
+    } else {
+      setSelectedFiles(new Set(files.map((_, index) => index)));
+    }
+  };
+
+  const handlePrintSelected = async () => {
+    if (!order?.files || selectedFiles.size === 0) return;
+    
+    try {
+      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      const filesToPrint = files.filter((_: any, index: number) => selectedFiles.has(index));
+      
+      if (filesToPrint.length === 1) {
+        await printFile(filesToPrint[0], order.status);
+        toast({ title: 'File sent to print' });
+      } else {
+        await printAllFiles(filesToPrint, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} files sent to print` });
+          }
+        }, order.status);
+      }
+      setSelectedFiles(new Set());
+    } catch (error: any) {
+      console.error('Error printing selected files:', error);
+      toast({ 
+        title: 'Cannot print selected files', 
+        description: error.message || 'Please try again',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDownloadSelected = () => {
+    if (!order?.files || selectedFiles.size === 0) return;
+    
+    try {
+      const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+      const filesToDownload = files.filter((_: any, index: number) => selectedFiles.has(index));
+      
+      if (filesToDownload.length === 1) {
+        downloadFile(filesToDownload[0], order.status);
+        toast({ title: 'File downloaded' });
+      } else {
+        downloadAllFiles(filesToDownload, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} files downloaded` });
+          }
+        }, order.status);
+      }
+      setSelectedFiles(new Set());
+    } catch (error: any) {
+      console.error('Error downloading selected files:', error);
+      toast({ 
+        title: 'Cannot download selected files', 
+        description: error.message || 'Please try again',
+        variant: 'destructive'
+      });
+    }
+  };
 
   // 🚀 CRITICAL DEBUG: Log order data to identify the vanishing issue
   console.log('🔍 ORDER DETAILS DEBUG:', {
@@ -308,31 +386,75 @@ export default function ShopOrderDetails() {
                   Uploaded Files ({files.length})
                 </CardTitle>
                 <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    onClick={handleDownloadAll}
-                    className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download All
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handlePrintAll}
-                    variant="outline"
-                    className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
-                  >
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print All
-                  </Button>
+                  {selectedFiles.size > 0 ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={handleDownloadSelected}
+                        className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download ({selectedFiles.size})
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handlePrintSelected}
+                        variant="outline"
+                        className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
+                      >
+                        <Printer className="w-4 h-4 mr-2" />
+                        Print ({selectedFiles.size})
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={handleDownloadAll}
+                        className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download All
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handlePrintAll}
+                        variant="outline"
+                        className="border-brand-yellow text-rich-black hover:bg-brand-yellow/10"
+                      >
+                        <Printer className="w-4 h-4 mr-2" />
+                        Print All
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </CardHeader>
             <CardContent>
+              {/* Select All checkbox */}
+              <div className="flex items-center space-x-2 pb-3 mb-3 border-b">
+                <Checkbox
+                  id="select-all"
+                  checked={selectedFiles.size === files.length && files.length > 0}
+                  onCheckedChange={() => handleSelectAll(files)}
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All Files
+                </label>
+              </div>
+              
               <div className="space-y-3">
                 {files.map((file: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={`file-${index}`}
+                        checked={selectedFiles.has(index)}
+                        onCheckedChange={(checked) => handleFileSelect(index, checked as boolean)}
+                      />
                       <FileText className="w-10 h-10 text-gray-400" />
                       <div>
                         <p className="font-medium">{file.originalName}</p>
