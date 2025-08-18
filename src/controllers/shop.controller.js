@@ -719,15 +719,15 @@ class ShopController {
         state: updateData.state,
         
         // Business Details
-        services: Array.isArray(updateData.services) ? JSON.stringify(updateData.services) : updateData.services,
-        equipment: Array.isArray(updateData.equipment) ? JSON.stringify(updateData.equipment) : updateData.equipment,
-        customServices: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
-        customEquipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
+        services: Array.isArray(updateData.services) ? updateData.services : updateData.services,
+        equipment: Array.isArray(updateData.equipment) ? updateData.equipment : updateData.equipment,
+        customServices: Array.isArray(updateData.customServices) ? updateData.customServices : updateData.customServices,
+        customEquipment: Array.isArray(updateData.customEquipment) ? updateData.customEquipment : updateData.customEquipment,
         yearsOfExperience: updateData.yearsOfExperience ? parseInt(updateData.yearsOfExperience) : null,
         formationYear: updateData.formationYear ? parseInt(updateData.formationYear) : null,
         
         // Working Hours
-        workingHours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
+        workingHours: typeof updateData.workingHours === 'object' ? updateData.workingHours : updateData.workingHours,
         
         // Google Maps Link
         googleMapsLink: updateData.googleMapsLink,
