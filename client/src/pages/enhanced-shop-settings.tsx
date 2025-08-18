@@ -113,9 +113,28 @@ export default function EnhancedShopSettings() {
     if (currentShop) {
       console.log('📊 Current Shop Data:', currentShop);
       
-      const parsedWorkingHours = typeof currentShop.workingHours === 'string' 
-        ? JSON.parse(currentShop.workingHours || '{}')
-        : currentShop.workingHours || {};
+      // Fix for corrupted working hours data
+      let parsedWorkingHours = {};
+      try {
+        if (typeof currentShop.workingHours === 'string') {
+          parsedWorkingHours = JSON.parse(currentShop.workingHours);
+        } else if (typeof currentShop.workingHours === 'object' && currentShop.workingHours !== null) {
+          // Check if it's the corrupted format (character-by-character object)
+          if (currentShop.workingHours['0'] || currentShop.workingHours['monday']) {
+            if (currentShop.workingHours['monday']) {
+              parsedWorkingHours = currentShop.workingHours;
+            } else {
+              // It's corrupted, use default
+              parsedWorkingHours = {};
+            }
+          } else {
+            parsedWorkingHours = currentShop.workingHours;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing working hours:', e);
+        parsedWorkingHours = {};
+      }
 
       const parsedServices = Array.isArray(currentShop.services) 
         ? currentShop.services 
@@ -614,7 +633,33 @@ export default function EnhancedShopSettings() {
                     <Input
                       id="pinCode"
                       value={formData.pinCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, pinCode: e.target.value }))}
+                      onChange={async (e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({ ...prev, pinCode: value }));
+                        
+                        // Auto-populate city and state when pincode is 6 digits
+                        if (value.length === 6) {
+                          try {
+                            const response = await fetch(`/api/pincode/${value}`);
+                            if (response.ok) {
+                              const data = await response.json();
+                              if (data.city && data.state) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  city: data.city,
+                                  state: data.state
+                                }));
+                                toast({
+                                  title: "Location Updated",
+                                  description: `City: ${data.city}, State: ${data.state}`
+                                });
+                              }
+                            }
+                          } catch (error) {
+                            console.log('Pincode lookup failed:', error);
+                          }
+                        }
+                      }}
                       className="h-10 sm:h-12 text-sm sm:text-base"
                       placeholder="6-digit PIN"
                       maxLength={6}

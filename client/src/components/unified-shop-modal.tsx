@@ -111,10 +111,8 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
 
   // Get proper address display
   const getAddressDisplay = (): string => {
-    const complete = shop.completeAddress || shop.publicAddress;
-    if (complete && complete !== shop.address) return complete;
-    
-    return shop.address || 'Address not available';
+    // Prioritize short address first, then complete address
+    return shop.address || shop.completeAddress || shop.publicAddress || 'Address not available';
   };
 
   // Get proper location display
