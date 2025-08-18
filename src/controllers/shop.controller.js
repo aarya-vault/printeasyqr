@@ -714,20 +714,20 @@ class ShopController {
         description: updateData.description,
         
         // Location
-        pin_code: updateData.pinCode || updateData.pin_code,
+        pinCode: updateData.pinCode || updateData.pin_code,
         city: updateData.city,
         state: updateData.state,
         
         // Business Details
         services: Array.isArray(updateData.services) ? JSON.stringify(updateData.services) : updateData.services,
         equipment: Array.isArray(updateData.equipment) ? JSON.stringify(updateData.equipment) : updateData.equipment,
-        custom_services: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
-        custom_equipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
+        customServices: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
+        customEquipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
         yearsOfExperience: updateData.yearsOfExperience ? parseInt(updateData.yearsOfExperience) : null,
         formationYear: updateData.formationYear ? parseInt(updateData.formationYear) : null,
         
         // Working Hours
-        working_hours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
+        workingHours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
         
         // Google Maps Link
         googleMapsLink: updateData.googleMapsLink,
@@ -749,7 +749,8 @@ class ShopController {
 
       console.log('🔍 Updating shop with fields:', Object.keys(fieldsToUpdate));
       console.log('🔧 UPDATING CUSTOM EQUIPMENT:', updateData.customEquipment);
-      console.log('🔧 FIELDS TO UPDATE - custom_equipment:', fieldsToUpdate.custom_equipment);
+      console.log('🔧 FIELDS TO UPDATE - customEquipment:', fieldsToUpdate.customEquipment);
+      console.log('🔧 ALL FIELDS TO UPDATE:', JSON.stringify(fieldsToUpdate, null, 2));
       await shop.update(fieldsToUpdate);
       console.log('✅ Shop updated successfully');
       
