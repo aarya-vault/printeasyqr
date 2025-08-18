@@ -135,7 +135,7 @@ class ShopController {
       address: shopData.address,
       city: shopData.city,
       state: shopData.state,
-      pinCode: shopData.pinCode,
+      pinCode: shopData.pin_code || shopData.pinCode,
       phone: shopData.phone,
       contactNumber: shopData.phone, // Frontend compatibility
       publicOwnerName: shopData.publicOwnerName,
@@ -149,14 +149,14 @@ class ShopController {
       // Business Details - Parse JSON strings and ensure arrays for frontend
       services: ShopController.parseJsonArray(shopData.services),
       equipment: ShopController.parseJsonArray(shopData.equipment),
-      customServices: ShopController.parseJsonArray(shopData.customServices),
-      customEquipment: ShopController.parseJsonArray(shopData.customEquipment),
+      customServices: ShopController.parseJsonArray(shopData.custom_services || shopData.customServices),
+      customEquipment: ShopController.parseJsonArray(shopData.custom_equipment || shopData.customEquipment),
       servicesOffered: ShopController.parseJsonArray(shopData.services), // Alias
       equipmentAvailable: ShopController.parseJsonArray(shopData.equipment), // Alias
       yearsOfExperience: shopData.yearsOfExperience,
       formationYear: shopData.formationYear,
       // Working Hours and Availability - Parse JSON string if needed
-      workingHours: ShopController.parseJsonObject(shopData.workingHours),
+      workingHours: ShopController.parseJsonObject(shopData.working_hours || shopData.workingHours),
       acceptsWalkinOrders: Boolean(shopData.acceptsWalkinOrders),
       isOnline: Boolean(shopData.isOnline),
       isOpen: Boolean(shopData.isOnline), // Alias for frontend
@@ -520,13 +520,13 @@ class ShopController {
         processedUpdateData.equipment = JSON.stringify(updateData.equipment);
       }
       if (Array.isArray(updateData.customServices)) {
-        processedUpdateData.customServices = JSON.stringify(updateData.customServices);
+        processedUpdateData.custom_services = JSON.stringify(updateData.customServices);
       }
       if (Array.isArray(updateData.customEquipment)) {
-        processedUpdateData.customEquipment = JSON.stringify(updateData.customEquipment);
+        processedUpdateData.custom_equipment = JSON.stringify(updateData.customEquipment);
       }
       if (typeof updateData.workingHours === 'object' && updateData.workingHours !== null) {
-        processedUpdateData.workingHours = JSON.stringify(updateData.workingHours);
+        processedUpdateData.working_hours = JSON.stringify(updateData.workingHours);
       }
 
       await shop.update(processedUpdateData);
@@ -643,20 +643,20 @@ class ShopController {
         description: updateData.description,
         
         // Location
-        pinCode: updateData.pinCode,
+        pin_code: updateData.pinCode || updateData.pin_code,
         city: updateData.city,
         state: updateData.state,
         
         // Business Details
         services: Array.isArray(updateData.services) ? JSON.stringify(updateData.services) : updateData.services,
         equipment: Array.isArray(updateData.equipment) ? JSON.stringify(updateData.equipment) : updateData.equipment,
-        customServices: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
-        customEquipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
+        custom_services: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
+        custom_equipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
         yearsOfExperience: updateData.yearsOfExperience ? parseInt(updateData.yearsOfExperience) : null,
         formationYear: updateData.formationYear ? parseInt(updateData.formationYear) : null,
         
         // Working Hours
-        workingHours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
+        working_hours: typeof updateData.workingHours === 'object' ? JSON.stringify(updateData.workingHours) : updateData.workingHours,
         
         // Google Maps Link
         googleMapsLink: updateData.googleMapsLink,
