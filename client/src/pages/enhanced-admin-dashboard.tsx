@@ -122,8 +122,11 @@ export default function EnhancedAdminDashboard() {
       return response.json();
     },
     onSuccess: () => {
+      // CRITICAL FIX: When approving shop applications, invalidate ALL shop caches
       queryClient.invalidateQueries({ queryKey: ['/api/admin/shop-applications'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] }); // Customer-facing cache
       setSelectedApplication(null);
       setAdminNotes('');
       toast({
@@ -1290,7 +1293,9 @@ export default function EnhancedAdminDashboard() {
           shop={selectedShopForEdit}
           onClose={() => setSelectedShopForEdit(null)}
           onUpdate={() => {
+            // CRITICAL FIX: Invalidate BOTH admin and customer shop caches
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
           }}
         />
       )}
@@ -1302,7 +1307,9 @@ export default function EnhancedAdminDashboard() {
           onClose={() => setSelectedShopForManagement(null)}
           onUpdate={() => {
             setSelectedShopForManagement(null);
+            // CRITICAL FIX: Invalidate BOTH admin and customer shop caches
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
           }}
         />
       )}
@@ -1326,7 +1333,9 @@ export default function EnhancedAdminDashboard() {
           isOpen={!!selectedShopForImage}
           onClose={() => setSelectedShopForImage(null)}
           onSuccess={() => {
+            // CRITICAL FIX: Invalidate BOTH admin and customer shop caches
             queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
           }}
         />
       )}

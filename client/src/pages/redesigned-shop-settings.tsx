@@ -129,7 +129,10 @@ export default function RedesignedShopSettings() {
       return await apiRequest('/api/shops/settings', 'PATCH', dataToSave);
     },
     onSuccess: () => {
+      // CRITICAL FIX: When shop owners update their settings, invalidate ALL relevant caches
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] }); // Customer-facing cache
       toast({
         title: "Success",
         description: "Shop settings saved successfully"

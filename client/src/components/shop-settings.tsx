@@ -186,7 +186,10 @@ export default function ShopSettings() {
       return response.json();
     },
     onSuccess: () => {
+      // CRITICAL FIX: When shop owners update their settings, invalidate ALL relevant caches
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] }); // Customer-facing cache
       setIsEditing(false);
       toast({
         title: 'Settings Updated',
@@ -215,7 +218,11 @@ export default function ShopSettings() {
       });
       
       if (response.ok) {
+        // CRITICAL FIX: When shop availability changes, invalidate ALL relevant caches
         queryClient.invalidateQueries({ queryKey: ['/api/shops/owner'] });
+        queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/shops'] }); // Customer-facing cache
         toast({
           title: shop.isOnline ? 'Shop is now Offline' : 'Shop is now Online',
           description: shop.isOnline 

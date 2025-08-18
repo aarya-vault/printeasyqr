@@ -108,7 +108,9 @@ export default function ComprehensiveShopManagementModal({
         title: 'Shop Updated Successfully!',
         description: 'All shop details have been updated.',
       });
+      // CRITICAL FIX: Invalidate BOTH admin and customer shop caches
       queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       onUpdate();
     },
     onError: (error: any) => {

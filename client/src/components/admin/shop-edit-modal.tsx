@@ -59,7 +59,9 @@ export function ShopEditModal({ shop, onClose, onUpdate }: ShopEditModalProps) {
         title: "Shop Updated",
         description: `${formData.name} has been updated successfully.`,
       });
+      // CRITICAL FIX: Invalidate BOTH admin and customer shop caches
       queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
       onUpdate();
       onClose();
     },
