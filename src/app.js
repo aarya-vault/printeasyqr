@@ -11,6 +11,9 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+// CRITICAL: Import database override BEFORE any models
+import './database-override.js';
+
 // Import database functions
 import { validateDatabaseConnection, initializeDatabase } from './models/index.js';
 
