@@ -53,6 +53,30 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **One-Email-One-Shop Enforcement**: Database constraints and backend validation ensure each email address can only own one shop, with automatic duplicate cleanup and prevention systems.
 - **Complete "Queue #" Rebranding**: Systematically replaced all "Order #" references with "Queue #" across the entire platform including frontend, backend, chat systems, dashboards, confirmations, and notifications.
 
+## Database Configuration (Updated: 2025-08-18)
+
+### Production & Development Setup
+- **Database**: PostgreSQL (Replit's managed instance)
+- **ORM**: Sequelize (user preference - "drizzle orm is the worst")
+- **Records**: 166 users, 156 shops, 0 orders
+- **Protection**: Database sync disabled, unique constraints enforced
+- **Backup Strategy**: Automated backup/restore scripts in `scripts/` directory
+
+### Zero-Conflict Enforcement
+- Unique constraints on: shop slugs, shop emails, user emails, user phones
+- Automated conflict detection and prevention
+- Production-ready with full data integrity
+- Password standard: All shop owners use "PrintEasyQR@2025"
+- Login format: {shop-slug}@printeasyqr.com
+
+### Database Scripts
+- `scripts/setup-database.js`: Initial setup and verification
+- `scripts/database-protection.js`: Enforces constraints and cleans duplicates
+- `scripts/ensure-no-conflicts.js`: Validates zero conflicts
+- `scripts/database-health-check.js`: Health monitoring
+- `scripts/backup-database.js`: Creates timestamped backups
+- `scripts/restore-database.js`: Interactive restore utility
+
 ## External Dependencies
 
 - **@tanstack/react-query**: For server state management.

@@ -4,6 +4,7 @@ dotenv.config();
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
