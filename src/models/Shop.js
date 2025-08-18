@@ -128,6 +128,11 @@ const Shop = sequelize.define('Shop', {
     defaultValue: false,
     field: 'is_online'
   },
+  manualOverrideTimestamp: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'manual_override_timestamp'
+  },
   autoAvailability: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
