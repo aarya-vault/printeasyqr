@@ -85,7 +85,7 @@ class ShopController {
     return normalizedHours;
   }
 
-  // Calculate unified shop status combining working hours and manual override with time-based reset
+  // Calculate unified shop status combining working hours and manual override
   static calculateUnifiedStatus(shopData) {
     if (!shopData) {
       return {
@@ -99,26 +99,22 @@ class ShopController {
     // Step 1: Check if within working hours
     const isWithinWorkingHours = ShopController.isWithinWorkingHours(shopData);
     
-    // Step 2: Check if we need to reset manual override based on time
-    const shouldResetToScheduled = ShopController.shouldResetManualOverride(shopData);
+    // Step 2: Check manual override
+    const manualOverride = Boolean(shopData.isOnline);
     
-    // Step 3: Determine final status with time-based reset logic
-    let isOpen;
-    let reason;
+    // UPDATED LOGIC: Manual override takes precedence
+    // Shop shows as OPEN if manually set to online (regardless of working hours)
+    // Shop shows as CLOSED only if manually set to offline
+    const isOpen = manualOverride;
     
-    if (shouldResetToScheduled) {
-      // Time-based reset: Follow scheduled hours (manual override expired)
-      isOpen = isWithinWorkingHours;
-      reason = isWithinWorkingHours 
-        ? 'Open and accepting orders (following schedule)'
-        : 'Closed according to schedule';
+    // Determine reason for status
+    let reason = '';
+    if (!manualOverride) {
+      reason = 'Manually closed by shop owner';
+    } else if (!isWithinWorkingHours) {
+      reason = 'Open (outside working hours)';
     } else {
-      // Manual override still active
-      const manualOverride = Boolean(shopData.isOnline);
-      isOpen = manualOverride;
-      reason = manualOverride
-        ? 'Open and accepting orders (manually opened)'
-        : 'Temporarily closed (manually closed)';
+      reason = 'Open and accepting orders';
     }
 
     return {
@@ -179,49 +175,6 @@ class ShopController {
 
     const currentTime = indiaTime.toTimeString().slice(0, 5); // HH:MM format
     return currentTime >= openTime && currentTime <= closeTime;
-  }
-
-  // Check if manual override should be reset to scheduled hours
-  static shouldResetManualOverride(shopData) {
-    if (!shopData.manualOverrideTimestamp) {
-      // No manual override timestamp means follow scheduled hours
-      return true;
-    }
-
-    // Get current time in India timezone
-    const now = new Date();
-    const indiaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-    const overrideTime = new Date(shopData.manualOverrideTimestamp);
-    
-    // Check if it's a new day since the manual override
-    const currentDay = indiaTime.toDateString();
-    const overrideDay = overrideTime.toDateString();
-    
-    if (currentDay !== overrideDay) {
-      // New day: Reset to scheduled hours
-      return true;
-    }
-
-    // Same day: Check if we've entered a new scheduled period
-    const workingHours = ShopController.parseJsonObject(shopData.workingHours);
-    const currentDayName = indiaTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const todaySchedule = workingHours[currentDayName];
-    
-    if (!todaySchedule || todaySchedule.closed) {
-      // No schedule for today or closed: follow manual override
-      return false;
-    }
-
-    const currentTime = indiaTime.toTimeString().slice(0, 5); // HH:MM format
-    const scheduleStartTime = todaySchedule.open || todaySchedule.openTime;
-    const overrideTimeHM = overrideTime.toTimeString().slice(0, 5);
-    
-    // If manual close happened before schedule start and we're now at/after schedule start
-    if (overrideTimeHM < scheduleStartTime && currentTime >= scheduleStartTime) {
-      return true; // Reset to follow schedule (auto-open)
-    }
-    
-    return false; // Keep manual override active
   }
   // Data transformation helper for consistent API responses
   static transformShopData(shop) {
@@ -781,7 +734,6 @@ class ShopController {
         
         // Shop Settings
         isOnline: updateData.isOnline,
-        manualOverrideTimestamp: updateData.isOnline !== undefined ? new Date() : undefined,
         acceptsWalkinOrders: updateData.acceptsWalkinOrders,
         
         // Notifications (if supported by model)
@@ -833,42 +785,6 @@ class ShopController {
       });
       res.status(500).json({ 
         message: 'Failed to update settings',
-        error: error.message 
-      });
-    }
-  }
-
-  // Toggle shop online/offline status with timestamp tracking
-  static async toggleShopStatus(req, res) {
-    try {
-      const userId = req.user.id;
-      const { isOnline } = req.body;
-
-      const shop = await Shop.findOne({ where: { ownerId: userId } });
-      if (!shop) {
-        return res.status(404).json({ message: 'Shop not found for this user' });
-      }
-
-      // Update status and set manual override timestamp
-      await shop.update({
-        isOnline: Boolean(isOnline),
-        manualOverrideTimestamp: new Date()
-      });
-
-      console.log(`🔄 Shop ${shop.name} status toggled to:`, isOnline ? 'ONLINE' : 'OFFLINE');
-      
-      // Return updated shop data
-      await shop.reload();
-      const transformedShop = ShopController.transformShopData(shop);
-      
-      res.json({ 
-        message: `Shop status updated to ${isOnline ? 'online' : 'offline'}`, 
-        shop: transformedShop 
-      });
-    } catch (error) {
-      console.error('❌ Toggle shop status error:', error);
-      res.status(500).json({ 
-        message: 'Failed to update shop status',
         error: error.message 
       });
     }

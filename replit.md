@@ -46,7 +46,7 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Print Host Pattern with PDF.js**: Ensures consistent PDF rendering across browsers with enhanced cancellation options and intelligent memory management for large files.
 - **Real-time WebSocket Notifications**: Provides instant chat notifications and real-time order updates across all user interfaces.
 - **Google Maps Integration**: Seamless integration with Google Maps data, featuring "View on Google Maps" buttons and consistent branding.
-- **Time-Based Shop Status Management**: Advanced shop status system with automatic resets - manual closures expire at the start of new business days, automatically returning to scheduled hours. Shop owners can manually close during business hours but the shop auto-reopens according to schedule the next day.
+- **Shop Status Management System**: Allows shop owners to control their shop's online status, overriding working hours for immediate availability changes.
 - **Queue Number System & Random Public IDs**: Implements a dual ID system for internal sequential IDs and customer-facing random alphanumeric public IDs, with queue numbers resetting upon order completion.
 - **Enhanced JWT Authentication Flow**: Integrates just-in-time authentication for anonymous order flows, with automatic user creation/lookup and extended token validity.
 - **Advanced Order Management**: Sophisticated queue calculation logic focusing on active orders, role-based order creation safeguards, and comprehensive error handling.
