@@ -25,7 +25,7 @@ export default function CustomerBrowseShops() {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showShopDetails, setShowShopDetails] = useState(false);
   const [filterCity, setFilterCity] = useState('');
-  const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
+
   const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -73,7 +73,6 @@ export default function CustomerBrowseShops() {
   const clearFilters = () => {
     setSearchQuery('');
     setFilterCity('');
-    setFilterOnline(null);
     setFilterOpenNow(false);
   };
 
@@ -126,17 +125,15 @@ export default function CustomerBrowseShops() {
 
     const matchesCity =
       !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
-    const matchesOnline =
-      filterOnline === null || shop.isOnline === filterOnline;
     
     const matchesOpenNow = filterOpenNow 
       ? isShopCurrentlyOpen(shop.workingHours) 
       : true;
 
-    return matchesSearch && matchesCity && matchesOnline && matchesOpenNow;
+    return matchesSearch && matchesCity && matchesOpenNow;
   });
 
-  // Sort shops - unlocked shops first
+  // Sort shops - unlocked shops first with yellow border priority
   const sortedShops = [...filteredShops].sort((a, b) => {
     const aUnlocked = isShopUnlocked(a.id);
     const bUnlocked = isShopUnlocked(b.id);
@@ -228,19 +225,7 @@ export default function CustomerBrowseShops() {
                 ))}
               </select>
               
-              <select
-                value={filterOnline === null ? "" : filterOnline.toString()}
-                onChange={(e) =>
-                  setFilterOnline(
-                    e.target.value === "" ? null : e.target.value === "true",
-                  )
-                }
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
-              >
-                <option value="">All Status</option>
-                <option value="true">Online</option>
-                <option value="false">Offline</option>
-              </select>
+
               
               <Button
                 onClick={() => setFilterOpenNow(!filterOpenNow)}
@@ -256,7 +241,7 @@ export default function CustomerBrowseShops() {
                 Open Now
               </Button>
               
-              {(searchQuery || filterCity || filterOnline !== null || filterOpenNow) && (
+              {(searchQuery || filterCity || filterOpenNow) && (
                 <Button
                   onClick={clearFilters}
                   variant="outline"
@@ -281,11 +266,11 @@ export default function CustomerBrowseShops() {
               No Shops Found
             </h3>
             <p className="text-gray-500 mb-6">
-              {searchQuery || filterCity || filterOnline !== null || filterOpenNow
+              {searchQuery || filterCity || filterOpenNow
                 ? "Try adjusting your search or filters"
                 : "No print shops are currently available"}
             </p>
-            {(searchQuery || filterCity || filterOnline !== null || filterOpenNow) && (
+            {(searchQuery || filterCity || filterOpenNow) && (
               <Button
                 onClick={clearFilters}
                 variant="outline"
@@ -297,7 +282,7 @@ export default function CustomerBrowseShops() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredShops.map((shop: Shop) => (
+            {sortedShops.map((shop: Shop) => (
               <UnifiedShopCard
                 key={shop.id}
                 shop={shop}

@@ -29,11 +29,11 @@ export default function AnonymousVisitorBrowseShops() {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [filterCity, setFilterCity] = useState("");
-  const [filterOnline, setFilterOnline] = useState<boolean | null>(null);
+
   const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
 
   // Fetch all shops
-  const { data: shops = [], isLoading } = useQuery({
+  const { data: shops = [], isLoading } = useQuery<Shop[]>({
     queryKey: ["/api/shops"],
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
@@ -52,8 +52,7 @@ export default function AnonymousVisitorBrowseShops() {
 
     const matchesCity =
       !filterCity || shop.city.toLowerCase().includes(filterCity.toLowerCase());
-    const matchesOnline =
-      filterOnline === null || shop.isOnline === filterOnline;
+
     
     const matchesOpenNow = filterOpenNow 
       ? calculateUnifiedShopStatus({
@@ -63,7 +62,7 @@ export default function AnonymousVisitorBrowseShops() {
         }).isOpen 
       : true;
 
-    return matchesSearch && matchesCity && matchesOnline && matchesOpenNow;
+    return matchesSearch && matchesCity && matchesOpenNow;
   });
 
   // Extract unique cities for filter
@@ -93,7 +92,6 @@ export default function AnonymousVisitorBrowseShops() {
   const clearFilters = () => {
     setSearchQuery("");
     setFilterCity("");
-    setFilterOnline(null);
     setFilterOpenNow(false);
   };
 
@@ -164,22 +162,7 @@ export default function AnonymousVisitorBrowseShops() {
               </select>
             </div>
 
-            {/* Online Status Filter */}
-            <div className="lg:col-span-2">
-              <select
-                value={filterOnline === null ? "" : filterOnline.toString()}
-                onChange={(e) =>
-                  setFilterOnline(
-                    e.target.value === "" ? null : e.target.value === "true",
-                  )
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#FFBF00] focus:border-[#FFBF00]"
-              >
-                <option value="">All Status</option>
-                <option value="true">Online</option>
-                <option value="false">Offline</option>
-              </select>
-            </div>
+
 
             {/* Open Now Filter */}
             <div className="lg:col-span-2">
@@ -238,11 +221,11 @@ export default function AnonymousVisitorBrowseShops() {
               No Shops Found
             </h3>
             <p className="text-gray-500 mb-6">
-              {searchQuery || filterCity || filterOnline !== null || filterOpenNow
+              {searchQuery || filterCity || filterOpenNow
                 ? "Try adjusting your search or filters"
                 : "Check back later for verified print shops"}
             </p>
-            {(searchQuery || filterCity || filterOnline !== null || filterOpenNow) && (
+            {(searchQuery || filterCity || filterOpenNow) && (
               <Button
                 onClick={clearFilters}
                 variant="outline"

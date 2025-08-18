@@ -38,7 +38,7 @@ export default function UnifiedShopCard({
   return (
     <Card 
       className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-2 ${
-        isUnlocked ? 'border-gray-200 hover:border-[#FFBF00]' : 'border-gray-100 bg-gray-50'
+        isUnlocked ? 'border-[#FFBF00] bg-[#FFBF00]/5 hover:border-[#FFBF00] hover:bg-[#FFBF00]/10' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
       }`}
       onClick={onClick}
     >
