@@ -17,6 +17,20 @@ class ShopController {
     return [];
   }
 
+  // Helper function to parse JSON objects or return empty object
+  static parseJsonObject(data) {
+    if (typeof data === 'object' && data !== null) return data;
+    if (typeof data === 'string' && data.trim()) {
+      try {
+        const parsed = JSON.parse(data);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (e) {
+        return {};
+      }
+    }
+    return {};
+  }
+
   // Calculate unified shop status combining working hours and manual override
   static calculateUnifiedStatus(shopData) {
     if (!shopData) {
@@ -141,8 +155,8 @@ class ShopController {
       equipmentAvailable: ShopController.parseJsonArray(shopData.equipment), // Alias
       yearsOfExperience: shopData.yearsOfExperience,
       formationYear: shopData.formationYear,
-      // Working Hours and Availability
-      workingHours: shopData.workingHours || {},
+      // Working Hours and Availability - Parse JSON string if needed
+      workingHours: ShopController.parseJsonObject(shopData.workingHours),
       acceptsWalkinOrders: Boolean(shopData.acceptsWalkinOrders),
       isOnline: Boolean(shopData.isOnline),
       isOpen: Boolean(shopData.isOnline), // Alias for frontend

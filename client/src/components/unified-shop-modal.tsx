@@ -76,6 +76,16 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
       ...(Array.isArray(shop.customServices) ? shop.customServices : [])
     ];
     
+    // Debug logging for custom services
+    if (shop.name?.includes('NAVRANG')) {
+      console.log('🔍 DEBUG - Shop services data:', {
+        services: shop.services,
+        servicesOffered: shop.servicesOffered,
+        customServices: shop.customServices,
+        combinedServices: services
+      });
+    }
+    
     return Array.from(new Set(services.filter(s => s && typeof s === 'string' && s.trim())));
   };
 
@@ -86,6 +96,16 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
       ...(Array.isArray(shop.equipmentAvailable) ? shop.equipmentAvailable : []),
       ...(Array.isArray(shop.customEquipment) ? shop.customEquipment : [])
     ];
+    
+    // Debug logging for custom equipment
+    if (shop.name?.includes('NAVRANG')) {
+      console.log('🔍 DEBUG - Shop equipment data:', {
+        equipment: shop.equipment,
+        equipmentAvailable: shop.equipmentAvailable,
+        customEquipment: shop.customEquipment,
+        combinedEquipment: equipment
+      });
+    }
     
     return Array.from(new Set(equipment.filter(e => e && typeof e === 'string' && e.trim())));
   };
