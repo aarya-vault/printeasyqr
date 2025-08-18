@@ -48,15 +48,15 @@ const sequelize = new Sequelize(databaseUrl, {
       rejectUnauthorized: false
     } : false,
     // CRITICAL: Increase timeouts for Replit environment
-    connectTimeout: 120000,    // 2 minutes
-    acquireTimeout: 120000,    // 2 minutes
-    timeout: 120000            // 2 minutes
+    connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT) || 120000,    // 2 minutes
+    acquireTimeout: parseInt(process.env.DB_ACQUIRE_TIMEOUT) || 120000,    // 2 minutes
+    timeout: parseInt(process.env.DB_CONNECT_TIMEOUT) || 120000            // 2 minutes
   },
   pool: {
-    max: 20,           // INCREASE from 5 for production load
-    min: 5,            // INCREASE from 0 - maintain persistent connections
-    acquire: 120000,   // INCREASE from 30000 - 2 minutes
-    idle: 60000        // INCREASE from 10000 - 1 minute
+    max: parseInt(process.env.DB_POOL_MAX) || 20,           // INCREASE from 5 for production load
+    min: parseInt(process.env.DB_POOL_MIN) || 5,            // INCREASE from 0 - maintain persistent connections
+    acquire: parseInt(process.env.DB_ACQUIRE_TIMEOUT) || 120000,   // INCREASE from 30000 - 2 minutes
+    idle: parseInt(process.env.DB_IDLE_TIMEOUT) || 60000        // INCREASE from 10000 - 1 minute
   },
   // CRITICAL: Prevent all automatic schema modifications
   define: {

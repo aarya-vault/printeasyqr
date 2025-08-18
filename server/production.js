@@ -26,6 +26,14 @@ if (!process.env.DATABASE_URL) {
 
 console.log('✅ Using PostgreSQL database from environment variables');
 
+// CRITICAL: Override database configuration for production with enhanced settings
+console.log('🔧 Configuring production database connection pool...');
+process.env.DB_POOL_MAX = '20';
+process.env.DB_POOL_MIN = '5';  
+process.env.DB_ACQUIRE_TIMEOUT = '120000';
+process.env.DB_IDLE_TIMEOUT = '60000';
+process.env.DB_CONNECT_TIMEOUT = '120000';
+
 // Test database connection on production startup
 console.log('🔍 Testing production database connection...');
 import { testConnection } from '../src/config/database.js';
