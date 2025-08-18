@@ -334,87 +334,211 @@ export default function NewHomepage() {
         </div>
       </section>
       
-      {/* How It Works - Clean Section */}
-      <section className="py-16 bg-gray-50">
+      {/* How It Works - Enhanced Mobile-First Design */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              How It Works
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              How PrintEasy Works
             </h2>
-            <p className="text-lg text-gray-600">
-              Three simple steps to get your printing done
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Say goodbye to queues, WhatsApp hassles, and lost files. Get your printing done in 3 simple steps.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-black">1</span>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6">
+            {/* Step 1 - Enhanced Card */}
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 h-full">
+                <div className="text-center">
+                  <div className="relative mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                      <QrCode className="w-10 h-10 text-black" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-black text-brand-yellow text-sm font-bold rounded-full w-8 h-8 flex items-center justify-center">
+                      1
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Scan QR Code</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Visit any partnered print shop and scan their unique QR code. No app download required - works instantly on your phone.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Scan QR Code</h3>
-              <p className="text-gray-600">Find a print shop and scan their QR code to unlock instant ordering</p>
+              {/* Step connector for desktop */}
+              <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
+                <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </div>
+              </div>
+              {/* Step connector for mobile */}
+              <div className="lg:hidden flex justify-center my-6">
+                <ArrowDown className="w-6 h-6 text-brand-yellow" />
+              </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-black">2</span>
+            {/* Step 2 - Enhanced Card */}
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 h-full">
+                <div className="text-center">
+                  <div className="relative mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                      <Upload className="w-10 h-10 text-black" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-black text-brand-yellow text-sm font-bold rounded-full w-8 h-8 flex items-center justify-center">
+                      2
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Upload & Order</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Upload documents directly from your phone, specify printing requirements, and chat with the shop owner for custom needs.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Upload & Order</h3>
-              <p className="text-gray-600">Upload your files or book walk-in appointments with custom specifications</p>
+              {/* Step connector for desktop */}
+              <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
+                <div className="w-6 h-6 bg-brand-yellow rounded-full flex items-center justify-center">
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </div>
+              </div>
+              {/* Step connector for mobile */}
+              <div className="lg:hidden flex justify-center my-6">
+                <ArrowDown className="w-6 h-6 text-brand-yellow" />
+              </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-black">3</span>
+            {/* Step 3 - Enhanced Card */}
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 h-full">
+                <div className="text-center">
+                  <div className="relative mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                      <CheckCircle2 className="w-10 h-10 text-black" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-black text-brand-yellow text-sm font-bold rounded-full w-8 h-8 flex items-center justify-center">
+                      3
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Track & Collect</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Get real-time updates on your order progress. Receive notification when ready and collect your prints hassle-free.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Collect & Pay</h3>
-              <p className="text-gray-600">Get notified when ready and collect your prints in person</p>
+            </div>
+          </div>
+          
+          {/* Enhanced CTA */}
+          <div className="text-center mt-16">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-md mx-auto">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Ready to get started?</h4>
+              <Button 
+                onClick={() => setShowQRScanner(true)}
+                className="w-full bg-gradient-to-r from-brand-yellow to-yellow-400 text-black hover:from-yellow-400 hover:to-yellow-500 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <QrCode className="w-6 h-6 mr-3" />
+                Scan Your First QR Code
+              </Button>
+              <p className="text-sm text-gray-500 mt-3">No registration required • Works instantly</p>
             </div>
           </div>
         </div>
       </section>
       
-      {/* Key Features - Simple Section */}
-      <section className="py-16 bg-white">
+      {/* Key Features - Enhanced Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose PrintEasy?
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Why PrintEasy is Different
             </h2>
-            <p className="text-lg text-gray-600">
-              Modern printing made simple with QR technology
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Experience printing without the traditional hassles. No more WhatsApp back-and-forth, queue waiting, or lost file confusion.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* QR Revolution */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <QrCode className="w-8 h-8 text-black" />
+            <div className="text-center group">
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <QrCode className="w-10 h-10 text-black" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">QR Revolution</h3>
-              <p className="text-gray-600">Instant ordering without any registration - just scan and print</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">No Registration Needed</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Scan QR, start ordering. No apps to download, no accounts to create. Just instant access to printing.
+              </p>
             </div>
 
             {/* Real-time Chat */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <MessageCircle className="w-8 h-8 text-black" />
+            <div className="text-center group">
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <MessageCircle className="w-10 h-10 text-black" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Live Chat</h3>
-              <p className="text-gray-600">Chat directly with shop owners for custom requirements</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Real-time Communication</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Chat directly with shop owners. Share requirements, ask questions, and get instant clarifications.
+              </p>
             </div>
 
             {/* File Support */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-yellow rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Upload className="w-8 h-8 text-black" />
+            <div className="text-center group md:col-span-2 lg:col-span-1">
+              <div className="relative mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-brand-yellow to-yellow-400 rounded-3xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Upload className="w-10 h-10 text-black" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Any File Type</h3>
-              <p className="text-gray-600">Upload documents, images, PDFs - up to 500MB per file</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Any File, Any Size</h3>
+              <p className="text-gray-600 leading-relaxed">
+                PDFs, images, documents, presentations - upload up to 50MB per file with complete file security.
+              </p>
+            </div>
+          </div>
+
+          {/* Additional Benefits Row */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-6 h-6 text-gray-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Secure</h4>
+              <p className="text-sm text-gray-500">Files auto-deleted after completion</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Timer className="w-6 h-6 text-gray-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Fast</h4>
+              <p className="text-sm text-gray-500">Real-time order tracking</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Eye className="w-6 h-6 text-gray-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Transparent</h4>
+              <p className="text-sm text-gray-500">Clear pricing, no hidden costs</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <MapPin className="w-6 h-6 text-gray-600" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Local</h4>
+              <p className="text-sm text-gray-500">Supporting neighborhood shops</p>
             </div>
           </div>
         </div>
@@ -463,31 +587,50 @@ export default function NewHomepage() {
               </div>
             </div>
 
-            {/* Contact & Links */}
+            {/* Quick Guide */}
             <div className="md:col-span-1">
-              <h4 className="text-lg font-semibold text-brand-yellow mb-6">Platform</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/shop-login" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center">
+              <h4 className="text-lg font-semibold text-brand-yellow mb-6">Quick Guide</h4>
+              <div className="space-y-4">
+                <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
+                  <h5 className="text-brand-yellow font-medium mb-3 flex items-center">
+                    <QrCode className="w-4 h-4 mr-2" />
+                    For Customers
+                  </h5>
+                  <ul className="space-y-2 text-sm">
+                    <li className="text-gray-300 flex items-start">
+                      <span className="text-brand-yellow mr-2 mt-0.5">1.</span>
+                      Scan QR at any print shop
+                    </li>
+                    <li className="text-gray-300 flex items-start">
+                      <span className="text-brand-yellow mr-2 mt-0.5">2.</span>
+                      Upload files & specify needs
+                    </li>
+                    <li className="text-gray-300 flex items-start">
+                      <span className="text-brand-yellow mr-2 mt-0.5">3.</span>
+                      Chat with shop owner
+                    </li>
+                    <li className="text-gray-300 flex items-start">
+                      <span className="text-brand-yellow mr-2 mt-0.5">4.</span>
+                      Get notified & collect
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-2">
+                  <Link href="/shop-login" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center text-sm">
                     <User className="w-4 h-4 mr-2" />
                     Shop Owner Login
                   </Link>
-                </li>
-                <li>
-                  <Link href="/apply-shop" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center">
+                  <Link href="/apply-shop" className="text-gray-300 hover:text-brand-yellow transition-colors flex items-center text-sm">
                     <Building2 className="w-4 h-4 mr-2" />
                     Register Your Shop
                   </Link>
-                </li>
-                <li className="text-gray-300 flex items-center">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Secure & Private
-                </li>
-                <li className="text-gray-300 flex items-center">
-                  <Headphones className="w-4 h-4 mr-2" />
-                  24/7 Support
-                </li>
-              </ul>
+                  <div className="text-gray-300 flex items-center text-sm">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Secure & Private
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
