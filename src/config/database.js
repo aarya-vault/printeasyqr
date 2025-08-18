@@ -2,10 +2,16 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Use Replit's provided DATABASE_URL environment variable
-const databaseUrl = process.env.DATABASE_URL;
-console.log('✅ Using Replit PostgreSQL database');
-console.log('🔗 Database connection established via DATABASE_URL');
+// Production database URL for Neon PostgreSQL
+const productionDatabaseUrl = 'postgresql://neondb_owner:npg_aftGW4gE5RZY@ep-holy-feather-ae0ihzx2.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
+
+// Use production database URL for deployment, fallback to development DATABASE_URL
+const databaseUrl = process.env.NODE_ENV === 'production' 
+  ? productionDatabaseUrl 
+  : process.env.DATABASE_URL;
+
+console.log(`✅ Using ${process.env.NODE_ENV === 'production' ? 'Production Neon' : 'Development Replit'} PostgreSQL database`);
+console.log('🔗 Database connection configured for deployment');
 
 if (!databaseUrl) {
   console.error('❌ DATABASE_URL not found in environment variables');
