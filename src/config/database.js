@@ -2,15 +2,24 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Use Replit's provided DATABASE_URL environment variable
-const databaseUrl = process.env.DATABASE_URL;
-console.log('✅ Using Replit PostgreSQL database');
-console.log('🔗 Database connection established via DATABASE_URL');
+// Use Replit's PostgreSQL environment variables
+let databaseUrl = process.env.DATABASE_URL;
 
+// If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
-  console.error('❌ DATABASE_URL not found in environment variables');
-  throw new Error('DATABASE_URL environment variable is required');
+  const host = process.env.PGHOST || 'localhost';
+  const port = process.env.PGPORT || '5432';
+  const database = process.env.PGDATABASE || 'printeasy';
+  const username = process.env.PGUSER || 'postgres';
+  const password = process.env.PGPASSWORD || '';
+  
+  databaseUrl = `postgresql://${username}:${password}@${host}:${port}/${database}`;
+  console.log('✅ Constructed database URL from individual environment variables');
+} else {
+  console.log('✅ Using DATABASE_URL environment variable');
 }
+
+console.log('🔗 Database connection established via PostgreSQL');
 
 // Create Sequelize instance with connection string from environment
 const sequelize = new Sequelize(databaseUrl, {
