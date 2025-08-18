@@ -55,7 +55,9 @@ import {
   ChevronDown,
   ChevronUp,
   Menu,
-  X
+  X,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
@@ -168,6 +170,10 @@ export default function RedesignedShopOwnerDashboard() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCustomerInsights, setShowCustomerInsights] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
+  // Multiple order selection state
+  const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   // 🚫 SEO EXCLUSION: Shop dashboard is private
   useEffect(() => {
@@ -465,6 +471,98 @@ export default function RedesignedShopOwnerDashboard() {
     }
   };
 
+  // Handle bulk operations for multiple orders
+  const handleBulkPrint = async () => {
+    if (selectedOrders.size === 0) {
+      toast({ title: 'No orders selected', variant: 'destructive' });
+      return;
+    }
+
+    const selectedOrdersList = orders.filter(order => selectedOrders.has(order.id));
+    let totalFiles = 0;
+    let processedFiles = 0;
+
+    for (const order of selectedOrdersList) {
+      if (order.files) {
+        try {
+          const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+          totalFiles += files.length;
+        } catch (e) {
+          console.error('Error parsing files for order', order.id);
+        }
+      }
+    }
+
+    toast({ title: `Preparing ${totalFiles} files from ${selectedOrders.size} orders for printing...` });
+
+    for (const order of selectedOrdersList) {
+      if (order.files) {
+        try {
+          const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+          await printAllFiles(files, (current, total) => {
+            processedFiles++;
+            if (processedFiles === totalFiles) {
+              toast({ title: `All ${totalFiles} files from ${selectedOrders.size} orders sent to print` });
+              setSelectedOrders(new Set());
+              setIsBulkMode(false);
+            }
+          }, order.status);
+        } catch (error: any) {
+          console.error('Error printing files for order', order.id, error);
+        }
+      }
+    }
+  };
+
+  const handleBulkDownload = () => {
+    if (selectedOrders.size === 0) {
+      toast({ title: 'No orders selected', variant: 'destructive' });
+      return;
+    }
+
+    const selectedOrdersList = orders.filter(order => selectedOrders.has(order.id));
+    let totalFiles = 0;
+
+    for (const order of selectedOrdersList) {
+      if (order.files) {
+        try {
+          const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
+          totalFiles += files.length;
+          downloadAllFiles(files, (current, total) => {
+            // Progress callback
+          }, order.status);
+        } catch (error: any) {
+          console.error('Error downloading files for order', order.id, error);
+        }
+      }
+    }
+
+    toast({ 
+      title: `Downloading ${totalFiles} files`, 
+      description: `From ${selectedOrders.size} orders` 
+    });
+    setSelectedOrders(new Set());
+    setIsBulkMode(false);
+  };
+
+  const toggleOrderSelection = (orderId: number) => {
+    const newSelected = new Set(selectedOrders);
+    if (newSelected.has(orderId)) {
+      newSelected.delete(orderId);
+    } else {
+      newSelected.add(orderId);
+    }
+    setSelectedOrders(newSelected);
+  };
+
+  const selectAllOrders = () => {
+    if (selectedOrders.size === filteredOrders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(filteredOrders.map(order => order.id)));
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-brand-yellow/20 text-rich-black border-brand-yellow/40';
@@ -510,13 +608,38 @@ export default function RedesignedShopOwnerDashboard() {
     
     return (
     <Card 
-      className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow cursor-pointer"
-      onClick={() => setSelectedOrderForDetails(order)}
+      className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow cursor-pointer relative"
+      onClick={(e) => {
+        // Don't open details if clicking checkbox
+        if ((e.target as HTMLElement).closest('.order-checkbox')) return;
+        setSelectedOrderForDetails(order);
+      }}
     >
       <CardContent className="p-4">
+        {/* Bulk Mode Checkbox */}
+        {isBulkMode && (
+          <div 
+            className="order-checkbox absolute top-4 left-4 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-0 h-6 w-6"
+              onClick={() => toggleOrderSelection(order.id)}
+            >
+              {selectedOrders.has(order.id) ? (
+                <CheckSquare className="w-5 h-5 text-brand-yellow" />
+              ) : (
+                <Square className="w-5 h-5 text-gray-400" />
+              )}
+            </Button>
+          </div>
+        )}
+        
         {/* Order Header */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center space-x-3">
+          <div className={`flex items-center space-x-3 ${isBulkMode ? 'ml-8' : ''}`}>
             <div className="w-10 h-10 bg-brand-yellow/20 rounded-lg flex items-center justify-center">
               <span className="text-sm font-bold text-rich-black">Queue #{order.orderNumber}</span>
             </div>
@@ -1050,9 +1173,9 @@ export default function RedesignedShopOwnerDashboard() {
         <Card className="mb-4 sm:mb-6">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col gap-3 sm:gap-4">
-              {/* Search Input */}
-              <div className="w-full">
-                <div className="relative">
+              {/* Search Input and Bulk Mode Toggle */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="Search orders..."
@@ -1061,7 +1184,65 @@ export default function RedesignedShopOwnerDashboard() {
                     className="pl-10 text-sm"
                   />
                 </div>
+                <Button
+                  variant={isBulkMode ? "default" : "outline"}
+                  onClick={() => {
+                    setIsBulkMode(!isBulkMode);
+                    setSelectedOrders(new Set());
+                  }}
+                  className={isBulkMode ? "bg-brand-yellow text-rich-black hover:bg-brand-yellow/90" : ""}
+                >
+                  {isBulkMode ? <X className="w-4 h-4 mr-1" /> : <CheckSquare className="w-4 h-4 mr-1" />}
+                  {isBulkMode ? "Cancel" : "Select"}
+                </Button>
               </div>
+              
+              {/* Bulk Actions Bar */}
+              {isBulkMode && selectedOrders.size > 0 && (
+                <div className="flex items-center justify-between bg-brand-yellow/10 p-2 rounded-lg border border-brand-yellow/20">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={selectAllOrders}
+                      className="text-xs"
+                    >
+                      {selectedOrders.size === filteredOrders.length ? (
+                        <>
+                          <Square className="w-4 h-4 mr-1" />
+                          Deselect All
+                        </>
+                      ) : (
+                        <>
+                          <CheckSquare className="w-4 h-4 mr-1" />
+                          Select All
+                        </>
+                      )}
+                    </Button>
+                    <span className="text-sm font-medium text-rich-black">
+                      {selectedOrders.size} selected
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={handleBulkPrint}
+                      className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                    >
+                      <Printer className="w-4 h-4 mr-1" />
+                      Print All
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleBulkDownload}
+                      variant="outline"
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download All
+                    </Button>
+                  </div>
+                </div>
+              )}
               
               {/* Status Filters - Mobile Grid */}
               <div className="grid grid-cols-2 sm:flex gap-2">

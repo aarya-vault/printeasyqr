@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   X, FileText, Download, Printer, Phone, MessageCircle, 
-  Calendar, Clock, CheckCircle2, Package, User
+  Calendar, Clock, CheckCircle2, Package, User, Square, CheckSquare
 } from 'lucide-react';
 import { format } from 'date-fns';
 import UnifiedChatSystem from '@/components/unified-chat-system';
@@ -52,6 +52,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState(order);
   const [stableOrder, setStableOrder] = useState(order); // FIX: Stable order state
+  const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -141,6 +142,88 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
         title: 'Cannot download files', 
         description: error.message || 'Files may no longer be available',
         variant: 'destructive' 
+      });
+    }
+  };
+
+  // File selection handlers
+  const handleFileSelect = (index: number, checked: boolean) => {
+    const newSelected = new Set(selectedFiles);
+    if (checked) {
+      newSelected.add(index);
+    } else {
+      newSelected.delete(index);
+    }
+    setSelectedFiles(newSelected);
+  };
+
+  const handleSelectAllFiles = (fileCount: number) => {
+    if (selectedFiles.size === fileCount) {
+      setSelectedFiles(new Set());
+    } else {
+      setSelectedFiles(new Set(Array.from({ length: fileCount }, (_, i) => i)));
+    }
+  };
+
+  const handlePrintSelected = async () => {
+    try {
+      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
+      const filesToPrint = files.filter((_: any, index: number) => selectedFiles.has(index));
+      
+      if (filesToPrint.length === 0) {
+        toast({ title: 'No files selected', variant: 'destructive' });
+        return;
+      }
+
+      if (filesToPrint.length === 1) {
+        await printFile(filesToPrint[0], stableOrder.status);
+        toast({ title: 'File sent to print' });
+      } else {
+        toast({ title: `Preparing ${filesToPrint.length} files for printing...` });
+        await printAllFiles(filesToPrint, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} files sent to print` });
+          }
+        }, stableOrder.status);
+      }
+      setSelectedFiles(new Set());
+    } catch (error: any) {
+      console.error('Error printing selected files:', error);
+      toast({ 
+        title: 'Cannot print selected files', 
+        description: error.message || 'Please try again',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDownloadSelected = () => {
+    try {
+      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
+      const filesToDownload = files.filter((_: any, index: number) => selectedFiles.has(index));
+      
+      if (filesToDownload.length === 0) {
+        toast({ title: 'No files selected', variant: 'destructive' });
+        return;
+      }
+
+      if (filesToDownload.length === 1) {
+        downloadFile(filesToDownload[0], stableOrder.status);
+        toast({ title: 'File downloaded' });
+      } else {
+        downloadAllFiles(filesToDownload, (current, total) => {
+          if (current === total) {
+            toast({ title: `${total} files downloaded` });
+          }
+        }, stableOrder.status);
+      }
+      setSelectedFiles(new Set());
+    } catch (error: any) {
+      console.error('Error downloading selected files:', error);
+      toast({ 
+        title: 'Cannot download selected files', 
+        description: error.message || 'Please try again',
+        variant: 'destructive'
       });
     }
   };
@@ -266,6 +349,18 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                       })()})
                     </div>
                     <div className="flex items-center space-x-2">
+                      {selectedFiles.size > 0 && (
+                        <>
+                          <Button size="sm" onClick={handlePrintSelected} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print Selected ({selectedFiles.size})
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={handleDownloadSelected}>
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Selected
+                          </Button>
+                        </>
+                      )}
                       <Button size="sm" variant="outline" onClick={handlePrintAll}>
                         <Printer className="w-4 h-4 mr-2" />
                         Print All
@@ -278,6 +373,35 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {userRole === 'shop_owner' && (() => {
+                    const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
+                    if (Array.isArray(files) && files.length > 0) {
+                      return (
+                        <div className="mb-3 pb-3 border-b">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleSelectAllFiles(files.length)}
+                            className="text-xs"
+                          >
+                            {selectedFiles.size === files.length ? (
+                              <>
+                                <Square className="w-4 h-4 mr-1" />
+                                Deselect All
+                              </>
+                            ) : (
+                              <>
+                                <CheckSquare className="w-4 h-4 mr-1" />
+                                Select All
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                  
                   <div className="space-y-2">
                     {(() => {
                       try {
@@ -285,8 +409,22 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                         if (!Array.isArray(files)) return <p className="text-gray-500">No files available</p>;
                         
                         return files.map((file: any, index: number) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div className="flex items-center">
+                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div className="flex items-center flex-1">
+                              {userRole === 'shop_owner' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="p-0 h-6 w-6 mr-3"
+                                  onClick={() => handleFileSelect(index, !selectedFiles.has(index))}
+                                >
+                                  {selectedFiles.has(index) ? (
+                                    <CheckSquare className="w-5 h-5 text-brand-yellow" />
+                                  ) : (
+                                    <Square className="w-5 h-5 text-gray-400" />
+                                  )}
+                                </Button>
+                              )}
                               <FileText className="w-4 h-4 mr-3 text-gray-500" />
                               <span className="text-sm font-medium">{file.originalName || file.filename || `File ${index + 1}`}</span>
                             </div>
