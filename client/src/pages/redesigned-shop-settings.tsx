@@ -126,22 +126,60 @@ export default function RedesignedShopSettings() {
         customEquipment: formData.customEquipment || []
       };
       console.log('🔍 REDESIGNED SHOP SETTINGS - Saving form data:', dataToSave);
-      return await apiRequest('/api/shops/settings', 'PATCH', dataToSave);
+      const response = await apiRequest('/api/shops/settings', 'PATCH', dataToSave);
+      return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      console.log('✅ SHOP SETTINGS - Save successful, invalidating all caches');
       // CRITICAL FIX: When shop owners update their settings, invalidate ALL relevant caches
       queryClient.invalidateQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/shops'] });
       queryClient.invalidateQueries({ queryKey: ['/api/shops'] }); // Customer-facing cache
+      
+      // IMMEDIATE REFRESH: Also refetch the current shop data immediately
+      queryClient.refetchQueries({ queryKey: [`/api/shops/owner/${user?.id}`] });
+      
+      // FORCE IMMEDIATE UPDATE: Set stale time to 0 to force immediate refresh across all components
+      queryClient.setQueryData(['/api/shops'], (oldData: any) => {
+        if (!oldData || !response?.shop) return oldData;
+        return oldData.map((shop: any) => shop.id === response.shop.id ? response.shop : shop);
+      });
+      
+      // Update the form data with the fresh data from the server response
+      if (response && response.shop) {
+        console.log('✅ SHOP SETTINGS - Updating form with server response data');
+        const updatedShop = response.shop;
+        setFormData({
+          name: updatedShop.name || '',
+          description: updatedShop.description || '',
+          address: updatedShop.address || '',
+          phone: updatedShop.phone || '',
+          email: updatedShop.email || '',
+          services: updatedShop.services || [],
+          customServices: updatedShop.customServices || [],
+          equipment: updatedShop.equipment || [],
+          customEquipment: updatedShop.customEquipment || [],
+          workingHours: updatedShop.workingHours || {},
+          isOnline: updatedShop.isOnline ?? true,
+          acceptsWalkinOrders: updatedShop.acceptsWalkinOrders ?? true,
+          notifications: updatedShop.notifications || {
+            newOrders: true,
+            statusUpdates: true,
+            customerMessages: true
+          }
+        });
+      }
+      
       toast({
         title: "Success",
-        description: "Shop settings saved successfully"
+        description: "Shop settings saved and synchronized successfully"
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('❌ SHOP SETTINGS - Save failed:', error);
       toast({
         title: "Error",
-        description: "Failed to save settings",
+        description: `Failed to save settings: ${error?.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }

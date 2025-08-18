@@ -37,13 +37,13 @@ export default function CustomerBrowseShops() {
     }
   }, [user, navigate]);
 
-  // Fetch active shops with performance optimization
+  // Fetch active shops - CRITICAL FIX: Reduced stale time for real-time updates
   const { data: shops = [], isLoading } = useQuery<Shop[]>({
     queryKey: ['/api/shops'],
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
-    refetchOnWindowFocus: false, // Prevent unnecessary refetches
-    refetchOnMount: false, // Use cached data when available
+    staleTime: 30 * 1000, // Cache for 30 seconds only for immediate updates
+    refetchInterval: 60 * 1000, // Auto-refetch every minute
+    refetchOnWindowFocus: true, // Enable refetch on window focus for fresh data
+    refetchOnMount: true, // Always fetch latest data on mount
   });
 
   // Fetch customer's unlocked shops - need to get current user ID first

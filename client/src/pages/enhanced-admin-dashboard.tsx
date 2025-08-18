@@ -96,10 +96,12 @@ export default function EnhancedAdminDashboard() {
     retryDelay: 1000
   });
 
-  // Fetch all shops
+  // Fetch all shops - CRITICAL FIX: Reduced stale time for real-time updates
   const { data: shops = [], isLoading: shopsLoading } = useQuery<Shop[]>({
     queryKey: ['/api/admin/shops'],
     enabled: !!user && user.role === 'admin',
+    staleTime: 30 * 1000, // Cache for 30 seconds only for immediate updates
+    refetchInterval: 60 * 1000, // Auto-refetch every minute
     retry: 3,
     retryDelay: 1000
   });
