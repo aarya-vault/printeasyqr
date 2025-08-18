@@ -55,6 +55,97 @@ export default function ShopOrder() {
   } | null>(null);
   const { getPersistentUserData, user } = useAuth();
 
+  // 🔗 SOCIAL MEDIA SEO: Dynamic meta tags for shop pages
+  useEffect(() => {
+    if (shop) {
+      const siteName = 'PrintEasy QR';
+      const title = `${shop.name} - Professional Printing Services | ${siteName}`;
+      const description = `Visit ${shop.name} for quality printing services in ${shop.city || 'your area'}. Quick, reliable printing solutions. ${shop.address || 'Contact us for details'}.`;
+      const imageUrl = `${window.location.origin}/printeasy-social-logo.png`;
+      const url = `${window.location.origin}/shop/${shop.slug}`;
+
+      // Update page title
+      document.title = title;
+
+      // Remove existing meta tags
+      const existingMeta = document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]');
+      existingMeta.forEach(tag => tag.remove());
+
+      // Add new meta tags
+      const metaTags = [
+        { name: 'description', content: description },
+        
+        // Open Graph for Facebook, LinkedIn, etc.
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: imageUrl },
+        { property: 'og:url', content: url },
+        { property: 'og:type', content: 'business.business' },
+        { property: 'og:site_name', content: siteName },
+        { property: 'og:locale', content: 'en_IN' },
+        
+        // Twitter Cards
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: imageUrl },
+        
+        // Additional SEO
+        { name: 'robots', content: 'index, follow' },
+        { name: 'author', content: siteName },
+        { name: 'keywords', content: `printing services, ${shop.city}, ${shop.name}, photocopying, document printing` }
+      ];
+
+      metaTags.forEach(({ name, property, content }) => {
+        const meta = document.createElement('meta');
+        if (name) meta.setAttribute('name', name);
+        if (property) meta.setAttribute('property', property);
+        meta.setAttribute('content', content);
+        document.head.appendChild(meta);
+      });
+
+      // Add canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.setAttribute('href', url);
+
+      // Add JSON-LD structured data for rich snippets
+      const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        'name': shop.name,
+        'description': description,
+        'address': {
+          '@type': 'PostalAddress',
+          'streetAddress': shop.address,
+          'addressLocality': shop.city,
+          'addressCountry': 'IN'
+        },
+        'telephone': shop.phone,
+        'url': url,
+        'image': imageUrl,
+        'priceRange': '₹'
+      };
+
+      let jsonLd = document.querySelector('script[type="application/ld+json"]');
+      if (!jsonLd) {
+        jsonLd = document.createElement('script');
+        jsonLd.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(jsonLd);
+      }
+      jsonLd.textContent = JSON.stringify(structuredData);
+    }
+
+    return () => {
+      // Cleanup on unmount - restore generic title
+      document.title = 'PrintEasy QR - Your Printing Partner';
+    };
+  }, [shop]);
+
   // Get shop data with auto-refresh for real-time updates
   const { data: shopData, isLoading, error } = useQuery<Shop>({
     queryKey: [`/api/shops/slug/${params?.slug}`],
