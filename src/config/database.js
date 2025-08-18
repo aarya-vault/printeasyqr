@@ -33,7 +33,7 @@ const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   logging: false, // Disable all SQL logging to prevent confusion
   dialectOptions: {
-    ssl: process.env.NODE_ENV === 'production' ? {
+    ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('neon.tech') ? {
       require: true,
       rejectUnauthorized: false
     } : false
@@ -60,9 +60,13 @@ const sequelize = new Sequelize(databaseUrl, {
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    console.log('✅ Database connection has been established successfully.');
+    return true;
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error('❌ Unable to connect to the database:', error.message);
+    console.error('Database URL format:', databaseUrl ? databaseUrl.substring(0, 30) + '...' : 'NOT SET');
+    console.error('SSL enabled:', sequelize.options.dialectOptions?.ssl ? 'YES' : 'NO');
+    throw error;
   }
 };
 
