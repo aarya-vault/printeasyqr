@@ -52,7 +52,8 @@ export default function EnhancedShopSettings() {
     enabled: !!user?.id && user?.role === 'shop_owner'
   });
 
-  const currentShop = Array.isArray(userShops) && userShops.length > 0 ? userShops[0] : null;
+  // Handle both array response and single shop object response
+  const currentShop = userShops ? (Array.isArray(userShops) ? userShops[0] : (userShops as any).shop || userShops) : null;
 
   // Initialize form data state with all fields from application
   const [formData, setFormData] = useState({
@@ -110,6 +111,8 @@ export default function EnhancedShopSettings() {
   // Initialize form data when shop data loads
   useEffect(() => {
     if (currentShop) {
+      console.log('📊 Current Shop Data:', currentShop);
+      
       const parsedWorkingHours = typeof currentShop.workingHours === 'string' 
         ? JSON.parse(currentShop.workingHours || '{}')
         : currentShop.workingHours || {};
@@ -124,6 +127,19 @@ export default function EnhancedShopSettings() {
         ? currentShop.equipment 
         : typeof currentShop.equipment === 'string' 
           ? JSON.parse(currentShop.equipment || '[]')
+          : [];
+          
+      // Parse custom services and equipment
+      const parsedCustomServices = Array.isArray(currentShop.customServices) 
+        ? currentShop.customServices 
+        : typeof currentShop.customServices === 'string' 
+          ? JSON.parse(currentShop.customServices || '[]')
+          : [];
+          
+      const parsedCustomEquipment = Array.isArray(currentShop.customEquipment) 
+        ? currentShop.customEquipment 
+        : typeof currentShop.customEquipment === 'string' 
+          ? JSON.parse(currentShop.customEquipment || '[]')
           : [];
 
       setFormData({
@@ -143,15 +159,15 @@ export default function EnhancedShopSettings() {
         description: currentShop.description || '',
         
         // Location
-        pinCode: currentShop.pinCode || '',
+        pinCode: currentShop.pinCode || currentShop.pin_code || '',
         city: currentShop.city || '',
         state: currentShop.state || '',
         
-        // Business Details
+        // Business Details - Combine standard and custom services/equipment
         services: parsedServices.filter((s: string) => SERVICES.includes(s)),
-        customServices: parsedServices.filter((s: string) => !SERVICES.includes(s)),
+        customServices: [...parsedServices.filter((s: string) => !SERVICES.includes(s)), ...parsedCustomServices],
         equipment: parsedEquipment.filter((e: string) => EQUIPMENT.includes(e)),
-        customEquipment: parsedEquipment.filter((e: string) => !EQUIPMENT.includes(e)),
+        customEquipment: [...parsedEquipment.filter((e: string) => !EQUIPMENT.includes(e)), ...parsedCustomEquipment],
         yearsOfExperience: currentShop.yearsOfExperience?.toString() || '',
         formationYear: currentShop.formationYear?.toString() || '',
         
@@ -178,9 +194,15 @@ export default function EnhancedShopSettings() {
         }
       });
 
-      // Set custom services and equipment
-      setCustomServices(parsedServices.filter((s: string) => !SERVICES.includes(s)));
-      setCustomEquipment(parsedEquipment.filter((e: string) => !EQUIPMENT.includes(e)));
+      // Set custom services and equipment - combine from both sources
+      const allCustomServices = [...parsedServices.filter((s: string) => !SERVICES.includes(s)), ...parsedCustomServices];
+      const allCustomEquipment = [...parsedEquipment.filter((e: string) => !EQUIPMENT.includes(e)), ...parsedCustomEquipment];
+      
+      setCustomServices(allCustomServices);
+      setCustomEquipment(allCustomEquipment);
+      
+      console.log('📦 Custom Services:', allCustomServices);
+      console.log('🔧 Custom Equipment:', allCustomEquipment);
     }
   }, [currentShop]);
 

@@ -146,7 +146,7 @@ export default function UnifiedShopCard({
             <span className={`text-sm line-clamp-2 ${
               isUnlocked ? 'text-gray-700' : 'text-gray-500'
             }`}>
-              {shop.completeAddress || shop.address}
+              {shop.address || shop.completeAddress}
             </span>
           </div>
           
