@@ -1,4 +1,4 @@
-import { Shop, User, Order, CustomerShopUnlock, ShopApplication, sequelize } from '../models/index.js';
+import { Shop, User, Order, CustomerShopUnlock, ShopApplication } from '../models/index.js';
 import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
@@ -303,8 +303,6 @@ class ShopController {
     try {
       console.log('🔍 Fetching active shops - DATABASE_URL present:', !!process.env.DATABASE_URL);
       
-      // 🔄 PRODUCTION DATA DELETED - Using Replit's Native PostgreSQL Only
-      // All external database connections removed - fresh start with clean data
       const shops = await Shop.findAll({
         where: {
           isApproved: true,
@@ -315,7 +313,7 @@ class ShopController {
         order: [['createdAt', 'DESC']]
       });
       
-      console.log('✅ Replit native database shops found:', shops?.length || 0);
+      console.log('✅ Active shops found:', shops?.length || 0);
       const transformedShops = (shops || []).map(shop => ShopController.transformShopData(shop));
       res.json(transformedShops);
     } catch (error) {

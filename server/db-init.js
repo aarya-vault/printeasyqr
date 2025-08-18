@@ -11,10 +11,8 @@ const initializeDatabase = async () => {
   logger.info('🔄 Initializing production database...');
   
   try {
-    // 🔄 PRODUCTION DATA DELETED - Using Replit's Native PostgreSQL Only
-    // All external database connections removed - fresh start with Replit's built-in database
+    // FORCE: Bypass Replit database integration, use only custom DATABASE_URL
     const databaseUrl = process.env.DATABASE_URL;
-    const isDeployment = false; // Always use Replit's native database
     
     if (!databaseUrl) {
       logger.error('❌ CRITICAL: Custom DATABASE_URL missing in environment variables');
@@ -23,10 +21,9 @@ const initializeDatabase = async () => {
       throw new Error('Custom DATABASE_URL environment variable is required for deployment');
     }
     
-    logger.info('🔒 Using Replit Native PostgreSQL Database');
-    logger.info('✅ Fresh start - all production data deleted');
-    logger.info('🔍 Clean slate - no external dependencies');
-    logger.info('📊 Starting with empty database for fresh data');
+    logger.info('🔒 BYPASSING Replit database integration - using custom DATABASE_URL');
+    logger.info('✅ Using custom PostgreSQL database from environment variables');
+    logger.info('📊 Database configured for deployment with custom credentials');
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
@@ -72,10 +69,10 @@ const initializeDatabase = async () => {
     logger.info('✅ Database connection established');
     
     // CRITICAL: Explicitly prevent any destructive operations during deployment
-    // The database contains production data (138 shop owners, 128 shops)
+    // The database contains production data (107 shops, 85 users, 9 orders)
     // Never allow force sync or alter operations regardless of environment
     logger.info('🔒 PRODUCTION DATA PROTECTION: Preventing any destructive database operations');
-    logger.info('📊 Database contains: 138 shop owners, 128 shops - MUST BE PRESERVED');
+    logger.info('📊 Database contains: 107 shops, 85 users, 9 orders - MUST BE PRESERVED');
     
     // Explicitly disable force sync even if environment variable is set
     if (process.env.FORCE_DB_SYNC === 'true') {
