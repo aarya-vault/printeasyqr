@@ -162,8 +162,21 @@ async function importOneShop() {
               const email = `${slug}@printeasyqr.com`;
               
               // Check if user already exists (email or phone)
-              let phone = (candidate.phoneUnformatted || candidate.phone || '1234567890')
-                .toString().replace(/[^\d]/g, '').slice(-10);
+              let phone = '1234567890'; // default fallback
+              
+              // Try to get proper phone number from CSV data
+              if (candidate.phone && candidate.phone.includes('+91')) {
+                // Parse formatted phone like "+91 98983 97056"
+                phone = candidate.phone.replace(/[^\d]/g, '').slice(-10);
+              } else if (candidate.phoneUnformatted) {
+                // Handle scientific notation like 9.20E+11
+                const phoneNum = parseFloat(candidate.phoneUnformatted);
+                if (!isNaN(phoneNum) && phoneNum > 1000000000) {
+                  phone = Math.floor(phoneNum).toString().slice(-10);
+                }
+              }
+              
+              // Ensure 10 digits
               if (phone.length < 10) {
                 phone = phone.padStart(10, '0');
               }
@@ -188,9 +201,21 @@ async function importOneShop() {
 
             const slug = generateSlug(shopData.title);
             const email = `${slug}@printeasyqr.com`;
-            let phone = (shopData.phoneUnformatted || shopData.phone || '1234567890')
-              .toString().replace(/[^\d]/g, '').slice(-10);
+            let phone = '1234567890'; // default fallback
             
+            // Try to get proper phone number from CSV data
+            if (shopData.phone && shopData.phone.includes('+91')) {
+              // Parse formatted phone like "+91 98983 97056"
+              phone = shopData.phone.replace(/[^\d]/g, '').slice(-10);
+            } else if (shopData.phoneUnformatted) {
+              // Handle scientific notation like 9.20E+11
+              const phoneNum = parseFloat(shopData.phoneUnformatted);
+              if (!isNaN(phoneNum) && phoneNum > 1000000000) {
+                phone = Math.floor(phoneNum).toString().slice(-10);
+              }
+            }
+            
+            // Ensure 10 digits
             if (phone.length < 10) {
               phone = phone.padStart(10, '0');
             }

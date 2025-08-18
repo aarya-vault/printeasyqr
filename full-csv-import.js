@@ -71,6 +71,11 @@ function parseWorkingHours(row) {
       const day = row[dayKey].toLowerCase();
       const hours = row[hoursKey];
       
+      // Validate day name
+      if (!days.includes(day)) {
+        continue; // Skip invalid day names
+      }
+      
       if (hours === 'Closed') {
         workingHours[day] = { closed: true, open: '', close: '', is24Hours: false };
       } else {
@@ -98,8 +103,10 @@ function parseWorkingHours(row) {
           workingHours[day] = { closed: false, open: '09:00', close: '18:00', is24Hours: false };
         }
       }
-    } else {
-      workingHours[day] = { closed: false, open: '09:00', close: '18:00', is24Hours: false };
+    } else if (days.includes(days[i])) {
+      // Set default hours only for valid days
+      const currentDay = days[i];
+      workingHours[currentDay] = { closed: false, open: '09:00', close: '18:00', is24Hours: false };
     }
   }
   
