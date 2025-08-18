@@ -130,11 +130,6 @@
   .strict-color-scheme {
     background: transparent; /* No gradients - solid colors only */
   }
-  
-  /* Modern gradient utilities for creative homepage */
-  .bg-gradient-radial {
-    background: radial-gradient(var(--tw-gradient-stops));
-  }
 }
 
 @layer utilities {
