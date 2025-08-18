@@ -51,6 +51,7 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Enhanced JWT Authentication Flow**: Integrates just-in-time authentication for anonymous order flows, with automatic user creation/lookup and extended token validity.
 - **Advanced Order Management**: Sophisticated queue calculation logic focusing on active orders, role-based order creation safeguards, and comprehensive error handling.
 - **One-Email-One-Shop Enforcement**: Database constraints and backend validation ensure each email address can only own one shop, with automatic duplicate cleanup and prevention systems.
+- **Complete "Queue #" Rebranding**: Systematically replaced all "Order #" references with "Queue #" across the entire platform including frontend, backend, chat systems, dashboards, confirmations, and notifications.
 
 ## External Dependencies
 
