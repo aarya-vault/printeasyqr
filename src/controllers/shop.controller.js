@@ -617,13 +617,20 @@ class ShopController {
   // Update shop settings - Enhanced with all application fields
   static async updateShopSettings(req, res) {
     try {
-      const userId = req.userId;
+      // CRITICAL FIX: Use req.user.id instead of req.userId for consistency with other methods
+      const userId = req.user.id;
       const updateData = req.body;
+
+      console.log('🔍 UPDATE SHOP SETTINGS - User ID:', userId);
+      console.log('🔍 UPDATE SHOP SETTINGS - Update data keys:', Object.keys(updateData));
 
       const shop = await Shop.findOne({ where: { ownerId: userId } });
       if (!shop) {
-        return res.status(404).json({ message: 'Shop not found' });
+        console.log('🔍 No shop found for owner ID:', userId);
+        return res.status(404).json({ message: 'Shop not found for this user' });
       }
+
+      console.log('🔍 Found shop for update:', { id: shop.id, name: shop.name });
 
       // Prepare update data with all fields from enhanced settings
       const fieldsToUpdate = {
@@ -676,7 +683,9 @@ class ShopController {
         }
       });
 
+      console.log('🔍 Updating shop with fields:', Object.keys(fieldsToUpdate));
       await shop.update(fieldsToUpdate);
+      console.log('✅ Shop updated successfully');
       
       // Fetch updated shop data with owner
       const updatedShop = await Shop.findOne({
@@ -690,12 +699,19 @@ class ShopController {
         ]
       });
 
+      console.log('✅ Shop settings update completed for:', updatedShop.name);
       res.json({ 
         message: 'Settings updated successfully', 
         shop: ShopController.transformShopData(updatedShop) 
       });
     } catch (error) {
-      console.error('Update shop settings error:', error);
+      console.error('❌ Update shop settings error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        userId: req.user?.id,
+        updateDataKeys: Object.keys(req.body || {})
+      });
       res.status(500).json({ 
         message: 'Failed to update settings',
         error: error.message 
