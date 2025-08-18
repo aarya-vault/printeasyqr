@@ -62,6 +62,7 @@ import downloadRoutes from './routes/download.routes.js';
 import printHostRoutes from './routes/print-host.routes.js';
 import googleMapsImportRoutes from './routes/google-maps-import.routes.js';
 import r2Routes from './routes/r2.routes.js';
+import healthRoutes from './routes/health.routes.js';
 import { setupWebSocket } from './utils/websocket.js';
 import storageManager from '../server/storage/storageManager.js';
 
@@ -197,6 +198,7 @@ app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 app.use('/api', printHostRoutes); // Print Host for PDF printing
 app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
 app.use('/api', r2Routes); // R2 storage routes for order files
+app.use('/api', healthRoutes); // Database health check routes
 
 // PDF Viewer Route - Serve dedicated pdf-viewer.html via API route to avoid Vite conflicts  
 app.get('/api/pdf-viewer', (req, res) => {

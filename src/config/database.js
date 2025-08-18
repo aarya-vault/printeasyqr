@@ -46,13 +46,17 @@ const sequelize = new Sequelize(databaseUrl, {
     ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('neon.tech') ? {
       require: true,
       rejectUnauthorized: false
-    } : false
+    } : false,
+    // CRITICAL: Increase timeouts for Replit environment
+    connectTimeout: 120000,    // 2 minutes
+    acquireTimeout: 120000,    // 2 minutes
+    timeout: 120000            // 2 minutes
   },
   pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+    max: 20,           // INCREASE from 5 for production load
+    min: 5,            // INCREASE from 0 - maintain persistent connections
+    acquire: 120000,   // INCREASE from 30000 - 2 minutes
+    idle: 60000        // INCREASE from 10000 - 1 minute
   },
   // CRITICAL: Prevent all automatic schema modifications
   define: {
