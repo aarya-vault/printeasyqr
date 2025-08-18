@@ -31,6 +31,60 @@ class ShopController {
     return {};
   }
 
+  // CRITICAL FIX: Normalize working hours format for consistent frontend usage
+  static normalizeWorkingHours(hours) {
+    const rawHours = ShopController.parseJsonObject(hours);
+    if (!rawHours || typeof rawHours !== 'object') return {};
+    
+    const normalizedHours = {};
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    
+    days.forEach(day => {
+      const dayHours = rawHours[day];
+      if (dayHours) {
+        // Handle old format: {isOpen, openTime, closeTime} -> new format: {open, close, closed, is24Hours}
+        if (dayHours.hasOwnProperty('isOpen') && dayHours.hasOwnProperty('openTime')) {
+          normalizedHours[day] = {
+            open: dayHours.openTime || '09:00',
+            close: dayHours.closeTime || '18:00',
+            closed: !dayHours.isOpen,
+            is24Hours: false
+          };
+        } 
+        // Handle new format: keep as is
+        else if (dayHours.hasOwnProperty('open') && dayHours.hasOwnProperty('close')) {
+          normalizedHours[day] = {
+            open: dayHours.open || '09:00',
+            close: dayHours.close || '18:00',
+            closed: dayHours.closed || false,
+            is24Hours: dayHours.is24Hours || false
+          };
+        }
+        // Handle any other format: provide defaults
+        else {
+          normalizedHours[day] = {
+            open: '09:00',
+            close: '18:00',
+            closed: false,
+            is24Hours: false
+          };
+        }
+      } else {
+        // Provide default for missing days
+        normalizedHours[day] = {
+          open: '09:00',
+          close: '18:00',
+          closed: false,
+          is24Hours: false
+        };
+      }
+    });
+    
+    console.log('🔧 WORKING HOURS NORMALIZATION - Input:', hours);
+    console.log('🔧 WORKING HOURS NORMALIZATION - Output:', normalizedHours);
+    return normalizedHours;
+  }
+
   // Calculate unified shop status combining working hours and manual override
   static calculateUnifiedStatus(shopData) {
     if (!shopData) {
@@ -155,8 +209,8 @@ class ShopController {
       equipmentAvailable: ShopController.parseJsonArray(shopData.equipment), // Alias
       yearsOfExperience: shopData.yearsOfExperience,
       formationYear: shopData.formationYear,
-      // Working Hours and Availability - Parse JSON string if needed
-      workingHours: ShopController.parseJsonObject(shopData.working_hours || shopData.workingHours),
+      // Working Hours and Availability - Parse JSON string and normalize format
+      workingHours: ShopController.normalizeWorkingHours(shopData.working_hours || shopData.workingHours),
       acceptsWalkinOrders: Boolean(shopData.acceptsWalkinOrders),
       isOnline: Boolean(shopData.isOnline),
       isOpen: Boolean(shopData.isOnline), // Alias for frontend

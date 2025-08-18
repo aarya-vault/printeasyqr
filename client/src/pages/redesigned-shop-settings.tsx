@@ -91,6 +91,27 @@ export default function RedesignedShopSettings() {
         services: currentShop.services,
         workingHours: currentShop.workingHours
       });
+      
+      console.log('🔧 WORKING HOURS DEBUG - Raw working hours:', currentShop.workingHours);
+      console.log('🔧 WORKING HOURS DEBUG - Type:', typeof currentShop.workingHours);
+      
+      // CRITICAL FIX: Ensure working hours is always an object with proper structure
+      const normalizedWorkingHours = currentShop.workingHours || {};
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      
+      // Ensure all days have proper structure for frontend
+      days.forEach(day => {
+        if (!normalizedWorkingHours[day]) {
+          normalizedWorkingHours[day] = {
+            open: '09:00',
+            close: '18:00',
+            closed: false,
+            is24Hours: false
+          };
+        }
+      });
+      
+      console.log('🔧 NORMALIZED WORKING HOURS:', normalizedWorkingHours);
 
       setFormData({
         name: currentShop.name || '',
@@ -102,7 +123,7 @@ export default function RedesignedShopSettings() {
         customServices: currentShop.customServices || [],
         equipment: currentShop.equipment || [],
         customEquipment: currentShop.customEquipment || [],
-        workingHours: currentShop.workingHours || {},
+        workingHours: normalizedWorkingHours,
         isOnline: currentShop.isOnline ?? true,
         acceptsWalkinOrders: currentShop.acceptsWalkinOrders ?? true,
         notifications: currentShop.notifications || {
