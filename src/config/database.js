@@ -2,25 +2,16 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Production database URL for Neon PostgreSQL
-const productionDatabaseUrl = 'postgresql://neondb_owner:npg_aftGW4gE5RZY@ep-holy-feather-ae0ihzx2.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
+// 🔄 PRODUCTION DATA DELETED - Using Replit's Native PostgreSQL Only
+// All external database connections removed - fresh start with Replit's built-in database
+const databaseUrl = process.env.DATABASE_URL;
+const isDeployment = false; // Always use Replit's native database
 
-// CRITICAL: Use Neon database for deployment (check multiple deployment indicators)
-const isDeployment = process.env.NODE_ENV === 'production' || 
-                     process.env.REPLIT_DB_URL || 
-                     !process.env.DATABASE_URL ||
-                     process.env.PGHOST === 'ep-nameless-moon-a5vylf2m.us-east-2.aws.neon.tech';
-
-const databaseUrl = isDeployment ? productionDatabaseUrl : process.env.DATABASE_URL;
-
-console.log(`✅ Using ${isDeployment ? 'Production Neon' : 'Development Replit'} PostgreSQL database`);
-console.log('🔗 Database connection configured for deployment');
-console.log('🔍 Deployment indicators:', {
-  NODE_ENV: process.env.NODE_ENV,
-  hasREPLIT_DB_URL: !!process.env.REPLIT_DB_URL,
-  hasDATABASE_URL: !!process.env.DATABASE_URL,
-  PGHOST: process.env.PGHOST,
-  usingNeonDB: isDeployment
+console.log('✅ Using Replit Native PostgreSQL Database');
+console.log('🔗 Fresh start - all external data connections removed');
+console.log('🔍 Database Environment:', {
+  DATABASE_URL: !!process.env.DATABASE_URL ? 'Connected to Replit PostgreSQL' : 'Not configured',
+  freshStart: true
 });
 
 if (!databaseUrl) {

@@ -11,15 +11,10 @@ const initializeDatabase = async () => {
   logger.info('🔄 Initializing production database...');
   
   try {
-    // Production database URL for Neon PostgreSQL
-    const productionDatabaseUrl = 'postgresql://neondb_owner:npg_aftGW4gE5RZY@ep-holy-feather-ae0ihzx2.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
-    
-    // CRITICAL: Use Neon database for deployment (detect Replit deployment environment)
-    const isDeployment = process.env.NODE_ENV === 'production' || 
-                         process.env.REPLIT_DB_URL || 
-                         process.env.PGHOST === 'ep-nameless-moon-a5vylf2m.us-east-2.aws.neon.tech';
-    
-    const databaseUrl = isDeployment ? productionDatabaseUrl : process.env.DATABASE_URL;
+    // 🔄 PRODUCTION DATA DELETED - Using Replit's Native PostgreSQL Only
+    // All external database connections removed - fresh start with Replit's built-in database
+    const databaseUrl = process.env.DATABASE_URL;
+    const isDeployment = false; // Always use Replit's native database
     
     if (!databaseUrl) {
       logger.error('❌ CRITICAL: Custom DATABASE_URL missing in environment variables');
@@ -28,10 +23,10 @@ const initializeDatabase = async () => {
       throw new Error('Custom DATABASE_URL environment variable is required for deployment');
     }
     
-    logger.info(`🔒 Using ${isDeployment ? 'Production Neon' : 'Development Replit'} PostgreSQL database`);
-    logger.info('✅ Database configured with deployment detection');
-    logger.info('🔍 Deployment detected:', isDeployment);
-    logger.info('📊 Target: 138 shop owners and 128 shops');
+    logger.info('🔒 Using Replit Native PostgreSQL Database');
+    logger.info('✅ Fresh start - all production data deleted');
+    logger.info('🔍 Clean slate - no external dependencies');
+    logger.info('📊 Starting with empty database for fresh data');
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
