@@ -585,6 +585,9 @@ class ShopController {
 
       await shop.update(processedUpdateData);
       
+      // CRITICAL FIX: Refresh shop data after update to get latest values
+      await shop.reload();
+      
       const transformedShop = ShopController.transformShopData(shop);
       res.json({ 
         message: 'Shop updated successfully',
@@ -608,6 +611,9 @@ class ShopController {
       
       await shop.update({ isApproved: false });
       
+      // CRITICAL FIX: Refresh shop data after update
+      await shop.reload();
+      
       const transformedShop = ShopController.transformShopData(shop);
       res.json({ success: true, shop: transformedShop });
     } catch (error) {
@@ -627,6 +633,9 @@ class ShopController {
       }
       
       await shop.update({ isApproved: true });
+      
+      // CRITICAL FIX: Refresh shop data after update
+      await shop.reload();
       
       const transformedShop = ShopController.transformShopData(shop);
       res.json({ success: true, shop: transformedShop });
@@ -738,8 +747,13 @@ class ShopController {
       });
 
       console.log('🔍 Updating shop with fields:', Object.keys(fieldsToUpdate));
+      console.log('🔧 UPDATING CUSTOM EQUIPMENT:', updateData.customEquipment);
       await shop.update(fieldsToUpdate);
       console.log('✅ Shop updated successfully');
+      
+      // CRITICAL FIX: Refresh shop data after update to get latest values
+      await shop.reload();
+      console.log('🔧 AFTER RELOAD - Custom equipment from DB:', shop.custom_equipment);
       
       // Fetch updated shop data with owner
       const updatedShop = await Shop.findOne({
