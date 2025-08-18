@@ -18,11 +18,12 @@ import { validateDatabaseConnection, initializeDatabase } from './models/index.j
 const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
 const __dirname = import.meta ? dirname(__filename) : __dirname;
 
-// Initialize database (validate connection and create tables)
+// Initialize database (validate connection only - tables already exist)
 const initApp = async () => {
   const dbConnected = await validateDatabaseConnection();
   if (dbConnected) {
-    await initializeDatabase();
+    console.log('✅ Database ready - using existing schema');
+    // Skip initializeDatabase to prevent migration conflicts
   } else {
     console.error('❌ Cannot initialize database - connection failed');
   }

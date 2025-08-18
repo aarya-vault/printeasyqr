@@ -24,7 +24,7 @@ console.log('🔗 Database connection established via PostgreSQL');
 // Create Sequelize instance with connection string from environment
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: false, // Disable all SQL logging to prevent confusion
   dialectOptions: {
     ssl: process.env.NODE_ENV === 'production' ? {
       require: true,
@@ -36,6 +36,16 @@ const sequelize = new Sequelize(databaseUrl, {
     min: 0,
     acquire: 30000,
     idle: 10000
+  },
+  // CRITICAL: Prevent all automatic schema modifications
+  define: {
+    timestamps: true,
+    underscored: true,
+    freezeTableName: true
+  },
+  sync: {
+    force: false,
+    alter: false
   }
 });
 
