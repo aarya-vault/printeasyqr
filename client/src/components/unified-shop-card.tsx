@@ -173,47 +173,60 @@ export default function UnifiedShopCard({
           </div>
         </div>
 
-        {/* Services */}
-        {((shop.services && shop.services.length > 0) || 
-          (shop.servicesOffered && shop.servicesOffered.length > 0)) && (
-          <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Printer className={`w-4 h-4 ${
-                isUnlocked ? 'text-[#FFBF00]' : 'text-gray-400'
-              }`} />
-              <span className={`text-xs font-medium ${
-                isUnlocked ? 'text-gray-700' : 'text-gray-500'
-              }`}>
-                Services Available
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {((shop.services || shop.servicesOffered) || []).slice(0, 3).map((service, index) => (
-                <span 
-                  key={index} 
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                    isUnlocked 
-                      ? 'border-gray-300 bg-white' 
-                      : 'border-gray-200 bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {service}
+        {/* Services & Equipment */}
+        {(() => {
+          const allServices = [
+            ...((shop.services || shop.servicesOffered) || []),
+            ...((shop.customServices) || [])
+          ].filter(Boolean);
+          
+          const allEquipment = [
+            ...((shop.equipment || shop.equipmentAvailable) || []),
+            ...((shop.customEquipment) || [])
+          ].filter(Boolean);
+          
+          const allItems = [...allServices, ...allEquipment].filter(Boolean);
+          
+          return allItems.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Printer className={`w-4 h-4 ${
+                  isUnlocked ? 'text-[#FFBF00]' : 'text-gray-400'
+                }`} />
+                <span className={`text-xs font-medium ${
+                  isUnlocked ? 'text-gray-700' : 'text-gray-500'
+                }`}>
+                  Services & Equipment
                 </span>
-              ))}
-              {((shop.services || shop.servicesOffered) || []).length > 3 && (
-                <span 
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                    isUnlocked 
-                      ? 'border-gray-300 bg-gray-50' 
-                      : 'border-gray-200 bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  +{((shop.services || shop.servicesOffered) || []).length - 3} more
-                </span>
-              )}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {allItems.slice(0, 4).map((item, index) => (
+                  <span 
+                    key={index} 
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                      isUnlocked 
+                        ? 'border-gray-300 bg-white' 
+                        : 'border-gray-200 bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {item}
+                  </span>
+                ))}
+                {allItems.length > 4 && (
+                  <span 
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                      isUnlocked 
+                        ? 'border-gray-300 bg-gray-50' 
+                        : 'border-gray-200 bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    +{allItems.length - 4} more
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Action Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
