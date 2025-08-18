@@ -13,6 +13,7 @@ import {
   Upload, Info
 } from 'lucide-react';
 import { formatToIndiaDateTime } from '@/lib/time-utils';
+import { setNoIndexMeta, removeAllSEOMeta } from '@/utils/seo-utils';
 
 interface OrderDetails {
   id: number;
@@ -53,6 +54,19 @@ export default function OrderConfirmation() {
   const { user, login, refreshAuthContext } = useAuth();
   const [showChat, setShowChat] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // 🚫 SEO EXCLUSION: Order confirmation is private
+  useEffect(() => {
+    removeAllSEOMeta();
+    setNoIndexMeta();
+    document.title = 'Order Confirmation - PrintEasy QR';
+    
+    return () => {
+      // Cleanup on unmount
+      const noIndexMeta = document.querySelector('meta[name="robots"]');
+      if (noIndexMeta) noIndexMeta.remove();
+    };
+  }, []);
   const [countdown, setCountdown] = useState(10); // 10 seconds countdown
 
   useEffect(() => {

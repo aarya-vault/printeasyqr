@@ -55,6 +55,16 @@ export default function ShopOrder() {
   } | null>(null);
   const { getPersistentUserData, user } = useAuth();
 
+  // Get shop data with auto-refresh for real-time updates
+  const { data: shopData, isLoading, error } = useQuery<Shop>({
+    queryKey: [`/api/shops/slug/${params?.slug}`],
+    enabled: !!params?.slug,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time shop status
+    staleTime: 5000, // Consider data stale after 5 seconds
+  });
+
+  const shop = shopData;
+
   // 🔗 SOCIAL MEDIA SEO: Dynamic meta tags for shop pages
   useEffect(() => {
     if (shop) {
@@ -145,16 +155,6 @@ export default function ShopOrder() {
       document.title = 'PrintEasy QR - Your Printing Partner';
     };
   }, [shop]);
-
-  // Get shop data with auto-refresh for real-time updates
-  const { data: shopData, isLoading, error } = useQuery<Shop>({
-    queryKey: [`/api/shops/slug/${params?.slug}`],
-    enabled: !!params?.slug,
-    refetchInterval: 30000, // Refresh every 30 seconds for real-time shop status
-    staleTime: 5000, // Consider data stale after 5 seconds
-  });
-
-  const shop = shopData;
 
   // Auto-fill from persistent data
   const persistentData = getPersistentUserData();

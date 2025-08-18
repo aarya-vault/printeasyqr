@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Link } from 'wouter';
+import { setNoIndexMeta, removeAllSEOMeta } from '@/utils/seo-utils';
 
 interface Order {
   id: number;
@@ -61,6 +62,19 @@ export default function ShopOrderHistory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
+
+  // 🚫 SEO EXCLUSION: Shop order history is private
+  useEffect(() => {
+    removeAllSEOMeta();
+    setNoIndexMeta();
+    document.title = 'Order History - Shop Dashboard - PrintEasy QR';
+    
+    return () => {
+      // Cleanup on unmount
+      const noIndexMeta = document.querySelector('meta[name="robots"]');
+      if (noIndexMeta) noIndexMeta.remove();
+    };
+  }, []);
 
   // ✅ PROPERLY ENABLED: With correct authentication guards
   const { data: shopData } = useQuery<{ shop: { id: number } }>({
