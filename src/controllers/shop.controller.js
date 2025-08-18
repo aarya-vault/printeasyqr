@@ -509,7 +509,27 @@ class ShopController {
         return res.status(404).json({ message: 'Shop not found' });
       }
 
-      await shop.update(updateData);
+      // CRITICAL FIX: Properly handle array fields that need JSON stringification
+      const processedUpdateData = { ...updateData };
+      
+      // Process array fields for database storage
+      if (Array.isArray(updateData.services)) {
+        processedUpdateData.services = JSON.stringify(updateData.services);
+      }
+      if (Array.isArray(updateData.equipment)) {
+        processedUpdateData.equipment = JSON.stringify(updateData.equipment);
+      }
+      if (Array.isArray(updateData.customServices)) {
+        processedUpdateData.customServices = JSON.stringify(updateData.customServices);
+      }
+      if (Array.isArray(updateData.customEquipment)) {
+        processedUpdateData.customEquipment = JSON.stringify(updateData.customEquipment);
+      }
+      if (typeof updateData.workingHours === 'object' && updateData.workingHours !== null) {
+        processedUpdateData.workingHours = JSON.stringify(updateData.workingHours);
+      }
+
+      await shop.update(processedUpdateData);
       
       const transformedShop = ShopController.transformShopData(shop);
       res.json({ 
@@ -630,6 +650,8 @@ class ShopController {
         // Business Details
         services: Array.isArray(updateData.services) ? JSON.stringify(updateData.services) : updateData.services,
         equipment: Array.isArray(updateData.equipment) ? JSON.stringify(updateData.equipment) : updateData.equipment,
+        customServices: Array.isArray(updateData.customServices) ? JSON.stringify(updateData.customServices) : updateData.customServices,
+        customEquipment: Array.isArray(updateData.customEquipment) ? JSON.stringify(updateData.customEquipment) : updateData.customEquipment,
         yearsOfExperience: updateData.yearsOfExperience ? parseInt(updateData.yearsOfExperience) : null,
         formationYear: updateData.formationYear ? parseInt(updateData.formationYear) : null,
         
