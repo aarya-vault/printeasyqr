@@ -3,6 +3,20 @@ import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
 class ShopController {
+  // Helper function to parse JSON arrays or return empty array
+  static parseJsonArray(data) {
+    if (Array.isArray(data)) return data;
+    if (typeof data === 'string' && data.trim()) {
+      try {
+        const parsed = JSON.parse(data);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
   // Calculate unified shop status combining working hours and manual override
   static calculateUnifiedStatus(shopData) {
     if (!shopData) {
@@ -118,13 +132,13 @@ class ShopController {
       email: shopData.email,
       ownerPhone: shopData.ownerPhone,
       completeAddress: shopData.completeAddress,
-      // Business Details - Ensure arrays for frontend
-      services: Array.isArray(shopData.services) ? shopData.services : [],
-      equipment: Array.isArray(shopData.equipment) ? shopData.equipment : [],
-      customServices: Array.isArray(shopData.customServices) ? shopData.customServices : [],
-      customEquipment: Array.isArray(shopData.customEquipment) ? shopData.customEquipment : [],
-      servicesOffered: Array.isArray(shopData.services) ? shopData.services : [], // Alias
-      equipmentAvailable: Array.isArray(shopData.equipment) ? shopData.equipment : [], // Alias
+      // Business Details - Parse JSON strings and ensure arrays for frontend
+      services: ShopController.parseJsonArray(shopData.services),
+      equipment: ShopController.parseJsonArray(shopData.equipment),
+      customServices: ShopController.parseJsonArray(shopData.customServices),
+      customEquipment: ShopController.parseJsonArray(shopData.customEquipment),
+      servicesOffered: ShopController.parseJsonArray(shopData.services), // Alias
+      equipmentAvailable: ShopController.parseJsonArray(shopData.equipment), // Alias
       yearsOfExperience: shopData.yearsOfExperience,
       formationYear: shopData.formationYear,
       // Working Hours and Availability
