@@ -117,7 +117,6 @@ export default function UnifiedCustomerDashboard() {
   // Modal states
   const [showUploadOrder, setShowUploadOrder] = useState(false);
   const [showWalkinOrder, setShowWalkinOrder] = useState(false);
-  const [showAllShops, setShowAllShops] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   
   // Customer Name Modal for data consistency
@@ -485,7 +484,7 @@ export default function UnifiedCustomerDashboard() {
                   <Button 
                     variant="outline"
                     className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black h-10 sm:h-12 text-sm sm:text-base"
-                    onClick={() => setShowAllShops(true)}
+                    onClick={() => setLocation('/customer-browse-shops')}
                   >
                     <Store className="w-4 h-4 mr-2" />
                     Browse All Print Shops
@@ -592,7 +591,7 @@ export default function UnifiedCustomerDashboard() {
               <Button 
                 variant="link" 
                 className="text-brand-yellow hover:underline"
-                onClick={() => setShowAllShops(true)}
+                onClick={() => setLocation('/customer-browse-shops')}
               >
                 Browse All Shops
               </Button>
@@ -716,7 +715,7 @@ export default function UnifiedCustomerDashboard() {
                   <div className="text-center pt-4">
                     <Button 
                       variant="outline" 
-                      onClick={() => setShowAllShops(true)}
+                      onClick={() => setLocation('/customer-browse-shops')}
                       className="border-brand-yellow text-brand-yellow hover:bg-brand-yellow hover:text-rich-black"
                     >
                       View All {unlockedShops.length} Unlocked Shops
@@ -757,189 +756,7 @@ export default function UnifiedCustomerDashboard() {
 
 
 
-      {/* Shop Browse Modal */}
-      {showAllShops && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="bg-[#FFBF00] px-4 py-3 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-black">Browse Print Shops</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAllShops(false)}
-                className="text-black hover:bg-black/10"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="p-4 overflow-y-auto max-h-96">
-              {shopsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {allShops.map((shop) => {
-                    const isUnlocked = unlockedShopIds.includes(shop.id);
-                    
-                    // Calculate shop availability
-                    const isShopOnline = () => {
-                      if (!shop.acceptingOrders) return false;
-                      if (!shop.workingHours) return true; // 24/7 if no hours defined
-                      
-                      const now = new Date();
-                      const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-                      const currentDay = dayNames[now.getDay()];
-                      const currentTime = now.getHours() * 60 + now.getMinutes();
-                      
-                      const dayHours = shop.workingHours[currentDay];
-                      if (!dayHours || dayHours.closed) return false;
-                      
-                      const [openHour, openMin] = dayHours.open.split(':').map(Number);
-                      const [closeHour, closeMin] = dayHours.close.split(':').map(Number);
-                      const openTime = openHour * 60 + openMin;
-                      const closeTime = closeHour * 60 + closeMin;
-                      
-                      if (openTime === closeTime) return true; // 24/7
-                      if (openTime < closeTime) {
-                        return currentTime >= openTime && currentTime <= closeTime;
-                      } else {
-                        return currentTime >= openTime || currentTime <= closeTime;
-                      }
-                    };
 
-                    const shopOnline = isShopOnline();
-                    
-                    return (
-                      <div
-                        key={shop.id}
-                        className={`p-4 border rounded-lg cursor-pointer hover:shadow-md transition-all duration-200 ${
-                          isUnlocked 
-                            ? 'border-[#FFBF00] bg-[#FFBF00]/5 shadow-sm' 
-                            : 'border-gray-300 bg-gray-100 opacity-75'
-                        }`}
-                        onClick={() => handleShopClick(shop)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className={`font-semibold truncate ${isUnlocked ? 'text-black' : 'text-gray-600'}`}>
-                                {shop.name}
-                              </h3>
-                              {isUnlocked ? (
-                                <Unlock className="w-4 h-4 text-[#FFBF00] flex-shrink-0" />
-                              ) : (
-                                <Lock className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                              )}
-                            </div>
-                            
-                            {/* Shop Details */}
-                            <div className="space-y-1 mb-3">
-                              <p className={`text-sm truncate ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
-                                📍 {shop.address || shop.city}
-                              </p>
-                              {(shop.publicContactNumber || shop.phone) && (
-                                <p className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-500'}`}>
-                                  📞 {shop.publicContactNumber || shop.phone}
-                                </p>
-                              )}
-                              {shop.services && shop.services.length > 0 && (
-                                <p className={`text-xs ${isUnlocked ? 'text-gray-500' : 'text-gray-400'} truncate`}>
-                                  🛠️ {shop.services.slice(0, 3).join(', ')}
-                                  {shop.services.length > 3 && ` +${shop.services.length - 3} more`}
-                                </p>
-                              )}
-                            </div>
-                            
-                            {/* Status Badges */}
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Badge 
-                                variant={shopOnline ? 'default' : 'secondary'} 
-                                className={`text-xs ${shopOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                              >
-                                {shopOnline ? '🟢 Open' : '🔴 Closed'}
-                              </Badge>
-                              {isUnlocked ? (
-                                <Badge className="bg-[#FFBF00] text-black text-xs font-medium">
-                                  ✅ Unlocked
-                                </Badge>
-                              ) : (
-                                <Badge variant="outline" className="text-xs border-gray-400 text-gray-600">
-                                  🔒 Scan QR to Unlock
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="ml-3 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                            {isUnlocked ? (
-                              <div className="flex flex-col gap-2">
-                                <Button
-                                  size="sm"
-                                  className="bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 w-full"
-                                  onClick={() => {
-                                    setShowAllShops(false);
-                                    setShowUploadOrder(true);
-                                  }}
-                                >
-                                  <Upload className="w-3 h-3 mr-1" />
-                                  Upload
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black w-full"
-                                  onClick={() => {
-                                    setShowAllShops(false);
-                                    setShowWalkinOrder(true);
-                                  }}
-                                >
-                                  <MapPin className="w-3 h-3 mr-1" />
-                                  Walk-in
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setShowAllShops(false);
-                                  // Could trigger QR scanner here
-                                }}
-                                className="border-gray-400 text-gray-600 hover:border-[#FFBF00] hover:text-[#FFBF00] w-full"
-                                disabled
-                              >
-                                <QrCode className="w-3 h-3 mr-1" />
-                                Scan QR
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  
-                  {allShops.length === 0 && (
-                    <div className="text-center py-8">
-                      <Store className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-600">No print shops available</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <div className="px-4 py-3 border-t bg-gray-50">
-              <p className="text-xs text-gray-600 text-center">
-                Scan shop QR codes to unlock ordering capabilities. Visit shops physically or scan QR codes from their promotional materials.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Bottom Navigation */}
       <BottomNavigation />
