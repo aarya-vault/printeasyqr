@@ -40,13 +40,16 @@ export default function AnonymousVisitorBrowseShops() {
 
   // Filter shops based on search and filters
   const filteredShops = shops.filter((shop: Shop) => {
-    const matchesSearch =
+    const matchesSearch = searchQuery.trim() === '' || 
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.pinCode.includes(searchQuery) ||
+      shop.pinCode?.includes(searchQuery) ||
       shop.services?.some((service) =>
+        service.toLowerCase().includes(searchQuery.toLowerCase()),
+      ) ||
+      shop.customServices?.some((service) =>
         service.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 

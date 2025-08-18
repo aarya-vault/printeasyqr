@@ -113,7 +113,7 @@ export default function CustomerBrowseShops() {
 
   // Filter shops based on search and filters
   const filteredShops = shops.filter((shop: Shop) => {
-    const matchesSearch =
+    const matchesSearch = searchQuery.trim() === '' ||
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,6 +121,15 @@ export default function CustomerBrowseShops() {
       shop.pinCode?.includes(searchQuery) ||
       shop.services?.some((service) =>
         service.toLowerCase().includes(searchQuery.toLowerCase()),
+      ) ||
+      shop.customServices?.some((service) =>
+        service.toLowerCase().includes(searchQuery.toLowerCase()),
+      ) ||
+      shop.equipment?.some((equipment) =>
+        equipment.toLowerCase().includes(searchQuery.toLowerCase()),
+      ) ||
+      shop.customEquipment?.some((equipment) =>
+        equipment.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
     const matchesCity =
