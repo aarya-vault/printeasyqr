@@ -1014,9 +1014,17 @@ class OrderController {
         return res.status(404).json({ message: 'Order not found or access denied' });
       }
       
-      // Format files with unified metadata structure
-      const formattedFiles = files.map((file, index) => ({
-        id: `${orderId}-${index}-${Date.now()}`,
+      // Get existing files from the order
+      let existingFiles = [];
+      if (order.files) {
+        existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
+      }
+      
+      console.log(`📎 Order ${orderId} has ${existingFiles.length} existing files`);
+      
+      // Format NEW files with unified metadata structure
+      const formattedNewFiles = files.map((file, index) => ({
+        id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
         filename: file.filename || file.originalName,
         originalName: file.originalName,
         r2Key: file.r2Key,
@@ -1029,8 +1037,13 @@ class OrderController {
         status: 'completed'
       }));
       
-      // Update order with confirmed files
-      await order.update({ files: formattedFiles }, { transaction });
+      // CRITICAL FIX: Combine existing files with new files instead of replacing
+      const allFiles = [...existingFiles, ...formattedNewFiles];
+      
+      console.log(`✅ Adding ${formattedNewFiles.length} new files to existing ${existingFiles.length} files`);
+      
+      // Update order with COMBINED files (existing + new)
+      await order.update({ files: allFiles }, { transaction });
       await transaction.commit();
       
       console.log(`✅ Confirmed ${files.length} files for order ${orderId}`);
