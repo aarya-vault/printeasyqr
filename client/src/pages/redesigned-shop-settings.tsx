@@ -94,6 +94,8 @@ export default function RedesignedShopSettings() {
       
       console.log('🔧 WORKING HOURS DEBUG - Raw working hours:', currentShop.workingHours);
       console.log('🔧 WORKING HOURS DEBUG - Type:', typeof currentShop.workingHours);
+      console.log('🔧 CUSTOM EQUIPMENT DEBUG - Raw custom equipment:', currentShop.customEquipment);
+      console.log('🔧 CUSTOM EQUIPMENT DEBUG - Type:', typeof currentShop.customEquipment);
       
       // CRITICAL FIX: Ensure working hours is always an object with proper structure
       const normalizedWorkingHours = currentShop.workingHours || {};
@@ -147,6 +149,10 @@ export default function RedesignedShopSettings() {
         customEquipment: formData.customEquipment || []
       };
       console.log('🔍 REDESIGNED SHOP SETTINGS - Saving form data:', dataToSave);
+      console.log('🔧 CUSTOM EQUIPMENT BEFORE SAVE:', {
+        count: formData.customEquipment.length,
+        items: formData.customEquipment
+      });
       const response = await apiRequest('/api/shops/settings', 'PATCH', dataToSave);
       return response.json();
     },
@@ -273,9 +279,16 @@ export default function RedesignedShopSettings() {
       return;
     }
     
+    const updatedEquipment = [...formData.customEquipment, trimmedInput];
+    console.log('🔧 ADDING CUSTOM EQUIPMENT:', {
+      input: trimmedInput,
+      currentEquipment: formData.customEquipment,
+      newEquipment: updatedEquipment
+    });
+    
     setFormData(prev => ({
       ...prev,
-      customEquipment: [...prev.customEquipment, trimmedInput]
+      customEquipment: updatedEquipment
     }));
     setCustomEquipmentInput('');
   };
