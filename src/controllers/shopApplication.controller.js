@@ -38,6 +38,20 @@ class ShopApplicationController {
         return res.status(400).json({ message: 'This shop URL is already taken.' });
       }
       
+      // 🔥 CRITICAL: ONE-EMAIL-ONE-SHOP ENFORCEMENT
+      // Check for existing email across all users to prevent duplicate shop ownership
+      let applicantByEmail = await User.findOne({
+        where: { email: applicationData.emailAddress }
+      });
+      
+      if (applicantByEmail && applicantByEmail.role === 'shop_owner') {
+        await transaction.rollback();
+        return res.status(400).json({ 
+          message: 'This email is already registered as a shop owner. Each email can only be associated with one shop.',
+          errorCode: 'EMAIL_ALREADY_SHOP_OWNER'
+        });
+      }
+
       // 🔥 ROBUST PHONE CONFLICT PREVENTION: Check for conflicts before creating applicant
       let applicant = await User.findOne({
         where: { phone: applicationData.phoneNumber }
