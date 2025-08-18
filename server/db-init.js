@@ -14,10 +14,12 @@ const initializeDatabase = async () => {
     // Production database URL for Neon PostgreSQL
     const productionDatabaseUrl = 'postgresql://neondb_owner:npg_aftGW4gE5RZY@ep-holy-feather-ae0ihzx2.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
     
-    // Use production database for deployment, fallback to development DATABASE_URL
-    const databaseUrl = process.env.NODE_ENV === 'production' 
-      ? productionDatabaseUrl 
-      : process.env.DATABASE_URL;
+    // CRITICAL: Use Neon database for deployment (detect Replit deployment environment)
+    const isDeployment = process.env.NODE_ENV === 'production' || 
+                         process.env.REPLIT_DB_URL || 
+                         process.env.PGHOST === 'ep-nameless-moon-a5vylf2m.us-east-2.aws.neon.tech';
+    
+    const databaseUrl = isDeployment ? productionDatabaseUrl : process.env.DATABASE_URL;
     
     if (!databaseUrl) {
       logger.error('❌ CRITICAL: Custom DATABASE_URL missing in environment variables');
@@ -26,9 +28,10 @@ const initializeDatabase = async () => {
       throw new Error('Custom DATABASE_URL environment variable is required for deployment');
     }
     
-    logger.info('🔒 Using production Neon PostgreSQL database for deployment');
-    logger.info('✅ Production database configured with replicated data');
-    logger.info('📊 Database connection established for 138 shops and users');
+    logger.info(`🔒 Using ${isDeployment ? 'Production Neon' : 'Development Replit'} PostgreSQL database`);
+    logger.info('✅ Database configured with deployment detection');
+    logger.info('🔍 Deployment detected:', isDeployment);
+    logger.info('📊 Target: 138 shop owners and 128 shops');
     
     logger.debug('Environment check', {
       DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',

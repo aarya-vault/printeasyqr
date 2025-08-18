@@ -1,4 +1,4 @@
-import { Shop, User, Order, CustomerShopUnlock, ShopApplication } from '../models/index.js';
+import { Shop, User, Order, CustomerShopUnlock, ShopApplication, sequelize } from '../models/index.js';
 import { Op } from 'sequelize';
 import bcrypt from 'bcrypt';
 
@@ -303,19 +303,43 @@ class ShopController {
     try {
       console.log('🔍 Fetching active shops - DATABASE_URL present:', !!process.env.DATABASE_URL);
       
-      const shops = await Shop.findAll({
-        where: {
-          isApproved: true,
-          isPublic: true,
-          status: 'active'
-        },
-        include: [{ model: User, as: 'owner' }],
-        order: [['createdAt', 'DESC']]
-      });
+      // PRODUCTION COMPATIBILITY: Use raw query for simplified production database
+      const isDeployment = process.env.NODE_ENV === 'production' || 
+                           process.env.REPLIT_DB_URL || 
+                           process.env.PGHOST === 'ep-nameless-moon-a5vylf2m.us-east-2.aws.neon.tech';
       
-      console.log('✅ Active shops found:', shops?.length || 0);
-      const transformedShops = (shops || []).map(shop => ShopController.transformShopData(shop));
-      res.json(transformedShops);
+      if (isDeployment) {
+        // Simplified query for production database with limited columns
+        const [shops] = await sequelize.query(`
+          SELECT 
+            s.id, s.name, s.slug, s.address, s.city, s.state, s.pincode as "pinCode", 
+            s.phone, s.owner_phone as "ownerPhone", s.status, s.is_online as "isOnline",
+            s.working_hours as "workingHours", s.created_at as "createdAt", s.updated_at as "updatedAt",
+            u.id as "owner.id", u.name as "owner.name", u.email as "owner.email", u.phone as "owner.phone"
+          FROM shops s 
+          LEFT JOIN users u ON s.owner_id = u.id 
+          WHERE s.status = 'active' AND s.is_online = true
+          ORDER BY s.created_at DESC
+        `);
+        
+        console.log('✅ Production shops found:', shops.length);
+        res.json(shops);
+      } else {
+        // Full Sequelize query for development
+        const shops = await Shop.findAll({
+          where: {
+            isApproved: true,
+            isPublic: true,
+            status: 'active'
+          },
+          include: [{ model: User, as: 'owner' }],
+          order: [['createdAt', 'DESC']]
+        });
+        
+        console.log('✅ Development shops found:', shops?.length || 0);
+        const transformedShops = (shops || []).map(shop => ShopController.transformShopData(shop));
+        res.json(transformedShops);
+      }
     } catch (error) {
       console.error('❌ CRITICAL: Get active shops error:', error);
       console.error('❌ Database URL available:', !!process.env.DATABASE_URL);

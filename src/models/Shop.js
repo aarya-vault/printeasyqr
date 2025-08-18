@@ -41,7 +41,7 @@ const Shop = sequelize.define('Shop', {
   pinCode: {
     type: DataTypes.STRING,
     allowNull: false,
-    field: 'pin_code'
+    field: 'pincode'
   },
   phone: {
     type: DataTypes.STRING,

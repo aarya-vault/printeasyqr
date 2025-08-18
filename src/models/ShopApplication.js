@@ -78,7 +78,7 @@ const ShopApplication = sequelize.define('ShopApplication', {
   pinCode: {
     type: DataTypes.STRING,
     allowNull: false,
-    field: 'pin_code'
+    field: 'pincode'
   },
   // Business Details
   services: {
