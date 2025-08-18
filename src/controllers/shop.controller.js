@@ -686,6 +686,7 @@ class ShopController {
 
       console.log('🔍 UPDATE SHOP SETTINGS - User ID:', userId);
       console.log('🔍 UPDATE SHOP SETTINGS - Update data keys:', Object.keys(updateData));
+      console.log('🔧 UPDATE SHOP SETTINGS - Custom Equipment Received:', updateData.customEquipment);
 
       const shop = await Shop.findOne({ where: { ownerId: userId } });
       if (!shop) {
@@ -748,6 +749,7 @@ class ShopController {
 
       console.log('🔍 Updating shop with fields:', Object.keys(fieldsToUpdate));
       console.log('🔧 UPDATING CUSTOM EQUIPMENT:', updateData.customEquipment);
+      console.log('🔧 FIELDS TO UPDATE - custom_equipment:', fieldsToUpdate.custom_equipment);
       await shop.update(fieldsToUpdate);
       console.log('✅ Shop updated successfully');
       
