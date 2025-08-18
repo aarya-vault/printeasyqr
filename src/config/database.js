@@ -14,19 +14,29 @@ let databaseUrl = process.env.DATABASE_URL;
 
 // If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
-  const host = process.env.PGHOST || 'localhost';
-  const port = process.env.PGPORT || '5432';
-  const database = process.env.PGDATABASE || 'printeasy';
-  const username = process.env.PGUSER || 'postgres';
-  const password = process.env.PGPASSWORD || '';
+  const host = process.env.PGHOST;
+  const port = process.env.PGPORT;
+  const database = process.env.PGDATABASE;
+  const username = process.env.PGUSER;
+  const password = process.env.PGPASSWORD;
+  
+  // Validate all required environment variables are present
+  if (!host || !port || !database || !username || !password) {
+    const missing = [];
+    if (!host) missing.push('PGHOST');
+    if (!port) missing.push('PGPORT');
+    if (!database) missing.push('PGDATABASE');
+    if (!username) missing.push('PGUSER');
+    if (!password) missing.push('PGPASSWORD');
+    
+    throw new Error(`Missing required database environment variables: ${missing.join(', ')}`);
+  }
   
   databaseUrl = `postgresql://${username}:${password}@${host}:${port}/${database}`;
   console.log('✅ Constructed database URL from individual environment variables');
 } else {
   console.log('✅ Using DATABASE_URL environment variable');
 }
-
-console.log('🔗 Database connection established via PostgreSQL');
 
 // Create Sequelize instance with connection string from environment
 const sequelize = new Sequelize(databaseUrl, {
@@ -55,6 +65,10 @@ const sequelize = new Sequelize(databaseUrl, {
     alter: false
   }
 });
+
+console.log('🔗 Database connection established via PostgreSQL');
+console.log(`📊 Database: ${databaseUrl.includes('neon.tech') ? 'Neon PostgreSQL' : 'Local PostgreSQL'}`);
+console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' : 'Disabled'}`);
 
 // Test the connection
 const testConnection = async () => {
