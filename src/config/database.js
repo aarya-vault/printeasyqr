@@ -5,6 +5,9 @@ dotenv.config();
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
 
+// Import sync disabler BEFORE creating Sequelize instance
+import '../disable-all-sync.js';
+
 // Use Replit's PostgreSQL environment variables
 let databaseUrl = process.env.DATABASE_URL;
 

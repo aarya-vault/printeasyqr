@@ -1,0 +1,11 @@
+{
+  "locked": true,
+  "reason": "Database schema is locked - no migrations allowed",
+  "timestamp": "2025-01-18",
+  "tables": {
+    "users": {
+      "columns": ["id", "phone", "name", "email", "password_hash", "role", "is_active", "created_at", "updated_at"],
+      "locked": true
+    }
+  }
+}
