@@ -108,14 +108,26 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const handlePrintAll = async () => {
     try {
       const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
-      if (Array.isArray(files) && files.length > 0) {
-        toast({ title: `Preparing ${files.length} files for printing...` });
+      
+      // Use selected files if any are selected, otherwise use all files
+      const filesToPrint = selectedFiles.size > 0 
+        ? files.filter((_: any, index: number) => selectedFiles.has(index))
+        : files;
         
-        await printAllFiles(files, (current, total) => {
+      if (Array.isArray(filesToPrint) && filesToPrint.length > 0) {
+        const actionText = selectedFiles.size > 0 ? 'selected' : 'all';
+        toast({ title: `Preparing ${filesToPrint.length} ${actionText} files for printing...` });
+        
+        await printAllFiles(filesToPrint, (current, total) => {
           if (current === total) {
-            toast({ title: `All ${total} files sent to print` });
+            toast({ title: `${total} ${actionText} files sent to print` });
           }
         }, stableOrder.status);
+        
+        // Clear selection after printing
+        if (selectedFiles.size > 0) {
+          setSelectedFiles(new Set());
+        }
       }
     } catch (error: any) {
       console.error('Error printing files:', error);
@@ -130,12 +142,24 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   const handleDownloadAll = () => {
     try {
       const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
-      if (Array.isArray(files)) {
-        downloadAllFiles(files, (current, total) => {
+      
+      // Use selected files if any are selected, otherwise use all files
+      const filesToDownload = selectedFiles.size > 0 
+        ? files.filter((_: any, index: number) => selectedFiles.has(index))
+        : files;
+        
+      if (Array.isArray(filesToDownload)) {
+        const actionText = selectedFiles.size > 0 ? 'selected' : 'all';
+        downloadAllFiles(filesToDownload, (current, total) => {
           if (current === total) {
-            toast({ title: `All ${total} files downloaded` });
+            toast({ title: `${total} ${actionText} files downloaded` });
           }
         }, stableOrder.status);
+        
+        // Clear selection after downloading
+        if (selectedFiles.size > 0) {
+          setSelectedFiles(new Set());
+        }
       }
     } catch (error: any) {
       toast({ 
@@ -165,68 +189,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
     }
   };
 
-  const handlePrintSelected = async () => {
-    try {
-      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
-      const filesToPrint = files.filter((_: any, index: number) => selectedFiles.has(index));
-      
-      if (filesToPrint.length === 0) {
-        toast({ title: 'No files selected', variant: 'destructive' });
-        return;
-      }
 
-      if (filesToPrint.length === 1) {
-        await printFile(filesToPrint[0], stableOrder.status);
-        toast({ title: 'File sent to print' });
-      } else {
-        toast({ title: `Preparing ${filesToPrint.length} files for printing...` });
-        await printAllFiles(filesToPrint, (current, total) => {
-          if (current === total) {
-            toast({ title: `${total} files sent to print` });
-          }
-        }, stableOrder.status);
-      }
-      setSelectedFiles(new Set());
-    } catch (error: any) {
-      console.error('Error printing selected files:', error);
-      toast({ 
-        title: 'Cannot print selected files', 
-        description: error.message || 'Please try again',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleDownloadSelected = () => {
-    try {
-      const files = typeof stableOrder.files === 'string' ? JSON.parse(stableOrder.files) : stableOrder.files;
-      const filesToDownload = files.filter((_: any, index: number) => selectedFiles.has(index));
-      
-      if (filesToDownload.length === 0) {
-        toast({ title: 'No files selected', variant: 'destructive' });
-        return;
-      }
-
-      if (filesToDownload.length === 1) {
-        downloadFile(filesToDownload[0], stableOrder.status);
-        toast({ title: 'File downloaded' });
-      } else {
-        downloadAllFiles(filesToDownload, (current, total) => {
-          if (current === total) {
-            toast({ title: `${total} files downloaded` });
-          }
-        }, stableOrder.status);
-      }
-      setSelectedFiles(new Set());
-    } catch (error: any) {
-      console.error('Error downloading selected files:', error);
-      toast({ 
-        title: 'Cannot download selected files', 
-        description: error.message || 'Please try again',
-        variant: 'destructive'
-      });
-    }
-  };
 
   if (showChat) {
     return (
@@ -349,25 +312,13 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                       })()})
                     </div>
                     <div className="flex items-center space-x-2">
-                      {selectedFiles.size > 0 && (
-                        <>
-                          <Button size="sm" onClick={handlePrintSelected} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
-                            <Printer className="w-4 h-4 mr-2" />
-                            Print Selected ({selectedFiles.size})
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={handleDownloadSelected}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Selected
-                          </Button>
-                        </>
-                      )}
-                      <Button size="sm" variant="outline" onClick={handlePrintAll}>
+                      <Button size="sm" onClick={handlePrintAll} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
                         <Printer className="w-4 h-4 mr-2" />
-                        Print All
+                        Print {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={handleDownloadAll}>
                         <Download className="w-4 h-4 mr-2" />
-                        Download All
+                        Download {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}
                       </Button>
                     </div>
                   </CardTitle>
