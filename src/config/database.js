@@ -4,15 +4,13 @@ dotenv.config();
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
-process.env.DB_SYNC = 'false';
-process.env.DB_ALTER = 'false';
-process.env.DB_FORCE = 'false';
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Sync disabled - using existing database schema only
+// Import sync disabler BEFORE creating Sequelize instance
+import '../disable-all-sync.js';
 
-// Use YOUR PostgreSQL database - NOT Replit's
-let databaseUrl = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_omd9cTiyv1zH@ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require';
+// Use Replit's PostgreSQL environment variables
+let databaseUrl = process.env.DATABASE_URL;
 
 // If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
@@ -48,17 +46,13 @@ const sequelize = new Sequelize(databaseUrl, {
     ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('neon.tech') ? {
       require: true,
       rejectUnauthorized: false
-    } : false,
-    // CRITICAL: Increase timeouts for Replit environment
-    connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT) || 120000,    // 2 minutes
-    acquireTimeout: parseInt(process.env.DB_ACQUIRE_TIMEOUT) || 120000,    // 2 minutes
-    timeout: parseInt(process.env.DB_CONNECT_TIMEOUT) || 120000            // 2 minutes
+    } : false
   },
   pool: {
-    max: parseInt(process.env.DB_POOL_MAX) || 20,           // INCREASE from 5 for production load
-    min: parseInt(process.env.DB_POOL_MIN) || 5,            // INCREASE from 0 - maintain persistent connections
-    acquire: parseInt(process.env.DB_ACQUIRE_TIMEOUT) || 120000,   // INCREASE from 30000 - 2 minutes
-    idle: parseInt(process.env.DB_IDLE_TIMEOUT) || 60000        // INCREASE from 10000 - 1 minute
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
   },
   // CRITICAL: Prevent all automatic schema modifications
   define: {
