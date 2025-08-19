@@ -4,6 +4,9 @@ dotenv.config();
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
+process.env.DB_SYNC = 'false';
+process.env.DB_ALTER = 'false';
+process.env.DB_FORCE = 'false';
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Sync disabled - using existing database schema only

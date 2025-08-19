@@ -1,3 +1,6 @@
+// CRITICAL: Disable all database sync operations FIRST
+import '../disable-all-database-sync.js';
+
 import { createServer } from "http";
 import { createRequire } from "module";
 import { setupVite } from "./vite.js";
