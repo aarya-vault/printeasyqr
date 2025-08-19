@@ -116,3 +116,19 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **vite**: For frontend build tooling.
 - **ws**: For WebSocket implementation.
 - **zod**: For runtime type validation.
+
+## Recent Updates (January 19, 2025)
+
+### ✅ Bulk Shop Import Completed
+- **150 shops imported** from CSV with complete data validation
+- **All shops have phone numbers** (real phone numbers from CSV data)
+- **Zero failed imports** - 100% success rate
+- **Unique slugs and emails** generated for each shop
+- **Complete address data** including pin codes and Google Maps links
+- **Default password**: PrintEasyQR@2025 for all shop owners
+- **Email format**: {shop-slug}@printeasyqr.com
+
+### ✅ Configuration Management - COMPLETED
+- **Single Source of Truth**: `.env` file controls all configuration
+- **No Hardcoded Values**: Removed all hardcoded database URLs and secrets
+- **Database Status**: Active with 150 shops, ready for production
