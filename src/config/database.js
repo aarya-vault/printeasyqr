@@ -1,64 +1,53 @@
 import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
-dotenv.config();
+import config from './env.js';
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Skip migrations if explicitly requested
-if (process.env.SKIP_MIGRATIONS === 'true') {
-  console.log('⏭️  Skipping database migrations - SKIP_MIGRATIONS is set');
+// Skip migrations if configured
+if (config.database.skipMigrations) {
+  console.log('⏭️  Skipping database migrations - configured in env');
 }
 
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
 
-// Use Replit's PostgreSQL environment variables
-let databaseUrl = process.env.DATABASE_URL;
+// Get database URL from centralized config
+let databaseUrl = config.database.url;
 
 // If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
-  const host = process.env.PGHOST;
-  const port = process.env.PGPORT;
-  const database = process.env.PGDATABASE;
-  const username = process.env.PGUSER;
-  const password = process.env.PGPASSWORD;
+  const { host, port, name, user, password } = config.database;
   
-  // Validate all required environment variables are present
-  if (!host || !port || !database || !username || !password) {
+  // Validate all required variables are present
+  if (!host || !port || !name || !user || !password) {
     const missing = [];
-    if (!host) missing.push('PGHOST');
-    if (!port) missing.push('PGPORT');
-    if (!database) missing.push('PGDATABASE');
-    if (!username) missing.push('PGUSER');
-    if (!password) missing.push('PGPASSWORD');
+    if (!host) missing.push('host');
+    if (!port) missing.push('port');
+    if (!name) missing.push('database name');
+    if (!user) missing.push('username');
+    if (!password) missing.push('password');
     
-    throw new Error(`Missing required database environment variables: ${missing.join(', ')}`);
+    throw new Error(`Missing required database configuration: ${missing.join(', ')}`);
   }
   
-  databaseUrl = `postgresql://${username}:${password}@${host}:${port}/${database}`;
-  console.log('✅ Constructed database URL from individual environment variables');
+  databaseUrl = `postgresql://${user}:${password}@${host}:${port}/${name}`;
+  console.log('✅ Constructed database URL from configuration');
 } else {
-  console.log('✅ Using DATABASE_URL environment variable');
+  console.log('✅ Using configured DATABASE_URL');
 }
 
-// Create Sequelize instance with connection string from environment
+// Create Sequelize instance with centralized configuration
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
-  logging: false, // Disable all SQL logging to prevent confusion
+  logging: config.database.logging ? console.log : false,
   dialectOptions: {
-    ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('neon.tech') ? {
+    ssl: config.database.ssl || databaseUrl.includes('neon.tech') ? {
       require: true,
       rejectUnauthorized: false
     } : false
   },
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
+  pool: config.database.pool,
   // CRITICAL: Prevent all automatic schema modifications
   define: {
     timestamps: true,
@@ -78,7 +67,7 @@ console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' 
 // Test the connection
 const testConnection = async () => {
   // Skip database connection test during build phase
-  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+  if (config.database.skipMigrations || config.database.skipDbCheck) {
     console.log('⏭️  Skipping database connection test (build phase)');
     return true;
   }

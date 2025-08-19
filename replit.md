@@ -4,7 +4,9 @@
 PrintEasy QR is a B2B2C digital platform that connects customers with local print shops to streamline order management and communication. Its primary purpose is to facilitate printing services through digital file uploads and walk-in orders. The platform includes robust admin management and a unique QR generation system, designed to connect users without handling financial transactions. The vision is to create a production-ready platform that simplifies the printing process for businesses and consumers.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+- Preferred communication style: Simple, everyday language.
+- Configuration management: Centralized environment configuration with hardcoded database URLs
+- Architecture preference: Single source of truth for all configuration via .env files
 
 ## System Architecture
 
@@ -67,6 +69,18 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Build Script**: `build.js` - Skips database operations during build
 - **Environment Variables**: Sets SKIP_MIGRATIONS=true to prevent deployment hanging
 - **Important**: Database schema must exist before deployment (no auto-migrations)
+
+### Centralized Configuration (Updated: 2025-01-19)
+- **Single Source of Truth**: `src/config/env.js` manages all environment configuration
+- **Hardcoded Database URL**: Fallback to production Neon PostgreSQL if DATABASE_URL not set
+- **Configuration Structure**:
+  - Database settings (URL, credentials, pool, SSL)
+  - Application settings (port, environment, feature flags)
+  - Authentication (JWT secrets, token expiry)
+  - External services (WhatsApp OTP, Google Maps, R2 storage)
+  - Security settings (CORS, cookies, rate limiting)
+- **Environment Template**: `.env.example` provides complete configuration template
+- **Auto-validation**: Config validates critical settings on startup
 
 ### Zero-Conflict Enforcement
 - Unique constraints on: shop slugs, shop emails, user emails, user phones

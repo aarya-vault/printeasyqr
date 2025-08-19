@@ -9,6 +9,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import config from './src/config/env.js';
 
 console.log('🚀 Starting production build for Replit deployment...');
 console.log('⚠️  IMPORTANT: Database migrations are intentionally skipped');

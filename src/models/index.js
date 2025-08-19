@@ -68,8 +68,11 @@ defineAssociations();
 
 // Database connection validation and initialization
 const validateDatabaseConnection = async () => {
+  // Import config dynamically to avoid circular dependency
+  const { default: config } = await import('../config/env.js');
+  
   // Skip database connection during build phase
-  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+  if (config.database.skipMigrations || config.database.skipDbCheck) {
     console.log('⏭️  Skipping database connection check (build phase)');
     return true;
   }
@@ -86,8 +89,11 @@ const validateDatabaseConnection = async () => {
 
 // Initialize database with all tables
 const initializeDatabase = async () => {
+  // Import config dynamically to avoid circular dependency
+  const { default: config } = await import('../config/env.js');
+  
   // Skip database initialization during build phase
-  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+  if (config.database.skipMigrations || config.database.skipDbCheck) {
     console.log('⏭️  Skipping database initialization (build phase)');
     return true;
   }

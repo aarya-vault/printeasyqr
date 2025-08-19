@@ -6,10 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
+import config from './config/env.js';
 
 // CRITICAL: Import database override BEFORE any models
 import './database-override.js';

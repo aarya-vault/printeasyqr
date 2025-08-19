@@ -1,7 +1,8 @@
 // PURE JWT AUTHENTICATION SYSTEM - No sessions, no cookies
 import jwt from 'jsonwebtoken';
+import config from './env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'printeasy-jwt-secret-2025';
+const JWT_SECRET = config.auth.jwtSecret;
 
 export function generateToken(user) {
   return jwt.sign(
@@ -13,7 +14,7 @@ export function generateToken(user) {
       role: user.role
     },
     JWT_SECRET,
-    { expiresIn: '90d' } // Extended to 90 days for maximum session persistence
+    { expiresIn: config.auth.tokenExpiry || '90d' } // Use config expiry or default to 90 days
   );
 }
 
@@ -26,7 +27,7 @@ export function generateRefreshToken(user) {
       tokenType: 'refresh'
     },
     JWT_SECRET,
-    { expiresIn: '180d' } // 6 months refresh token
+    { expiresIn: config.auth.refreshTokenExpiry || '180d' } // Use config expiry or default to 6 months
   );
 }
 
