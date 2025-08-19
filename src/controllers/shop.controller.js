@@ -432,8 +432,8 @@ class ShopController {
       }
       
       // Return both shop IDs and full shop data
-      const unlockedShopIds = unlocks.map(unlock => unlock.shop.id);
-      const unlockedShops = unlocks.map(unlock => ShopController.transformShopData(unlock.shop));
+      const unlockedShopIds = unlocks.filter(unlock => unlock.shop).map(unlock => unlock.shop.id);
+      const unlockedShops = unlocks.filter(unlock => unlock.shop).map(unlock => ShopController.transformShopData(unlock.shop));
       
       console.log('🔍 Final result:', { unlockedShopIds, shopCount: unlockedShops.length });
       
