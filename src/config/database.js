@@ -9,8 +9,8 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
 
-// Use Replit's PostgreSQL environment variables
-let databaseUrl = process.env.DATABASE_URL;
+// Use YOUR PostgreSQL database - NOT Replit's
+let databaseUrl = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_omd9cTiyv1zH@ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require';
 
 // If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
