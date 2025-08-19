@@ -1,38 +1,41 @@
 /**
- * DEPLOYMENT CONFIGURATION
- * Uses YOUR PostgreSQL database ONLY
- * NO Drizzle, NO Replit database integrations
- * ONLY Sequelize ORM
+ * DEPLOYMENT CONFIGURATION FOR REPLIT
+ * This file MUST be loaded FIRST to prevent ALL database migrations
  */
 
-// Set YOUR database credentials
-process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_omd9cTiyv1zH@ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require';
-process.env.PGDATABASE = 'neondb';
-process.env.PGHOST = 'ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech';
-process.env.PGPORT = '5432';
-process.env.PGUSER = 'neondb_owner';
-process.env.PGPASSWORD = 'npg_omd9cTiyv1zH';
+// Override all environment variables that trigger migrations
+process.env.DB_SYNC = 'false';
+process.env.DB_ALTER = 'false';
+process.env.DB_FORCE = 'false';
+process.env.DB_MIGRATE = 'false';
+process.env.SEQUELIZE_SYNC = 'false';
+process.env.SEQUELIZE_ALTER = 'false';
+process.env.SEQUELIZE_FORCE = 'false';
+process.env.SEQUELIZE_MIGRATE = 'false';
+process.env.RUN_MIGRATIONS = 'false';
+process.env.AUTO_MIGRATE = 'false';
+process.env.DATABASE_SYNC = 'false';
+process.env.DATABASE_ALTER = 'false';
+process.env.DATABASE_FORCE = 'false';
+process.env.DATABASE_MIGRATE = 'false';
 
-// Force Sequelize-only mode
-process.env.USE_SEQUELIZE_ONLY = 'true';
-process.env.DISABLE_DRIZZLE = 'true';
-process.env.NO_REPLIT_DATABASE = 'true';
+// Force production mode
+process.env.NODE_ENV = 'production';
 
-console.log('✅ DEPLOYMENT CONFIGURED:');
-console.log('✅ Database: YOUR PostgreSQL on Neon');
-console.log('✅ ORM: Sequelize ONLY');
-console.log('✅ NO Drizzle ORM');
-console.log('✅ NO Replit database integrations');
+// Disable Replit database tools
+delete process.env.REPLIT_DB_URL;
+delete process.env.REPLIT_DATABASE_URL;
+
+console.log('🚫 DEPLOYMENT CONFIG: ALL MIGRATIONS DISABLED');
+console.log('✅ DEPLOYMENT CONFIG: USING EXISTING DATABASE SCHEMA');
 
 module.exports = {
   database: {
-    url: process.env.DATABASE_URL,
-    orm: 'sequelize',
     sync: false,
+    alter: false,
+    force: false,
+    migrate: false,
+    migrations: false,
     logging: false
-  },
-  production: {
-    forceHttps: true,
-    trustProxy: true
   }
 };

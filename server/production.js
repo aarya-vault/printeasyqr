@@ -1,5 +1,6 @@
 // Production server for deployment
-// CRITICAL: Import migration disabler FIRST
+// CRITICAL: Import deployment config FIRST to disable ALL migrations
+import '../deployment-config.js';
 import '../no-migrations-production.js';
 import '../force-database-config.js';
 import express from 'express';
