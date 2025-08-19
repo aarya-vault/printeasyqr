@@ -1,116 +1,105 @@
 // Production server for deployment
-// CRITICAL: Import deployment config FIRST to disable ALL migrations
-import '../deployment-config.js';
-import '../no-migrations-production.js';
-import '../force-database-config.js';
-import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import cors from "cors";
+import dotenv from "dotenv";
+import { createServer } from "http";
+
+// Load environment variables
+dotenv.config();
+
+// Disable all database sync in production
+process.env.NODE_ENV = "production";
+process.env.DISABLE_DB_SYNC = "true";
+process.env.DB_SYNC = "false";
+process.env.DB_ALTER = "false";
+process.env.DB_FORCE = "false";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CRITICAL: Force production environment with YOUR PostgreSQL database
-process.env.NODE_ENV = 'production';
-console.log('🚀 Production mode with custom PostgreSQL database');
+console.log("🚀 Starting PrintEasy QR Production Server");
+console.log("🔒 Production Mode: Database sync DISABLED");
 
-// Use YOUR PostgreSQL database credentials
-process.env.DATABASE_URL = 'postgresql://neondb_owner:npg_omd9cTiyv1zH@ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require';
-process.env.PGDATABASE = 'neondb';
-process.env.PGHOST = 'ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech';
-process.env.PGPORT = '5432';
-process.env.PGUSER = 'neondb_owner';
-process.env.PGPASSWORD = 'npg_omd9cTiyv1zH';
-
-console.log('✅ Using YOUR PostgreSQL database - NOT Replit database');
-console.log('✅ Sequelize ORM only - NO Drizzle, NO Replit integrations');
-
-// PRODUCTION DATABASE CONFIGURATION
-console.log('🔍 Production Database Environment Check:');
-console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
-console.log('   NODE_ENV:', process.env.NODE_ENV || 'undefined');
-console.log('   PORT:', process.env.PORT || 'undefined');
-console.log('   PGPASSWORD available:', !!process.env.PGPASSWORD);
-console.log('   PGHOST:', process.env.PGHOST || 'undefined');
-
-if (!process.env.DATABASE_URL) {
-  console.error('❌ CRITICAL: DATABASE_URL missing in production environment!');
-  console.error('   Please configure DATABASE_URL in environment variables');
-}
-
-console.log('✅ Using PostgreSQL database from environment variables');
-
-// CRITICAL: Override database configuration for production with enhanced settings
-console.log('🔧 Configuring production database connection pool...');
-process.env.DB_POOL_MAX = '20';
-process.env.DB_POOL_MIN = '5';  
-process.env.DB_ACQUIRE_TIMEOUT = '120000';
-process.env.DB_IDLE_TIMEOUT = '60000';
-process.env.DB_CONNECT_TIMEOUT = '120000';
-
-// Test database connection and verify schema on production startup
-console.log('🔍 Testing production database connection and schema...');
-import { testConnection } from '../src/config/database.js';
-try {
-  await testConnection();
-  console.log('✅ Production database connection successful');
-  
-  // Quick schema verification to prevent migration conflicts
-  const { sequelize } = await import('../src/config/database.js');
-  const [qrScanCheck] = await sequelize.query(`
-    SELECT column_name 
-    FROM information_schema.columns 
-    WHERE table_name = 'qr_scans' AND column_name = 'customer_id'
-  `);
-  
-  if (qrScanCheck.length > 0) {
-    console.log('✅ Database schema verified - customer_id column exists');
-  } else {
-    console.log('⚠️ Schema warning - customer_id column may need migration');
-  }
-  
-} catch (error) {
-  console.error('❌ CRITICAL: Production database connection failed:', error.message);
-  console.error('   Verify DATABASE_URL credentials in deployment settings');
-  // Don't exit, let the enhanced error logging in controllers handle it
-}
-
-// Import the Sequelize app
-const sequelizeApp = await import('../src/app.js');
-const app = sequelizeApp.default;
-
-// Serve static files from dist/client
-const clientPath = path.join(__dirname, '..', 'dist', 'client');
-if (fs.existsSync(clientPath)) {
-  app.use(express.static(clientPath));
-  
-  // SPA fallback - serve index.html for all non-API routes
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-    res.sendFile(path.join(clientPath, 'index.html'));
-  });
-}
-
+const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Create HTTP server for WebSocket support
-import { createServer } from 'http';
-const server = createServer(app);
+// CORS configuration
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || true,
+    credentials: true,
+  }),
+);
 
-// Setup WebSocket for production
-try {
-  const { setupWebSocket } = await import('../src/utils/websocket.js');
-  setupWebSocket(server);
-  console.log('✅ WebSocket server configured for production');
-} catch (error) {
-  console.warn('⚠️ WebSocket setup failed:', error.message);
+// Body parsing middleware
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Serve static files from the dist/client directory
+const distPath = path.join(__dirname, "..", "dist", "client");
+app.use(express.static(distPath));
+
+// Serve uploads directory
+const uploadsPath = path.join(__dirname, "..", "uploads");
+app.use("/uploads", express.static(uploadsPath));
+
+// Initialize and setup the application
+async function initializeApp() {
+  try {
+    // Initialize storage manager
+    const { default: storageManager } = await import(
+      "./storage/storageManager.js"
+    );
+    await storageManager.initialize();
+    console.log("✅ Storage manager initialized");
+
+    // Load the Sequelize app with all routes
+    const { default: sequelizeApp } = await import("../src/app.js");
+
+    // Mount the Sequelize app routes
+    app.use("/api", sequelizeApp);
+    console.log("✅ API routes loaded successfully");
+
+    // Create HTTP server
+    const server = createServer(app);
+
+    // Setup WebSocket server for real-time features
+    const { setupWebSocket } = await import("../src/utils/websocket.js");
+    setupWebSocket(server);
+    console.log("✅ WebSocket server initialized");
+
+    // Catch-all handler for client-side routing
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+
+    // Global error handler
+    app.use((error, req, res, next) => {
+      console.error("Production Error:", error.message);
+      res.status(500).json({
+        error: "Internal Server Error",
+        message:
+          process.env.NODE_ENV === "development"
+            ? error.message
+            : "Something went wrong",
+      });
+    });
+
+    // Start the server
+    server.listen(PORT, "0.0.0.0", () => {
+      console.log(`🌐 PrintEasy QR Production Server running on port ${PORT}`);
+      console.log(`📱 Frontend: http://localhost:${PORT}`);
+      console.log(`🔌 API: http://localhost:${PORT}/api/*`);
+      console.log("✅ WebSocket enabled for real-time features");
+      console.log("🔒 Database: Using existing schema (sync disabled)");
+    });
+  } catch (error) {
+    console.error("❌ Failed to initialize application:", error);
+    process.exit(1);
+  }
 }
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 PrintEasy QR production server running on port ${PORT}`);
-  console.log(`🌐 Server accessible at http://0.0.0.0:${PORT}`);
-  console.log(`🔌 WebSocket available at ws://0.0.0.0:${PORT}/ws`);
-});
+// Initialize the application
+initializeApp();
