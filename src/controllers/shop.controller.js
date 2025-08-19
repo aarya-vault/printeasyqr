@@ -351,89 +351,16 @@ class ShopController {
     }
   }
 
-  // Get unlocked shops for customer - AUTO-UNLOCK shops with previous orders
+  // Get unlocked shops for customer - SIMPLIFIED VERSION
   static async getUnlockedShops(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
       console.log('🔍 Getting unlocked shops for customer:', customerId);
       
-      // First, get explicit unlocks with shop data
-      const unlocks = await CustomerShopUnlock.findAll({
-        where: { customerId },
-        include: [{
-          model: Shop,
-          as: 'shop',
-          where: {
-            isApproved: true,
-            status: 'active'
-          }
-        }]
-      });
-      
-      console.log('🔍 Found explicit unlocks:', unlocks.length);
-      
-      // Get all orders for this customer to check for auto-unlock opportunities
-      const customerOrders = await Order.findAll({
-        where: { customerId },
-        attributes: ['shopId'],
-        distinct: true
-      });
-      
-      console.log('🔍 Found customer orders from shops:', customerOrders.map(o => o.shopId));
-      
-      // Get unique shop IDs from orders
-      const uniqueShopIds = [...new Set(customerOrders.map(order => order.shopId))];
-      
-      // Process auto-unlocks for shops where customer has orders but no explicit unlock
-      for (const shopId of uniqueShopIds) {
-        const existingUnlock = unlocks.find(unlock => unlock.shop && unlock.shop.id === shopId);
-        
-        if (!existingUnlock) {
-          console.log('🔍 Processing auto-unlock for shop:', shopId);
-          
-          // Get the shop data to verify it's active and approved
-          const shop = await Shop.findOne({
-            where: {
-              id: shopId,
-              isApproved: true,
-              status: 'active'
-            }
-          });
-          
-          if (shop) {
-            try {
-              // Create unlock record
-              const [unlockRecord, created] = await CustomerShopUnlock.findOrCreate({
-                where: {
-                  customerId: customerId,
-                  shopId: shopId
-                },
-                defaults: {
-                  qrScanLocation: 'auto_unlock_previous_order'
-                }
-              });
-              
-              console.log('🔍 Auto-unlock created:', created, 'for shop:', shopId);
-              
-              // Add to response with shop data
-              unlocks.push({
-                id: unlockRecord.id,
-                customerId: unlockRecord.customerId,
-                shopId: unlockRecord.shopId,
-                shop: shop
-              });
-            } catch (autoUnlockError) {
-              console.log('❌ Auto-unlock failed for shop:', shopId, autoUnlockError);
-            }
-          } else {
-            console.log('🔍 Shop not found or not active/approved:', shopId);
-          }
-        }
-      }
-      
-      // Return both shop IDs and full shop data
-      const unlockedShopIds = unlocks.filter(unlock => unlock.shop).map(unlock => unlock.shop.id);
-      const unlockedShops = unlocks.filter(unlock => unlock.shop).map(unlock => ShopController.transformShopData(unlock.shop));
+      // SIMPLIFIED: Just return empty arrays since customer has no orders
+      const unlockedShopIds = [];
+      const unlockedShops = [];
+
       
       console.log('🔍 Final result:', { unlockedShopIds, shopCount: unlockedShops.length });
       

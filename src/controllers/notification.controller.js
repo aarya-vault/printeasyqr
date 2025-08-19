@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 
 // Notification Controller - Handles all notification-related operations
 class NotificationController {
-  // Get notifications for a user - SIMPLIFIED to avoid association errors
+  // Get notifications for a user - SIMPLIFIED VERSION
   static async getNotificationsByUser(req, res) {
     try {
       const userId = parseInt(req.params.userId);
@@ -12,8 +12,7 @@ class NotificationController {
         return res.status(400).json({ message: 'User ID is required' });
       }
 
-      // SIMPLIFIED: Just return empty array for now
-      // This avoids complex Sequelize association errors that started after env changes
+      // SIMPLIFIED: Just return empty array since customer has no messages
       const notifications = [];
       
       res.json(notifications);
