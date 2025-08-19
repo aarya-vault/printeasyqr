@@ -40,15 +40,15 @@ const config = {
   // DATABASE CONFIGURATION
   // ==========================================
   database: {
-    // Primary database URL (hardcoded fallback for Replit)
-    url: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_omd9cTiyv1zH@ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require',
+    // Primary database URL from environment
+    url: process.env.DATABASE_URL,
     
     // Individual PostgreSQL credentials (used if URL not available)
-    host: process.env.PGHOST || 'ep-jolly-queen-af03ajf7.c-2.us-west-2.aws.neon.tech',
+    host: process.env.PGHOST,
     port: getNumber(process.env.PGPORT, 5432),
-    name: process.env.PGDATABASE || 'neondb',
-    user: process.env.PGUSER || 'neondb_owner',
-    password: process.env.PGPASSWORD || 'npg_omd9cTiyv1zH',
+    name: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
     
     // Connection options
     ssl: getBoolean(process.env.DATABASE_SSL, true),
@@ -83,8 +83,8 @@ const config = {
   // AUTHENTICATION & SECURITY
   // ==========================================
   auth: {
-    jwtSecret: process.env.JWT_SECRET || 'printeasy-qr-jwt-secret-2024-change-in-production',
-    sessionSecret: process.env.SESSION_SECRET || 'printeasy-qr-session-secret-2024-change-in-production',
+    jwtSecret: process.env.JWT_SECRET,
+    sessionSecret: process.env.SESSION_SECRET,
     
     // JWT token expiry
     tokenExpiry: process.env.JWT_EXPIRY || '7d',
@@ -197,13 +197,13 @@ const validateConfig = () => {
   }
   
   // Check JWT secret in production
-  if (config.app.isProduction && config.auth.jwtSecret.includes('change-in-production')) {
-    errors.push('JWT_SECRET must be changed in production');
+  if (config.app.isProduction && !config.auth.jwtSecret) {
+    errors.push('JWT_SECRET must be set in production');
   }
   
   // Check session secret in production
-  if (config.app.isProduction && config.auth.sessionSecret.includes('change-in-production')) {
-    errors.push('SESSION_SECRET must be changed in production');
+  if (config.app.isProduction && !config.auth.sessionSecret) {
+    errors.push('SESSION_SECRET must be set in production');
   }
   
   // Log warnings for optional services
