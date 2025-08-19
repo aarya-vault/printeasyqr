@@ -644,7 +644,11 @@ export default function RedesignedShopOwnerDashboard() {
               <span className="text-sm font-bold text-rich-black">Queue #{order.orderNumber}</span>
             </div>
             <div>
-              <h3 className="font-semibold text-rich-black">{order.customerName}</h3>
+              <h3 className="font-semibold text-rich-black">{order.customerName || (order as any).customer?.name}</h3>
+              <div className="text-xs text-gray-600 flex items-center">
+                <Phone className="w-3 h-3 mr-1" />
+                {(order as any).customer?.phone || 'No phone'}
+              </div>
               <p className="text-sm text-gray-500">{format(new Date(order.createdAt), 'MMM dd, HH:mm')}</p>
             </div>
           </div>

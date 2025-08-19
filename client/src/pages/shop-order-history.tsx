@@ -183,9 +183,9 @@ export default function ShopOrderHistory() {
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <User className="w-4 h-4 mr-1" />
-                  {order.customerName}
+                  {order.customerName || (order as any).customer?.name}
                   <Phone className="w-4 h-4 ml-3 mr-1" />
-                  {order.customerPhone}
+                  {(order as any).customer?.phone || order.customerPhone}
                 </div>
               </div>
               <div className="text-right text-sm text-gray-500">
