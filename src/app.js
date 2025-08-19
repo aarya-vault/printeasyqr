@@ -20,24 +20,13 @@ import { validateDatabaseConnection, initializeDatabase } from './models/index.j
 const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
 const __dirname = import.meta ? dirname(__filename) : __dirname;
 
-// Initialize database with schema check for production
+// Initialize database - NO MIGRATIONS, NO SYNC
 const initApp = async () => {
   const dbConnected = await validateDatabaseConnection();
   if (dbConnected) {
-    // Import schema initialization for production deployments
-    try {
-      const { initializeDatabase: initSchema } = await import('./utils/database-init.js');
-      const schemaReady = await initSchema();
-      if (schemaReady) {
-        console.log('✅ Database schema verified and ready');
-      } else {
-        console.log('✅ Database ready - using existing schema');
-      }
-    } catch (error) {
-      console.log('✅ Database ready - using existing schema (init skipped)');
-    }
+    console.log('✅ Using existing database schema - NO MIGRATIONS');
   } else {
-    console.error('❌ Cannot initialize database - connection failed');
+    console.error('❌ Cannot connect to database');
   }
 };
 

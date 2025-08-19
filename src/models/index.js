@@ -78,25 +78,14 @@ const validateDatabaseConnection = async () => {
   }
 };
 
-// Initialize database with all tables
+// Initialize database - NO SYNC, NO MIGRATIONS, NO SCHEMA CHANGES
 const initializeDatabase = async () => {
   try {
-    console.log('🔄 Checking database schema...');
-    
-    // DISABLED: Automatic sync to prevent migration conflicts
-    // Database tables already exist with correct structure
-    // await sequelize.sync({ force: false });
-    
-    // Just validate the connection instead
-    const isConnected = await validateDatabaseConnection();
-    if (isConnected) {
-      console.log('✅ Database schema validated - tables exist');
-      console.log('📊 Using existing database structure');
-    }
-    
-    return isConnected;
+    // NO SYNC - Use existing database schema only
+    console.log('✅ Using existing database (NO SYNC, NO MIGRATIONS)');
+    return true;
   } catch (error) {
-    console.error('❌ Database initialization failed:', error.message);
+    console.error('❌ Database error:', error.message);
     return false;
   }
 };
