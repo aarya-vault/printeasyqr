@@ -351,15 +351,72 @@ class ShopController {
     }
   }
 
-  // Get unlocked shops for customer - SIMPLIFIED VERSION
+  // Get unlocked shops for customer - WORKING VERSION
   static async getUnlockedShops(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
       console.log('🔍 Getting unlocked shops for customer:', customerId);
       
-      // SIMPLIFIED: Just return empty arrays since customer has no orders
-      const unlockedShopIds = [];
-      const unlockedShops = [];
+      // Get unlocked shops from customer_shop_unlocks table
+      const unlocks = await CustomerShopUnlock.findAll({
+        where: { customerId },
+        attributes: ['shopId']
+      });
+      
+      const unlockedShopIds = unlocks.map(u => u.shopId);
+      let unlockedShops = [];
+      
+      if (unlockedShopIds.length > 0) {
+        // Get shop details for unlocked shops
+        const shops = await Shop.findAll({
+          where: {
+            id: unlockedShopIds,
+            isApproved: true,
+            status: 'active'
+          }
+        });
+        unlockedShops = shops.map(shop => ShopController.transformShopData(shop));
+      }
+      
+      // Also check for shops with existing orders (auto-unlock)
+      const orders = await Order.findAll({
+        where: { customerId },
+        attributes: ['shopId'],
+        group: ['shopId']
+      });
+      
+      for (const order of orders) {
+        if (!unlockedShopIds.includes(order.shopId)) {
+          // Auto-unlock this shop
+          try {
+            await CustomerShopUnlock.findOrCreate({
+              where: {
+                customerId: customerId,
+                shopId: order.shopId
+              },
+              defaults: {
+                qrScanLocation: 'auto_unlock_previous_order'
+              }
+            });
+            
+            // Get shop details
+            const shop = await Shop.findOne({
+              where: {
+                id: order.shopId,
+                isApproved: true,
+                status: 'active'
+              }
+            });
+            
+            if (shop) {
+              unlockedShopIds.push(shop.id);
+              unlockedShops.push(ShopController.transformShopData(shop));
+            }
+          } catch (err) {
+            console.log('Auto-unlock error:', err);
+          }
+        }
+      }
 
       
       console.log('🔍 Final result:', { unlockedShopIds, shopCount: unlockedShops.length });

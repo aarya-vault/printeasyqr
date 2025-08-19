@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 
 // Notification Controller - Handles all notification-related operations
 class NotificationController {
-  // Get notifications for a user - SIMPLIFIED VERSION
+  // Get notifications for a user - WORKING VERSION
   static async getNotificationsByUser(req, res) {
     try {
       const userId = parseInt(req.params.userId);
@@ -12,8 +12,79 @@ class NotificationController {
         return res.status(400).json({ message: 'User ID is required' });
       }
 
-      // SIMPLIFIED: Just return empty array since customer has no messages
-      const notifications = [];
+      // Get user to determine role
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.json([]);
+      }
+
+      let notifications = [];
+
+      // Simple query without complex associations
+      if (user.role === 'shop_owner') {
+        const shop = await Shop.findOne({ where: { ownerId: userId } });
+        if (shop) {
+          // Get order IDs for this shop
+          const orders = await Order.findAll({
+            where: { shopId: shop.id },
+            attributes: ['id']
+          });
+          const orderIds = orders.map(o => o.id);
+          
+          if (orderIds.length > 0) {
+            // Get unread messages for these orders
+            const unreadMessages = await Message.findAll({
+              where: { 
+                orderId: orderIds,
+                isRead: false,
+                senderRole: 'customer'
+              },
+              order: [['created_at', 'DESC']],
+              limit: 50
+            });
+
+            notifications = unreadMessages.map(msg => ({
+              id: msg.id,
+              title: `New message from ${msg.senderName || 'Customer'}`,
+              message: msg.content,
+              type: 'chat_message',
+              isRead: false,
+              createdAt: msg.createdAt,
+              relatedId: msg.orderId
+            }));
+          }
+        }
+      } else {
+        // For customers: Get their order IDs
+        const orders = await Order.findAll({
+          where: { customerId: userId },
+          attributes: ['id']
+        });
+        const orderIds = orders.map(o => o.id);
+        
+        if (orderIds.length > 0) {
+          // Get unread messages from shop owners
+          const unreadMessages = await Message.findAll({
+            where: { 
+              orderId: orderIds,
+              isRead: false,
+              senderRole: 'shop_owner'
+            },
+            order: [['created_at', 'DESC']],
+            limit: 50
+          });
+
+          notifications = unreadMessages.map(msg => ({
+            id: msg.id,
+            title: `New message from Shop`,
+            message: msg.content,
+            type: 'chat_message',
+            isRead: false,
+            createdAt: msg.createdAt,
+            relatedId: msg.orderId
+          }));
+        }
+      }
       
       res.json(notifications);
     } catch (error) {
