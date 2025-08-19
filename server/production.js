@@ -1,4 +1,7 @@
 // Production server for deployment
+// SKIP ALL MIGRATIONS - Database already has correct schema
+import "../skip-all-migrations.js";
+
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -15,12 +18,15 @@ process.env.DISABLE_DB_SYNC = "true";
 process.env.DB_SYNC = "false";
 process.env.DB_ALTER = "false";
 process.env.DB_FORCE = "false";
+process.env.NO_MIGRATIONS = "true";
+process.env.SKIP_MIGRATIONS = "true";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log("🚀 Starting PrintEasy QR Production Server");
 console.log("🔒 Production Mode: Database sync DISABLED");
+console.log("✅ Using existing database schema - NO MIGRATIONS");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -93,7 +99,7 @@ async function initializeApp() {
       console.log(`📱 Frontend: http://localhost:${PORT}`);
       console.log(`🔌 API: http://localhost:${PORT}/api/*`);
       console.log("✅ WebSocket enabled for real-time features");
-      console.log("🔒 Database: Using existing schema (sync disabled)");
+      console.log("🔒 Database: Using existing schema (NO MIGRATIONS)");
     });
   } catch (error) {
     console.error("❌ Failed to initialize application:", error);
