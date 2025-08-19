@@ -76,7 +76,7 @@ class QRController {
         
         // Generate the EXACT branded template you specified
         finalHtmlContent = `
-          <div style="width: 400px; padding: 20px; background: white; font-family: 'Arial', sans-serif; text-align: center; border: 3px solid #FFBF00;">
+          <div style="width: 420px; padding: 25px; background: white; font-family: 'Arial', sans-serif; text-align: center; border: 3px solid #FFBF00; margin: 10px auto;">
             <!-- Shop Name -->
             <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; color: #000;">${shopName}</h1>
             
@@ -191,7 +191,7 @@ class QRController {
           '--hide-scrollbars',
           '--mute-audio'
         ],
-        defaultViewport: { width: 400, height: 800 },
+        defaultViewport: { width: 450, height: 900 },
         executablePath: chromiumPath,
         headless: 'new',
         ignoreHTTPSErrors: true,
@@ -207,7 +207,7 @@ class QRController {
         page.setDefaultTimeout(10000);
         page.setDefaultNavigationTimeout(10000);
         
-        await page.setViewport({ width: 400, height: 800, deviceScaleFactor: 2 });
+        await page.setViewport({ width: 450, height: 900, deviceScaleFactor: 2 });
 
         // Create full HTML with comprehensive PrintEasy styling
         const fullHtml = `
@@ -320,13 +320,13 @@ class QRController {
         // Shorter delay for production
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Take screenshot with timeout protection
+        // Take screenshot with timeout protection - FULL PAGE to capture everything
         const screenshot = await Promise.race([
           page.screenshot({
             type: 'jpeg',
-            quality: 85,
+            quality: 90,
             omitBackground: false,
-            fullPage: false
+            fullPage: true  // Changed to true to capture entire QR template
           }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Screenshot timeout')), 8000))
         ]);
