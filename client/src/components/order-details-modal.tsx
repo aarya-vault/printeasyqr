@@ -67,23 +67,57 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
     }
   }, [order?.id]); // Only update when order ID changes, not on every field change
 
-  // Update order mutation
+  // Update order mutation with optimistic updates
   const updateOrderMutation = useMutation({
     mutationFn: async (updates: any) => {
       return await apiClient.patch(`/api/orders/${stableOrder.id}`, updates);
     },
-    onSuccess: (updatedData) => {
-      toast({ title: 'Order updated successfully' });
-      // Update stable order with new data
-      if (updatedData) {
-        setStableOrder(prev => ({ ...prev, ...updatedData }));
+    onMutate: async (updates) => {
+      // Optimistic update: immediately update the UI before server response
+      
+      // Update the stable order state immediately
+      setStableOrder(prev => ({ ...prev, ...updates }));
+      setEditedOrder(prev => ({ ...prev, ...updates }));
+      
+      // Get current orders data from cache
+      const currentOrders = queryClient.getQueryData([`/api/orders/shop/${stableOrder.shopId}`]) as any;
+      
+      if (currentOrders && Array.isArray(currentOrders)) {
+        // Update the specific order in the cached orders list
+        const optimisticOrders = currentOrders.map((order: any) => 
+          order.id === stableOrder.id 
+            ? { ...order, ...updates }
+            : order
+        );
+        
+        // Update the cache immediately
+        queryClient.setQueryData([`/api/orders/shop/${stableOrder.shopId}`], optimisticOrders);
       }
+      
+      // Show immediate feedback
+      toast({ title: 'Order status updated' });
+      setIsEditing(false);
+      
+      // Return context for potential rollback
+      return { previousOrders: currentOrders };
+    },
+    onSuccess: (updatedData) => {
+      // Backend update successful - refresh to ensure consistency
       queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${stableOrder.shopId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${stableOrder.customerId}`] });
-      setIsEditing(false);
     },
-    onError: () => {
-      toast({ title: 'Failed to update order', variant: 'destructive' });
+    onError: (error, variables, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousOrders) {
+        queryClient.setQueryData([`/api/orders/shop/${stableOrder.shopId}`], context.previousOrders);
+      }
+      
+      // Revert local state
+      setStableOrder(order);
+      setEditedOrder(order);
+      
+      toast({ title: 'Failed to update order - changes reverted', variant: 'destructive' });
+      setIsEditing(true); // Re-enable editing
     }
   });
 

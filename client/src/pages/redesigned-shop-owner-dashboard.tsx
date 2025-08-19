@@ -337,21 +337,18 @@ export default function RedesignedShopOwnerDashboard() {
       // Snapshot the previous value
       const previousOrders = queryClient.getQueryData<Order[]>([`/api/orders/shop/${shopData?.shop?.id}`]);
       
-      // For "completed" status, don't show optimistic update to prevent UI flashing
-      if (status !== 'completed') {
-        // Optimistically update to the new value for non-completed statuses
-        queryClient.setQueryData<Order[]>(
-          [`/api/orders/shop/${shopData?.shop?.id}`],
-          (old) => {
-            if (!old) return old;
-            return old.map(order => 
-              order.id === orderId 
-                ? { ...order, status, updatedAt: new Date().toISOString() }
-                : order
-            );
-          }
-        );
-      }
+      // Optimistically update to the new value for ALL statuses (including completed)
+      queryClient.setQueryData<Order[]>(
+        [`/api/orders/shop/${shopData?.shop?.id}`],
+        (old) => {
+          if (!old) return old;
+          return old.map(order => 
+            order.id === orderId 
+              ? { ...order, status, updatedAt: new Date().toISOString() }
+              : order
+          );
+        }
+      );
       
       // Show instant feedback to user
       toast({ 
