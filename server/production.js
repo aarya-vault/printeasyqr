@@ -1,4 +1,5 @@
 // Production server for deployment
+import '../force-database-config.js';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
