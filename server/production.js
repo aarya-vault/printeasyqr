@@ -1,6 +1,8 @@
 // Production server for deployment
-// CRITICAL: Import Sequelize override FIRST
+// CRITICAL: Import overrides FIRST
+import '../disable-replit-kv-database.js';
 import '../force-sequelize-production.js';
+import '../replit-migration-override.js';
 
 import express from 'express';
 import path from 'path';
@@ -18,7 +20,14 @@ console.log('🚀 FORCED NODE_ENV to production for QR controller selection');
 process.env.DISABLE_REPLIT_DATABASE = 'true';
 process.env.FORCE_SEQUELIZE_ONLY = 'true';
 process.env.DATABASE_ORM = 'sequelize';
+
+// NUCLEAR OPTION: Completely disable Replit KV database
+delete process.env.REPLIT_DB_URL;
+delete process.env.REPLIT_DATABASE_URL;
+process.env.REPLIT_DISABLE_DATABASE = 'true';
+
 console.log('🔧 FORCED Sequelize-only database connection - disabling Replit tools');
+console.log('💥 DISABLED Replit KV database completely');
 
 // PRODUCTION DATABASE CONFIGURATION
 console.log('🔍 Production Database Environment Check:');

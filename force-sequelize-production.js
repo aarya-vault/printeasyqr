@@ -38,4 +38,11 @@ process.env.DATABASE_ORM = 'sequelize';
 process.env.DISABLE_REPLIT_DATABASE = 'true';
 process.env.FORCE_SEQUELIZE_ONLY = 'true';
 
+// NUCLEAR: Remove all Replit database environment variables
+delete process.env.REPLIT_DB_URL;
+delete process.env.REPLIT_DATABASE_URL;
+process.env.REPLIT_DISABLE_DATABASE = 'true';
+
+console.log('💥 NUKED all Replit database environment variables');
+
 console.log('✅ Sequelize-only mode enforced for production');
