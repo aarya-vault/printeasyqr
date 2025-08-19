@@ -10,11 +10,9 @@ packages = ["chromium"]
 deploymentTarget = "autoscale"
 build = "npm run build"
 run = "npm run start"
-ignorePaths = ["node_modules", ".cache", "dist"]
 
 [env]
 PORT = "5000"
-NODE_ENV = "development"
 
 [workflows]
 runButton = "Project"
