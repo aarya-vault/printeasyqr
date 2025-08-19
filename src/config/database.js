@@ -1,23 +1,30 @@
 import { Sequelize } from 'sequelize';
-import config from './env.js';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
 
 // Skip migrations if configured
-if (config.database.skipMigrations) {
+if (process.env.SKIP_MIGRATIONS === 'true') {
   console.log('⏭️  Skipping database migrations - configured in env');
 }
 
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
 
-// Get database URL from centralized config
-let databaseUrl = config.database.url;
+// Get database URL directly from environment
+let databaseUrl = process.env.DATABASE_URL;
 
 // If DATABASE_URL is not available, construct from individual variables
 if (!databaseUrl) {
-  const { host, port, name, user, password } = config.database;
+  const host = process.env.PGHOST;
+  const port = process.env.PGPORT || 5432;
+  const name = process.env.PGDATABASE;
+  const user = process.env.PGUSER;
+  const password = process.env.PGPASSWORD;
   
   // Validate all required variables are present
   if (!host || !port || !name || !user || !password) {
@@ -37,17 +44,22 @@ if (!databaseUrl) {
   console.log('✅ Using configured DATABASE_URL');
 }
 
-// Create Sequelize instance with centralized configuration
+// Create Sequelize instance with environment configuration
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
-  logging: config.database.logging ? console.log : false,
+  logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false,
   dialectOptions: {
-    ssl: config.database.ssl || databaseUrl.includes('neon.tech') ? {
+    ssl: process.env.DATABASE_SSL === 'true' || databaseUrl.includes('neon.tech') ? {
       require: true,
       rejectUnauthorized: false
     } : false
   },
-  pool: config.database.pool,
+  pool: {
+    max: parseInt(process.env.DB_POOL_MAX) || 5,
+    min: parseInt(process.env.DB_POOL_MIN) || 0,
+    acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 30000,
+    idle: parseInt(process.env.DB_POOL_IDLE) || 10000
+  },
   // CRITICAL: Prevent all automatic schema modifications
   define: {
     timestamps: true,
@@ -67,7 +79,7 @@ console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' 
 // Test the connection
 const testConnection = async () => {
   // Skip database connection test during build phase
-  if (config.database.skipMigrations || config.database.skipDbCheck) {
+  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
     console.log('⏭️  Skipping database connection test (build phase)');
     return true;
   }

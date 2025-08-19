@@ -3,7 +3,10 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import config from '../src/config/env.js';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,17 +20,17 @@ console.log('⏭️  Database migrations DISABLED - using existing schema');
 
 // PRODUCTION DATABASE CONFIGURATION
 console.log('🔍 Production Database Environment Check:');
-console.log('   DATABASE_URL available:', !!config.database.url);
-console.log('   NODE_ENV:', config.app.env);
-console.log('   PORT:', config.app.port);
-console.log('   Database Host:', config.database.host);
+console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('   PORT:', process.env.PORT || 5000);
+console.log('   Database Host:', process.env.PGHOST);
 
-if (!config.database.url) {
+if (!process.env.DATABASE_URL) {
   console.error('❌ CRITICAL: DATABASE_URL missing in production environment!');
   console.error('   Please configure DATABASE_URL in environment variables');
 }
 
-console.log('✅ Using PostgreSQL database from centralized configuration');
+console.log('✅ Using PostgreSQL database from .env configuration');
 
 // Test database connection on production startup
 console.log('🔍 Testing production database connection...');

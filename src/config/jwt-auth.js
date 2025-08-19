@@ -1,8 +1,11 @@
 // PURE JWT AUTHENTICATION SYSTEM - No sessions, no cookies
 import jwt from 'jsonwebtoken';
-import config from './env.js';
+import dotenv from 'dotenv';
 
-const JWT_SECRET = config.auth.jwtSecret;
+// Load environment variables from .env file
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export function generateToken(user) {
   return jwt.sign(
@@ -14,7 +17,7 @@ export function generateToken(user) {
       role: user.role
     },
     JWT_SECRET,
-    { expiresIn: config.auth.tokenExpiry || '90d' } // Use config expiry or default to 90 days
+    { expiresIn: process.env.JWT_EXPIRY || '90d' } // Use env expiry or default to 90 days
   );
 }
 
@@ -27,7 +30,7 @@ export function generateRefreshToken(user) {
       tokenType: 'refresh'
     },
     JWT_SECRET,
-    { expiresIn: config.auth.refreshTokenExpiry || '180d' } // Use config expiry or default to 6 months
+    { expiresIn: process.env.JWT_REFRESH_EXPIRY || '180d' } // Use env expiry or default to 6 months
   );
 }
 

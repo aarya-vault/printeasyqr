@@ -9,7 +9,10 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import config from './src/config/env.js';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 console.log('🚀 Starting production build for Replit deployment...');
 console.log('⚠️  IMPORTANT: Database migrations are intentionally skipped');

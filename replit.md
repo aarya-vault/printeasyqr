@@ -70,17 +70,17 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Environment Variables**: Sets SKIP_MIGRATIONS=true to prevent deployment hanging
 - **Important**: Database schema must exist before deployment (no auto-migrations)
 
-### Centralized Configuration (Updated: 2025-01-19)
-- **Single Source of Truth**: `src/config/env.js` manages all environment configuration
-- **Hardcoded Database URL**: Fallback to production Neon PostgreSQL if DATABASE_URL not set
+### Direct .env Configuration (Updated: 2025-08-19)
+- **Single Source of Truth**: `.env` file accessed directly via process.env throughout project
+- **No Configuration Wrapper**: Removed src/config/env.js centralized system per user requirement
+- **Direct Environment Access**: All modules use process.env.VARIABLE_NAME directly
 - **Configuration Structure**:
-  - Database settings (URL, credentials, pool, SSL)
-  - Application settings (port, environment, feature flags)
-  - Authentication (JWT secrets, token expiry)
-  - External services (WhatsApp OTP, Google Maps, R2 storage)
-  - Security settings (CORS, cookies, rate limiting)
-- **Environment Template**: `.env.example` provides complete configuration template
-- **Auto-validation**: Config validates critical settings on startup
+  - Database settings (DATABASE_URL, PGHOST, PGUSER, etc.)
+  - Application settings (PORT, NODE_ENV, JWT_SECRET)
+  - External services (GUPSHUP_API_KEY, GOOGLE_MAPS_API_KEY, R2 credentials)
+  - Build settings (SKIP_MIGRATIONS, DISABLE_DB_SYNC)
+  - Feature flags (ENABLE_WHATSAPP_OTP, ENABLE_R2_STORAGE)
+- **dotenv.config()**: Each module loads environment variables independently
 
 ### Zero-Conflict Enforcement
 - Unique constraints on: shop slugs, shop emails, user emails, user phones
