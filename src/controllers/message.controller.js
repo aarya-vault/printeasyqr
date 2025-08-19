@@ -147,6 +147,12 @@ class MessageController {
       console.log(`✅ Mark as read success: ${JSON.stringify({ updatedCount })}`);
       console.log(`🔄 Mark as read success - invalidating queries: ${JSON.stringify([`/api/orders/shop/${orderId}`])}`);
       
+      // Send WebSocket unread count update to the user who marked messages as read
+      sendToUser(userId, {
+        type: 'unread_count_update',
+        trigger: 'mark_as_read'
+      });
+      
       res.json({ success: true });
     } catch (error) {
       console.error('Mark messages as read error:', error);
@@ -159,6 +165,8 @@ class MessageController {
     try {
       const userId = req.user.id;
       const userRole = req.user.role;
+      
+      console.log(`🔍 Unread count request - User ID: ${userId}, Role: ${userRole}`);
       
       let whereCondition = {
         senderId: { [Op.ne]: userId },
@@ -204,8 +212,10 @@ class MessageController {
         }
       }
       
+      console.log(`🔍 Final whereCondition:`, whereCondition);
       const count = await Message.count({ where: whereCondition });
       
+      console.log(`🔍 Unread count result for user ${userId} (${userRole}): ${count}`);
       res.json({ unreadCount: count });
     } catch (error) {
       console.error('Get unread count error:', error);
