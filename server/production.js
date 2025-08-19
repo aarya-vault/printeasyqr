@@ -1,4 +1,7 @@
 // Production server for deployment
+// CRITICAL: Import Sequelize override FIRST
+import '../force-sequelize-production.js';
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +13,12 @@ const __dirname = path.dirname(__filename);
 // CRITICAL: Force production environment for all imports
 process.env.NODE_ENV = 'production';
 console.log('🚀 FORCED NODE_ENV to production for QR controller selection');
+
+// CRITICAL: Force Sequelize over Replit database tools
+process.env.DISABLE_REPLIT_DATABASE = 'true';
+process.env.FORCE_SEQUELIZE_ONLY = 'true';
+process.env.DATABASE_ORM = 'sequelize';
+console.log('🔧 FORCED Sequelize-only database connection - disabling Replit tools');
 
 // PRODUCTION DATABASE CONFIGURATION
 console.log('🔍 Production Database Environment Check:');

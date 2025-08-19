@@ -53,7 +53,7 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **One-Email-One-Shop Enforcement**: Database constraints and backend validation ensure each email address can only own one shop, with automatic duplicate cleanup and prevention systems.
 - **Complete "Queue #" Rebranding**: Systematically replaced all "Order #" references with "Queue #" across the entire platform including frontend, backend, chat systems, dashboards, confirmations, and notifications.
 
-## Database Configuration (Updated: 2025-01-18)
+## Database Configuration (Updated: 2025-08-19)
 
 ### Production & Development Setup  
 - **Database**: PostgreSQL (Replit Neon managed instance)
@@ -61,7 +61,8 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Schema**: Complete database schema created via manual migration
 - **Protection**: Database sync disabled, proper indexing implemented
 - **Migration Strategy**: Manual SQL migrations in `src/migrations/` directory
-- **Status**: ✅ FIXED - Database connectivity and schema fully operational
+- **Production Override**: Forced Sequelize-only mode, disabled Replit database tools
+- **Status**: ✅ FIXED - Database connectivity, schema, and production deployment operational
 
 ### Zero-Conflict Enforcement
 - Unique constraints on: shop slugs, shop emails, user emails, user phones
