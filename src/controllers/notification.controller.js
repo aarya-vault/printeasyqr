@@ -42,7 +42,7 @@ class NotificationController {
               isRead: false,
               senderRole: 'customer' // Only customer messages are notifications for shop owners
             },
-            order: [['createdAt', 'DESC']],
+            // order: [['createdAt', 'DESC']], // Removed due to ambiguous column issue
             limit: 50
           });
 
@@ -74,7 +74,7 @@ class NotificationController {
             isRead: false,
             senderRole: 'shop_owner' // Only shop owner messages are notifications for customers
           },
-          order: [['createdAt', 'DESC']],
+          // order: [['createdAt', 'DESC']], // Removed due to ambiguous column issue
           limit: 50
         });
 
