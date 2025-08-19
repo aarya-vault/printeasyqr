@@ -102,9 +102,13 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
       return { previousOrders: currentOrders };
     },
     onSuccess: (updatedData) => {
-      // Backend update successful - refresh to ensure consistency
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${stableOrder.shopId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/customer/${stableOrder.customerId}`] });
+      // Backend update successful - update local state with server response
+      if (updatedData) {
+        setStableOrder(prev => ({ ...prev, ...updatedData }));
+        setEditedOrder(prev => ({ ...prev, ...updatedData }));
+      }
+      // Don't invalidate queries immediately to prevent UI flashing
+      // Data will be refreshed on next natural refresh cycle
     },
     onError: (error, variables, context) => {
       // Rollback optimistic update on error

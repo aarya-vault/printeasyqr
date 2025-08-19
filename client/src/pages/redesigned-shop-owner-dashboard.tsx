@@ -371,9 +371,15 @@ export default function RedesignedShopOwnerDashboard() {
         variant: 'destructive' 
       });
     },
-    onSettled: () => {
-      // Always refetch after error or success to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
+    onSuccess: () => {
+      // On success, don't invalidate immediately - let the optimistic update stand
+      // Data will be refreshed on next natural refresh cycle
+    },
+    onSettled: (data, error) => {
+      // Only invalidate queries on error to fix inconsistent state
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: [`/api/orders/shop/${shopData?.shop?.id}`] });
+      }
     },
   });
 
