@@ -81,7 +81,8 @@ class MessageController {
         senderRole: senderRole || 'customer',
         content: content || '',
         files: fileData ? JSON.stringify(fileData) : null,
-        messageType: fileData ? 'file' : messageType
+        messageType: fileData ? 'file' : messageType,
+        isRead: false  // Explicitly mark as unread for recipient
       });
       
       const messageWithSender = await Message.findByPk(message.id, {
@@ -100,10 +101,18 @@ class MessageController {
           ? order.shop.ownerId 
           : order.customerId;
         
+        // Send WebSocket notification to recipient
+        console.log(`📨 Sending message notification: ${senderId} -> ${recipientId}`);
         sendToUser(recipientId, {
           type: 'new_message',
           message: transformedMessage,
           orderId: order.id
+        });
+        
+        // Also send unread count update to recipient
+        sendToUser(recipientId, {
+          type: 'unread_count_update',
+          trigger: 'new_message'
         });
       }
       
@@ -125,7 +134,7 @@ class MessageController {
       }
       
       // Mark all messages in the order as read for this user
-      await Message.update(
+      const [updatedCount] = await Message.update(
         { isRead: true },
         {
           where: {
@@ -134,6 +143,9 @@ class MessageController {
           }
         }
       );
+      
+      console.log(`✅ Mark as read success: ${JSON.stringify({ updatedCount })}`);
+      console.log(`🔄 Mark as read success - invalidating queries: ${JSON.stringify([`/api/orders/shop/${orderId}`])}`);
       
       res.json({ success: true });
     } catch (error) {
