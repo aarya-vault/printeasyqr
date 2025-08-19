@@ -1,11 +1,16 @@
 // PURE JWT AUTHENTICATION SYSTEM - No sessions, no cookies
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
+// Environment variables should be loaded by app.js already
+const getJWTSecret = () => {
+  const JWT_SECRET = process.env.JWT_SECRET;
+  if (!JWT_SECRET) {
+    console.error('❌ CRITICAL: JWT_SECRET not found when generating token');
+    console.error('Available JWT env vars:', Object.keys(process.env).filter(k => k.includes('JWT')));
+    throw new Error('JWT_SECRET must be set in .env file');
+  }
+  return JWT_SECRET;
+};
 
 export function generateToken(user) {
   return jwt.sign(
@@ -16,7 +21,7 @@ export function generateToken(user) {
       name: user.name,
       role: user.role
     },
-    JWT_SECRET,
+    getJWTSecret(),
     { expiresIn: process.env.JWT_EXPIRY || '90d' } // Use env expiry or default to 90 days
   );
 }
@@ -29,14 +34,14 @@ export function generateRefreshToken(user) {
       phone: user.phone,
       tokenType: 'refresh'
     },
-    JWT_SECRET,
+    getJWTSecret(),
     { expiresIn: process.env.JWT_REFRESH_EXPIRY || '180d' } // Use env expiry or default to 6 months
   );
 }
 
 export function verifyToken(token) {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, getJWTSecret());
   } catch (error) {
     return null;
   }

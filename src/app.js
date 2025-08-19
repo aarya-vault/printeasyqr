@@ -8,8 +8,49 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
+// Get the project root directory for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const projectRoot = path.join(__dirname, '..');
+
+// Load environment variables - try dotenv first, then manual loading
+const envPath = path.join(projectRoot, '.env');
+dotenv.config({ path: envPath });
+
+// If dotenv fails, manually parse the .env file
+if (!process.env.JWT_SECRET) {
+  console.log('🔧 dotenv failed, trying manual .env parsing...');
+  try {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const envLines = envContent.split('\n');
+    
+    for (const line of envLines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine && !trimmedLine.startsWith('#') && trimmedLine.includes('=')) {
+        const [key, ...valueParts] = trimmedLine.split('=');
+        const value = valueParts.join('=').trim();
+        if (key && value) {
+          process.env[key.trim()] = value;
+        }
+      }
+    }
+    
+    console.log('✅ Manual .env parsing complete');
+    console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
+    
+  } catch (error) {
+    console.error('❌ Failed to manually parse .env:', error.message);
+    process.exit(1);
+  }
+}
+
+// Final validation
+if (!process.env.JWT_SECRET) {
+  console.error('❌ CRITICAL: JWT_SECRET still not available after all loading attempts');
+  process.exit(1);
+}
+
+console.log('✅ Environment variables loaded successfully');
 
 // CRITICAL: Import database override BEFORE any models
 import './database-override.js';
@@ -17,9 +58,7 @@ import './database-override.js';
 // Import database functions
 import { validateDatabaseConnection, initializeDatabase } from './models/index.js';
 
-// ES Module compatibility fix for serverless environments
-const __filename = import.meta ? fileURLToPath(import.meta.url) : __filename;
-const __dirname = import.meta ? dirname(__filename) : __dirname;
+// ES Module compatibility handled above
 
 // Initialize database (validate connection only - tables already exist)
 const initApp = async () => {

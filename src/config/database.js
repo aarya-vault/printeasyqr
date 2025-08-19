@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
+// Environment variables should be loaded by app.js already
 
 // CRITICAL: Disable ALL database sync operations
 process.env.DISABLE_DB_SYNC = 'true';
