@@ -34,12 +34,27 @@ process.env.DB_ACQUIRE_TIMEOUT = '120000';
 process.env.DB_IDLE_TIMEOUT = '60000';
 process.env.DB_CONNECT_TIMEOUT = '120000';
 
-// Test database connection on production startup
-console.log('🔍 Testing production database connection...');
+// Test database connection and verify schema on production startup
+console.log('🔍 Testing production database connection and schema...');
 import { testConnection } from '../src/config/database.js';
 try {
   await testConnection();
   console.log('✅ Production database connection successful');
+  
+  // Quick schema verification to prevent migration conflicts
+  const { sequelize } = await import('../src/config/database.js');
+  const [qrScanCheck] = await sequelize.query(`
+    SELECT column_name 
+    FROM information_schema.columns 
+    WHERE table_name = 'qr_scans' AND column_name = 'customer_id'
+  `);
+  
+  if (qrScanCheck.length > 0) {
+    console.log('✅ Database schema verified - customer_id column exists');
+  } else {
+    console.log('⚠️ Schema warning - customer_id column may need migration');
+  }
+  
 } catch (error) {
   console.error('❌ CRITICAL: Production database connection failed:', error.message);
   console.error('   Verify DATABASE_URL credentials in deployment settings');
