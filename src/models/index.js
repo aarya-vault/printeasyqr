@@ -68,6 +68,12 @@ defineAssociations();
 
 // Database connection validation and initialization
 const validateDatabaseConnection = async () => {
+  // Skip database connection during build phase
+  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+    console.log('⏭️  Skipping database connection check (build phase)');
+    return true;
+  }
+  
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established');
@@ -80,6 +86,12 @@ const validateDatabaseConnection = async () => {
 
 // Initialize database with all tables
 const initializeDatabase = async () => {
+  // Skip database initialization during build phase
+  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+    console.log('⏭️  Skipping database initialization (build phase)');
+    return true;
+  }
+  
   try {
     console.log('🔄 Checking database schema...');
     

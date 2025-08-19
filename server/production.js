@@ -7,9 +7,12 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CRITICAL: Force production environment for all imports
+// CRITICAL: Force production environment and disable database sync
 process.env.NODE_ENV = 'production';
-console.log('🚀 FORCED NODE_ENV to production for QR controller selection');
+process.env.DISABLE_DB_SYNC = 'true';
+process.env.SKIP_MIGRATIONS = 'true';
+console.log('🚀 FORCED NODE_ENV to production');
+console.log('⏭️  Database migrations DISABLED - using existing schema');
 
 // PRODUCTION DATABASE CONFIGURATION
 console.log('🔍 Production Database Environment Check:');

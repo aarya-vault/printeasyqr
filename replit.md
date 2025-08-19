@@ -63,6 +63,11 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 - **Migration Strategy**: Manual SQL migrations in `src/migrations/` directory
 - **Status**: ✅ FIXED - Database connectivity and schema fully operational
 
+### Deployment Build Process
+- **Build Script**: `build.js` - Skips database operations during build
+- **Environment Variables**: Sets SKIP_MIGRATIONS=true to prevent deployment hanging
+- **Important**: Database schema must exist before deployment (no auto-migrations)
+
 ### Zero-Conflict Enforcement
 - Unique constraints on: shop slugs, shop emails, user emails, user phones
 - Automated conflict detection and prevention

@@ -6,6 +6,11 @@ dotenv.config();
 process.env.DISABLE_DB_SYNC = 'true';
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Skip migrations if explicitly requested
+if (process.env.SKIP_MIGRATIONS === 'true') {
+  console.log('⏭️  Skipping database migrations - SKIP_MIGRATIONS is set');
+}
+
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
 
@@ -72,6 +77,12 @@ console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' 
 
 // Test the connection
 const testConnection = async () => {
+  // Skip database connection test during build phase
+  if (process.env.SKIP_MIGRATIONS === 'true' || process.env.SKIP_DB_CHECK === 'true') {
+    console.log('⏭️  Skipping database connection test (build phase)');
+    return true;
+  }
+  
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection has been established successfully.');
