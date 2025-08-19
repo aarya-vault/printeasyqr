@@ -182,6 +182,26 @@ try {
   // Import and start the main application
   const { default: app } = await import('./src/app.js');
   const { createServer } = await import('http');
+  const express = await import('express');
+  
+  // CRITICAL: Serve static files for production
+  const clientPath = join(__dirname, 'dist', 'client');
+  console.log(`🗂️  Serving static files from: ${clientPath}`);
+  
+  // Serve static frontend files
+  app.use(express.default.static(clientPath));
+  
+  // SPA fallback - serve index.html for all non-API routes
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    
+    const indexPath = join(clientPath, 'index.html');
+    console.log(`📄 Serving SPA fallback: ${req.path} -> index.html`);
+    res.sendFile(indexPath);
+  });
   
   const server = createServer(app);
   
@@ -198,12 +218,15 @@ try {
   server.listen(PORT, '0.0.0.0', () => {
     console.log('🎉 SERVER STARTED SUCCESSFULLY!');
     console.log('');
-    console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
+    console.log(`🌐 Frontend URL: http://localhost:${PORT}`);
+    console.log(`🌐 External URL: http://0.0.0.0:${PORT}`);
     console.log(`🔌 WebSocket: ws://0.0.0.0:${PORT}/ws`);
     console.log(`🏠 Environment: ${environment}`);
     console.log(`📊 Database: ${process.env.DATABASE_URL ? 'Connected' : 'Individual vars'}`);
+    console.log(`📁 Static files: ${join(__dirname, 'dist', 'client')}`);
     console.log('');
     console.log('✅ PrintEasy QR is ready for production traffic!');
+    console.log('🔗 Open in browser: http://localhost:' + PORT);
   });
   
   // Handle graceful shutdown
