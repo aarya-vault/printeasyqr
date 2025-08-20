@@ -5,11 +5,26 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// CRITICAL: Smart environment loading for Replit deployment
+const isReplitDeployment = process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID || process.env.REPL_SLUG;
+const hasDeploymentSecrets = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('undefined');
+
+console.log('🔍 Environment Detection:');
+console.log('   Replit Deployment:', !!isReplitDeployment);
+console.log('   Has Database URL:', !!process.env.DATABASE_URL);
+console.log('   Deployment Secrets:', !!hasDeploymentSecrets);
+
+if (isReplitDeployment && hasDeploymentSecrets) {
+  console.log('✅ Using Replit deployment environment variables');
+  // Use existing environment variables from Replit
+} else {
+  console.log('📁 Loading from .env file for local development');
+  // Only load .env for local development
+  dotenv.config();
+}
 
 // CRITICAL: Force production environment and disable database sync
 process.env.NODE_ENV = 'production';

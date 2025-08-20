@@ -13,34 +13,48 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
-// Load environment variables - try dotenv first, then manual loading
-const envPath = path.join(projectRoot, '.env');
-dotenv.config({ path: envPath });
+// Smart environment loading for Replit deployment
+const isReplitDeployment = process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID || process.env.REPL_SLUG;
+const hasDeploymentSecrets = process.env.JWT_SECRET && process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('undefined');
 
-// If dotenv fails, manually parse the .env file
-if (!process.env.JWT_SECRET) {
-  console.log('🔧 dotenv failed, trying manual .env parsing...');
-  try {
-    const envContent = fs.readFileSync(envPath, 'utf8');
-    const envLines = envContent.split('\n');
-    
-    for (const line of envLines) {
-      const trimmedLine = line.trim();
-      if (trimmedLine && !trimmedLine.startsWith('#') && trimmedLine.includes('=')) {
-        const [key, ...valueParts] = trimmedLine.split('=');
-        const value = valueParts.join('=').trim();
-        if (key && value) {
-          process.env[key.trim()] = value;
+console.log('🔍 App Environment Detection:');
+console.log('   Replit Deployment:', !!isReplitDeployment);
+console.log('   Has Secrets:', !!hasDeploymentSecrets);
+
+if (isReplitDeployment && hasDeploymentSecrets) {
+  console.log('✅ Using Replit deployment environment variables');
+  // Use existing environment variables from Replit deployment
+} else {
+  console.log('📁 Loading environment from .env file');
+  // Load environment variables - try dotenv first, then manual loading
+  const envPath = path.join(projectRoot, '.env');
+  dotenv.config({ path: envPath });
+
+  // If dotenv fails, manually parse the .env file
+  if (!process.env.JWT_SECRET) {
+    console.log('🔧 dotenv failed, trying manual .env parsing...');
+    try {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envLines = envContent.split('\n');
+      
+      for (const line of envLines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine && !trimmedLine.startsWith('#') && trimmedLine.includes('=')) {
+          const [key, ...valueParts] = trimmedLine.split('=');
+          const value = valueParts.join('=').trim();
+          if (key && value) {
+            process.env[key.trim()] = value;
+          }
         }
       }
+      
+      console.log('✅ Manual .env parsing complete');
+      console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
+      
+    } catch (error) {
+      console.error('❌ Failed to manually parse .env:', error.message);
+      process.exit(1);
     }
-    
-    console.log('✅ Manual .env parsing complete');
-    console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
-    
-  } catch (error) {
-    console.error('❌ Failed to manually parse .env:', error.message);
-    process.exit(1);
   }
 }
 
