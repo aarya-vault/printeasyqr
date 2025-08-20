@@ -107,15 +107,18 @@ const testConnection = async () => {
   }
   
   try {
-    await sequelize.authenticate();
+    // Use getSequelize() to ensure initialization
+    const seq = getSequelize();
+    await seq.authenticate();
     console.log('✅ Database connection has been established successfully.');
     return true;
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error.message);
-    console.error('Database URL format:', databaseUrl ? databaseUrl.substring(0, 30) + '...' : 'NOT SET');
-    console.error('SSL enabled:', sequelize.options.dialectOptions?.ssl ? 'YES' : 'NO');
+    const seq = getSequelize();
+    console.error('Database URL format:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 30) + '...' : 'NOT SET');
+    console.error('SSL enabled:', seq.options.dialectOptions?.ssl ? 'YES' : 'NO');
     throw error;
   }
 };
 
-export { sequelize, testConnection };
+export { testConnection };
