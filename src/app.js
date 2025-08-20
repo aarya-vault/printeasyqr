@@ -300,6 +300,7 @@ app.get('/api/download/:filePath(*)', async (req, res) => {
     const originalName = urlParams.get('originalName') || path.basename(filePath);
     const isPrint = urlParams.get('print') === 'true';
     const isDownload = urlParams.get('download') === 'true';
+    const isInline = urlParams.get('inline') === 'true';
     
     console.log('📥 File access request:', {
       filePath,
@@ -307,6 +308,7 @@ app.get('/api/download/:filePath(*)', async (req, res) => {
       originalName,
       isPrint,
       isDownload,
+      isInline,
       fullUrl: req.url
     });
 
@@ -374,10 +376,17 @@ app.get('/api/download/:filePath(*)', async (req, res) => {
       else if (ext === '.txt') contentType = 'text/plain';
       
       // Set appropriate headers
-      const disposition = isPrint ? 'inline' : 'attachment';
+      // 🖨️ PRINT FIX: Force inline display for print and inline requests
+      const disposition = (isPrint || isInline) ? 'inline' : 'attachment';
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', `${disposition}; filename="${originalName}"`);
       res.setHeader('Cache-Control', 'private, max-age=3600');
+      
+      // 🖨️ Additional headers for proper PDF display
+      if (contentType === 'application/pdf' && (isPrint || isInline)) {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Accept-Ranges', 'bytes');
+      }
       
       console.log(`✅ Serving local file: ${originalName} (${contentType}, ${disposition})`);
       
