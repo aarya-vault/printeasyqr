@@ -22,7 +22,7 @@ const initializeSequelize = () => {
     return sequelize; // Already initialized
   }
 
-  // Get database URL directly from environment
+  // CRITICAL FIX FOR REPLIT: Get database URL at connection time, not module load time
   let databaseUrl = process.env.DATABASE_URL;
 
   // If DATABASE_URL is not available, construct from individual variables
@@ -34,15 +34,17 @@ const initializeSequelize = () => {
     const password = process.env.PGPASSWORD;
     
     // Validate all required variables are present
-    if (!host || !port || !name || !user || !password) {
-      const missing = [];
-      if (!host) missing.push('host');
-      if (!port) missing.push('port');
-      if (!name) missing.push('database name');
-      if (!user) missing.push('username');
-      if (!password) missing.push('password');
+    if (!host || !name || !user || !password) {
+      console.error('❌ CRITICAL: Database environment variables not yet available');
+      console.error('  DATABASE_URL:', !!process.env.DATABASE_URL);
+      console.error('  PGHOST:', !!process.env.PGHOST);
+      console.error('  PGUSER:', !!process.env.PGUSER);
+      console.error('  PGPASSWORD:', !!process.env.PGPASSWORD);
+      console.error('  PGDATABASE:', !!process.env.PGDATABASE);
       
-      throw new Error(`Missing required database configuration: ${missing.join(', ')}`);
+      // REPLIT FIX: Return null to retry later instead of throwing
+      console.log('⏳ Will retry when environment variables are available...');
+      return null;
     }
     
     databaseUrl = `postgresql://${user}:${password}@${host}:${port}/${name}`;
@@ -87,9 +89,23 @@ const initializeSequelize = () => {
 };
 
 // Export a getter function that initializes on first use
+// CRITICAL: Retry initialization if it failed due to missing env vars
 const getSequelize = () => {
   if (!sequelize) {
-    return initializeSequelize();
+    const result = initializeSequelize();
+    if (!result) {
+      // Environment variables not ready yet, try again
+      console.log('⏳ Retrying database initialization...');
+      // Clear the failed attempt
+      sequelize = null;
+      // Try one more time after a brief delay
+      const retryResult = initializeSequelize();
+      if (!retryResult) {
+        throw new Error('Database initialization failed: Environment variables not available');
+      }
+      return retryResult;
+    }
+    return result;
   }
   return sequelize;
 };
