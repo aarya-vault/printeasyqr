@@ -1,33 +1,44 @@
-// Download routes for file access from object storage
+// Download routes using StorageManager and R2Client
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js';
+import storageManager from '../../server/storage/storageManager.js';
+import r2Client from '../../server/storage/r2Client.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const router = Router();
 
-// Download file from both local storage and object storage
-router.get('/download/*', async (req, res) => {  // Removed requireAuth temporarily for debugging
+// ES Module compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Download file - handles both R2 and local storage with proper inline/attachment headers
+router.get('/download/*', async (req, res) => {
   try {
     // Get the file path from the URL
     const filePath = req.params[0];
     const originalName = req.query.originalName || 'download';
-    const storageType = req.query.storageType || 'r2'; // Default to R2 unless specified as local
+    const storageType = req.query.storageType || 'r2';
     
     console.log('📥 Download request for:', filePath, 'Storage:', storageType);
     
     // Check if this is a print request or download request
     const isPrintRequest = req.query.print === 'true';
     
+    // Detect file type from extension
+    const ext = originalName.split('.').pop()?.toLowerCase();
+    let contentType = 'application/octet-stream';
+    
+    if (ext === 'pdf') {
+      contentType = 'application/pdf';
+    } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext || '')) {
+      contentType = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    }
+    
     if (storageType === 'local') {
       // **LOCAL FILE HANDLING**
-      const fs = await import('fs');
-      const path = await import('path');
-      const { fileURLToPath } = await import('url');
-      const { dirname } = await import('path');
-      
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = dirname(__filename);
-      
-      // Build local file path
       let localFilePath;
       if (filePath.startsWith('uploads/')) {
         localFilePath = path.join(__dirname, '..', '..', filePath);
@@ -43,124 +54,116 @@ router.get('/download/*', async (req, res) => {  // Removed requireAuth temporar
         return res.status(404).json({ message: 'File not found' });
       }
       
-      // Detect file type from extension
-      const ext = originalName.split('.').pop()?.toLowerCase();
-      let contentType = 'application/octet-stream';
-      
-      if (ext === 'pdf') {
-        contentType = 'application/pdf';
-      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext || '')) {
-        contentType = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
-      }
-      
+      // Set headers based on request type
       if (isPrintRequest) {
-        // For print requests, serve inline so the file can be displayed in iframe
         res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(originalName)}`);
         res.setHeader('Content-Type', contentType);
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('Cache-Control', 'no-cache');
       } else {
-        // For download requests, force attachment
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
         res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('Cache-Control', 'no-cache');
       }
+      
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'no-cache');
       
       // Stream local file
       const fileStream = fs.createReadStream(localFilePath);
       fileStream.pipe(res);
       
     } else {
-      // **R2 OBJECT STORAGE HANDLING**
-      // Normalize the object path
-      let objectPath = filePath;
+      // **R2 STORAGE HANDLING - USE AWS SDK TO GET OBJECT DIRECTLY**
+      console.log('🔍 R2 file detected, fetching object directly...');
       
-      // Remove any duplicate .private paths
-      objectPath = objectPath.replace(/^\.private\/\.private\//, '.private/');
+      // Get the R2 key from file path
+      let r2Key = filePath;
       
-      // Ensure proper /objects/ prefix
-      if (!objectPath.startsWith('/objects/')) {
-        objectPath = `/objects/${objectPath}`;
-      }
-      
-      console.log('🔍 Normalized object path:', objectPath);
-      
-      // Use fetch to get file from object storage via signed URL
-      const bucketName = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || 'replit-objstore-1b4dcb0d-4d6c-4bd5-9fa1-4c7d43cf178f';
-      
-      // Generate signed URL for downloading
-      const signedUrlResponse = await fetch('http://127.0.0.1:1106/object-storage/signed-object-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bucketName: bucketName,
-          objectPath: objectPath,
-          action: 'read',
-          expiresIn: 3600
-        })
-      });
-      
-      if (!signedUrlResponse.ok) {
-        console.error('❌ Failed to generate signed URL:', await signedUrlResponse.text());
-        console.error('❌ Download error: Object not found');
-        return res.status(404).json({ message: 'File not found' });
-      }
-      
-      const { signedUrl } = await signedUrlResponse.json();
-      
-      // Fetch the file from the signed URL
-      const fileResponse = await fetch(signedUrl);
-      
-      if (!fileResponse.ok) {
-        return res.status(404).json({ message: 'File not found' });
-      }
-      
-      // Detect file type from extension
-      const ext = originalName.split('.').pop()?.toLowerCase();
-      let contentType = 'application/octet-stream';
-      
-      if (ext === 'pdf') {
-        contentType = 'application/pdf';
-      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext || '')) {
-        contentType = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
-      }
-      
-      if (isPrintRequest) {
-        // For print requests, serve inline so the file can be displayed in iframe
-        res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-        res.setHeader('Content-Type', contentType);
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('Cache-Control', 'no-cache');
-      } else {
-        // For download requests, force attachment
-        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('Cache-Control', 'no-cache');
-      }
-      
-      // Stream the response
-      const reader = fileResponse.body.getReader();
-      const stream = new ReadableStream({
-        async start(controller) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            controller.enqueue(value);
-          }
-          controller.close();
+      // **DIRECT R2 OBJECT RETRIEVAL** using AWS SDK
+      try {
+        const { GetObjectCommand } = await import('@aws-sdk/client-s3');
+        
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: r2Client.bucket,
+          Key: r2Key
+        });
+        
+        console.log(`🔗 Getting object directly from R2: ${r2Key}`);
+        const s3Response = await r2Client.client.send(getObjectCommand);
+        
+        if (!s3Response.Body) {
+          console.error('❌ No response body from R2 GetObject');
+          return res.status(404).json({ message: 'File not found' });
         }
-      });
-      
-      // Convert to Node stream and pipe to response
-      const nodeStream = require('stream').Readable.from(stream);
-      nodeStream.pipe(res);
+        
+        // **CRITICAL FIX**: Set proper headers BEFORE streaming
+        if (isPrintRequest) {
+          // For print requests, serve inline so the file can be displayed in iframe
+          res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+          res.setHeader('Content-Type', contentType);
+          console.log('🖨️ Setting inline headers for print request');
+        } else {
+          // For download requests, force attachment
+          res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
+          res.setHeader('Content-Type', 'application/octet-stream');
+          console.log('📥 Setting attachment headers for download request');
+        }
+        
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Accept-Ranges', 'bytes');
+        
+        // Set content length if available
+        if (s3Response.ContentLength) {
+          res.setHeader('Content-Length', s3Response.ContentLength);
+        }
+        
+        // **STREAM R2 CONTENT DIRECTLY TO RESPONSE**
+        if (s3Response.Body.pipe) {
+          // Node.js readable stream - direct pipe
+          console.log('📡 Streaming R2 content via pipe');
+          s3Response.Body.pipe(res);
+        } else if (s3Response.Body.transformToWebStream) {
+          // AWS SDK v3 stream
+          console.log('📡 Streaming R2 content via web stream');
+          const webStream = s3Response.Body.transformToWebStream();
+          const reader = webStream.getReader();
+          
+          const pump = async () => {
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                if (!res.write(value)) {
+                  // If write buffer is full, wait for drain
+                  await new Promise(resolve => res.once('drain', resolve));
+                }
+              }
+              res.end();
+            } catch (error) {
+              console.error('❌ Error streaming R2 content:', error);
+              if (!res.headersSent) {
+                res.status(500).json({ message: 'Failed to stream file' });
+              }
+            }
+          };
+          
+          await pump();
+        } else {
+          console.error('❌ Unknown R2 response body type');
+          return res.status(500).json({ message: 'Failed to process file stream' });
+        }
+        
+      } catch (r2Error) {
+        console.error('❌ Direct R2 access failed:', r2Error);
+        return res.status(404).json({ message: 'File not found in storage' });
+      }
     }
     
   } catch (error) {
-    console.error('Download error:', error);
-    res.status(500).json({ message: 'Failed to download file' });
+    console.error('❌ Download error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Failed to download file' });
+    }
   }
 });
 
