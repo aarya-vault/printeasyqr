@@ -13,19 +13,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
-// Smart environment loading for Replit deployment
-const isReplitDeployment = process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID || process.env.REPL_SLUG;
-const hasDeploymentSecrets = process.env.JWT_SECRET && process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('undefined');
+// Environment loading strategy - prioritize deployment environment
+console.log('🔍 App Environment Loading:');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
+console.log('   JWT_SECRET available:', !!process.env.JWT_SECRET);
 
-console.log('🔍 App Environment Detection:');
-console.log('   Replit Deployment:', !!isReplitDeployment);
-console.log('   Has Secrets:', !!hasDeploymentSecrets);
+// Check if we have production secrets already loaded
+const hasProductionSecrets = process.env.DATABASE_URL && process.env.JWT_SECRET;
 
-if (isReplitDeployment && hasDeploymentSecrets) {
-  console.log('✅ Using Replit deployment environment variables');
-  // Use existing environment variables from Replit deployment
+if (hasProductionSecrets) {
+  console.log('✅ Using existing environment variables (production deployment)');
 } else {
-  console.log('📁 Loading environment from .env file');
+  console.log('📁 Loading from .env file');
   // Load environment variables - try dotenv first, then manual loading
   const envPath = path.join(projectRoot, '.env');
   dotenv.config({ path: envPath });

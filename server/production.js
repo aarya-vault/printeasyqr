@@ -8,22 +8,28 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CRITICAL: Smart environment loading for Replit deployment
-const isReplitDeployment = process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID || process.env.REPL_SLUG;
-const hasDeploymentSecrets = process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('undefined');
+// CRITICAL: Always prioritize environment variables over .env in production
+console.log('🔍 Production Environment Check:');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
+console.log('   JWT_SECRET available:', !!process.env.JWT_SECRET);
 
-console.log('🔍 Environment Detection:');
-console.log('   Replit Deployment:', !!isReplitDeployment);
-console.log('   Has Database URL:', !!process.env.DATABASE_URL);
-console.log('   Deployment Secrets:', !!hasDeploymentSecrets);
+// Force environment check - if we have deployment secrets, use them
+const hasProductionSecrets = process.env.DATABASE_URL && process.env.JWT_SECRET;
 
-if (isReplitDeployment && hasDeploymentSecrets) {
-  console.log('✅ Using Replit deployment environment variables');
-  // Use existing environment variables from Replit
+if (hasProductionSecrets) {
+  console.log('✅ Using production environment variables (deployment secrets)');
+  // Environment variables are already loaded by the deployment system
 } else {
-  console.log('📁 Loading from .env file for local development');
-  // Only load .env for local development
+  console.log('📁 Loading from .env file for fallback');
   dotenv.config();
+  
+  // Verify after loading
+  if (!process.env.DATABASE_URL || !process.env.JWT_SECRET) {
+    console.error('❌ CRITICAL: Missing required environment variables after loading .env');
+    console.error('   DATABASE_URL:', !!process.env.DATABASE_URL);
+    console.error('   JWT_SECRET:', !!process.env.JWT_SECRET);
+  }
 }
 
 // CRITICAL: Force production environment and disable database sync
