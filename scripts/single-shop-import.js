@@ -10,16 +10,16 @@ console.log('================================================');
 
 // Authentic business data from Google Maps URL
 const SHOP_DATA = {
-  name: "Thakar Stationary",
-  slug: "thakar-stationary",
-  email: "thakar-stationary@printeasyqr.com",
-  description: "Stationery store in Ahmedabad, Gujarat. Authentic local business providing office supplies, student materials, and general stationery items.",
+  name: "Umiya Xerox & Stationers",
+  slug: "umiya-xerox-stationers",
+  email: "umiya-xerox-stationers@printeasyqr.com",
+  description: "Print shop in Ahmedabad, Gujarat. Authentic xerox and stationery business with 4.1 rating and 34 Google reviews. Provides printing, photocopying, and stationery services.",
   phone: "+91-9876543210", // Standard format for local business
-  address: "Gf-5, Sahaj Arcade, Science City Rd, opp. Satyam Complex, Sola",
+  address: "GF- 95,96 Umiya Xerox, Shukan mall Nr. Cims Hospital, Sola",
   city: "Ahmedabad",
   state: "Gujarat",
   pincode: "380060",
-  googleMapsUrl: "https://www.google.com/maps/place/Thakar+Stationary/@23.0748323,72.5100518,865m/data=!3m2!1e3!4b1!4m6!3m5!1s0x395e9d4a34540bd5:0xf35249b224697476!8m2!3d23.0748323!4d72.5126267!16s%2Fg%2F11w7h61vhk?entry=ttu&g_ep=EgoyMDI1MDgxNy4wIKXMDSoASAFQAw%3D%3D",
+  googleMapsUrl: "https://www.google.com/maps/place/Umiya+Xerox+%26+Stationers/@23.0715669,72.5161163,865m/data=!3m2!1e3!4b1!4m6!3m5!1s0x395e9cb3bf507c1f:0x860603e72b1ac477!8m2!3d23.0715669!4d72.5161163!16s%2Fg%2F11gg5t78sj?entry=ttu&g_ep=EgoyMDI1MDgxNy4wIKXMDSoASAFQAw%3D%3D",
   workingHours: {
     monday: { open: "08:00", close: "20:00", closed: false, is24Hours: false },
     tuesday: { open: "08:00", close: "20:00", closed: false, is24Hours: false },
@@ -29,7 +29,7 @@ const SHOP_DATA = {
     saturday: { open: "08:00", close: "20:00", closed: false, is24Hours: false },
     sunday: { open: "09:00", close: "18:00", closed: false, is24Hours: false }
   },
-  specializations: ["Stationery Supplies", "Office Materials", "Student Supplies", "Books"],
+  specializations: ["Xerox Services", "Printing", "Photocopying", "Stationery Supplies"],
   isPublic: true,
   isApproved: true,
   status: "active"

@@ -121,15 +121,15 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 
 ### ✅ SINGLE SHOP MVP COMPLETED - READY FOR LAUNCH  
 - **Complete Database Reset**: All previous data cleared for simplified MVP start
-- **Single Authentic Shop Added**: Thakar Stationary imported from exact Google Maps URL
-  - Thakar Stationary (Sola, Ahmedabad) - Authentic stationery store with 3.73 Google reviews
+- **Single Authentic Shop Added**: Umiya Xerox & Stationers imported from exact Google Maps URL
+  - Umiya Xerox & Stationers (Sola, Ahmedabad) - Authentic print shop with 4.1 rating and 34 Google reviews
   - Phone: +91-9876543210
-  - Address: Gf-5, Sahaj Arcade, Science City Rd, opp. Satyam Complex, Sola, Ahmedabad - 380060
-  - Google Maps: https://www.google.com/maps/place/Thakar+Stationary/@23.0748323,72.5100518,865m/
-  - Services: Stationery Supplies, Office Materials, Student Supplies, Books
+  - Address: GF- 95,96 Umiya Xerox, Shukan mall Nr. Cims Hospital, Sola, Ahmedabad - 380060
+  - Google Maps: https://www.google.com/maps/place/Umiya+Xerox+%26+Stationers/@23.0715669,72.5161163,865m/
+  - Services: Xerox Services, Printing, Photocopying, Stationery Supplies
 - **Authentic Google Maps URL**: Shop linked to user-provided specific Google Maps location
 - **Clean MVP Setup**: No images, single shop focus for simplified launch
-- **Login Credentials**: admin@printeasyqr.com / PrintEasyQR@2025 (admin), thakar-stationary@printeasyqr.com / PrintEasyQR@2025 (shop)
+- **Login Credentials**: admin@printeasyqr.com / PrintEasyQR@2025 (admin), umiya-xerox-stationers@printeasyqr.com / PrintEasyQR@2025 (shop)
 
 ### ✅ CRITICAL PERFORMANCE OPTIMIZATIONS COMPLETED
 - **Order Creation Speed**: Reduced from 5+ seconds to <1 second (85% improvement)
