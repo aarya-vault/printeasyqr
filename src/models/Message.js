@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { getSequelize } from '../config/database.js';
 
-const Message = sequelize.define('Message', {
+const Message = getSequelize().define('Message', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

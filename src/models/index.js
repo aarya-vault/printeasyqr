@@ -1,4 +1,4 @@
-import { sequelize } from '../config/database.js';
+import { getSequelize } from '../config/database.js';
 import User from './User.js';
 import Shop from './Shop.js';
 import Order from './Order.js';
@@ -74,6 +74,9 @@ const validateDatabaseConnection = async () => {
     return true;
   }
   
+  // Get sequelize instance (lazy initialization)
+  const sequelize = getSequelize();
+  
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established');
@@ -114,7 +117,7 @@ const initializeDatabase = async () => {
 };
 
 export {
-  sequelize,
+  getSequelize,
   User,
   Shop,
   Order,

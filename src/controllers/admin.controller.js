@@ -1,5 +1,7 @@
-import { User, Shop, Order, ShopApplication, sequelize } from '../models/index.js';
+import { User, Shop, Order, ShopApplication, getSequelize } from '../models/index.js';
 import { Op } from 'sequelize';
+
+const sequelize = getSequelize();
 
 // Import data transformers from other controllers
 import ShopController from './shop.controller.js';

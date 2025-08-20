@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { getSequelize } from '../config/database.js';
 
-const QRScan = sequelize.define('QRScan', {
+const QRScan = getSequelize().define('QRScan', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

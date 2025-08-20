@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
+import { getSequelize } from '../config/database.js';
 
-const Notification = sequelize.define('Notification', {
+const Notification = getSequelize().define('Notification', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

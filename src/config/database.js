@@ -13,66 +13,90 @@ if (process.env.SKIP_MIGRATIONS === 'true') {
 // Import sync disabler BEFORE creating Sequelize instance
 import '../disable-all-sync.js';
 
-// Get database URL directly from environment
-let databaseUrl = process.env.DATABASE_URL;
+// CRITICAL FIX: Lazy initialization to handle Replit deployment timing
+let sequelize = null;
 
-// If DATABASE_URL is not available, construct from individual variables
-if (!databaseUrl) {
-  const host = process.env.PGHOST;
-  const port = process.env.PGPORT || 5432;
-  const name = process.env.PGDATABASE;
-  const user = process.env.PGUSER;
-  const password = process.env.PGPASSWORD;
-  
-  // Validate all required variables are present
-  if (!host || !port || !name || !user || !password) {
-    const missing = [];
-    if (!host) missing.push('host');
-    if (!port) missing.push('port');
-    if (!name) missing.push('database name');
-    if (!user) missing.push('username');
-    if (!password) missing.push('password');
+// Function to initialize database connection
+const initializeSequelize = () => {
+  if (sequelize) {
+    return sequelize; // Already initialized
+  }
+
+  // Get database URL directly from environment
+  let databaseUrl = process.env.DATABASE_URL;
+
+  // If DATABASE_URL is not available, construct from individual variables
+  if (!databaseUrl) {
+    const host = process.env.PGHOST;
+    const port = process.env.PGPORT || 5432;
+    const name = process.env.PGDATABASE;
+    const user = process.env.PGUSER;
+    const password = process.env.PGPASSWORD;
     
-    throw new Error(`Missing required database configuration: ${missing.join(', ')}`);
+    // Validate all required variables are present
+    if (!host || !port || !name || !user || !password) {
+      const missing = [];
+      if (!host) missing.push('host');
+      if (!port) missing.push('port');
+      if (!name) missing.push('database name');
+      if (!user) missing.push('username');
+      if (!password) missing.push('password');
+      
+      throw new Error(`Missing required database configuration: ${missing.join(', ')}`);
+    }
+    
+    databaseUrl = `postgresql://${user}:${password}@${host}:${port}/${name}`;
+    console.log('✅ Constructed database URL from configuration');
+  } else {
+    console.log('✅ Using configured DATABASE_URL');
   }
+
+  // Create Sequelize instance with environment configuration
+  sequelize = new Sequelize(databaseUrl, {
+    dialect: 'postgres',
+    logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false,
+    dialectOptions: {
+      ssl: process.env.DATABASE_SSL === 'true' || databaseUrl.includes('neon.tech') ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
+    },
+    pool: {
+      max: parseInt(process.env.DB_POOL_MAX) || 5,
+      min: parseInt(process.env.DB_POOL_MIN) || 0,
+      acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 30000,
+      idle: parseInt(process.env.DB_POOL_IDLE) || 10000
+    },
+    // CRITICAL: Prevent all automatic schema modifications
+    define: {
+      timestamps: true,
+      underscored: true,
+      freezeTableName: true
+    },
+    sync: {
+      force: false,
+      alter: false
+    }
+  });
+
+  console.log('🔗 Database connection established via PostgreSQL');
+  console.log(`📊 Database: ${databaseUrl.includes('neon.tech') ? 'Neon PostgreSQL' : 'Local PostgreSQL'}`);
+  console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' : 'Disabled'}`);
   
-  databaseUrl = `postgresql://${user}:${password}@${host}:${port}/${name}`;
-  console.log('✅ Constructed database URL from configuration');
-} else {
-  console.log('✅ Using configured DATABASE_URL');
-}
+  return sequelize;
+};
 
-// Create Sequelize instance with environment configuration
-const sequelize = new Sequelize(databaseUrl, {
-  dialect: 'postgres',
-  logging: process.env.SEQUELIZE_LOGGING === 'true' ? console.log : false,
-  dialectOptions: {
-    ssl: process.env.DATABASE_SSL === 'true' || databaseUrl.includes('neon.tech') ? {
-      require: true,
-      rejectUnauthorized: false
-    } : false
-  },
-  pool: {
-    max: parseInt(process.env.DB_POOL_MAX) || 5,
-    min: parseInt(process.env.DB_POOL_MIN) || 0,
-    acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 30000,
-    idle: parseInt(process.env.DB_POOL_IDLE) || 10000
-  },
-  // CRITICAL: Prevent all automatic schema modifications
-  define: {
-    timestamps: true,
-    underscored: true,
-    freezeTableName: true
-  },
-  sync: {
-    force: false,
-    alter: false
+// Export a getter function that initializes on first use
+const getSequelize = () => {
+  if (!sequelize) {
+    return initializeSequelize();
   }
-});
+  return sequelize;
+};
 
-console.log('🔗 Database connection established via PostgreSQL');
-console.log(`📊 Database: ${databaseUrl.includes('neon.tech') ? 'Neon PostgreSQL' : 'Local PostgreSQL'}`);
-console.log(`🔒 SSL Mode: ${sequelize.options.dialectOptions?.ssl ? 'Enabled' : 'Disabled'}`);
+// Export both for compatibility
+export { getSequelize };
+export default getSequelize;
 
 // Test the connection
 const testConnection = async () => {

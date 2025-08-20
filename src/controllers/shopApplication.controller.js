@@ -1,5 +1,7 @@
-import { ShopApplication, Shop, User, sequelize } from '../models/index.js';
+import { ShopApplication, Shop, User, getSequelize } from '../models/index.js';
 import { Op } from 'sequelize';
+
+const sequelize = getSequelize();
 import bcrypt from 'bcrypt';
 
 class ShopApplicationController {

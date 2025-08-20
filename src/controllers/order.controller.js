@@ -1,5 +1,7 @@
-import { Order, Shop, User, Message, CustomerShopUnlock, sequelize } from '../models/index.js';
+import { Order, Shop, User, Message, CustomerShopUnlock, getSequelize } from '../models/index.js';
 import { Op } from 'sequelize';
+
+const sequelize = getSequelize();
 import fs from 'fs/promises';
 import path from 'path';
 import { sendToUser, broadcast } from '../utils/websocket.js';
