@@ -92,19 +92,35 @@ The platform employs a clean, professional, and consistent visual identity, util
 - **Five Authentic Shops Added**: All imported from exact Google Maps URLs with authentic data
   - **Arihant Xerox** (Sola, Ahmedabad) - 4.3 rating, 12 Google reviews
     - Address: GF-5, City Center, opp. shukan mall, Science City, Sola - 380060
+    - Phone: 091050 71050 (verified from Google Maps)
+    - Hours: Mon-Sat 9:30 AM - 9:00 PM, Sunday 10:00 AM - 2:00 PM
     - Services: Xerox Services, Printing, Photocopying, Document Services
   - **Umiya Xerox & Stationers** (Sola, Ahmedabad) - 4.1 rating, 34 Google reviews  
     - Address: GF- 95,96 Umiya Xerox, Shukan mall Nr. Cims Hospital, Sola - 380060
+    - Phone: 098989 17474 (verified from Google Maps)
+    - Hours: Mon-Sat 8:00 AM - 8:00 PM, Sunday 8:00 AM - 12:00 PM
     - Services: Xerox Services, Printing, Photocopying, Stationery Supplies
-  - **Thakar Stationary** (Sola, Ahmedabad) - 3.73 Google reviews
+  - **Thakar Stationary** (Sola, Ahmedabad) - 3.7 rating, 3 Google reviews
     - Address: Gf-5, Sahaj Arcade, Science City Rd, opp. Satyam Complex, Sola - 380060
+    - Phone: 096629 59400 (verified from Google Maps)
+    - Hours: Mon-Sun 9:00 AM - 9:00 PM (open all week)
     - Services: Stationery Supplies, Office Materials, Student Supplies, Books
-  - **SHREEJI STATIONERY & XEROX** (Ahmedabad) - 4.8 rating, 169 Google reviews
-    - Address: SHREEJI STATIONERY & XEROX, Ahmedabad - 380015
+  - **SHREEJI STATIONERY & XEROX** (Ghatlodiya, Ahmedabad) - 4.8 rating, 169 Google reviews
+    - Address: 6, Jitendra Shopping Centre, opp. Ranna Park, Ghatlodiya, Ahmedabad, Gujarat 380063
+    - Phone: 083202 47834 (verified from Google Maps)
+    - Hours: Mon-Sun 9:00 AM - 10:30 PM (open all week, latest hours)
     - Services: Stationery Supplies, Xerox Services, Office Materials, Student Supplies
   - **Riddhi Xerox** (Ghatlodiya, Ahmedabad) - 4.4 rating, 177 Google reviews
     - Address: Shop B 16, Suntrack Shopping Centre, Near Bhagyoday Bank, Ghatlodiya, Nirnay Nagar - 380061
+    - Phone: 098245 46048 (verified from Google Maps)
+    - Hours: Mon-Sat 9:00 AM - 9:00 PM, Sunday 9:00 AM - 12:00 PM
     - Services: Xerox Services, Printing, Photocopying, Document Services
-- **Authentic Google Maps URLs**: All shops linked to user-provided specific Google Maps locations
+- **Authentic Google Maps Data**: All contact information and business hours verified from exact Google Maps listings
 - **Clean MVP Setup**: No images, five shop focus for comprehensive launch
 - **Login Credentials**: admin@printeasyqr.com / PrintEasyQR@2025 (admin), shop emails / PrintEasyQR@2025 (shops)
+
+### ✅ EXACT SHOP DETAILS UPDATE (August 20, 2025)
+- **100% Accurate Google Maps Data**: All phone numbers, addresses, and business hours updated with exact information from user-provided Google Maps listings
+- **Verified Contact Information**: All phone numbers directly copied from Google Maps business profiles
+- **Precise Business Hours**: Working hours match Google Maps exactly, including unique Sunday schedules for each shop
+- **Updated SHREEJI Address**: Corrected to exact Ghatlodiya location from Google Maps
