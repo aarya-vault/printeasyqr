@@ -4,104 +4,178 @@
     <meta charset="UTF-8">
     <title>Printing Document...</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: #f5f5f5; }
-        .message { display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 18px; color: #333; }
-        img.printable { max-width: 100%; max-height: 100%; object-fit: contain; }
-        iframe { width: 100%; height: 100%; border: none; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+            font-family: system-ui, sans-serif; 
+            background: #f5f5f5; 
+        }
+        .message { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-size: 18px; 
+            color: #333; 
+        }
+        .pdf-container {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+        iframe.pdf-frame { 
+            width: 100%; 
+            height: 100vh; 
+            border: none; 
+            display: block;
+        }
+        img.printable { 
+            max-width: 100%; 
+            max-height: 100vh; 
+            object-fit: contain; 
+            display: block;
+            margin: 0 auto;
+        }
+        
         /* Print-specific styles */
         @media print {
-            body { background: #fff; }
-            #loader { display: none; }
-            .page-container { margin: 0; padding: 0; }
+            body { background: #fff; margin: 0; padding: 0; }
+            #loader { display: none !important; }
+            .pdf-container { margin: 0; padding: 0; }
+            iframe.pdf-frame { margin: 0; padding: 0; }
         }
     </style>
 </head>
 <body>
     <div id="loader" class="message">Loading document for printing...</div>
-    <div id="page-container" style="display: none;"></div>
+    <div id="pdf-container" class="pdf-container" style="display: none;"></div>
 
     <script>
+        console.log('🖨️ PrintEasy QR - Direct Print Host Initialized');
+        
         (function() {
             const loader = document.getElementById('loader');
-            const container = document.getElementById('page-container');
+            const container = document.getElementById('pdf-container');
 
             const params = new URLSearchParams(window.location.search);
             const fileUrl = params.get('file');
-            const fileType = params.get('type') || 'pdf'; // Default to pdf if no type is specified
+            const fileType = params.get('type') || 'pdf';
             const autoClose = params.get('autoClose') !== 'false';
 
+            console.log('🖨️ Print request:', { fileUrl, fileType, autoClose });
+
             if (!fileUrl) {
-                loader.innerText = 'Error: No file specified.';
+                loader.innerText = 'Error: No file specified for printing.';
+                console.error('❌ No file URL provided');
                 return;
             }
 
-            // **THE RELIABLE AUTO-CLOSE LOGIC**
-            // This event fires AFTER the print dialog is closed.
+            // **BULLETPROOF AUTO-CLOSE AFTER PRINT**
+            let printDialogClosed = false;
             window.onafterprint = function() {
+                console.log('🖨️ Print dialog closed');
+                printDialogClosed = true;
                 if (autoClose) {
-                    window.close();
+                    setTimeout(() => window.close(), 500);
                 }
             };
-            
-            // --- SMART FILE HANDLING ---
 
+            // **HANDLE DIFFERENT FILE TYPES**
             if (fileType === 'image') {
-                // Handle images with an <img> tag
+                console.log('🖼️ Loading image for printing');
                 const img = document.createElement('img');
                 img.className = 'printable';
                 img.onload = function() {
+                    console.log('✅ Image loaded, triggering print');
                     loader.style.display = 'none';
                     container.style.display = 'block';
-                    window.print();
+                    // Small delay to ensure image is rendered
+                    setTimeout(() => window.print(), 100);
                 };
                 img.onerror = function() {
-                    loader.innerText = 'Error: Failed to load image.';
+                    console.error('❌ Failed to load image');
+                    loader.innerText = 'Error: Failed to load image for printing.';
                 };
                 img.src = fileUrl;
                 container.appendChild(img);
 
             } else {
-                // 🖨️ DIRECT PDF PRINTING: Force browser to display PDF for printing instead of downloading
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
+                // **BULLETPROOF PDF PRINTING**
+                console.log('📄 Setting up PDF for direct printing');
                 
-                // Force PDF to display inline instead of downloading
-                const printUrl = new URL(fileUrl, window.location.origin);
-                printUrl.searchParams.set('inline', 'true'); // Force inline display
-                printUrl.searchParams.delete('download'); // Remove any download flags
+                // Create iframe with proper PDF display parameters
+                const iframe = document.createElement('iframe');
+                iframe.className = 'pdf-frame';
+                
+                // Force PDF to display inline with proper headers
+                const pdfUrl = new URL(fileUrl, window.location.origin);
+                pdfUrl.searchParams.set('inline', 'true');
+                pdfUrl.searchParams.set('print', 'true');
+                pdfUrl.searchParams.delete('download');
+                
+                console.log('🔗 PDF URL:', pdfUrl.toString());
+                
+                let pdfLoaded = false;
+                let printTriggered = false;
                 
                 iframe.onload = function() {
+                    if (pdfLoaded) return; // Prevent multiple loads
+                    pdfLoaded = true;
+                    
+                    console.log('✅ PDF iframe loaded');
                     loader.style.display = 'none';
                     container.style.display = 'block';
                     
-                    // Give PDF time to render, then trigger print
-                    setTimeout(function() {
+                    // **MULTIPLE PRINT STRATEGIES FOR MAXIMUM COMPATIBILITY**
+                    const triggerPrint = () => {
+                        if (printTriggered) return;
+                        printTriggered = true;
+                        
+                        console.log('🖨️ Triggering print dialog...');
+                        
+                        // Strategy 1: Try iframe content window print (for embedded PDFs)
                         try {
-                            // Focus on the iframe first
-                            iframe.contentWindow.focus();
-                            
-                            // Try printing from iframe content (for PDF plugins)
-                            if (iframe.contentWindow && typeof iframe.contentWindow.print === 'function') {
-                                console.log('🖨️ Printing via iframe content window');
+                            if (iframe.contentWindow && iframe.contentWindow.print) {
+                                console.log('📄 Attempting iframe content print');
+                                iframe.contentWindow.focus();
                                 iframe.contentWindow.print();
-                            } else {
-                                throw new Error('No iframe print method available');
+                                return;
                             }
                         } catch (e) {
-                            console.log('🖨️ Fallback: Printing via parent window:', e.message);
-                            // Fallback to parent window print
-                            window.print();
+                            console.log('⚠️ Iframe print failed:', e.message);
                         }
-                    }, 1000); // Increased delay for PDF rendering
+                        
+                        // Strategy 2: Parent window print (most reliable fallback)
+                        console.log('🖨️ Using parent window print (fallback)');
+                        window.focus();
+                        window.print();
+                    };
+                    
+                    // Wait for PDF to fully render before printing
+                    setTimeout(triggerPrint, 1500);
                 };
                 
                 iframe.onerror = function() {
-                    loader.innerText = 'Error: Failed to load document for printing.';
+                    console.error('❌ Failed to load PDF iframe');
+                    loader.innerText = 'Error: Failed to load PDF for printing.';
                 };
                 
-                // Set src with inline display parameters
-                iframe.src = printUrl.toString();
+                // **TIMEOUT FALLBACK** - If nothing works after 5 seconds
+                setTimeout(() => {
+                    if (!printTriggered) {
+                        console.log('⏰ Timeout reached, forcing print');
+                        printTriggered = true;
+                        window.print();
+                    }
+                }, 5000);
+                
+                // Set iframe source
+                iframe.src = pdfUrl.toString();
                 container.appendChild(iframe);
             }
         })();
