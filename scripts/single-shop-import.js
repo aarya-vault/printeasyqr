@@ -13,12 +13,12 @@ const SHOP_DATA = {
   name: "Thakar Stationary",
   slug: "thakar-stationary",
   email: "thakar-stationary@printeasyqr.com",
-  description: "Local stationery shop providing office supplies, student materials, and general stationery items. Established neighborhood business serving the community.",
+  description: "Stationery store in Ahmedabad, Gujarat. Authentic local business providing office supplies, student materials, and general stationery items.",
   phone: "+91-9876543210", // Standard format for local business
-  address: "Near Ghodasar, Maninagar",
+  address: "Gf-5, Sahaj Arcade, Science City Rd, opp. Satyam Complex, Sola",
   city: "Ahmedabad",
   state: "Gujarat",
-  pincode: "380008",
+  pincode: "380060",
   googleMapsUrl: "https://www.google.com/maps/place/Thakar+Stationary/@23.0748323,72.5100518,865m/data=!3m2!1e3!4b1!4m6!3m5!1s0x395e9d4a34540bd5:0xf35249b224697476!8m2!3d23.0748323!4d72.5126267!16s%2Fg%2F11w7h61vhk?entry=ttu&g_ep=EgoyMDI1MDgxNy4wIKXMDSoASAFQAw%3D%3D",
   workingHours: {
     monday: { open: "08:00", close: "20:00", closed: false, is24Hours: false },
