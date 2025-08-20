@@ -7,10 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
   Store, MapPin, Phone, Mail, User, Building2, Clock, CheckCircle, 
-  AlertCircle, Star, Wrench, Package, Calendar, ExternalLink
+  AlertCircle, Star, Wrench, Package, Calendar, ExternalLink, ShoppingCart
 } from 'lucide-react';
 import { formatWorkingHoursForDisplay, getWorkingHoursDisplay } from '@/utils/working-hours';
 import { calculateUnifiedShopStatus } from '@/utils/shop-timing';
+import { useLocation } from 'wouter';
 
 interface Shop {
   id: number;
@@ -57,15 +58,27 @@ interface UnifiedShopModalProps {
   onClose: () => void;
   shop: Shop | null;
   onOrderClick?: (shopSlug: string) => void;
+  isUnlocked?: boolean;
 }
 
-export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }: UnifiedShopModalProps) {
+export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick, isUnlocked = false }: UnifiedShopModalProps) {
+  const [, navigate] = useLocation();
+  
   if (!shop) return null;
 
   const handleGoogleMapsClick = () => {
     if (shop.googleMapsLink) {
       window.open(shop.googleMapsLink, '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const handlePlaceOrder = () => {
+    if (onOrderClick) {
+      onOrderClick(shop.slug);
+    } else if (shop.slug) {
+      navigate(`/shop/${shop.slug}`);
+    }
+    onClose();
   };
 
   // Combine all services from different sources
@@ -346,19 +359,31 @@ export default function UnifiedShopModal({ isOpen, onClose, shop, onOrderClick }
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t border-gray-200">
+          {/* Place Order Button - Only show for unlocked shops */}
+          {isUnlocked && (
+            <Button
+              onClick={handlePlaceOrder}
+              className="flex-1 bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 font-semibold"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Place Order
+            </Button>
+          )}
+          
           <Button
             onClick={() => window.open(`tel:${shop.phone}`, "_self")}
-            className="flex-1 bg-brand-yellow text-rich-black hover:bg-yellow-500 font-semibold"
+            className={`${isUnlocked ? '' : 'flex-1'} bg-green-600 text-white hover:bg-green-700 font-semibold`}
           >
             <Phone className="w-4 h-4 mr-2" />
-            Call the Shop
+            Call Shop
           </Button>
+          
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 border-gray-300 text-gray-600 hover:bg-gray-50"
+            className="border-gray-300 text-gray-600 hover:bg-gray-50"
           >
-            Close Details
+            Close
           </Button>
         </div>
       </DialogContent>

@@ -316,6 +316,8 @@ export default function CustomerBrowseShops() {
         isOpen={showShopDetails}
         onClose={() => setShowShopDetails(false)}
         shop={selectedShop}
+        isUnlocked={selectedShop ? isShopUnlocked(selectedShop.id) : false}
+        onOrderClick={(shopSlug) => navigate(`/shop/${shopSlug}`)}
       />
     </div>
   );

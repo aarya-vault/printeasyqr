@@ -248,6 +248,8 @@ export default function AnonymousVisitorBrowseShops() {
         isOpen={showDetails}
         onClose={() => setShowDetails(false)}
         shop={selectedShop}
+        isUnlocked={!!user}
+        onOrderClick={(shopSlug) => navigate(`/shop/${shopSlug}`)}
       />
     </div>
   );

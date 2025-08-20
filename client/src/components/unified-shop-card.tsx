@@ -103,10 +103,10 @@ export default function UnifiedShopCard({
           </div>
         )}
 
-        {/* Shop Header */}
+        {/* Shop Header with Eye Icon */}
         <div className="mb-3">
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pr-2">
               <h3 className={`font-bold text-lg mb-1 line-clamp-1 ${
                 isUnlocked ? 'text-gray-900' : 'text-gray-600'
               }`}>
@@ -127,6 +127,21 @@ export default function UnifiedShopCard({
                 )}
               </div>
             </div>
+            {/* Eye Icon for View Details - Top Right */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+              className={`p-2 rounded-full transition-colors ${
+                isUnlocked 
+                  ? 'hover:bg-[#FFBF00]/20 text-[#FFBF00]' 
+                  : 'hover:bg-gray-200 text-gray-500'
+              }`}
+              title="View Details"
+            >
+              <Eye className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
@@ -221,15 +236,15 @@ export default function UnifiedShopCard({
           );
         })()}
 
-        {/* Action Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-3">
+        {/* Action Footer - Simplified */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-2">
             {shop.publicOwnerName && (
               <div className="flex items-center gap-1">
-                <Users className={`w-4 h-4 ${
+                <Users className={`w-3.5 h-3.5 ${
                   isUnlocked ? 'text-[#FFBF00]' : 'text-gray-400'
                 }`} />
-                <span className={`text-sm ${
+                <span className={`text-xs ${
                   isUnlocked ? 'text-gray-600' : 'text-gray-500'
                 }`}>
                   {shop.publicOwnerName}
@@ -239,14 +254,14 @@ export default function UnifiedShopCard({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Google Maps Button - Show for all shops that have a link */}
+            {/* Google Maps Button */}
             {shop.googleMapsLink && (
               <button
                 onClick={handleGoogleMapsClick}
-                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-brand-yellow/20 text-black border-brand-yellow/40 hover:bg-brand-yellow hover:border-brand-yellow transition-colors"
+                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-[#FFBF00] hover:bg-[#FFBF00]/10 transition-colors"
                 title="Open in Google Maps"
               >
-                <MapPin className="w-3 h-3 mr-1" />
+                <MapPin className="w-3.5 h-3.5 mr-1" />
                 Maps
               </button>
             )}
@@ -255,30 +270,19 @@ export default function UnifiedShopCard({
             {showUnlockStatus && isUnlocked && (
               <button
                 onClick={handlePlaceOrderClick}
-                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold bg-[#FFBF00] text-black border-[#FFBF00] hover:bg-[#FFBF00]/90 transition-colors"
-                title="Place an order with this shop"
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-[#FFBF00] text-black hover:bg-[#FFBF00]/90 transition-colors"
+                title="Place an order"
               >
-                <ShoppingCart className="w-3 h-3 mr-1" />
+                <ShoppingCart className="w-3.5 h-3.5 mr-1" />
                 Place Order
               </button>
             )}
 
-            {showUnlockStatus ? (
-              isUnlocked ? (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 border-green-300">
-                  <Eye className="w-3 h-3 mr-1" />
-                  View Details
-                </span>
-              ) : (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-gray-200 text-gray-600">
-                  <Lock className="w-3 h-3 mr-1" />
-                  Scan QR to Unlock
-                </span>
-              )
-            ) : (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00] text-black">
-                <Eye className="w-3 h-3 mr-1" />
-                View Details
+            {/* Lock indicator for locked shops */}
+            {showUnlockStatus && !isUnlocked && (
+              <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium text-gray-500">
+                <Lock className="w-3.5 h-3.5 mr-1" />
+                Locked
               </span>
             )}
           </div>
