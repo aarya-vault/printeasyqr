@@ -105,7 +105,7 @@
                 container.appendChild(img);
 
             } else {
-                // **BULLETPROOF PDF PRINTING**
+                // **BULLETPROOF PDF PRINTING - LOAD FIRST, THEN PRINT**
                 console.log('📄 Setting up PDF for direct printing');
                 
                 // Create iframe with proper PDF display parameters
@@ -115,73 +115,63 @@
                 // Ensure the fileUrl already has the correct parameters from print-helpers.ts
                 console.log('🔗 PDF URL:', fileUrl);
                 
-                let pdfLoaded = false;
                 let printTriggered = false;
                 
-                // **IMMEDIATE PRINT STRATEGY** - Don't wait for iframe load, use multiple approaches
+                // **LOAD-BASED PRINT STRATEGY** - Only print after file is fully loaded
                 const triggerPrint = () => {
                     if (printTriggered) return;
                     printTriggered = true;
                     
-                    console.log('🖨️ Triggering print dialog immediately...');
+                    console.log('🖨️ File loaded, triggering print dialog...');
                     
-                    // Strategy 1: Direct parent window print (most reliable)
+                    // Strategy 1: Try iframe content window print first (best for PDFs)
+                    try {
+                        if (iframe.contentWindow && iframe.contentWindow.print) {
+                            console.log('📄 Using iframe content print');
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                            return;
+                        }
+                    } catch (e) {
+                        console.log('⚠️ Iframe print failed:', e.message);
+                    }
+                    
+                    // Strategy 2: Parent window print as fallback
+                    console.log('🖨️ Using parent window print (fallback)');
                     window.focus();
-                    setTimeout(() => {
-                        window.print();
-                    }, 100);
+                    window.print();
                 };
                 
-                // **CRITICAL FIX**: Set iframe src and trigger print immediately
-                iframe.src = fileUrl;
-                container.appendChild(iframe);
-                
-                // Hide loader and show container immediately
-                loader.style.display = 'none';
-                container.style.display = 'block';
-                
-                // Trigger print immediately without waiting for iframe load
-                setTimeout(triggerPrint, 500);
-                
-                // **BACKUP STRATEGIES**
+                // **WAIT FOR FULL LOAD** - Critical for large files
                 iframe.onload = function() {
-                    console.log('✅ PDF iframe loaded as backup');
+                    console.log('✅ PDF fully loaded, ready to print');
                     
-                    // If print hasn't been triggered yet, try iframe print
-                    if (!printTriggered) {
-                        try {
-                            if (iframe.contentWindow && iframe.contentWindow.print) {
-                                console.log('📄 Attempting iframe content print as backup');
-                                iframe.contentWindow.focus();
-                                iframe.contentWindow.print();
-                                printTriggered = true;
-                                return;
-                            }
-                        } catch (e) {
-                            console.log('⚠️ Iframe print failed, using parent window:', e.message);
-                        }
-                        
-                        // Final fallback
-                        if (!printTriggered) {
-                            triggerPrint();
-                        }
-                    }
+                    // Hide loader and show container
+                    loader.style.display = 'none';
+                    container.style.display = 'block';
+                    
+                    // Give browser a moment to render, then print
+                    setTimeout(triggerPrint, 300);
                 };
                 
                 iframe.onerror = function() {
-                    console.error('❌ Failed to load PDF iframe, using direct print');
-                    if (!printTriggered) {
-                        triggerPrint();
-                    }
+                    console.error('❌ Failed to load PDF iframe');
+                    loader.innerText = 'Error: Failed to load document for printing.';
                 };
                 
-                // **FINAL TIMEOUT FALLBACK** - Absolutely ensure print happens
+                // **TIMEOUT FALLBACK FOR VERY LARGE FILES**
+                // If file takes longer than 60 seconds, something is wrong
                 setTimeout(() => {
                     if (!printTriggered) {
-                        console.log('⏰ Final timeout reached, forcing print');
+                        console.log('⏰ Large file timeout (60s), forcing print attempt');
+                        loader.innerText = 'Large file detected - attempting to print...';
                         triggerPrint();
                     }
-                }, 2000);
+                }, 60000); // 60 second timeout for massive files
+                
+                // Set iframe source AFTER setting up event handlers
+                iframe.src = fileUrl;
+                container.appendChild(iframe);
             }
         })();
     </script>
