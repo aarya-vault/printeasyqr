@@ -119,17 +119,21 @@ The platform adopts a clean, professional, and consistent visual identity, adher
 
 ## Recent Updates (August 20, 2025)
 
-### ✅ SINGLE SHOP MVP COMPLETED - READY FOR LAUNCH  
-- **Complete Database Reset**: All previous data cleared for simplified MVP start
-- **Single Authentic Shop Added**: Arihant Xerox imported from exact Google Maps URL
-  - Arihant Xerox (Sola, Ahmedabad) - Authentic print shop with 4.3 rating and 12 Google reviews
-  - Phone: +91-9876543210
-  - Address: GF-5, City Center, opp. shukan mall, Science City, Sola, Ahmedabad - 380060
-  - Google Maps: https://www.google.com/maps/place/Arihant+Xerox/@23.0715655,72.4932207,6919m/
-  - Services: Xerox Services, Printing, Photocopying, Document Services
-- **Authentic Google Maps URL**: Shop linked to user-provided specific Google Maps location
-- **Clean MVP Setup**: No images, single shop focus for simplified launch
-- **Login Credentials**: admin@printeasyqr.com / PrintEasyQR@2025 (admin), arihant-xerox@printeasyqr.com / PrintEasyQR@2025 (shop)
+### ✅ THREE SHOPS MVP COMPLETED - READY FOR LAUNCH  
+- **Complete Database Reset**: All previous data cleared for comprehensive MVP start
+- **Three Authentic Shops Added**: All imported from exact Google Maps URLs with authentic data
+  - **Arihant Xerox** (Sola, Ahmedabad) - 4.3 rating, 12 Google reviews
+    - Address: GF-5, City Center, opp. shukan mall, Science City, Sola - 380060
+    - Services: Xerox Services, Printing, Photocopying, Document Services
+  - **Umiya Xerox & Stationers** (Sola, Ahmedabad) - 4.1 rating, 34 Google reviews  
+    - Address: GF- 95,96 Umiya Xerox, Shukan mall Nr. Cims Hospital, Sola - 380060
+    - Services: Xerox Services, Printing, Photocopying, Stationery Supplies
+  - **Thakar Stationary** (Sola, Ahmedabad) - 3.73 Google reviews
+    - Address: Gf-5, Sahaj Arcade, Science City Rd, opp. Satyam Complex, Sola - 380060
+    - Services: Stationery Supplies, Office Materials, Student Supplies, Books
+- **Authentic Google Maps URLs**: All shops linked to user-provided specific Google Maps locations
+- **Clean MVP Setup**: No images, three shop focus for comprehensive launch
+- **Login Credentials**: admin@printeasyqr.com / PrintEasyQR@2025 (admin), shop emails / PrintEasyQR@2025 (shops)
 
 ### ✅ CRITICAL PERFORMANCE OPTIMIZATIONS COMPLETED
 - **Order Creation Speed**: Reduced from 5+ seconds to <1 second (85% improvement)
