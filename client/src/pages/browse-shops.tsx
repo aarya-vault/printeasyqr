@@ -214,6 +214,7 @@ export default function AnonymousVisitorBrowseShops() {
                 onClick={() => handleShopClick(shop)}
                 showUnlockStatus={!user}
                 isUnlocked={!!user}
+                onPlaceOrder={user ? (shop) => navigate(`/shop/${shop.slug}`) : undefined}
               />
             ))}
           </div>

@@ -2,25 +2,30 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   MapPin, Clock, Phone, Printer, Eye, Lock, 
-  Users, Package, CheckCircle, AlertCircle, Store, ExternalLink 
+  Users, Package, CheckCircle, AlertCircle, Store, ExternalLink, ShoppingCart 
 } from 'lucide-react';
 import { Shop } from '@/types/shop';
 import { calculateUnifiedShopStatus } from '@/utils/shop-timing';
 import { getWorkingHoursDisplay } from '@/utils/working-hours';
+import { useLocation } from 'wouter';
+import { Button } from '@/components/ui/button';
 
 interface UnifiedShopCardProps {
   shop: Shop;
   isUnlocked?: boolean;
   onClick: () => void;
   showUnlockStatus?: boolean;
+  onPlaceOrder?: (shop: Shop) => void;
 }
 
 export default function UnifiedShopCard({ 
   shop, 
   isUnlocked = true, 
   onClick, 
-  showUnlockStatus = false 
+  showUnlockStatus = false,
+  onPlaceOrder 
 }: UnifiedShopCardProps) {
+  const [, navigate] = useLocation();
   const unifiedStatus = shop.unifiedStatus || calculateUnifiedShopStatus({
     isOnline: shop.isOnline,
     workingHours: shop.workingHours,
@@ -35,6 +40,15 @@ export default function UnifiedShopCard({
     }
   };
 
+  const handlePlaceOrderClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card onClick from firing
+    if (onPlaceOrder) {
+      onPlaceOrder(shop);
+    } else if (shop.slug) {
+      navigate(`/shop/${shop.slug}`);
+    }
+  };
+
   return (
     <Card 
       className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] border-2 ${
@@ -43,7 +57,26 @@ export default function UnifiedShopCard({
       onClick={onClick}
     >
       <CardContent className="p-4">
-        {/* Only show exterior image if it exists */}
+        {/* Status badges - Always show at the top regardless of image presence */}
+        <div className="flex gap-2 mb-4">
+          {/* Unified status */}
+          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+            unifiedStatus.isOpen 
+              ? 'bg-green-100 text-green-800 border-green-300' 
+              : 'bg-red-100 text-red-800 border-red-300'
+          }`}>
+            {unifiedStatus.isOpen ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
+            {unifiedStatus.statusText}
+          </span>
+          
+          {shop.acceptsWalkinOrders && (
+            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
+              Walk-in
+            </span>
+          )}
+        </div>
+
+        {/* Shop exterior image if it exists */}
         {shop.exteriorImage && (
           <div className="relative mb-4">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-100">
@@ -67,46 +100,6 @@ export default function UnifiedShopCard({
                 }}
               />
             </div>
-            
-            {/* Status badges overlay on image */}
-            <div className="absolute top-2 left-2 flex gap-2">
-              {/* Unified status */}
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                unifiedStatus.isOpen 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              }`}>
-                {unifiedStatus.isOpen ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
-                {unifiedStatus.statusText}
-              </span>
-            
-            {shop.acceptsWalkinOrders && (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
-                Walk-in
-              </span>
-            )}
-          </div>
-        </div>
-        )}
-
-        {/* Status badges when no image */}
-        {!shop.exteriorImage && (
-          <div className="flex gap-2 mb-4">
-            {/* Unified status */}
-            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-              unifiedStatus.isOpen 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-red-100 text-red-800'
-            }`}>
-              {unifiedStatus.isOpen ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
-              {unifiedStatus.statusText}
-            </span>
-            
-            {shop.acceptsWalkinOrders && (
-              <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00]/20 text-black border-[#FFBF00]/40">
-                Walk-in
-              </span>
-            )}
           </div>
         )}
 
@@ -258,9 +251,21 @@ export default function UnifiedShopCard({
               </button>
             )}
 
+            {/* Place Order Button - Only show for unlocked shops */}
+            {showUnlockStatus && isUnlocked && (
+              <button
+                onClick={handlePlaceOrderClick}
+                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold bg-[#FFBF00] text-black border-[#FFBF00] hover:bg-[#FFBF00]/90 transition-colors"
+                title="Place an order with this shop"
+              >
+                <ShoppingCart className="w-3 h-3 mr-1" />
+                Place Order
+              </button>
+            )}
+
             {showUnlockStatus ? (
               isUnlocked ? (
-                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#FFBF00] text-black">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800 border-green-300">
                   <Eye className="w-3 h-3 mr-1" />
                   View Details
                 </span>

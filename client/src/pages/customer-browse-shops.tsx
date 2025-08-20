@@ -298,6 +298,7 @@ export default function CustomerBrowseShops() {
                 onClick={() => handleShopClick(shop)}
                 showUnlockStatus={true}
                 isUnlocked={isShopUnlocked(shop.id)}
+                onPlaceOrder={(shop) => handleOrderClick(shop, 'upload')}
               />
             ))}
           </div>
