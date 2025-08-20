@@ -388,8 +388,8 @@ export default function ShopOrder() {
       });
     },
     onSettled: () => {
-      // Clear progress when mutation is finished (success or error)
-      setTimeout(() => setUploadProgress(null), 1000);
+      // ⚡ INSTANT CLEANUP: Remove artificial delay for better UX
+      setUploadProgress(null);
     },
   });
 

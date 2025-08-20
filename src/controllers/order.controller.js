@@ -21,38 +21,44 @@ class OrderController {
     return `${prefix}-${result}`;
   }
 
-  // 🎯 DYNAMIC QUEUE NUMBERING: Calculate next queue number with reset logic (renamed for clarity)
+  // 🎯 OPTIMIZED QUEUE NUMBERING: Ultra-fast calculation using aggregation
   static async calculateDynamicQueueNumber(shopId) {
     try {
-      // Count active orders (pending, processing, ready, new)
-      const activeOrders = await Order.findAll({
-        where: {
-          shopId: parseInt(shopId),
-          status: {
-            [Op.in]: ['new', 'pending', 'processing', 'ready']
-          },
-          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
-        },
-        order: [['orderNumber', 'DESC']]
+      const sequelize = getSequelize();
+      
+      // ⚡ PERFORMANCE OPTIMIZATION: Single query with aggregation instead of loading all orders
+      const [result] = await sequelize.query(`
+        SELECT 
+          COUNT(*) as active_count,
+          COALESCE(MAX(order_number), 0) as max_number
+        FROM orders 
+        WHERE shop_id = :shopId 
+          AND status IN ('new', 'pending', 'processing', 'ready')
+          AND deleted_at IS NULL
+      `, {
+        replacements: { shopId: parseInt(shopId) },
+        type: sequelize.QueryTypes.SELECT
       });
 
-      console.log(`🔢 Shop ${shopId} has ${activeOrders.length} active orders`);
+      const activeCount = parseInt(result.active_count);
+      const maxNumber = parseInt(result.max_number);
+
+      console.log(`⚡ Shop ${shopId}: ${activeCount} active orders, max queue #${maxNumber}`);
 
       // If no active orders, reset to #1
-      if (activeOrders.length === 0) {
+      if (activeCount === 0) {
         console.log(`🔄 Resetting queue numbering for shop ${shopId} - starting fresh with #1`);
         return 1;
       }
 
-      // Find highest orderNumber among active orders and increment
-      const highestActiveNumber = Math.max(...activeOrders.map(order => order.orderNumber || 0));
-      const nextNumber = highestActiveNumber + 1;
-      console.log(`📈 Shop ${shopId} - highest active queue #${highestActiveNumber}, assigning #${nextNumber}`);
+      // Return next number
+      const nextNumber = maxNumber + 1;
+      console.log(`📈 Shop ${shopId} - assigning queue #${nextNumber}`);
       
       return nextNumber;
     } catch (error) {
       console.error(`❌ Error calculating dynamic queue number for shop ${shopId}:`, error);
-      // Fallback to old logic
+      // Fallback to simple increment
       const lastOrder = await Order.findOne({
         where: { shopId: parseInt(shopId) },
         order: [['orderNumber', 'DESC']]
@@ -635,8 +641,6 @@ class OrderController {
 
   // Create authenticated order (replaces anonymous order)
   static async createAuthenticatedOrder(req, res) {
-    const transaction = await sequelize.transaction();
-    
     try {
       const { 
         shopId, type, title, description, specifications, walkinTime 
@@ -644,70 +648,87 @@ class OrderController {
       
       // User comes from JWT authentication
       const customerId = req.user.id;
-      const customer = await User.findByPk(customerId);
       
-      if (!customer) {
-        await transaction.rollback();
-        console.log('❌ Customer not found:', customerId);
-        return res.status(404).json({ message: 'User not found' });
-      }
-      
-      // Validate required fields
+      // Validate required fields early
       if (!shopId || !type) {
-        await transaction.rollback();
         console.log('❌ Missing required fields:', { shopId: !!shopId, type: !!type });
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
-      // Check if shop exists
-      const shop = await Shop.findByPk(parseInt(shopId));
+      // ⚡ PARALLEL OPERATIONS: Execute all lookups and calculations simultaneously
+      const startTime = Date.now();
+      const [customer, shop, orderNumber] = await Promise.all([
+        User.findByPk(customerId),
+        Shop.findByPk(parseInt(shopId)),
+        OrderController.calculateDynamicQueueNumber(shopId)
+      ]);
+      
+      console.log(`⚡ Parallel operations completed in ${Date.now() - startTime}ms`);
+      
+      if (!customer) {
+        console.log('❌ Customer not found:', customerId);
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
       if (!shop) {
-        await transaction.rollback();
         return res.status(404).json({ message: 'Shop not found' });
       }
       
-      // 🎯 DYNAMIC ORDER NUMBERING: Calculate order number for authenticated orders too
-      const orderNumber = await OrderController.calculateDynamicQueueNumber(shopId);
+      // Generate public ID (instant operation)
       const publicId = OrderController.generatePublicId();
       
-      // 🚀 R2 DIRECT UPLOAD: Files handled separately via direct R2 upload
-      // Order created without files first, files uploaded directly to R2, then confirmed via API
-      const files = []; // Files will be added later via /confirm-files endpoint
+      // 🚀 OPTIMIZED TRANSACTION: Only wrap the INSERT operation
+      const transaction = await sequelize.transaction();
       
-      // Create order WITH files (exactly like regular createOrder)
-      const order = await Order.create({
-        customerId,
-        shopId: parseInt(shopId),
-        orderNumber,
-        publicId,
-        type,
-        title: title || `Queue #${orderNumber}`,
-        description,
-        specifications,
-        files: [], // Files added separately via R2 direct upload + confirmation
-        status: 'pending',
-        isUrgent: specifications === 'URGENT ORDER',
-        walkinTime: walkinTime || null
-      }, { transaction });
-      
-      await transaction.commit();
-      
-      console.log(`✅ Authenticated order created: ${order.id} for customer ${customer.name} (${customer.phone})`);
-      
-      // Return order details for R2 direct upload flow
-      res.status(201).json({
-        id: order.id,
-        publicId: order.publicId,
-        orderNumber: order.orderNumber,
-        customerId: order.customerId,
-        shopId: order.shopId,
-        status: order.status,
-        files: [],
-        message: 'Order created successfully - ready for file uploads'
-      });
+      try {
+        // Create order WITH minimal transaction scope
+        const order = await Order.create({
+          customerId,
+          shopId: parseInt(shopId),
+          orderNumber,
+          publicId,
+          type,
+          title: title || `Queue #${orderNumber}`,
+          description,
+          specifications,
+          files: [], // Files added separately via R2 direct upload + confirmation
+          status: 'pending',
+          isUrgent: specifications === 'URGENT ORDER',
+          walkinTime: walkinTime || null
+        }, { transaction });
+        
+        await transaction.commit();
+        
+        console.log(`✅ Order created in ${Date.now() - startTime}ms: ${order.id} for ${customer.name}`);
+        
+        // ⚡ IMMEDIATE RESPONSE: Return order details immediately
+        res.status(201).json({
+          id: order.id,
+          publicId: order.publicId,
+          orderNumber: order.orderNumber,
+          customerId: order.customerId,
+          shopId: order.shopId,
+          status: order.status,
+          files: [],
+          message: 'Order created successfully - ready for file uploads'
+        });
+        
+        // 🚀 BACKGROUND PROCESSING: WebSocket notifications happen after response
+        setImmediate(() => {
+          // Send WebSocket notification in background
+          broadcast('order:created', {
+            orderId: order.id,
+            shopId: order.shopId,
+            customerName: customer.name
+          });
+        });
+        
+      } catch (error) {
+        await transaction.rollback();
+        throw error;
+      }
       
     } catch (error) {
-      await transaction.rollback();
       console.error('Order creation error:', error);
       res.status(500).json({ message: 'Failed to create order' });
     }

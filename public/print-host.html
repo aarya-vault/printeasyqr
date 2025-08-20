@@ -61,23 +61,54 @@
                 container.appendChild(img);
 
             } else {
-                // Handle PDFs (and other embeddable types) with an <iframe>
+                // 🖨️ ENHANCED PDF HANDLING: Better iframe implementation for printing
                 const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                
+                // Add print parameter to URL if not present
+                const printUrl = new URL(fileUrl, window.location.origin);
+                if (!printUrl.searchParams.has('print')) {
+                    printUrl.searchParams.set('print', 'true');
+                }
+                
                 iframe.onload = function() {
                     loader.style.display = 'none';
                     container.style.display = 'block';
-                    try {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                    } catch (e) {
-                        console.error("Could not print iframe content, falling back to window.print()", e);
-                        window.print(); // Fallback for cross-origin or other issues
-                    }
+                    
+                    // Delay print dialog to ensure PDF is fully rendered
+                    setTimeout(function() {
+                        try {
+                            // Try to access iframe content
+                            if (iframe.contentWindow && iframe.contentWindow.document) {
+                                // Check if PDF plugin is available
+                                const iframeDoc = iframe.contentWindow.document;
+                                if (iframeDoc.contentType === 'application/pdf' || 
+                                    iframeDoc.querySelector('embed[type="application/pdf"]')) {
+                                    // PDF is loaded, trigger print
+                                    iframe.contentWindow.focus();
+                                    iframe.contentWindow.print();
+                                } else {
+                                    // Not a PDF or not loaded properly, use parent window print
+                                    window.print();
+                                }
+                            } else {
+                                // Can't access iframe (cross-origin), use parent print
+                                window.print();
+                            }
+                        } catch (e) {
+                            console.log("Print via parent window due to:", e.message);
+                            window.print(); // Fallback for any issues
+                        }
+                    }, 500); // 500ms delay for PDF rendering
                 };
+                
                 iframe.onerror = function() {
                     loader.innerText = 'Error: Failed to load document.';
                 };
-                iframe.src = fileUrl;
+                
+                // Use the modified URL with print parameter
+                iframe.src = printUrl.toString();
                 container.appendChild(iframe);
             }
         })();

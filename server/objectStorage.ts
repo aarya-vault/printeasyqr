@@ -33,7 +33,7 @@ export class ObjectStorageService {
   }
 
   // Downloads an object to the response - simplified local file serving
-  async downloadObject(filePath: string, res: Response, cacheTtlSec: number = 3600) {
+  async downloadObject(filePath: string, res: Response, cacheTtlSec: number = 3600, isPrint: boolean = false) {
     try {
       // Check if file exists
       if (!fs.existsSync(filePath)) {
@@ -43,14 +43,30 @@ export class ObjectStorageService {
       // Get file stats
       const stats = fs.statSync(filePath);
       
-      // Set headers to force download without "Save As" dialog
-      res.set({
-        "Content-Type": "application/octet-stream",
-        "Content-Length": stats.size.toString(),
-        "Content-Disposition": "attachment",
-        "Cache-Control": `public, max-age=${cacheTtlSec}`,
-        "X-Content-Type-Options": "nosniff"
-      });
+      // Determine file type
+      const ext = path.extname(filePath).toLowerCase();
+      const isPDF = ext === '.pdf';
+      
+      // 🖨️ PRINT FIX: Set proper headers based on request type
+      if (isPrint) {
+        // For print requests: Use inline to display in iframe
+        res.set({
+          "Content-Type": isPDF ? "application/pdf" : "application/octet-stream",
+          "Content-Length": stats.size.toString(),
+          "Content-Disposition": "inline",
+          "Cache-Control": `public, max-age=${cacheTtlSec}`,
+          "X-Content-Type-Options": "nosniff"
+        });
+      } else {
+        // For download requests: Force download
+        res.set({
+          "Content-Type": "application/octet-stream",
+          "Content-Length": stats.size.toString(),
+          "Content-Disposition": "attachment",
+          "Cache-Control": `public, max-age=${cacheTtlSec}`,
+          "X-Content-Type-Options": "nosniff"
+        });
+      }
 
       // Stream the file to the response
       const stream = fs.createReadStream(filePath);

@@ -200,13 +200,19 @@ router.get('/download/*', optionalAuth, async (req, res) => {
       res.setHeader('Content-Type', 'application/octet-stream');
     }
     
-    // EXECUTIVE DECISION: Content-Disposition Header Fix
-    // For print requests: ALWAYS use inline disposition (for all file types)
-    // For download requests: ALWAYS use attachment disposition
+    // 🖨️ PRINT FIX: Proper Content-Disposition for iframe printing
+    // For print requests: MUST use inline disposition to display in iframe
+    // For download requests: Use attachment disposition
     if (isPrintRequest) {
-      // Print mode: Use inline for ALL file types to enable in-browser display
+      // ⚡ CRITICAL FIX: Use inline disposition for PDF to display in iframe
       res.setHeader('Content-Disposition', `inline; filename="${originalName}"`);
-      res.setHeader('Cache-Control', 'no-cache');
+      // Ensure proper PDF content type for browser display
+      if (isPDF) {
+        res.setHeader('Content-Type', 'application/pdf');
+      }
+      // Allow browser to display the file
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
     } else if (isDownloadRequest) {
       // Download mode: Force download without "Save As" dialog
       res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(originalName)}`);
