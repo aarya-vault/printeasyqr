@@ -268,8 +268,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
             </div>
             <div>
               <h2 className="text-xl font-bold text-rich-black">
-                Queue #{displayOrder.orderNumber || displayOrder.id}
-                <Badge variant="outline" className="ml-2">{displayOrder.publicId || `ORD-${displayOrder.id}`}</Badge>
+                {displayOrder.publicId || `ORD-${displayOrder.id}`}
               </h2>
               <p className="text-medium-gray">{displayOrder.title || 'Order Details'}</p>
             </div>

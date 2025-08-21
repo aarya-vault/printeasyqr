@@ -34,8 +34,9 @@ const upload = multer({
 // Order routes - Files handled via R2 direct upload, not multer
 router.post('/orders/authenticated', requireAuth, OrderController.createAuthenticatedOrder); // Authenticated order creation (no files via multer)
 router.get('/orders/shop/:shopId', requireAuth, OrderController.getOrdersByShop);
-router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getOrdersByShop); // History alias
+router.get('/orders/shop/:shopId/history', requireAuth, OrderController.getShopOrderHistory); // Complete history with deleted orders
 router.get('/orders/customer/:customerId', requireAuth, OrderController.getOrdersByCustomer);
+router.get('/orders/customer/:customerId/history', requireAuth, OrderController.getCustomerOrderHistory); // Complete history with deleted orders
 router.get('/orders/:id', requireAuth, OrderController.getOrder);
 // Add middleware for optional auth - tries to authenticate but doesn't fail if no token
 const optionalAuth = (req, res, next) => {

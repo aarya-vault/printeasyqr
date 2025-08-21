@@ -178,6 +178,7 @@ export default function RedesignedShopOwnerDashboard() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCustomerInsights, setShowCustomerInsights] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showDeletedOrders, setShowDeletedOrders] = useState(false); // Toggle for deleted orders
   
   // Multiple order selection state
   const [selectedOrders, setSelectedOrders] = useState<Set<number>>(new Set());
@@ -207,12 +208,13 @@ export default function RedesignedShopOwnerDashboard() {
     retry: 2,
   });
 
+  // Dynamic order query - switches between active orders and complete history
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
-    queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
+    queryKey: [`/api/orders/shop/${shopData?.shop?.id}${showDeletedOrders ? '/history' : ''}`],
     enabled: Boolean(shopData?.shop?.id && user?.id && user?.role === 'shop_owner' && !authLoading),
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: showDeletedOrders ? 60000 : 30000, // Slower refresh for history
     refetchIntervalInBackground: false,
-    staleTime: 15000, // 15 seconds
+    staleTime: showDeletedOrders ? 60000 : 15000, // Longer cache for history
     gcTime: 60000, // 1 minute
     retry: 2,
   });
@@ -295,18 +297,21 @@ export default function RedesignedShopOwnerDashboard() {
     avgProcessingTime: calculateAvgProcessingTime()
   };
 
-  // Filter orders with improved performance - exclude completed and deleted orders
+  // Smart filtering logic that adapts to view mode
   const filteredOrders = orders.filter(order => {
-    // Exclude completed orders (they go to Order History)
-    if (order.status === 'completed') return false;
-    
-    // Exclude soft-deleted orders (should already be filtered on server, but double-check)
-    if (order.deletedAt) return false;
+    // View-specific filtering
+    if (!showDeletedOrders) {
+      // Active orders view: exclude completed and deleted orders
+      if (order.status === 'completed') return false;
+      if (order.deletedAt) return false;
+    }
+    // History view: show all orders (including deleted and completed)
     
     const matchesSearch = searchQuery === '' || 
       order.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.id.toString().includes(searchQuery);
+      order.id.toString().includes(searchQuery) ||
+      ((order as any).publicId && (order as any).publicId.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus;
     
@@ -574,7 +579,9 @@ export default function RedesignedShopOwnerDashboard() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, isDeleted?: boolean) => {
+    if (isDeleted) return 'bg-red-100 text-red-800 border-red-200';
+    
     switch (status) {
       case 'new': return 'bg-brand-yellow/20 text-rich-black border-brand-yellow/40';
       case 'pending': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -652,7 +659,7 @@ export default function RedesignedShopOwnerDashboard() {
         <div className="flex items-start justify-between mb-3">
           <div className={`flex items-center space-x-3 ${isBulkMode ? 'ml-8' : ''}`}>
             <div className="w-10 h-10 bg-brand-yellow/20 rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold text-rich-black">Queue #{order.orderNumber}</span>
+              <span className="text-sm font-bold text-rich-black">{(order as any).publicId || `ORD-${order.id}`}</span>
             </div>
             <div>
               <h3 className="font-semibold text-rich-black">{order.customerName || (order as any).customer?.name}</h3>
@@ -664,10 +671,17 @@ export default function RedesignedShopOwnerDashboard() {
             </div>
           </div>
           <div className="flex flex-col items-end space-y-2">
-            <Badge className={`${getStatusColor(order.status)} border font-medium px-2 py-1`}>
-              {getStatusIcon(order.status)}
-              <span className="ml-1 capitalize">{order.status}</span>
-            </Badge>
+            {order.deletedAt ? (
+              <Badge className={`${getStatusColor('deleted', true)} border font-medium px-2 py-1`}>
+                <X className="w-4 h-4 mr-1" />
+                <span className="ml-1">Deleted</span>
+              </Badge>
+            ) : (
+              <Badge className={`${getStatusColor(order.status)} border font-medium px-2 py-1`}>
+                {getStatusIcon(order.status)}
+                <span className="ml-1 capitalize">{order.status}</span>
+              </Badge>
+            )}
             {order.unreadMessages && order.unreadMessages > 0 && (
               <Badge className="bg-brand-yellow text-rich-black font-medium">
                 <MessageSquare className="w-3 h-3 mr-1" />
@@ -682,6 +696,22 @@ export default function RedesignedShopOwnerDashboard() {
             )}
           </div>
         </div>
+
+        {/* Deletion Information */}
+        {order.deletedAt && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+            <div className="flex items-center text-red-800 text-sm">
+              <X className="w-4 h-4 mr-2" />
+              <span className="font-medium">
+                Deleted by {(order as any).deletedByName || 'Unknown'} 
+                {(order as any).deletedByRole && ` (${(order as any).deletedByRole})`}
+              </span>
+            </div>
+            <p className="text-xs text-red-600 mt-1">
+              {format(new Date(order.deletedAt), 'MMM dd, yyyy HH:mm')}
+            </p>
+          </div>
+        )}
 
         {/* Order Info */}
         <div className="space-y-2 mb-3">
@@ -774,7 +804,7 @@ export default function RedesignedShopOwnerDashboard() {
                 </DropdownMenuItem>
                 {isPlatformSupported() && (
                   <DropdownMenuItem onClick={async () => {
-                    await launchPrintEasyConnect(order.publicId || order.id.toString(), () => {
+                    await launchPrintEasyConnect((order as any).publicId || order.id.toString(), () => {
                       toast({
                         title: "PrintEasy Connect Not Installed",
                         description: "Download the desktop app for enhanced printing features",
@@ -1222,14 +1252,31 @@ export default function RedesignedShopOwnerDashboard() {
             <div className="flex flex-col gap-3 sm:gap-4">
               {/* Search Input and Bulk Mode Toggle */}
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search orders..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 text-sm"
-                  />
+                <div className="flex gap-2 flex-1">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search orders..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 text-sm"
+                    />
+                  </div>
+                  
+                  {/* View Toggle */}
+                  <Button
+                    variant={showDeletedOrders ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowDeletedOrders(!showDeletedOrders)}
+                    className={`whitespace-nowrap text-xs ${
+                      showDeletedOrders 
+                        ? 'bg-brand-yellow text-rich-black hover:bg-brand-yellow/90' 
+                        : 'text-gray-600 hover:text-rich-black hover:bg-gray-50'
+                    }`}
+                  >
+                    <History className="w-3 h-3 mr-1" />
+                    {showDeletedOrders ? 'Show Active' : 'Show History'}
+                  </Button>
                 </div>
                 <Button
                   variant={isBulkMode ? "default" : "outline"}

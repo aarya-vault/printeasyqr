@@ -137,6 +137,7 @@ export interface Order extends Timestamps {
   customerId: number;
   shopId: number;
   orderNumber: number;
+  publicId?: string;
   type: 'upload' | 'walkin';
   title: string;
   description?: string;
@@ -169,6 +170,9 @@ export interface Order extends Timestamps {
   customerName?: string;
   shopName?: string;
   unreadCount?: number;
+  // Deletion information fields
+  deletedByName?: string;
+  deletedByRole?: string;
 }
 
 export interface CreateOrderInput {
