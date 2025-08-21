@@ -184,6 +184,67 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               }
               break;
               
+            // 🚀 INSTANT ORDER DELETION SYNC: Handle order deletions for real-time updates
+            case 'order:deleted':
+              console.log('⚡ Real-time order deletion received:', data.orderId);
+              
+              // INSTANT query invalidation for immediate UI updates
+              if (data.shopId) {
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/orders/shop/${data.shopId}`] 
+                });
+              }
+              
+              if (data.customerId) {
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/orders/customer/${data.customerId}`] 
+                });
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/orders/customer`] 
+                });
+              }
+              
+              // Invalidate general order queries
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders`] 
+              });
+              
+              // Also refresh unread message count and analytics
+              queryClient.invalidateQueries({ 
+                queryKey: ['/api/messages/unread-count'] 
+              });
+              
+              // Refresh shop analytics if it's a shop-related update
+              if (data.shopId) {
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/analytics/business/${data.shopId}`] 
+                });
+              }
+              
+              // Show toast notification for order deletion (only to other users)
+              if (data.customerId !== user?.id) {
+                const deleteNotification = document.createElement('div');
+                deleteNotification.className = 'fixed top-4 right-4 bg-orange-500 text-white p-4 rounded-xl shadow-lg z-50';
+                deleteNotification.innerHTML = `
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 bg-white rounded-full"></div>
+                    <div>
+                      <div class="font-semibold">Order Deleted</div>
+                      <div class="text-sm opacity-90">Order #${data.orderId} has been removed</div>
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(deleteNotification);
+                
+                // Auto-remove after 4 seconds
+                setTimeout(() => {
+                  if (deleteNotification.parentNode) {
+                    deleteNotification.parentNode.removeChild(deleteNotification);
+                  }
+                }, 4000);
+              }
+              break;
+              
             case 'new_order':
               // Invalidate shop order queries for new orders
               queryClient.invalidateQueries({ 

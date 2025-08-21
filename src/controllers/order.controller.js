@@ -974,14 +974,15 @@ class OrderController {
       
       await transaction.commit();
       
-      // 🚀 CRITICAL FIX: Broadcast order deletion to all connected users for real-time sync
-      broadcast({
-        type: 'order_deleted',  // ✅ FIXED: Use lowercase underscore for consistency
-        orderId: orderId,
+      // 🚀 INSTANT REAL-TIME SYNC: Use proper targeted broadcasting for order deletion
+      // Import the proper broadcast function
+      const { broadcastOrderUpdate } = await import('../utils/websocket.js');
+      await broadcastOrderUpdate({
+        id: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
-        timestamp: new Date().toISOString()
-      });
+        status: order.status
+      }, 'deleted');
       
       
       // Send response immediately for instant UI feedback
