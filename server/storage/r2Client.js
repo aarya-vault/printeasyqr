@@ -281,7 +281,9 @@ class R2Client {
     }
     
     const fileSize = buffer.length;
-    console.log(`🚀 Starting multipart upload for ${key} (${Math.round(fileSize/1024/1024)}MB)`);
+    const startTime = Date.now();
+    console.log(`🚀 [MULTIPART START] Starting multipart upload for ${key} (${Math.round(fileSize/1024/1024)}MB)`);
+    console.log(`🔧 [MULTIPART CONFIG] Part size: ${Math.round(this.partSize/1024/1024)}MB, Max concurrent: ${this.maxConcurrentParts}, File type: ${mimetype}`);
     
     let UploadId;
     try {
@@ -298,11 +300,12 @@ class R2Client {
       
       const createResult = await this.client.send(createCommand);
       UploadId = createResult.UploadId;
-      console.log(`✅ Multipart upload initiated: ${UploadId}`);
+      console.log(`✅ [MULTIPART INIT] Multipart upload initiated: ${UploadId}`);
       
       // Calculate parts
       const parts = [];
       const totalParts = Math.ceil(fileSize / this.partSize);
+      console.log(`📦 [MULTIPART PARTS] Splitting into ${totalParts} parts of ${Math.round(this.partSize/1024/1024)}MB each`);
       
       // Upload parts in parallel batches
       const uploadPromises = [];
@@ -314,7 +317,8 @@ class R2Client {
         
         const uploadPromise = this.uploadPart(key, UploadId, i + 1, partBuffer)
           .then(etag => {
-            console.log(`✅ Part ${i + 1}/${totalParts} uploaded`);
+            const partSize = Math.round(partBuffer.length / 1024 / 1024);
+            console.log(`✅ [PART COMPLETE] Part ${i + 1}/${totalParts} uploaded (${partSize}MB) - ETag: ${etag.substring(1, 9)}...`);
             return { PartNumber: i + 1, ETag: etag };
           });
         
