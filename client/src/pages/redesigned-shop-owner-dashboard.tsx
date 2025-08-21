@@ -18,6 +18,13 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
+import { launchPrintEasyConnect, isPlatformSupported } from '@/utils/protocol-helper';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 import {
   Search,
@@ -57,7 +64,8 @@ import {
   Menu,
   X,
   CheckSquare,
-  Square
+  Square,
+  Monitor
 } from 'lucide-react';
 import ProfessionalQRModal from '@/components/professional-qr-modal';
 import UnifiedChatSystem from '@/components/unified-chat-system';
@@ -747,15 +755,47 @@ export default function RedesignedShopOwnerDashboard() {
         {/* File Actions for Upload Orders */}
         {order.type === 'upload' && order.files && (
           <div className="grid grid-cols-2 gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handlePrintAll(order)}
-              className="text-xs"
-            >
-              <Printer className="w-3 h-3 mr-1" />
-              Print All
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs"
+                >
+                  <Printer className="w-3 h-3 mr-1" />
+                  Print All
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem onClick={() => handlePrintAll(order)}>
+                  <Printer className="w-4 h-4 mr-2" />
+                  Quick Print (Default)
+                </DropdownMenuItem>
+                {isPlatformSupported() && (
+                  <DropdownMenuItem onClick={async () => {
+                    await launchPrintEasyConnect(order.publicId || order.id.toString(), () => {
+                      toast({
+                        title: "PrintEasy Connect Not Installed",
+                        description: "Download the desktop app for enhanced printing features",
+                        action: (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open('https://printeasyqr.com/download', '_blank')}
+                          >
+                            Download
+                          </Button>
+                        )
+                      });
+                    });
+                  }}>
+                    <Monitor className="w-4 h-4 mr-2" />
+                    PrintEasy Connect
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               size="sm"
               variant="outline"
@@ -1231,14 +1271,47 @@ export default function RedesignedShopOwnerDashboard() {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={handleBulkPrint}
-                      className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
-                    >
-                      <Printer className="w-4 h-4 mr-1" />
-                      Print All
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90"
+                        >
+                          <Printer className="w-4 h-4 mr-1" />
+                          Print All
+                          <ChevronDown className="w-3 h-3 ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={handleBulkPrint}>
+                          <Printer className="w-4 h-4 mr-2" />
+                          Quick Print (Default)
+                        </DropdownMenuItem>
+                        {isPlatformSupported() && (
+                          <DropdownMenuItem onClick={async () => {
+                            const orderIds = Array.from(selectedOrders);
+                            await launchPrintEasyConnect(orderIds, () => {
+                              toast({
+                                title: "PrintEasy Connect Not Installed",
+                                description: "Download the desktop app for batch printing",
+                                action: (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => window.open('https://printeasyqr.com/download', '_blank')}
+                                  >
+                                    Download
+                                  </Button>
+                                )
+                              });
+                            });
+                          }}>
+                            <Monitor className="w-4 h-4 mr-2" />
+                            PrintEasy Connect
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <Button
                       size="sm"
                       onClick={handleBulkDownload}

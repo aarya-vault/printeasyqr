@@ -6,13 +6,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   X, FileText, Download, Printer, Phone, MessageCircle, 
-  Calendar, Clock, CheckCircle2, Package, User, Square, CheckSquare
+  Calendar, Clock, CheckCircle2, Package, User, Square, CheckSquare,
+  ChevronDown, Monitor
 } from 'lucide-react';
 import { format } from 'date-fns';
 import UnifiedChatSystem from '@/components/unified-chat-system';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { printFile, printAllFiles, downloadFile, downloadAllFiles } from '@/utils/print-helpers';
+import { launchPrintEasyConnect, isPlatformSupported } from '@/utils/protocol-helper';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { apiClient } from '@/lib/api-client';
 
 interface Order {
@@ -250,10 +258,10 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-b gap-2">
           <div className="flex items-center space-x-4">
             <div className="w-10 h-10 bg-brand-yellow rounded-full flex items-center justify-center">
               <Package className="w-5 h-5 text-rich-black" />
@@ -280,7 +288,7 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
         </div>
 
         {/* Content */}
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Order Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Info */}
@@ -349,16 +357,53 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                         }
                       })()})
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Button size="sm" onClick={handlePrintAll} className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
-                        <Printer className="w-4 h-4 mr-2" />
-                        Print {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={handleDownloadAll}>
-                        <Download className="w-4 h-4 mr-2" />
-                        Download {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}
-                      </Button>
-                    </div>
+                    {userRole === 'shop_owner' && (
+                      <div className="flex items-center space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" className="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90">
+                              <Printer className="w-4 h-4 mr-2" />
+                              <span className="hidden sm:inline">Print {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}</span>
+                              <span className="sm:hidden">Print</span>
+                              <ChevronDown className="w-3 h-3 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={handlePrintAll}>
+                              <Printer className="w-4 h-4 mr-2" />
+                              Quick Print (Default)
+                            </DropdownMenuItem>
+                            {isPlatformSupported() && (
+                              <DropdownMenuItem onClick={async () => {
+                                await launchPrintEasyConnect(stableOrder.publicId || stableOrder.id.toString(), () => {
+                                  toast({
+                                    title: "PrintEasy Connect Not Installed",
+                                    description: "Download the desktop app for enhanced printing",
+                                    action: (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => window.open('https://printeasyqr.com/download', '_blank')}
+                                      >
+                                        Download
+                                      </Button>
+                                    )
+                                  });
+                                });
+                              }}>
+                                <Monitor className="w-4 h-4 mr-2" />
+                                PrintEasy Connect
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button size="sm" variant="outline" onClick={handleDownloadAll}>
+                          <Download className="w-4 h-4 mr-2" />
+                          <span className="hidden sm:inline">Download {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}</span>
+                          <span className="sm:hidden">DL</span>
+                        </Button>
+                      </div>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -436,24 +481,49 @@ export default function OrderDetailsModal({ order, onClose, userRole }: OrderDet
                               >
                                 <Download className="w-4 h-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                onClick={async () => {
-                                  try {
-                                    await printFile(file, stableOrder.status);
-                                    toast({ title: 'File sent to print' });
-                                  } catch (error: any) {
-                                    toast({ 
-                                      title: 'Cannot print file', 
-                                      description: error.message || 'File may no longer be available',
-                                      variant: 'destructive' 
-                                    });
-                                  }
-                                }}
-                              >
-                                <Printer className="w-4 h-4" />
-                              </Button>
+                              {userRole === 'shop_owner' && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                    >
+                                      <Printer className="w-4 h-4" />
+                                      <ChevronDown className="w-3 h-3 ml-1" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-40">
+                                    <DropdownMenuItem onClick={async () => {
+                                      try {
+                                        await printFile(file, stableOrder.status);
+                                        toast({ title: 'File sent to print' });
+                                      } catch (error: any) {
+                                        toast({ 
+                                          title: 'Cannot print file', 
+                                          description: error.message || 'File may no longer be available',
+                                          variant: 'destructive' 
+                                        });
+                                      }
+                                    }}>
+                                      <Printer className="w-3 h-3 mr-2" />
+                                      Quick Print
+                                    </DropdownMenuItem>
+                                    {isPlatformSupported() && (
+                                      <DropdownMenuItem onClick={async () => {
+                                        await launchPrintEasyConnect(stableOrder.publicId || stableOrder.id.toString(), () => {
+                                          toast({
+                                            title: "Connect Not Installed",
+                                            description: "Get the desktop app",
+                                          });
+                                        });
+                                      }}>
+                                        <Monitor className="w-3 h-3 mr-2" />
+                                        Connect
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                             </div>
                           </div>
                         ));
