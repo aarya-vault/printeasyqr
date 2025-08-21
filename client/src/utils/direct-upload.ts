@@ -203,6 +203,9 @@ async function uploadFileDirectly(
     
     xhr.open('PUT', uploadUrl, true);
     
+    // Set longer timeout for large files (6 hours to match presigned URL)
+    xhr.timeout = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+    
     // Set content type from file MIME type
     if (file.type) {
       xhr.setRequestHeader('Content-Type', file.type);
@@ -240,8 +243,8 @@ export async function uploadFilesDirectlyToR2(
     const urlInfo = uploadUrls[index];
     const fileSize = Math.round(file.size/1024/1024);
     
-    // Handle both direct and multipart upload types
-    if (urlInfo?.uploadType === 'multipart') {
+    // MULTIPART DISABLED - Always use direct upload
+    if (false && urlInfo?.uploadType === 'multipart') { // DISABLED
       return {
         file,
         uploadUrl: undefined, // No direct URL for multipart uploads
@@ -268,19 +271,9 @@ export async function uploadFilesDirectlyToR2(
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   let uploadedBytes = 0;
 
-  // CRITICAL FIX: Dynamic concurrency based on total upload size
-  const getGlobalConcurrency = (totalSize: number, fileCount: number) => {
-    const totalMB = totalSize / (1024 * 1024);
-    const avgFileSizeMB = totalMB / fileCount;
-    
-    // Reduce concurrency for large average file sizes
-    if (avgFileSizeMB > 40) return 2; // Only 2 concurrent for 40MB+ files
-    if (avgFileSizeMB > 20) return 3; // 3 concurrent for 20-40MB files
-    if (totalMB > 200) return 3; // Limit for large total uploads
-    return 5; // Default 5 concurrent for smaller files
-  };
-  
-  const maxConcurrent = getGlobalConcurrency(totalBytes, files.length);
+  // SIMPLE DIRECT UPLOAD: Always use 5 concurrent uploads (NO MULTIPART)
+  // This handles 100-200MB files with 6-hour presigned URLs
+  const maxConcurrent = 5; // Fixed 5 concurrent uploads as requested
   const uploadPromises: Promise<void>[] = [];
 
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
@@ -290,8 +283,8 @@ export async function uploadFilesDirectlyToR2(
     
     const batchPromises = batch.map(async (uploadFile) => {
       if (!uploadFile.uploadUrl) {
-        // Handle multipart upload
-        if (uploadFile.multipartId && uploadFile.partUrls && uploadFile.partSize) {
+        // MULTIPART DISABLED - Skip multipart logic
+        if (false && uploadFile.multipartId && uploadFile.partUrls && uploadFile.partSize) { // DISABLED
           uploadFile.status = 'uploading';
           try {
             const parts = await uploadMultipartFile(

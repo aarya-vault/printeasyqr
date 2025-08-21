@@ -142,7 +142,7 @@ class R2Client {
     });
     
     const url = await getSignedUrl(this.client, command, { 
-      expiresIn: 7200 // 2 hours for large file uploads
+      expiresIn: 21600 // 6 HOURS for large file uploads (100-200MB)
     });
     
     return url;
@@ -416,8 +416,8 @@ class R2Client {
     const urlPromises = files.map(async (file, index) => {
       const key = this.generateKey(orderId, file.name);
       
-      // Use multipart for files over 10MB
-      if (file.size > this.multipartThreshold) {
+      // DISABLED MULTIPART - Always use direct upload for ALL files
+      if (false && file.size > this.multipartThreshold) { // MULTIPART DISABLED
         // CRITICAL FIX: Use dynamic part size based on file size
         const optimalPartSize = this.getOptimalPartSize(file.size);
         const totalParts = Math.ceil(file.size / optimalPartSize);
@@ -490,7 +490,7 @@ class R2Client {
           size: file.size
         };
       } else {
-        // Direct upload for files under 10MB
+        // ALWAYS USE DIRECT UPLOAD - Even for 100-200MB files!
         const url = await this.getPresignedUploadUrl(key, file.type);
         return {
           filename: file.name,
