@@ -80,7 +80,6 @@ export async function broadcastToShop(shopId, message) {
     if (shop && shop.ownerId) {
       // Send only to shop owner, not all users
       sendToUser(shop.ownerId, message);
-      console.log(`📡 Sent message to shop owner ${shop.ownerId} for shop ${shopId}`);
     }
   } catch (error) {
     console.error('Error sending to shop owner:', error);
@@ -105,8 +104,6 @@ export async function broadcastOrderUpdate(order, eventType) {
   
   // Send to shop owner only
   await broadcastToShop(order.shopId, message);
-  
-  console.log(`📢 Sent order:${eventType} for order ${order.id} to customer ${order.customerId} and shop ${order.shopId}`);
 }
 
 // Broadcast message updates
@@ -126,8 +123,6 @@ export function broadcastMessageUpdate(message, eventType) {
   if (message.recipientId) {
     sendToUser(message.recipientId, wsMessage);
   }
-  
-  console.log(`📢 Broadcasted message:${eventType} for message ${message.id}`);
 }
 
 export { wsConnections };

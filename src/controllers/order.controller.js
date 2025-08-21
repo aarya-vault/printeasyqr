@@ -1071,83 +1071,63 @@ class OrderController {
   
   // 🚀 NEW: R2 Direct Upload File Confirmation
   static async confirmFilesUpload(req, res) {
-    const confirmStartTime = Date.now();
-    console.log(`🔄 [CONFIRM START] Confirming file uploads for order ${req.params.orderId}: ${req.body.files?.length || 0} files`);
-    console.log(`📋 [CONFIRM FILES]`, req.body.files?.map(f => ({ name: f.originalName, size: `${(f.size / 1024 / 1024).toFixed(2)}MB`, key: f.r2Key?.substring(f.r2Key?.lastIndexOf('/') + 1) || 'unknown' })) || 'No files provided');
-    
     const transaction = await sequelize.transaction();
     
     try {
       const orderId = parseInt(req.params.orderId);
       const { files } = req.body;
       
-      console.log(`✅ [VALIDATION] OrderId: ${orderId}, UserId: ${req.user.id}, Files count: ${files?.length || 0}`);
-      
       if (!files || !Array.isArray(files)) {
-        console.error(`❌ [VALIDATION ERROR] Files array required or invalid format`);
         await transaction.rollback();
         return res.status(400).json({ message: 'Files array required' });
       }
       
       // Verify order exists and user has access
-      console.log(`🔍 [DB LOOKUP] Finding order ${orderId} for user ${req.user.id}...`);
       const order = await Order.findOne({
         where: { 
           id: orderId,
           customerId: req.user.id
-        }
+        },
+        transaction
       });
       
       if (!order) {
-        console.error(`❌ [DB ERROR] Order ${orderId} not found or access denied for user ${req.user.id}`);
         await transaction.rollback();
         return res.status(404).json({ message: 'Order not found or access denied' });
       }
       
-      console.log(`✅ [DB SUCCESS] Order ${orderId} found, Status: ${order.status}, ShopId: ${order.shopId}, CustomerId: ${order.customerId}`);
-      
       // Get existing files from the order
       let existingFiles = [];
       if (order.files) {
-        existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
+        try {
+          existingFiles = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
+        } catch (e) {
+          existingFiles = [];
+        }
       }
       
-      console.log(`📎 [FILE COUNT] Order ${orderId} has ${existingFiles.length} existing files`);
-      
       // Format NEW files with unified metadata structure
-      console.log(`🔄 [FILE PROCESSING] Formatting ${files.length} new files...`);
-      const formattedNewFiles = files.map((file, index) => {
-        const fileData = {
-          id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
-          filename: file.filename || file.originalName,
-          originalName: file.originalName,
-          r2Key: file.r2Key,
-          bucket: file.bucket || process.env.R2_BUCKET_NAME,
-          size: file.size,
-          mimetype: file.mimetype,
-          path: file.r2Key, // For compatibility
-          storageType: 'r2',
-          uploadedAt: new Date().toISOString(),
-          status: 'completed'
-        };
-        console.log(`📋 [FILE ${index + 1}] ${fileData.originalName}: ${(fileData.size / 1024 / 1024).toFixed(2)}MB - ${fileData.r2Key}`);
-        return fileData;
-      });
+      const formattedNewFiles = files.map((file, index) => ({
+        id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
+        filename: file.filename || file.originalName,
+        originalName: file.originalName,
+        r2Key: file.r2Key,
+        bucket: file.bucket || process.env.R2_BUCKET_NAME,
+        size: file.size,
+        mimetype: file.mimetype,
+        path: file.r2Key, // For compatibility
+        storageType: 'r2',
+        uploadedAt: new Date().toISOString(),
+        status: 'completed'
+      }));
       
       // CRITICAL FIX: Combine existing files with new files instead of replacing
       const allFiles = [...existingFiles, ...formattedNewFiles];
       
-      console.log(`✅ [FILE MERGE] Adding ${formattedNewFiles.length} new files to existing ${existingFiles.length} files (Total: ${allFiles.length})`);
-      
       // Update order with COMBINED files (existing + new)
-      console.log(`💾 [DB UPDATE] Updating order ${orderId} with ${allFiles.length} total files...`);
       await order.update({ files: allFiles }, { transaction });
       
-      console.log(`🔄 [TRANSACTION] Committing database transaction...`);
       await transaction.commit();
-      
-      const confirmTime = ((Date.now() - confirmStartTime) / 1000).toFixed(2);
-      console.log(`✅ [CONFIRM SUCCESS] Confirmed ${files.length} files for order ${orderId} in ${confirmTime}s`);
       
       // Return updated order
       const updatedOrder = await Order.findByPk(orderId, {
@@ -1157,17 +1137,21 @@ class OrderController {
         ]
       });
       
-      // 🚀 BROADCAST FILE CONFIRMATION: Notify specific parties that files are ready
+      // Broadcast file confirmation
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
-      // Use targeted broadcast instead of broadcast to all
-      await broadcastOrderUpdate({
-        id: orderId,
-        shopId: order.shopId,
-        customerId: order.customerId,
-        ...transformedOrder
-      }, 'file_upload');
       
-      console.log(`📡 Broadcasting file confirmation: ${files.length} files added to order ${orderId}`);
+      // Broadcast update (wrapped in try-catch to prevent errors from breaking response)
+      try {
+        await broadcastOrderUpdate({
+          id: orderId,
+          shopId: order.shopId,
+          customerId: order.customerId,
+          ...transformedOrder
+        }, 'file_upload');
+      } catch (broadcastError) {
+        // Log but don't fail the request
+        console.error('Broadcast error (non-fatal):', broadcastError);
+      }
       
       res.json({ 
         success: true, 
@@ -1176,9 +1160,18 @@ class OrderController {
       });
       
     } catch (error) {
-      await transaction.rollback();
+      if (transaction) {
+        try {
+          await transaction.rollback();
+        } catch (rollbackError) {
+          // Ignore rollback errors
+        }
+      }
       console.error('Confirm files error:', error);
-      res.status(500).json({ message: 'Failed to confirm file uploads' });
+      res.status(500).json({ 
+        message: 'Failed to confirm file uploads',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
   
