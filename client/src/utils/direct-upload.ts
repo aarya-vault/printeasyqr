@@ -51,11 +51,19 @@ export async function getDirectUploadUrls(
     
     console.log(`📋 [FILE DETAILS]`, fileDetails);
     
-    const response = await fetch(`/api/orders/${orderId}/get-upload-urls`, {
+    // 🚨 CRITICAL FIX: Ensure API calls go to local development server
+    const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5000' 
+      ? `http://localhost:5000` 
+      : window.location.origin;
+    
+    console.log(`🌐 [API BASE URL] Using: ${baseURL} (hostname: ${window.location.hostname}, port: ${window.location.port})`);
+    console.log(`🔗 [FULL API URL] ${baseURL}/api/orders/${orderId}/get-upload-urls`);
+    
+    const response = await fetch(`${baseURL}/api/orders/${orderId}/get-upload-urls`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.substring(0, 20)}...`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         files: fileDetails
@@ -173,7 +181,15 @@ export async function confirmFilesUpload(
     throw new Error('Authentication required for file confirmation');
   }
 
-  const response = await fetch(`/api/orders/${orderId}/confirm-files`, {
+  // 🚨 CRITICAL FIX: Ensure API calls go to local development server
+  const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5000' 
+    ? `http://localhost:5000` 
+    : window.location.origin;
+    
+  console.log(`🌐 [CONFIRM API BASE URL] Using: ${baseURL}`);
+  console.log(`🔗 [CONFIRM FULL URL] ${baseURL}/api/orders/${orderId}/confirm-files`);
+
+  const response = await fetch(`${baseURL}/api/orders/${orderId}/confirm-files`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
