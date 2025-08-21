@@ -2,6 +2,12 @@ import { User } from '../models/index.js';
 import { verifyToken } from '../config/jwt-auth.js';
 
 const requireAuth = async (req, res, next) => {
+  console.log(`🔐 [AUTH START] ${req.method} ${req.path}`);
+  console.log(`📝 [AUTH HEADERS]`, {
+    authorization: req.headers.authorization ? `${req.headers.authorization.substring(0, 30)}...` : 'NONE',
+    cookie: req.headers.cookie ? `${req.headers.cookie.substring(0, 50)}...` : 'NONE'
+  });
+  
   try {
     // Extract JWT token from Authorization header or cookies
     let token = null;

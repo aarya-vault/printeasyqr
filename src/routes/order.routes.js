@@ -68,8 +68,18 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 
 // 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
 // Requires authentication for security
-router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
+router.post('/orders/:id/get-upload-urls', (req, res, next) => {
+  console.log(`🔑 [UPLOAD URL REQUEST] OrderID: ${req.params.id}`);
+  console.log(`📝 [HEADERS]`, {
+    authorization: req.headers.authorization ? `${req.headers.authorization.substring(0, 20)}...` : 'MISSING',
+    contentType: req.headers['content-type'],
+    userAgent: req.headers['user-agent']?.substring(0, 50)
+  });
+  console.log(`📏 [BODY]`, { filesCount: req.body?.files?.length || 0 });
+  next();
+}, requireAuth, async (req, res) => {
   try {
+    console.log(`✅ [AUTH SUCCESS] User authenticated: ${req.user.id} (${req.user.role}) for order ${req.params.id}`);
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
     
