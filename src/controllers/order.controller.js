@@ -947,7 +947,7 @@ class OrderController {
     }
   }
 
-  // Delete order (soft delete with role-based permissions)
+  // Delete order (soft delete with role-based permissions + R2 file cleanup)
   static async deleteOrder(req, res) {
     const transaction = await sequelize.transaction();
     
@@ -984,6 +984,21 @@ class OrderController {
         return res.status(403).json({ message: 'You do not have permission to delete this order' });
       }
       
+      // 🗑️ EXTRACT R2 FILE KEYS BEFORE DELETION
+      const r2FilesToDelete = [];
+      if (order.files && order.files.length > 0) {
+        const files = Array.isArray(order.files) ? order.files : JSON.parse(order.files);
+        
+        for (const file of files) {
+          // Check if this is an R2 file
+          if (file.storageType === 'r2' && file.r2Key) {
+            r2FilesToDelete.push(file.r2Key);
+          }
+        }
+        
+        console.log(`🗑️ Found ${r2FilesToDelete.length} R2 files to delete for order ${orderId}`);
+      }
+      
       // Perform soft delete
       await order.update({
         deletedBy: userId,
@@ -991,6 +1006,32 @@ class OrderController {
       }, { transaction });
       
       await transaction.commit();
+      
+      // 🚀 DELETE R2 FILES AFTER SUCCESSFUL ORDER DELETION
+      if (r2FilesToDelete.length > 0) {
+        console.log(`🗑️ Deleting ${r2FilesToDelete.length} files from R2 for order ${orderId}...`);
+        
+        // Import R2 client and perform cleanup
+        import('../../server/storage/r2Client.js').then(async (module) => {
+          const r2Client = module.default;
+          
+          if (r2Client.isAvailable()) {
+            const deleteResults = await r2Client.batchDelete(r2FilesToDelete);
+            
+            if (deleteResults.success.length > 0) {
+              console.log(`✅ Successfully deleted ${deleteResults.success.length} files from R2 for order ${orderId}`);
+            }
+            
+            if (deleteResults.failed.length > 0) {
+              console.error(`⚠️ Failed to delete ${deleteResults.failed.length} files from R2 for order ${orderId}:`, deleteResults.failed);
+            }
+          } else {
+            console.warn('⚠️ R2 client not available - files not deleted from storage');
+          }
+        }).catch(error => {
+          console.error(`❌ Failed to cleanup R2 files for order ${orderId}:`, error);
+        });
+      }
       
       // 🚀 CRITICAL FIX: Broadcast order deletion to all connected users for real-time sync
       broadcast({
