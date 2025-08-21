@@ -22,6 +22,8 @@ import RealTimeNotificationBell from '@/components/real-time-notification-bell';
 
 interface Order {
   id: number;
+  orderNumber: number;
+  publicId?: string;
   customerId: number;
   customerName: string;
   customerPhone: string;
@@ -38,6 +40,11 @@ interface Order {
   isUrgent: boolean;
   deletedAt?: string;
   deletedBy?: number;
+  deletedByUser?: {
+    id: number;
+    name: string;
+    role: string;
+  };
   shop?: {
     id: number;
     name: string;
@@ -54,9 +61,9 @@ export default function CustomerOrders() {
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<number | null>(null);
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<Order | null>(null);
 
-  // Fetch customer orders
+  // Fetch customer orders - including history and deleted orders
   const { data: orders = [], isLoading } = useQuery<Order[]>({
-    queryKey: [`/api/orders/customer/${user?.id}`],
+    queryKey: [`/api/orders/customer/${user?.id}?includeDeleted=true`],
     enabled: !!user?.id,
   });
 
@@ -67,7 +74,8 @@ export default function CustomerOrders() {
       order.title.toLowerCase().includes(search) ||
       order.description.toLowerCase().includes(search) ||
       order.shop?.name.toLowerCase().includes(search) ||
-      order.id.toString().includes(search)
+      order.orderNumber?.toString().includes(search) ||
+      order.publicId?.toLowerCase().includes(search)
     );
   });
 
@@ -122,7 +130,7 @@ export default function CustomerOrders() {
           <div className="mt-4 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search orders by title, shop name, or order ID..."
+              placeholder="Search orders by title, shop name, queue number, or order ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

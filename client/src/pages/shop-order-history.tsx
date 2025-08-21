@@ -43,6 +43,13 @@ interface Order {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  deletedAt?: string;
+  deletedBy?: number;
+  deletedByUser?: {
+    id: number;
+    name: string;
+    role: string;
+  };
 }
 
 interface Message {
@@ -84,7 +91,7 @@ export default function ShopOrderHistory() {
     retry: 2,
   });
 
-  // Fetch completed orders
+  // Fetch completed and deleted orders
   const { data: completedOrders = [], isLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}/history`],
     enabled: Boolean(shopData?.shop?.id && user?.role === 'shop_owner' && !authLoading),
@@ -105,7 +112,8 @@ export default function ShopOrderHistory() {
       order.title.toLowerCase().includes(search) ||
       order.customerName?.toLowerCase().includes(search) ||
       order.customerPhone?.includes(search) ||
-      order.id.toString().includes(search)
+      order.orderNumber?.toString().includes(search) ||
+      order.publicId?.toLowerCase().includes(search)
     );
   });
 
@@ -165,21 +173,33 @@ export default function ShopOrderHistory() {
 
     const hasConversation = chatHistory.length > 0 || order.type === 'upload';
 
+    const isDeleted = !!(order.deletedAt);
+    const borderColor = isDeleted ? 'border-l-red-400' : 'border-l-gray-300';
+    const cardBg = isDeleted ? 'bg-red-50/30' : 'bg-white';
+    
     return (
-      <Card className="transition-shadow hover:shadow-md border-l-4 border-l-gray-300">
+      <Card className={`transition-shadow hover:shadow-md border-l-4 ${borderColor} ${cardBg}`}>
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Order Header */}
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-900">{order.title}</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className={`font-semibold ${isDeleted ? 'text-gray-600' : 'text-gray-900'}`}>{order.title}</h3>
+                  <Badge className="bg-brand-yellow text-rich-black font-semibold">
+                    Queue #{order.orderNumber}
+                  </Badge>
                   <Badge className="bg-gray-100 text-gray-800">
-                    #{order.id}
+                    {order.publicId || `ORD-${order.id}`}
                   </Badge>
                   <Badge className="bg-gray-100 text-gray-800">
                     {order.type === 'upload' ? 'Upload' : 'Walk-in'}
                   </Badge>
+                  {isDeleted && (
+                    <Badge variant="destructive" className="text-xs">
+                      Deleted
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <User className="w-4 h-4 mr-1" />
@@ -189,14 +209,34 @@ export default function ShopOrderHistory() {
                 </div>
               </div>
               <div className="text-right text-sm text-gray-500">
-                <div className="flex items-center">
-                  <CheckCircle2 className="w-4 h-4 mr-1 text-green-600" />
-                  Completed
-                </div>
-                <div className="flex items-center mt-1">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  {format(new Date(order.updatedAt), 'MMM dd, yyyy')}
-                </div>
+                {isDeleted ? (
+                  <div>
+                    <div className="flex items-center text-red-600">
+                      <span className="w-4 h-4 mr-1">🗑️</span>
+                      Deleted
+                    </div>
+                    {order.deletedByUser && (
+                      <div className="text-xs text-red-500 mt-1">
+                        by {order.deletedByUser.name}
+                      </div>
+                    )}
+                    <div className="flex items-center mt-1">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {format(new Date(order.deletedAt!), 'MMM dd, yyyy')}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-center">
+                      <CheckCircle2 className="w-4 h-4 mr-1 text-green-600" />
+                      Completed
+                    </div>
+                    <div className="flex items-center mt-1">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {format(new Date(order.updatedAt), 'MMM dd, yyyy')}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -341,7 +381,7 @@ export default function ShopOrderHistory() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
-                Chat History - Queue #{selectedOrder.orderNumber} (ID: {selectedOrder.publicId || selectedOrder.id})
+                Chat History - Queue #{selectedOrder.orderNumber} ({selectedOrder.publicId || `ORD-${selectedOrder.id}`})
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600">
                 Conversation with {selectedOrder.customerName}
