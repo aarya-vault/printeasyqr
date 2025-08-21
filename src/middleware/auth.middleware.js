@@ -43,9 +43,13 @@ const requireAuth = async (req, res, next) => {
     }
     let decoded;
     try {
+      console.log(`🔐 [JWT DEBUG] Attempting to verify token: ${token.substring(0, 20)}...${token.substring(token.length - 10)}`);
+      console.log(`🔑 [JWT DEBUG] Token length: ${token.length}, JWT_SECRET exists: ${!!process.env.JWT_SECRET}`);
       decoded = verifyToken(token);
+      console.log(`✅ [JWT SUCCESS] Token decoded successfully:`, { id: decoded?.id, role: decoded?.role, exp: decoded?.exp });
     } catch (error) {
-      console.log('❌ JWT decode failed:', error.message);
+      console.log(`❌ [JWT ERROR] JWT decode failed:`, error.message);
+      console.log(`📋 [JWT STACK]`, error.stack);
       decoded = null;
     }
     

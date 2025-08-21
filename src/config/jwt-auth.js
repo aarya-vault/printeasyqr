@@ -41,8 +41,19 @@ export function generateRefreshToken(user) {
 
 export function verifyToken(token) {
   try {
-    return jwt.verify(token, getJWTSecret());
+    console.log(`🔐 [JWT VERIFY] Verifying token with length ${token.length}`);
+    console.log(`🔑 [JWT VERIFY] Using JWT_SECRET: ${process.env.JWT_SECRET?.substring(0, 10)}...`);
+    const decoded = jwt.verify(token, getJWTSecret());
+    console.log(`✅ [JWT VERIFY SUCCESS] Decoded:`, { id: decoded.id, role: decoded.role, exp: new Date(decoded.exp * 1000) });
+    return decoded;
   } catch (error) {
+    console.log(`❌ [JWT VERIFY ERROR] ${error.name}: ${error.message}`);
+    if (error.name === 'TokenExpiredError') {
+      console.log(`🕰️ [JWT EXPIRED] Token expired at: ${new Date(error.expiredAt)}`);
+    }
+    if (error.name === 'JsonWebTokenError') {
+      console.log(`❌ [JWT MALFORMED] Invalid token format or signature`);
+    }
     return null;
   }
 }
