@@ -21,6 +21,8 @@ import { uploadFilesDirectlyToR2, DirectUploadProgress } from '@/utils/direct-up
 
 interface Order {
   id: number;
+  orderNumber: number;
+  publicId?: string;
   customerId: number;
   customerName: string;
   customerPhone: string;
@@ -38,6 +40,13 @@ interface Order {
   updatedAt: string;
   isUrgent: boolean;
   notes?: string;
+  deletedAt?: string;
+  deletedBy?: number;
+  deletedByUser?: {
+    id: number;
+    name: string;
+    role: string;
+  };
 
   shop?: {
     id: number;
@@ -264,7 +273,18 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     }
   });
 
-  const getStatusInfo = (status: string) => {
+  const getStatusInfo = (status: string, isDeleted: boolean = false) => {
+    if (isDeleted) {
+      return {
+        color: 'bg-red-500',
+        textColor: 'text-red-700',
+        bgColor: 'bg-red-50',
+        icon: X,
+        label: 'Deleted',
+        description: 'This order has been deleted and is no longer available'
+      };
+    }
+    
     switch (status) {
       case 'new':
         return {
@@ -323,7 +343,9 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     }
   };
 
-  const getProgressPercentage = (status: string) => {
+  const getProgressPercentage = (status: string, isDeleted: boolean = false) => {
+    if (isDeleted) return 0;
+    
     switch (status) {
       case 'new': return 25;
       case 'pending': return 25;
@@ -408,10 +430,11 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
     return history;
   };
 
+  const isDeleted = !!(currentOrder.deletedAt);
   const currentFiles = parseFiles(currentOrder.files);
   const statusHistory = createDetailedStatusHistory();
-  const currentStatusInfo = getStatusInfo(currentOrder.status);
-  const canAddFiles = currentOrder.status !== 'completed'; // Allow adding files until completed
+  const currentStatusInfo = getStatusInfo(currentOrder.status, isDeleted);
+  const canAddFiles = currentOrder.status !== 'completed' && !isDeleted; // Don't allow adding files to deleted orders
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -586,13 +609,23 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-rich-black">
+            <h2 className={`text-2xl font-bold ${isDeleted ? 'text-red-600 line-through' : 'text-rich-black'}`}>
               Queue #{currentOrder.orderNumber || currentOrder.id}
               <span className="text-sm text-gray-500 ml-2 font-normal">
-                (ID: {currentOrder.publicId || `ORD-${currentOrder.id}`})
+                ({currentOrder.publicId || `ORD-${currentOrder.id}`})
               </span>
+              {isDeleted && (
+                <Badge variant="destructive" className="ml-3 text-xs">
+                  🗑️ Deleted
+                </Badge>
+              )}
             </h2>
-            <p className="text-gray-600">{currentOrder.title}</p>
+            <p className={`${isDeleted ? 'text-gray-500 line-through' : 'text-gray-600'}`}>{currentOrder.title}</p>
+            {isDeleted && currentOrder.deletedByUser && (
+              <p className="text-sm text-red-600 mt-1">
+                Deleted by: {currentOrder.deletedByUser.name} on {format(new Date(currentOrder.deletedAt!), 'MMM dd, yyyy')}
+              </p>
+            )}
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
@@ -622,15 +655,17 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
               </div>
               
               <div className="w-full overflow-hidden">
-                <Progress value={getProgressPercentage(currentOrder.status)} className="h-2 w-full" />
+                <Progress value={getProgressPercentage(currentOrder.status, isDeleted)} className={`h-2 w-full ${isDeleted ? 'opacity-50' : ''}`} />
               </div>
               
               <p className="text-sm text-gray-600">{currentStatusInfo.description}</p>
               
               <div className="text-xs text-gray-500">
-                {currentOrder.status === 'completed' 
-                  ? `Completed: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
-                  : `Last updated: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
+                {isDeleted
+                  ? `Deleted: ${formatToIndiaDateTime(currentOrder.deletedAt!)}`
+                  : currentOrder.status === 'completed' 
+                    ? `Completed: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
+                    : `Last updated: ${formatToIndiaDateTime(currentOrder.updatedAt)}`
                 }
               </div>
             </CardContent>
@@ -888,12 +923,23 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                     </>
                   )}
 
-                  {!canAddFiles && (
+                  {!canAddFiles && !isDeleted && (
                     <div className="bg-blue-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-blue-600" />
                         <span className="text-sm text-blue-700">
                           Order completed - Files have been processed and removed from storage
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isDeleted && (
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                      <div className="flex items-center gap-2">
+                        <X className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-red-700 font-medium">
+                          Order Deleted - Files no longer available
                         </span>
                       </div>
                     </div>
@@ -907,23 +953,38 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   <CardTitle>Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button
-                    onClick={() => setShowChat(true)}
-                    className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Chat with Shop
-                  </Button>
+                  {!isDeleted ? (
+                    <>
+                      <Button
+                        onClick={() => setShowChat(true)}
+                        className="w-full bg-brand-yellow hover:bg-yellow-500 text-rich-black"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Chat with Shop
+                      </Button>
 
-                  {order.shop?.publicContactNumber && (
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open(`tel:${order.shop?.publicContactNumber}`)}
-                      className="w-full"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call Shop
-                    </Button>
+                      {order.shop?.publicContactNumber && (
+                        <Button
+                          variant="outline"
+                          onClick={() => window.open(`tel:${order.shop?.publicContactNumber}`)}
+                          className="w-full"
+                        >
+                          <Phone className="w-4 h-4 mr-2" />
+                          Call Shop
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500">
+                      <X className="w-8 h-8 mx-auto mb-2 text-red-400" />
+                      <p className="text-sm font-medium">Order Deleted</p>
+                      <p className="text-xs">No actions available for deleted orders</p>
+                      {currentOrder.deletedByUser && (
+                        <p className="text-xs text-red-600 mt-2">
+                          Deleted by {currentOrder.deletedByUser.name}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>

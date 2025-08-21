@@ -185,47 +185,45 @@ export default function ShopOrderHistory() {
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className={`font-semibold ${isDeleted ? 'text-gray-600' : 'text-gray-900'}`}>{order.title}</h3>
+                  <h3 className={`font-semibold ${isDeleted ? 'text-gray-600 line-through' : 'text-gray-900'}`}>{order.title}</h3>
                   <Badge className="bg-brand-yellow text-rich-black font-semibold">
                     Queue #{order.orderNumber}
                   </Badge>
-                  <Badge className="bg-gray-100 text-gray-800">
-                    {order.publicId || `ORD-${order.id}`}
-                  </Badge>
-                  <Badge className="bg-gray-100 text-gray-800">
-                    {order.type === 'upload' ? 'Upload' : 'Walk-in'}
-                  </Badge>
+                  {!isDeleted && (
+                    <>
+                      <Badge className="bg-gray-100 text-gray-800">
+                        {order.publicId || `ORD-${order.id}`}
+                      </Badge>
+                      <Badge className="bg-gray-100 text-gray-800">
+                        {order.type === 'upload' ? 'Upload' : 'Walk-in'}
+                      </Badge>
+                    </>
+                  )}
                   {isDeleted && (
-                    <Badge variant="destructive" className="text-xs">
-                      Deleted
+                    <Badge variant="destructive" className="text-xs font-medium">
+                      🗑️ Deleted
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <User className="w-4 h-4 mr-1" />
-                  {order.customerName || (order as any).customer?.name}
-                  <Phone className="w-4 h-4 ml-3 mr-1" />
-                  {(order as any).customer?.phone || order.customerPhone}
-                </div>
+                {!isDeleted && (
+                  <div className="flex items-center text-sm text-gray-600">
+                    <User className="w-4 h-4 mr-1" />
+                    {order.customerName || (order as any).customer?.name}
+                    <Phone className="w-4 h-4 ml-3 mr-1" />
+                    {(order as any).customer?.phone || order.customerPhone}
+                  </div>
+                )}
+                {isDeleted && (
+                  <div className="text-sm text-red-600">
+                    <span className="font-medium">Deleted by:</span> {order.deletedByUser?.name || 'Unknown'}
+                    <span className="text-xs text-gray-500 ml-2">
+                      on {format(new Date(order.deletedAt!), 'MMM dd, yyyy')}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="text-right text-sm text-gray-500">
-                {isDeleted ? (
-                  <div>
-                    <div className="flex items-center text-red-600">
-                      <span className="w-4 h-4 mr-1">🗑️</span>
-                      Deleted
-                    </div>
-                    {order.deletedByUser && (
-                      <div className="text-xs text-red-500 mt-1">
-                        by {order.deletedByUser.name}
-                      </div>
-                    )}
-                    <div className="flex items-center mt-1">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {format(new Date(order.deletedAt!), 'MMM dd, yyyy')}
-                    </div>
-                  </div>
-                ) : (
+                {!isDeleted && (
                   <div>
                     <div className="flex items-center">
                       <CheckCircle2 className="w-4 h-4 mr-1 text-green-600" />
@@ -256,39 +254,48 @@ export default function ShopOrderHistory() {
             )}
 
             {/* Actions */}
-            <div className="flex items-center gap-2 pt-2 border-t">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleViewChatHistory(order)}
-                className="text-xs"
-              >
-                <MessageSquare className="w-3 h-3 mr-1" />
-                Chat History
-              </Button>
-              
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => window.open(`tel:${order.customerPhone}`)}
-                className="text-xs"
-              >
-                <Phone className="w-3 h-3 mr-1" />
-                Call
-              </Button>
-
-              {hasFiles && fileCount > 0 && (
+            {!isDeleted && (
+              <div className="flex items-center gap-2 pt-2 border-t">
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleDownloadFiles(order)}
+                  onClick={() => handleViewChatHistory(order)}
                   className="text-xs"
                 >
-                  <Download className="w-3 h-3 mr-1" />
-                  Files
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  Chat History
                 </Button>
-              )}
-            </div>
+                
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`tel:${order.customerPhone}`)}
+                  className="text-xs"
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  Call
+                </Button>
+
+                {hasFiles && fileCount > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownloadFiles(order)}
+                    className="text-xs"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Files
+                  </Button>
+                )}
+              </div>
+            )}
+            {isDeleted && (
+              <div className="pt-2 border-t border-red-200">
+                <div className="text-xs text-gray-500 italic">
+                  This order was deleted and is no longer available for processing.
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
