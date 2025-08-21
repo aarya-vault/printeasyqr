@@ -23,12 +23,13 @@ import { DashboardLoading, LoadingSpinner } from '@/components/ui/loading-spinne
 import { Shop, OrderFormInput } from '@shared/types';
 import { calculateUnifiedShopStatus, canPlaceWalkinOrder as canPlaceWalkinOrderUtil, getShopStatusText, getNextOpeningTime } from '@/utils/shop-timing';
 import { uploadFilesDirectlyToR2, DirectUploadProgress } from '@/utils/direct-upload';
+import { phoneValidationSchema } from '@/lib/validation';
 
 
 
 const orderSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  contactNumber: z.string().min(10, 'Valid phone number is required'),
+  contactNumber: phoneValidationSchema,
   orderType: z.enum(['upload', 'walkin']),
   files: z.array(z.any()).optional(),
   isUrgent: z.boolean(),
@@ -528,11 +529,25 @@ export default function ShopOrder() {
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-rich-black text-sm">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">{shop.address}</span>
+                <button
+                  onClick={() => window.open(shop.googleMapsLink || `https://maps.google.com/?q=${encodeURIComponent(shop.address)}`, '_blank')}
+                  className="truncate hover:text-blue-600 hover:underline transition-colors duration-200 text-left"
+                  data-testid="address-button"
+                  title="View on Google Maps"
+                >
+                  {shop.address}
+                </button>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 flex-shrink-0" />
-                <span>{shop.phone}</span>
+                <button
+                  onClick={() => window.location.href = `tel:${shop.phone}`}
+                  className="hover:text-blue-600 hover:underline transition-colors duration-200"
+                  data-testid="phone-button"
+                  title="Call this number"
+                >
+                  {shop.phone}
+                </button>
               </div>
             </div>
           </div>
