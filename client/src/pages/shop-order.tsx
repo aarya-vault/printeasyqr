@@ -530,7 +530,7 @@ export default function ShopOrder() {
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
                 <button
-                  onClick={() => window.open(shop.googleMapsLink || `https://maps.google.com/?q=${encodeURIComponent(shop.address)}`, '_blank')}
+                  onClick={() => window.open(shop.google_maps_link || `https://maps.google.com/?q=${encodeURIComponent(shop.address)}`, '_blank')}
                   className="truncate hover:text-blue-600 hover:underline transition-colors duration-200 text-left"
                   data-testid="address-button"
                   title="View on Google Maps"
@@ -597,7 +597,22 @@ export default function ShopOrder() {
                       <FormItem>
                         <FormLabel>Contact Number *</FormLabel>
                         <FormControl>
-                          <Input placeholder="10-digit phone number" {...field} />
+                          <Input 
+                            placeholder="10-digit phone number" 
+                            {...field}
+                            type="tel"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={10}
+                            onInput={(e) => {
+                              // Allow only numeric characters and limit to 10 digits
+                              const target = e.target as HTMLInputElement;
+                              const value = target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                              target.value = value;
+                              field.onChange(value);
+                            }}
+                            data-testid="input-contact-number"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

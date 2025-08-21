@@ -79,6 +79,8 @@ export interface Shop extends Timestamps {
   status: 'active' | 'deactivated' | 'banned';
   qrCode?: string;
   totalOrders: number;
+  // Additional Properties
+  google_maps_link?: string;
   // Relations
   owner?: User;
 }
