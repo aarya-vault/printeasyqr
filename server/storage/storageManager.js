@@ -23,8 +23,11 @@ class StorageManager {
    * @param {Object} metadata - Additional metadata (orderId, etc.)
    */
   async saveFile(file, category, metadata = {}) {
-    if (category === 'ORDER' && this.r2Available) {
-      // Use R2 for order files
+    if (category === 'ORDER') {
+      // Always use R2 for order files (no fallback)
+      if (!this.r2Available) {
+        throw new Error('R2 storage is not available. Please try again later.');
+      }
       return await this.saveOrderFileToR2(file, metadata);
     } else {
       // Use local storage for QR codes and chat attachments
@@ -33,37 +36,31 @@ class StorageManager {
   }
   
   async saveOrderFileToR2(file, metadata) {
-    try {
-      const { orderId } = metadata;
-      if (!orderId) {
-        throw new Error('Order ID required for R2 storage');
-      }
-      
-      // Generate R2 key
-      const key = r2Client.generateKey(orderId, file.originalname || file.originalName);
-      
-      // 🚀 ULTRA PERFORMANCE: Use intelligent upload (multipart for large files)
-      const startTime = Date.now();
-      const result = await r2Client.intelligentUpload(key, file.buffer, file.mimetype);
-      const uploadTime = Date.now() - startTime;
-      
-      console.log(`⚡ R2 upload completed in ${uploadTime}ms for ${file.originalname}`);
-      
-      return {
-        filename: path.basename(key),
-        originalName: file.originalname || file.originalName,
-        mimetype: file.mimetype,
-        size: file.size || file.buffer.length,
-        path: key, // R2 key
-        r2Key: key,
-        storageType: 'r2',
-        bucket: result.bucket
-      };
-    } catch (r2Error) {
-      console.error('❌ R2 upload failed, falling back to local:', r2Error.message);
-      // Fallback to local storage
-      return await this.saveFileLocally(file, 'ORDER', metadata);
+    const { orderId } = metadata;
+    if (!orderId) {
+      throw new Error('Order ID required for R2 storage');
     }
+    
+    // Generate R2 key
+    const key = r2Client.generateKey(orderId, file.originalname || file.originalName);
+    
+    // 🚀 ULTRA PERFORMANCE: Use intelligent upload (multipart for large files)
+    const startTime = Date.now();
+    const result = await r2Client.intelligentUpload(key, file.buffer, file.mimetype);
+    const uploadTime = Date.now() - startTime;
+    
+    console.log(`⚡ R2 upload completed in ${uploadTime}ms for ${file.originalname}`);
+    
+    return {
+      filename: path.basename(key),
+      originalName: file.originalname || file.originalName,
+      mimetype: file.mimetype,
+      size: file.size || file.buffer.length,
+      path: key, // R2 key
+      r2Key: key,
+      storageType: 'r2',
+      bucket: result.bucket
+    };
   }
   
   async saveFileLocally(file, category, metadata) {
@@ -183,30 +180,71 @@ class StorageManager {
   }
   
   /**
-   * ULTRA FAST: Save multiple files in parallel batches
+   * ULTRA FAST: Save multiple files in parallel batches with enhanced concurrency
    */
   async saveMultipleFiles(files, category, metadata = {}) {
-    // 🔥 ULTRA SPEED: Process files in larger parallel batches for maximum throughput
-    const batchSize = 10; // Process 10 files at a time for massive speed boost
+    // 🔥 MAXIMUM PERFORMANCE: Parallel processing for ALL file sizes
+    const optimalBatchSize = Math.min(20, files.length); // Process up to 20 files simultaneously
     const results = [];
     
-    console.log(`🚀 Processing ${files.length} files in parallel batches...`);
+    console.log(`🚀 Uploading ${files.length} files with ${optimalBatchSize} parallel connections...`);
     const startTime = Date.now();
+    let totalBytesUploaded = 0;
     
-    for (let i = 0; i < files.length; i += batchSize) {
-      const batch = files.slice(i, i + batchSize);
-      const batchResults = await Promise.all(
-        batch.map((file, index) => 
-          this.saveFile(file, category, { ...metadata, index: i + index })
-        )
-      );
-      results.push(...batchResults);
+    // Process all files in optimized parallel batches
+    for (let i = 0; i < files.length; i += optimalBatchSize) {
+      const batch = files.slice(i, i + optimalBatchSize);
+      const batchStartTime = Date.now();
       
-      console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${batchResults.length} files`);
+      // Upload batch in parallel with error handling
+      const batchResults = await Promise.allSettled(
+        batch.map(async (file, index) => {
+          try {
+            const result = await this.saveFile(file, category, { ...metadata, index: i + index });
+            totalBytesUploaded += file.size || file.buffer?.length || 0;
+            return result;
+          } catch (error) {
+            console.error(`❌ Failed to upload ${file.originalname || file.originalName}:`, error.message);
+            throw error;
+          }
+        })
+      );
+      
+      // Process results and handle any failures
+      const successfulUploads = batchResults
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value);
+      
+      const failedUploads = batchResults
+        .filter(result => result.status === 'rejected')
+        .map((result, idx) => batch[idx].originalname || batch[idx].originalName);
+      
+      if (failedUploads.length > 0) {
+        console.warn(`⚠️ Failed uploads in batch: ${failedUploads.join(', ')}`);
+      }
+      
+      results.push(...successfulUploads);
+      
+      const batchTime = Date.now() - batchStartTime;
+      const batchBytes = batch.reduce((sum, f) => sum + (f.size || f.buffer?.length || 0), 0);
+      const batchSpeed = batchBytes / (batchTime / 1000) / (1024 * 1024); // MB/s
+      
+      console.log(`✅ Batch ${Math.floor(i/optimalBatchSize) + 1} completed: ${successfulUploads.length}/${batch.length} files in ${batchTime}ms (${batchSpeed.toFixed(2)} MB/s)`);
     }
     
     const totalTime = Date.now() - startTime;
-    console.log(`⚡ All ${files.length} files saved in ${totalTime}ms (${Math.round(totalTime/files.length)}ms per file)`);
+    const overallSpeed = totalBytesUploaded / (totalTime / 1000) / (1024 * 1024); // MB/s
+    
+    console.log(`⚡ Upload complete: ${results.length}/${files.length} files in ${totalTime}ms`);
+    console.log(`📊 Performance: ${overallSpeed.toFixed(2)} MB/s average, ${Math.round(totalTime/files.length)}ms per file`);
+    
+    // Throw error if any critical files failed
+    if (results.length < files.length) {
+      const failureRate = ((files.length - results.length) / files.length) * 100;
+      if (failureRate > 10) { // More than 10% failure rate
+        throw new Error(`Upload failed: ${files.length - results.length} files could not be uploaded`);
+      }
+    }
     
     return results;
   }

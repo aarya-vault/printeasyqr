@@ -37,10 +37,10 @@ class R2Client {
       
       this.bucket = process.env.R2_BUCKET_NAME;
       
-      // 🚀 MULTIPART UPLOAD CONFIGURATION
-      this.multipartThreshold = 500 * 1024 * 1024; // 500MB - Use multipart for very large files only
-      this.partSize = 10 * 1024 * 1024; // 10MB per part for optimal speed
-      this.maxConcurrentParts = 10; // Upload 10 parts simultaneously
+      // 🚀 MULTIPART UPLOAD CONFIGURATION - OPTIMIZED FOR PERFORMANCE
+      this.multipartThreshold = 50 * 1024 * 1024; // 50MB - Use multipart for better parallelization
+      this.partSize = 5 * 1024 * 1024; // 5MB per part for optimal network utilization
+      this.maxConcurrentParts = 20; // Upload 20 parts simultaneously for faster transfers
       
       console.log('✅ R2 Client initialized with bucket:', this.bucket);
     } else {
@@ -392,9 +392,9 @@ class R2Client {
   async intelligentUpload(key, buffer, mimetype) {
     const fileSize = buffer.length;
     
-    // Use multipart for large files (>100MB)
+    // Use multipart for files over 50MB for better performance
     if (fileSize > this.multipartThreshold) {
-      console.log(`🚀 Large file detected (${Math.round(fileSize/1024/1024)}MB) - Using multipart upload`);
+      console.log(`🚀 File size ${Math.round(fileSize/1024/1024)}MB - Using optimized multipart upload`);
       return await this.multipartUpload(key, buffer, mimetype);
     } else {
       console.log(`📤 Standard upload for ${Math.round(fileSize/1024/1024)}MB file`);

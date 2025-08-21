@@ -70,4 +70,52 @@ export function broadcast(message) {
   });
 }
 
+// Broadcast to specific shop's connected users
+export function broadcastToShop(shopId, message) {
+  // This will need shop-user mapping from database
+  // For now, broadcast to all users and let client filter
+  broadcast({ ...message, targetShopId: shopId });
+}
+
+// Broadcast order updates to relevant parties
+export function broadcastOrderUpdate(order, eventType) {
+  const message = {
+    type: `order:${eventType}`,
+    orderId: order.id,
+    shopId: order.shopId,
+    customerId: order.customerId,
+    order: order,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Send to customer
+  sendToUser(order.customerId, message);
+  
+  // Send to shop owner (would need shop owner ID lookup)
+  broadcastToShop(order.shopId, message);
+  
+  console.log(`📢 Broadcasted order:${eventType} for order ${order.id}`);
+}
+
+// Broadcast message updates
+export function broadcastMessageUpdate(message, eventType) {
+  const wsMessage = {
+    type: `message:${eventType}`,
+    messageId: message.id,
+    orderId: message.orderId,
+    senderId: message.senderId,
+    recipientId: message.recipientId,
+    message: message,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Send to both sender and recipient
+  sendToUser(message.senderId, wsMessage);
+  if (message.recipientId) {
+    sendToUser(message.recipientId, wsMessage);
+  }
+  
+  console.log(`📢 Broadcasted message:${eventType} for message ${message.id}`);
+}
+
 export { wsConnections };

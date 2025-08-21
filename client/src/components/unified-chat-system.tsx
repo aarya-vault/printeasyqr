@@ -91,7 +91,7 @@ export default function UnifiedChatSystem({
       (effectiveUserRole === 'customer' || 
        (effectiveUserRole === 'shop_owner' && shopData?.shop?.id))
     ),
-    refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
+    refetchInterval: 30000, // Reduced to 30 seconds - WebSocket handles real-time updates
     select: (data) => {
       console.log('🔍 CHAT - Raw orders data received:', data?.length, 'orders');
       console.log('🔍 CHAT - First few orders:', data?.slice(0, 3));
@@ -116,7 +116,7 @@ export default function UnifiedChatSystem({
   const { data: messages = [], isLoading: messagesLoading, error: messagesError } = useQuery<Message[]>({
     queryKey: [`/api/messages/order/${selectedOrderId}`],
     enabled: !!selectedOrderId && !!user?.id,
-    refetchInterval: 2000, // Slightly slower refresh for stability
+    refetchInterval: 15000, // Reduced to 15 seconds - WebSocket handles real-time updates
     staleTime: 1000, // 1 second stale time for better performance
     retry: (failureCount, error: any) => {
       // Don't retry on auth errors, but retry on other errors

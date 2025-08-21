@@ -208,8 +208,8 @@ export async function uploadFilesDirectlyToR2(
   let uploadedBytes = 0;
   const startTime = Date.now();
 
-  // Upload files in parallel (max 3 concurrent for optimal speed)
-  const maxConcurrent = 3;
+  // Upload files in parallel (increased to 5 concurrent for better speed)
+  const maxConcurrent = 5; // Increased from 3 to 5 for better parallelization
   const uploadPromises: Promise<void>[] = [];
 
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
@@ -246,9 +246,18 @@ export async function uploadFilesDirectlyToR2(
 
             const currentTime = Date.now();
             const elapsedTime = (currentTime - startTime) / 1000;
-            const overallSpeed = elapsedTime > 0 ? uploadedBytes / elapsedTime : 0;
+            // Calculate aggregate speed from all parallel uploads
+            let totalSpeed = 0;
+            let activeUploads = 0;
+            uploadFiles.forEach(f => {
+              if (f.status === 'uploading' && f.speed) {
+                totalSpeed += f.speed;
+                activeUploads++;
+              }
+            });
+            
             const remainingBytes = totalBytes - uploadedBytes;
-            const estimatedTime = overallSpeed > 0 ? Math.round(remainingBytes / overallSpeed) : 0;
+            const estimatedTime = totalSpeed > 0 ? Math.round(remainingBytes / totalSpeed) : 0;
 
             if (onProgress) {
               onProgress({
@@ -256,7 +265,7 @@ export async function uploadFilesDirectlyToR2(
                 completedFiles: completedCount,
                 currentFile: uploadFile.file.name,
                 overallProgress: Math.round((uploadedBytes / totalBytes) * 100),
-                uploadSpeed: overallSpeed,
+                uploadSpeed: totalSpeed, // Use totalSpeed from all parallel uploads
                 estimatedTime,
                 bytesUploaded: uploadedBytes,
                 totalBytes
