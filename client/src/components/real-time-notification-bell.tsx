@@ -32,10 +32,10 @@ export default function RealTimeNotificationBell({ onClick, className = "" }: Re
   const { data: notifications = [], refetch } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/${user?.id}`],
     enabled: !!user?.id && user.role !== undefined, // Only when fully authenticated
-    refetchInterval: (!!user?.id && user.role !== undefined) ? 30000 : false, // PERFORMANCE FIX: Reduced from 3 seconds to 30 seconds
+    refetchInterval: (!!user?.id && user.role !== undefined) ? 3000 : false, // Only refetch when authenticated
     refetchIntervalInBackground: false, // Don't refetch when tab is not active
     refetchOnWindowFocus: !!user?.id, // Only refetch on focus when authenticated
-    staleTime: 10000, // PERFORMANCE FIX: 10 seconds cache to reduce load
+    staleTime: 0, // Always consider data stale for real-time updates
   });
 
   // Real-time notification updates via WebSocket

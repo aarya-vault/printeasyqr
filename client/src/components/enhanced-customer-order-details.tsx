@@ -92,7 +92,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const { data: freshOrder, refetch: refetchOrder } = useQuery({
     queryKey: [`/api/orders/${order.id}`],
     initialData: order,
-    refetchInterval: order && order.status !== 'completed' ? 30000 : false, // PERFORMANCE FIX: Reduced from 5 seconds to 30 seconds
+    refetchInterval: order && order.status !== 'completed' ? 5000 : false, // Reduced frequency to prevent flickering
     refetchIntervalInBackground: false, // Don't refetch when tab is not active
     enabled: !!order?.id, // Only run when we have a valid order
     staleTime: 2000, // Consider data fresh for 2 seconds

@@ -200,9 +200,9 @@ export default function RedesignedShopOwnerDashboard() {
   const { data: shopData, isLoading: shopLoading } = useQuery<{ shop: Shop }>({
     queryKey: [`/api/shops/owner/${user?.id}`],
     enabled: Boolean(user?.id && user?.role === 'shop_owner' && !authLoading),
-    refetchInterval: 300000, // 5 minute refresh - PERFORMANCE FIX: Reduced from 1 minute
+    refetchInterval: 60000, // 1 minute refresh
     refetchIntervalInBackground: false,
-    staleTime: 120000, // 2 minutes - PERFORMANCE FIX: Increased cache time
+    staleTime: 30000, // 30 seconds
     gcTime: 300000, // 5 minutes
     retry: 2,
   });
@@ -210,9 +210,9 @@ export default function RedesignedShopOwnerDashboard() {
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/shop/${shopData?.shop?.id}`],
     enabled: Boolean(shopData?.shop?.id && user?.id && user?.role === 'shop_owner' && !authLoading),
-    refetchInterval: 120000, // 2 minutes - PERFORMANCE FIX: Reduced from 30 seconds
+    refetchInterval: 30000, // 30 seconds
     refetchIntervalInBackground: false,
-    staleTime: 60000, // 1 minute - PERFORMANCE FIX: Increased cache time
+    staleTime: 15000, // 15 seconds
     gcTime: 60000, // 1 minute
     retry: 2,
   });

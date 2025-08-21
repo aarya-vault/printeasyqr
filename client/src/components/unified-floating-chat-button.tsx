@@ -27,7 +27,7 @@ export default function UnifiedFloatingChatButton() {
   const { data: unreadData } = useQuery<{ unreadCount: number }>({
     queryKey: [`/api/messages/unread-count`],
     enabled: Boolean(user?.id && user?.role),
-    refetchInterval: (user?.id && user?.role) ? 60000 : false, // PERFORMANCE FIX: Reduced from 10 seconds to 1 minute
+    refetchInterval: (user?.id && user?.role) ? 10000 : false, // Check every 10 seconds for real-time updates only when authenticated
     refetchIntervalInBackground: false, // Don't refetch when tab is not active
     retry: (failureCount, error: any) => {
       if (error?.status === 401) return false;
@@ -43,7 +43,7 @@ export default function UnifiedFloatingChatButton() {
     enabled: user?.role === 'shop_owner' 
       ? Boolean(shopData?.shop?.id && user?.id)
       : Boolean(user?.id && user?.role === 'customer'),
-    refetchInterval: 120000, // PERFORMANCE FIX: Reduced from 30 seconds to 2 minutes
+    refetchInterval: 30000,
     retry: (failureCount, error: any) => {
       if (error?.status === 401) return false;
       return failureCount < 1;

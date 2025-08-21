@@ -91,7 +91,7 @@ export default function UnifiedChatSystem({
       (effectiveUserRole === 'customer' || 
        (effectiveUserRole === 'shop_owner' && shopData?.shop?.id))
     ),
-    refetchInterval: 30000, // PERFORMANCE FIX: Reduced from 5 seconds to 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
     select: (data) => {
       console.log('🔍 CHAT - Raw orders data received:', data?.length, 'orders');
       console.log('🔍 CHAT - First few orders:', data?.slice(0, 3));
@@ -116,8 +116,8 @@ export default function UnifiedChatSystem({
   const { data: messages = [], isLoading: messagesLoading, error: messagesError } = useQuery<Message[]>({
     queryKey: [`/api/messages/order/${selectedOrderId}`],
     enabled: !!selectedOrderId && !!user?.id,
-    refetchInterval: 10000, // PERFORMANCE FIX: Reduced from 2 seconds to 10 seconds
-    staleTime: 5000, // PERFORMANCE FIX: Increased from 1 second to 5 seconds
+    refetchInterval: 2000, // Slightly slower refresh for stability
+    staleTime: 1000, // 1 second stale time for better performance
     retry: (failureCount, error: any) => {
       // Don't retry on auth errors, but retry on other errors
       if (error?.message?.includes('401') || error?.message?.includes('Authentication')) {
