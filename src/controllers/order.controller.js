@@ -43,21 +43,17 @@ class OrderController {
       const activeCount = parseInt(result.active_count);
       const maxNumber = parseInt(result.max_number);
 
-      console.log(`⚡ Shop ${shopId}: ${activeCount} active orders, max queue #${maxNumber}`);
 
       // If no active orders, reset to #1
       if (activeCount === 0) {
-        console.log(`🔄 Resetting queue numbering for shop ${shopId} - starting fresh with #1`);
         return 1;
       }
 
       // Return next number
       const nextNumber = maxNumber + 1;
-      console.log(`📈 Shop ${shopId} - assigning queue #${nextNumber}`);
       
       return nextNumber;
     } catch (error) {
-      console.error(`❌ Error calculating dynamic queue number for shop ${shopId}:`, error);
       // Fallback to simple increment
       const lastOrder = await Order.findOne({
         where: { shopId: parseInt(shopId) },
@@ -153,7 +149,6 @@ class OrderController {
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
       res.json(transformedOrders);
     } catch (error) {
-      console.error('Get shop orders error:', error);
       res.status(500).json({ message: 'Failed to get orders' });
     }
   }
@@ -188,7 +183,6 @@ class OrderController {
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
       res.json(transformedOrders);
     } catch (error) {
-      console.error('Get customer orders error:', error);
       res.status(500).json({ message: 'Failed to get orders' });
     }
   }
@@ -253,7 +247,6 @@ class OrderController {
       // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for authenticated order...`);
         
         // Create a temporary order ID for R2 storage (will be updated after order creation)
         const tempOrderId = `temp-${Date.now()}`;
@@ -276,7 +269,6 @@ class OrderController {
         
         // Filter out any failed uploads (saveMultipleFiles already handles errors)
         files = files.filter(file => file !== null);
-        console.log(`✅ Successfully saved ${files.length} files for authenticated order`);
       }
       
       // Extract additional order details from request body
@@ -320,14 +312,11 @@ class OrderController {
       });
 
       // 🔥 FIX: Update shop's total orders count for real-time sync
-      console.log(`🔄 Incrementing totalOrders for shop ID: ${shopId}`);
       try {
         await Shop.increment('totalOrders', {
           where: { id: parseInt(shopId) }
         });
-        console.log(`✅ Shop ${shopId} totalOrders incremented successfully`);
       } catch (incrementError) {
-        console.error(`❌ Error incrementing totalOrders for shop ${shopId}:`, incrementError);
       }
       
       const orderWithDetails = await Order.findByPk(newOrder.id, {
@@ -340,7 +329,6 @@ class OrderController {
       const transformedOrder = OrderController.transformOrderData(orderWithDetails);
       res.json(transformedOrder);
     } catch (error) {
-      console.error('Create order error:', error);
       res.status(500).json({ message: 'Failed to create order' });
     }
   }
@@ -374,7 +362,6 @@ class OrderController {
       // 🔧 FIX: Remove duplicate completion logic - handled in updateOrderStatus only
       // Auto delete files if order is completed - DISABLED to prevent double execution
       if (updateData.status === 'completed') {
-        console.log(`⚠️  Order ${orderId} completion detected in updateOrder - delegating to updateOrderStatus`);
         // Completion logic moved to updateOrderStatus to prevent duplication
       }
       
@@ -399,12 +386,10 @@ class OrderController {
         timestamp: new Date().toISOString()
       });
       
-      console.log(`📡 Broadcasting order update: Order ${orderId} updated`);
       
       res.json(transformedOrder);
     } catch (error) {
       await transaction.rollback();
-      console.error('Update order error:', error);
       res.status(500).json({ message: 'Failed to update order' });
     }
   }
@@ -439,7 +424,6 @@ class OrderController {
       // Schedule file deletion for completed orders (non-blocking)
       let shouldDeleteFiles = false;
       if (status === 'completed') {
-        console.log(`🗑️  Order ${orderId} marked as completed, will delete files after response...`);
         shouldDeleteFiles = true;
         
         // 🎯 DYNAMIC ORDER NUMBERING: Check if this completion causes a reset
@@ -455,9 +439,7 @@ class OrderController {
         });
         
         if (remainingActiveOrders === 0) {
-          console.log(`🔄 RESET TRIGGER: Shop ${order.shopId} now has 0 active orders - next order will be #1`);
         } else {
-          console.log(`📊 Shop ${order.shopId} still has ${remainingActiveOrders} active orders after completion`);
         }
       }
       
@@ -483,7 +465,6 @@ class OrderController {
         timestamp: new Date().toISOString()
       });
       
-      console.log(`📡 Broadcasting order status update: Order ${orderId} status changed to ${status}`);
       
       res.json(transformedOrder);
       
@@ -491,18 +472,14 @@ class OrderController {
       if (shouldDeleteFiles) {
         setImmediate(async () => {
           try {
-            console.log(`🗑️ Starting background file cleanup for completed order ${orderId}...`);
             await OrderController.deleteOrderFiles(orderId);
-            console.log(`✅ Background file cleanup completed for order ${orderId}`);
           } catch (error) {
-            console.error(`❌ Background file cleanup failed for order ${orderId}:`, error);
             // Don't throw - cleanup failure shouldn't affect the user
           }
         });
       }
     } catch (error) {
       await transaction.rollback();
-      console.error('Update order status error:', error);
       res.status(500).json({ message: 'Failed to update order status' });
     }
   }
@@ -551,7 +528,6 @@ class OrderController {
         return res.status(400).json({ message: 'No files provided' });
       }
 
-      console.log(`📤 Adding ${req.files.length} files to existing order ${orderId}...`);
       
       // Get existing files
       let existingFiles = [];
@@ -585,7 +561,6 @@ class OrderController {
       await order.update({ files: allFiles }, { transaction });
       await transaction.commit();
       
-      console.log(`✅ Successfully added ${validNewFiles.length} files to order ${orderId}`);
       
       // Return updated order
       const updatedOrder = await Order.findByPk(orderId, {
@@ -615,7 +590,6 @@ class OrderController {
       });
     } catch (error) {
       await transaction.rollback();
-      console.error('Add files to order error:', error);
       res.status(500).json({ message: 'Failed to add files to order' });
     }
   }
@@ -625,7 +599,6 @@ class OrderController {
     try {
       const order = await Order.findByPk(orderId, { transaction });
       if (!order || !order.files) {
-        console.log(`❌ No files to delete for order ${orderId}`);
         return;
       }
 
@@ -635,26 +608,21 @@ class OrderController {
         try {
           filesToDelete = JSON.parse(order.files);
         } catch (parseError) {
-          console.error('Failed to parse order files JSON:', parseError);
           return;
         }
       } else if (Array.isArray(order.files)) {
         filesToDelete = order.files;
       }
 
-      console.log(`🗑️  Deleting ${filesToDelete.length} files for completed order ${orderId}`);
       
       // Use storage manager to delete files (handles both R2 and local)
       for (const file of filesToDelete) {
         try {
           const deleted = await storageManager.deleteFile(file);
           if (deleted) {
-            console.log(`✅ Successfully deleted file: ${file.originalName || file.filename}`);
           } else {
-            console.log(`⚠️ Could not delete file: ${file.originalName || file.filename}`);
           }
         } catch (fileError) {
-          console.error(`❌ Failed to delete file ${file.originalName || file.filename}:`, fileError.message);
           // Continue with other files even if one fails
         }
       }
@@ -672,14 +640,12 @@ class OrderController {
               try {
                 await fs.unlink(path.join('uploads', file.filename));
               } catch (error) {
-                console.error(`Failed to delete message file: ${file.filename}`, error);
               }
             }
           }
         }
       }
     } catch (error) {
-      console.error('Delete order files error:', error);
     }
   }
 
@@ -695,7 +661,6 @@ class OrderController {
       
       // Validate required fields early
       if (!shopId || !type) {
-        console.log('❌ Missing required fields:', { shopId: !!shopId, type: !!type });
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
@@ -707,10 +672,8 @@ class OrderController {
         OrderController.calculateDynamicQueueNumber(shopId)
       ]);
       
-      console.log(`⚡ Parallel operations completed in ${Date.now() - startTime}ms`);
       
       if (!customer) {
-        console.log('❌ Customer not found:', customerId);
         return res.status(404).json({ message: 'User not found' });
       }
       
@@ -743,7 +706,6 @@ class OrderController {
         
         await transaction.commit();
         
-        console.log(`✅ Order created in ${Date.now() - startTime}ms: ${order.id} for ${customer.name}`);
         
         // ⚡ IMMEDIATE RESPONSE: Return order details immediately
         res.status(201).json({
@@ -773,7 +735,6 @@ class OrderController {
       }
       
     } catch (error) {
-      console.error('Order creation error:', error);
       res.status(500).json({ message: 'Failed to create order' });
     }
   }
@@ -809,17 +770,14 @@ class OrderController {
       // This ensures customers can place orders for later processing
 
       // 🔥 PREVENT SHOP OWNER PHONE COLLISION IN ANONYMOUS ORDERS
-      console.log(`🔍 Checking phone number for order creation: ${customerPhone}`);
       let customer = await User.findOne({ 
         where: { phone: customerPhone } 
       });
       
       if (customer) {
-        console.log(`📞 Found existing user with phone ${customerPhone}: role=${customer.role}, name=${customer.name}`);
         // If phone belongs to shop owner or admin, prevent order creation
         if (customer.role === 'shop_owner') {
           await transaction.rollback();
-          console.log(`❌ Blocking order creation - phone ${customerPhone} belongs to shop owner`);
           return res.status(400).json({ 
             message: 'This phone number belongs to a shop owner. Shop owners cannot place walk-in orders. Please use the shop dashboard to manage orders. Try using a different customer phone number for testing.',
             errorCode: 'SHOP_OWNER_PHONE_IN_WALKIN',
@@ -852,7 +810,6 @@ class OrderController {
       // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
       let files = [];
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        console.log(`📤 Processing ${req.files.length} files for anonymous order...`);
         
         // Create a temporary order ID for R2 storage
         const tempOrderId = `anon-${Date.now()}`;
@@ -875,7 +832,6 @@ class OrderController {
         
         // Filter out any failed uploads (saveMultipleFiles already handles errors)
         files = files.filter(file => file !== null);
-        console.log(`✅ Successfully saved ${files.length} files for anonymous order`);
       }
       
       // 🎯 DYNAMIC QUEUE NUMBERING: Use dynamic numbering for anonymous orders too
@@ -918,7 +874,6 @@ class OrderController {
       });
     } catch (error) {
       await transaction.rollback();
-      console.error('Create anonymous order error:', error);
       res.status(500).json({ message: 'Failed to create order' });
     }
   }
@@ -964,29 +919,12 @@ class OrderController {
         return res.status(401).json({ message: 'Authentication required for older orders' });
       }
       
-      // 🚀 CRITICAL DEBUG: Add detailed logging for order data transformation
-      console.log('🔍 ORDER API DEBUG:', {
-        orderId,
-        hasOrder: !!order,
-        orderStatus: order?.status,
-        hasFiles: !!order?.files,
-        filesType: typeof order?.files,
-        createdAt: order?.createdAt,
-        customerId: order?.customerId,
-        shopId: order?.shopId
-      });
 
       const transformedOrder = OrderController.transformOrderData(order);
-      console.log('🔍 TRANSFORMED ORDER:', {
-        transformedId: transformedOrder?.id,
-        transformedStatus: transformedOrder?.status,
-        transformedFiles: transformedOrder?.files?.length || 0
-      });
       
       // 🚀 ORDER CONFIRMATION FIX: Return order in expected format for confirmation page
       res.json({ order: transformedOrder });
     } catch (error) {
-      console.error('Get order error:', error);
       res.status(500).json({ message: 'Failed to get order' });
     }
   }
@@ -1045,7 +983,6 @@ class OrderController {
         timestamp: new Date().toISOString()
       });
       
-      console.log(`📡 Broadcasting order deletion: Order ${orderId} deleted by user ${userId}`);
       
       // Send response immediately for instant UI feedback
       res.json({ success: true, message: 'Order deleted successfully', orderId: orderId });
@@ -1054,17 +991,13 @@ class OrderController {
       // This prevents UI blocking while R2 deletion happens
       setImmediate(async () => {
         try {
-          console.log(`🗑️ Starting background file cleanup for deleted order ${orderId}...`);
           await OrderController.deleteOrderFiles(orderId);
-          console.log(`✅ Background file cleanup completed for order ${orderId}`);
         } catch (error) {
-          console.error(`❌ Background file cleanup failed for order ${orderId}:`, error);
           // Don't throw - cleanup failure shouldn't affect the user
         }
       });
     } catch (error) {
       await transaction.rollback();
-      console.error('Delete order error:', error);
       res.status(500).json({ message: 'Failed to delete order' });
     }
   }
@@ -1150,7 +1083,6 @@ class OrderController {
         }, 'file_upload');
       } catch (broadcastError) {
         // Log but don't fail the request
-        console.error('Broadcast error (non-fatal):', broadcastError);
       }
       
       res.json({ 
@@ -1167,7 +1099,6 @@ class OrderController {
           // Ignore rollback errors
         }
       }
-      console.error('Confirm files error:', error);
       res.status(500).json({ 
         message: 'Failed to confirm file uploads',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined

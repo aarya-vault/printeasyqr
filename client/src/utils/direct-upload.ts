@@ -10,6 +10,9 @@ export interface DirectUploadFile {
   speed?: number;
   error?: string;
   multipartId?: string;
+  partUrls?: string[];
+  partSize?: number;
+  totalParts?: number;
 }
 
 export interface DirectUploadProgress {
@@ -67,6 +70,61 @@ export async function getDirectUploadUrls(
   } catch (error) {
     return { useDirectUpload: false };
   }
+}
+
+/**
+ * Upload multipart file in chunks
+ */
+async function uploadMultipartFile(
+  file: File,
+  partUrls: string[],
+  partSize: number,
+  onProgress: (progress: number) => void
+): Promise<Array<{PartNumber: number, ETag: string}>> {
+  const parts: Array<{PartNumber: number, ETag: string}> = [];
+  const totalParts = partUrls.length;
+  let uploadedParts = 0;
+  
+  // Upload parts in parallel (max 5 concurrent)
+  const maxConcurrent = 5;
+  
+  for (let i = 0; i < totalParts; i += maxConcurrent) {
+    const batch = Math.min(maxConcurrent, totalParts - i);
+    const batchPromises = [];
+    
+    for (let j = 0; j < batch; j++) {
+      const partNumber = i + j + 1;
+      const start = (partNumber - 1) * partSize;
+      const end = Math.min(start + partSize, file.size);
+      const partBlob = file.slice(start, end);
+      
+      const uploadPart = async () => {
+        const response = await fetch(partUrls[partNumber - 1], {
+          method: 'PUT',
+          body: partBlob,
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to upload part ${partNumber}`);
+        }
+        
+        const etag = response.headers.get('ETag') || '';
+        uploadedParts++;
+        onProgress(Math.round((uploadedParts / totalParts) * 100));
+        return { PartNumber: partNumber, ETag: etag };
+      };
+      
+      batchPromises.push(uploadPart());
+    }
+    
+    const batchResults = await Promise.all(batchPromises);
+    parts.push(...batchResults);
+  }
+  
+  return parts.sort((a, b) => a.PartNumber - b.PartNumber);
 }
 
 /**
@@ -174,7 +232,10 @@ export async function uploadFilesDirectlyToR2(
         key: urlInfo.key,
         progress: 0,
         status: 'pending' as const,
-        multipartId: urlInfo.uploadId // Store multipart ID separately
+        multipartId: urlInfo.uploadId, // Store multipart ID separately
+        partUrls: urlInfo.partUrls,
+        partSize: urlInfo.partSize,
+        totalParts: urlInfo.totalParts
       };
     }
     
@@ -202,11 +263,64 @@ export async function uploadFilesDirectlyToR2(
     
     const batchPromises = batch.map(async (uploadFile) => {
       if (!uploadFile.uploadUrl) {
-        // For multipart files, we need to handle them differently
-        // For now, mark as completed since backend will handle via confirm-files
-        uploadFile.status = 'completed';
-        uploadFile.progress = 100;
-        completedCount++;
+        // Handle multipart upload
+        if (uploadFile.multipartId && uploadFile.partUrls && uploadFile.partSize) {
+          uploadFile.status = 'uploading';
+          try {
+            const parts = await uploadMultipartFile(
+              uploadFile.file,
+              uploadFile.partUrls,
+              uploadFile.partSize,
+              (progress) => {
+                uploadFile.progress = progress;
+                const overallProgress = Math.round((uploadedBytes + (uploadFile.file.size * progress / 100)) / totalBytes * 100);
+                if (onProgress) {
+                  onProgress({
+                    totalFiles: files.length,
+                    completedFiles: completedCount,
+                    currentFile: uploadFile.file.name,
+                    overallProgress,
+                    uploadSpeed: 0,
+                    estimatedTime: 0,
+                    bytesUploaded: uploadedBytes,
+                    totalBytes
+                  });
+                }
+              }
+            );
+            
+            // Complete multipart upload
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const completeResponse = await fetch(`/api/orders/${orderId}/complete-multipart`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                key: uploadFile.key,
+                uploadId: uploadFile.multipartId,
+                parts: parts
+              })
+            });
+            
+            if (!completeResponse.ok) {
+              throw new Error('Failed to complete multipart upload');
+            }
+            
+            uploadFile.status = 'completed';
+            uploadFile.progress = 100;
+            uploadedBytes += uploadFile.file.size;
+            completedCount++;
+          } catch (error) {
+            uploadFile.status = 'error';
+            uploadFile.error = error instanceof Error ? error.message : 'Multipart upload failed';
+          }
+        } else {
+          // Skip if no upload info
+          uploadFile.status = 'error';
+          uploadFile.error = 'No upload URL available';
+        }
         return;
       }
 

@@ -42,9 +42,7 @@ class R2Client {
       this.partSize = 10 * 1024 * 1024; // 10MB per part for optimal network utilization
       this.maxConcurrentParts = 5; // Upload 5 parts simultaneously for balanced performance
       
-      console.log('✅ R2 Client initialized with bucket:', this.bucket);
     } else {
-      console.log('⚠️ R2 Client not configured - missing credentials');
       this.client = null;
       this.bucket = null;
     }
@@ -64,10 +62,8 @@ class R2Client {
     try {
       const command = new HeadBucketCommand({ Bucket: this.bucket });
       await this.client.send(command);
-      console.log('✅ R2 health check passed');
       return true;
     } catch (error) {
-      console.error('❌ R2 health check failed:', error.message);
       return false;
     }
   }
@@ -101,14 +97,12 @@ class R2Client {
       });
       
       await this.client.send(command);
-      console.log('✅ Uploaded to R2:', key);
       return {
         key,
         bucket: this.bucket,
         url: `https://${this.bucket}.r2.cloudflarestorage.com/${key}`
       };
     } catch (error) {
-      console.error('❌ R2 upload failed:', error);
       throw error;
     }
   }
@@ -189,10 +183,8 @@ class R2Client {
       });
       
       await this.client.send(command);
-      console.log('✅ Deleted from R2:', key);
       return true;
     } catch (error) {
-      console.error('❌ R2 delete failed:', error);
       return false;
     }
   }
@@ -203,16 +195,13 @@ class R2Client {
    */
   async batchDelete(keys) {
     if (!this.isAvailable()) {
-      console.warn('⚠️ R2 client not configured - skipping file cleanup');
       return { success: [], failed: [] };
     }
     
     if (!keys || keys.length === 0) {
-      console.log('📝 No files to delete');
       return { success: [], failed: [] };
     }
     
-    console.log(`🗑️ Starting batch deletion of ${keys.length} files from R2...`);
     
     const results = {
       success: [],
@@ -244,10 +233,8 @@ class R2Client {
       await Promise.all(deletePromises);
     }
     
-    console.log(`✅ Batch deletion completed: ${results.success.length} success, ${results.failed.length} failed`);
     
     if (results.failed.length > 0) {
-      console.error('❌ Some files failed to delete:', results.failed);
     }
     
     return results;
@@ -282,8 +269,6 @@ class R2Client {
     
     const fileSize = buffer.length;
     const startTime = Date.now();
-    console.log(`🚀 [MULTIPART START] Starting multipart upload for ${key} (${Math.round(fileSize/1024/1024)}MB)`);
-    console.log(`🔧 [MULTIPART CONFIG] Part size: ${Math.round(this.partSize/1024/1024)}MB, Max concurrent: ${this.maxConcurrentParts}, File type: ${mimetype}`);
     
     let UploadId;
     try {
@@ -300,12 +285,10 @@ class R2Client {
       
       const createResult = await this.client.send(createCommand);
       UploadId = createResult.UploadId;
-      console.log(`✅ [MULTIPART INIT] Multipart upload initiated: ${UploadId}`);
       
       // Calculate parts
       const parts = [];
       const totalParts = Math.ceil(fileSize / this.partSize);
-      console.log(`📦 [MULTIPART PARTS] Splitting into ${totalParts} parts of ${Math.round(this.partSize/1024/1024)}MB each`);
       
       // Upload parts in parallel batches
       const uploadPromises = [];
@@ -317,8 +300,6 @@ class R2Client {
         
         const uploadPromise = this.uploadPart(key, UploadId, i + 1, partBuffer)
           .then(etag => {
-            const partSize = Math.round(partBuffer.length / 1024 / 1024);
-            console.log(`✅ [PART COMPLETE] Part ${i + 1}/${totalParts} uploaded (${partSize}MB) - ETag: ${etag.substring(1, 9)}...`);
             return { PartNumber: i + 1, ETag: etag };
           });
         
@@ -343,7 +324,6 @@ class R2Client {
       });
       
       const result = await this.client.send(completeCommand);
-      console.log(`🎉 Multipart upload completed: ${key}`);
       
       return {
         key,
@@ -354,8 +334,6 @@ class R2Client {
       };
       
     } catch (error) {
-      console.error('❌ Multipart upload failed:', error);
-      
       // Attempt to abort the multipart upload
       if (UploadId) {
         try {
@@ -364,9 +342,8 @@ class R2Client {
             Key: key,
             UploadId
           }));
-          console.log('🗑️ Aborted failed multipart upload');
         } catch (abortError) {
-          console.error('Failed to abort multipart upload:', abortError);
+          // Ignore abort errors
         }
       }
       
@@ -398,10 +375,8 @@ class R2Client {
     
     // Use multipart for files over 10MB (threshold changed from 50MB)
     if (fileSize > this.multipartThreshold) {
-      console.log(`🚀 File size ${Math.round(fileSize/1024/1024)}MB - Using optimized multipart upload`);
       return await this.multipartUpload(key, buffer, mimetype);
     } else {
-      console.log(`📤 Standard upload for ${Math.round(fileSize/1024/1024)}MB file`);
       return await this.upload(key, buffer, mimetype);
     }
   }
@@ -418,21 +393,82 @@ class R2Client {
     const urlPromises = files.map(async (file, index) => {
       const key = this.generateKey(orderId, file.name);
       
-      // ALWAYS use direct upload with presigned URLs
-      // Multipart is complex and not working properly
-      const url = await this.getPresignedUploadUrl(key, file.type);
-      return {
-        filename: file.name,
-        key: key,
-        uploadType: 'direct',
-        uploadUrl: url,
-        size: file.size
-      };
+      // Use multipart for files over 10MB
+      if (file.size > this.multipartThreshold) {
+        // For multipart, generate presigned URLs for each part
+        const totalParts = Math.ceil(file.size / this.partSize);
+        const createCommand = new CreateMultipartUploadCommand({
+          Bucket: this.bucket,
+          Key: key,
+          ContentType: file.type
+        });
+        
+        const { UploadId } = await this.client.send(createCommand);
+        
+        // Generate presigned URLs for each part
+        const partUrls = [];
+        for (let i = 1; i <= totalParts; i++) {
+          const uploadPartCommand = new UploadPartCommand({
+            Bucket: this.bucket,
+            Key: key,
+            UploadId,
+            PartNumber: i
+          });
+          
+          const partUrl = await getSignedUrl(this.client, uploadPartCommand, {
+            expiresIn: 7200 // 2 hours
+          });
+          
+          partUrls.push(partUrl);
+        }
+        
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'multipart',
+          uploadId: UploadId,
+          partUrls: partUrls,
+          partSize: this.partSize,
+          totalParts: totalParts,
+          size: file.size
+        };
+      } else {
+        // Direct upload for files under 10MB
+        const url = await this.getPresignedUploadUrl(key, file.type);
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'direct',
+          uploadUrl: url,
+          size: file.size
+        };
+      }
     });
     
     const results = await Promise.all(urlPromises);
     
     return results;
+  }
+  
+  /**
+   * Complete a multipart upload after all parts are uploaded
+   */
+  async completeMultipartUpload(key, uploadId, parts) {
+    if (!this.isAvailable()) {
+      throw new Error('R2 client not configured');
+    }
+    
+    const command = new CompleteMultipartUploadCommand({
+      Bucket: this.bucket,
+      Key: key,
+      UploadId: uploadId,
+      MultipartUpload: {
+        Parts: parts.sort((a, b) => a.PartNumber - b.PartNumber)
+      }
+    });
+    
+    const result = await this.client.send(command);
+    return result;
   }
 }
 

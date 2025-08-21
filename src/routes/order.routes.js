@@ -114,6 +114,25 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
 // 🚀 R2 DIRECT UPLOAD: File confirmation after direct upload to R2
 router.post('/orders/:orderId/confirm-files', requireAuth, OrderController.confirmFilesUpload);
 
+// Complete multipart upload after all parts are uploaded
+router.post('/orders/:orderId/complete-multipart', requireAuth, async (req, res) => {
+  try {
+    const { key, uploadId, parts } = req.body;
+    
+    if (!key || !uploadId || !parts) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    const r2Client = (await import('../../server/storage/r2Client.js')).default;
+    
+    const result = await r2Client.completeMultipartUpload(key, uploadId, parts);
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to complete multipart upload' });
+  }
+});
+
 // 🚀 TRUE R2 DIRECT UPLOAD: No proxy - files go directly to R2
 // Proxy endpoint removed - files now upload directly to R2 using presigned URLs
 
