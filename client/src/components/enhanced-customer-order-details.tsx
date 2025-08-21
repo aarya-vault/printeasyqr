@@ -800,49 +800,6 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                       <FileText className="w-5 h-5 text-brand-yellow" />
                       Files ({currentFiles.length})
                     </span>
-                    {currentFiles.length > 1 && currentOrder.status !== 'completed' && (
-                      <div className="flex gap-2 items-center">
-                        <div className="text-xs text-gray-500 mr-2">
-                          {selectedFileIndices.size > 0 ? `${selectedFileIndices.size} selected` : 'Select files'}
-                        </div>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => {
-                            if (selectedFileIndices.size === currentFiles.length) {
-                              setSelectedFileIndices(new Set());
-                            } else {
-                              setSelectedFileIndices(new Set(Array.from({ length: currentFiles.length }, (_, i) => i)));
-                            }
-                          }}
-                          className="text-xs"
-                        >
-                          {selectedFileIndices.size === currentFiles.length ? 'Deselect All' : 'Select All'}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handlePrintSelected} 
-                          className="text-xs sm:text-sm"
-                          disabled={selectedFileIndices.size === 0}
-                        >
-                          <Printer className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          <span className="hidden sm:inline">Print Selected</span>
-                          <span className="sm:hidden">Print</span>
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handleDownloadSelected} 
-                          className="text-xs sm:text-sm"
-                          disabled={selectedFileIndices.size === 0}
-                        >
-                          <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          <span className="hidden sm:inline">Download Selected</span>
-                          <span className="sm:hidden">Download</span>
-                        </Button>
-                      </div>
-                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -854,20 +811,6 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                   ) : (
                     currentFiles.map((file: any, index: number) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <input
-                          type="checkbox"
-                          checked={selectedFileIndices.has(index)}
-                          onChange={(e) => {
-                            const newSelection = new Set(selectedFileIndices);
-                            if (e.target.checked) {
-                              newSelection.add(index);
-                            } else {
-                              newSelection.delete(index);
-                            }
-                            setSelectedFileIndices(newSelection);
-                          }}
-                          className="w-4 h-4 text-brand-yellow bg-white border-gray-300 rounded focus:ring-brand-yellow focus:ring-2"
-                        />
                         <FileText className="w-8 h-8 text-brand-yellow" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">
@@ -884,24 +827,7 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
                             </p>
                           )}
                         </div>
-                        {currentOrder.status !== 'completed' ? (
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDownloadFile(file)}
-                            >
-                              <Download className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handlePrintFile(file)}
-                            >
-                              <Printer className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ) : (
+                        {currentOrder.status === 'completed' && (
                           <div className="text-xs text-gray-400 px-3">
                             Files removed
                           </div>
