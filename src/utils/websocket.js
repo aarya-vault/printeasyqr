@@ -70,15 +70,25 @@ export function broadcast(message) {
   });
 }
 
-// Broadcast to specific shop's connected users
-export function broadcastToShop(shopId, message) {
-  // This will need shop-user mapping from database
-  // For now, broadcast to all users and let client filter
-  broadcast({ ...message, targetShopId: shopId });
+// Send to specific shop owner only
+export async function broadcastToShop(shopId, message) {
+  try {
+    // Import Shop model to find shop owner
+    const { Shop } = await import('../models/index.js');
+    const shop = await Shop.findByPk(shopId);
+    
+    if (shop && shop.ownerId) {
+      // Send only to shop owner, not all users
+      sendToUser(shop.ownerId, message);
+      console.log(`📡 Sent message to shop owner ${shop.ownerId} for shop ${shopId}`);
+    }
+  } catch (error) {
+    console.error('Error sending to shop owner:', error);
+  }
 }
 
-// Broadcast order updates to relevant parties
-export function broadcastOrderUpdate(order, eventType) {
+// Send order updates to relevant parties only
+export async function broadcastOrderUpdate(order, eventType) {
   const message = {
     type: `order:${eventType}`,
     orderId: order.id,
@@ -88,13 +98,15 @@ export function broadcastOrderUpdate(order, eventType) {
     timestamp: new Date().toISOString()
   };
   
-  // Send to customer
-  sendToUser(order.customerId, message);
+  // Send to customer only if they exist
+  if (order.customerId) {
+    sendToUser(order.customerId, message);
+  }
   
-  // Send to shop owner (would need shop owner ID lookup)
-  broadcastToShop(order.shopId, message);
+  // Send to shop owner only
+  await broadcastToShop(order.shopId, message);
   
-  console.log(`📢 Broadcasted order:${eventType} for order ${order.id}`);
+  console.log(`📢 Sent order:${eventType} for order ${order.id} to customer ${order.customerId} and shop ${order.shopId}`);
 }
 
 // Broadcast message updates

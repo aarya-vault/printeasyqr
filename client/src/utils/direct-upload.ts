@@ -209,8 +209,8 @@ export async function uploadFilesDirectlyToR2(
   let uploadedBytes = 0;
   const startTime = Date.now();
 
-  // Upload files in parallel (increased to 5 concurrent for better speed)
-  const maxConcurrent = 5; // Increased from 3 to 5 for better parallelization
+  // Upload files in parallel with optimized concurrency
+  const maxConcurrent = 5; // 5 concurrent uploads for optimal bandwidth utilization
   const uploadPromises: Promise<void>[] = [];
 
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {

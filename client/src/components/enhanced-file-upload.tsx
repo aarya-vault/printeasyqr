@@ -197,8 +197,8 @@ export function EnhancedFileUpload({
         </div>
       </div>
 
-      {/* File List */}
-      {files.length > 0 && (
+      {/* File List - Only show when NOT uploading */}
+      {files.length > 0 && !isUploading && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-black">Selected Files ({files.length})</p>
           <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -212,7 +212,7 @@ export function EnhancedFileUpload({
                   <p className="text-sm font-medium text-black truncate">{file.name}</p>
                   <p className="text-xs text-gray-600">{formatFileSize(file.size)}</p>
                 </div>
-                {!disabled && !isUploading && (
+                {!disabled && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -225,9 +225,6 @@ export function EnhancedFileUpload({
                   >
                     <X className="w-4 h-4" />
                   </Button>
-                )}
-                {isUploading && (
-                  <Loader2 className="w-4 h-4 text-[#FFBF00] animate-spin" />
                 )}
               </div>
             ))}
@@ -243,10 +240,9 @@ export function EnhancedFileUpload({
             <div className="flex-1">
               {uploadProgress ? (
                 <>
-                  <p className="text-black font-semibold">Uploading Files...</p>
+                  <p className="text-black font-semibold">Uploading {uploadProgress.totalFiles} file{uploadProgress.totalFiles > 1 ? 's' : ''}...</p>
                   <p className="text-gray-600 text-sm">
-                    {uploadProgress.completedFiles}/{uploadProgress.totalFiles} files
-                    Current: {uploadProgress.currentFileName}
+                    Processing: {uploadProgress.currentFileName}
                   </p>
                 </>
               ) : (
@@ -260,8 +256,8 @@ export function EnhancedFileUpload({
             </div>
             {uploadProgress && (
               <div className="text-right text-sm">
-                <div className="text-black font-semibold">🚀 {formatSpeed(uploadProgress.uploadSpeed)}</div>
-                <div className="text-gray-500">{formatFileSize(uploadProgress.bytesUploaded)} / {formatFileSize(uploadProgress.totalBytes)} • ETA: {uploadProgress.estimatedTimeRemaining > 0 ? formatTime(uploadProgress.estimatedTimeRemaining) : 'Done!'}</div>
+                <div className="text-black font-semibold">Speed: {formatSpeed(uploadProgress.uploadSpeed)}</div>
+                <div className="text-gray-500">ETA: {uploadProgress.estimatedTimeRemaining > 0 ? formatTime(uploadProgress.estimatedTimeRemaining) : 'Completing...'}</div>
               </div>
             )}
           </div>

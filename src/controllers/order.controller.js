@@ -1137,18 +1137,15 @@ class OrderController {
         ]
       });
       
-      // 🚀 BROADCAST FILE CONFIRMATION: Notify all parties that files are ready
+      // 🚀 BROADCAST FILE CONFIRMATION: Notify specific parties that files are ready
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
-      broadcast({
-        type: 'order_update',
-        orderId: orderId,
+      // Use targeted broadcast instead of broadcast to all
+      await broadcastOrderUpdate({
+        id: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
-        order: transformedOrder,
-        filesAdded: true,
-        fileCount: files.length,
-        timestamp: new Date().toISOString()
-      });
+        ...transformedOrder
+      }, 'file_upload');
       
       console.log(`📡 Broadcasting file confirmation: ${files.length} files added to order ${orderId}`);
       

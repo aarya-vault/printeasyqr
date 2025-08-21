@@ -128,9 +128,9 @@ router.post('/orders/:orderId/confirm-files', requireAuth, OrderController.confi
 // 🚀 TRUE R2 DIRECT UPLOAD: No proxy - files go directly to R2
 // Proxy endpoint removed - files now upload directly to R2 using presigned URLs
 
-// Frontend compatibility routes
-router.post('/orders/upload', requireAuth, upload.array('files'), OrderController.createOrder);
-router.post('/orders/walkin', upload.array('files'), OrderController.createAnonymousOrder);
+// Frontend compatibility routes - REMOVED FALLBACK ROUTES TO PREVENT MEMORY ISSUES
+// These routes were causing memory problems by buffering entire files in RAM
+// All uploads now use direct R2 presigned URLs only
 
 // Download routes moved to dedicated download.routes.js
 
