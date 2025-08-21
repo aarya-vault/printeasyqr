@@ -110,6 +110,13 @@ class OrderController {
         name: orderData.customer.name,
         phone: orderData.customer.phone
       } : undefined,
+      // Include deleted by user info if available
+      deletedBy: orderData.deletedBy,
+      deletedByUser: orderData.deletedByUser ? {
+        id: orderData.deletedByUser.id,
+        name: orderData.deletedByUser.name,
+        role: orderData.deletedByUser.role
+      } : undefined,
       // Frontend compatibility fields
       customerName: orderData.customer?.name,
       shopName: orderData.shop?.name
@@ -120,16 +127,27 @@ class OrderController {
   static async getOrdersByShop(req, res) {
     try {
       const shopId = parseInt(req.params.shopId);
+      const includeDeleted = req.path.includes('/history'); // Check if this is a history request
+      
+      const whereCondition = { shopId };
+      if (!includeDeleted) {
+        whereCondition.deletedAt = { [Op.is]: null }; // Exclude soft-deleted orders for active view
+      }
+      
       const orders = await Order.findAll({
-        where: { 
-          shopId,
-          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
-        },
+        where: whereCondition,
         include: [
           { model: User, as: 'customer' },
-          { model: Shop, as: 'shop' }
+          { model: Shop, as: 'shop' },
+          // Include user who deleted the order if it's deleted
+          { 
+            model: User, 
+            as: 'deletedByUser',
+            attributes: ['id', 'name', 'role'],
+            required: false
+          }
         ],
-        order: [['createdAt', 'ASC']]
+        order: [['createdAt', 'DESC']] // Show newest first for better UX
       });
       
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
@@ -144,14 +162,25 @@ class OrderController {
   static async getOrdersByCustomer(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
+      const includeDeleted = req.query.includeDeleted === 'true' || req.path.includes('/history');
+      
+      const whereCondition = { customerId };
+      if (!includeDeleted) {
+        whereCondition.deletedAt = { [Op.is]: null }; // Exclude soft-deleted orders for active view
+      }
+      
       const orders = await Order.findAll({
-        where: { 
-          customerId,
-          deletedAt: { [Op.is]: null }  // Exclude soft-deleted orders
-        },
+        where: whereCondition,
         include: [
           { model: Shop, as: 'shop' },
-          { model: User, as: 'customer' }
+          { model: User, as: 'customer' },
+          // Include user who deleted the order if it's deleted
+          { 
+            model: User, 
+            as: 'deletedByUser',
+            attributes: ['id', 'name', 'role'],
+            required: false
+          }
         ],
         order: [['createdAt', 'DESC']]
       });
