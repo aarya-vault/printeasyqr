@@ -673,9 +673,6 @@ export default function ShopOrder() {
                   <div className="bg-brand-yellow/10 border border-brand-yellow/30 rounded-lg p-4 mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium">Uploading Files...</span>
-                      <span className="text-sm text-gray-600">
-                        {uploadProgress.filesProcessed}/{uploadProgress.totalFiles} files
-                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                       <div 
@@ -686,7 +683,7 @@ export default function ShopOrder() {
                     <div className="flex items-center justify-between text-xs text-gray-600">
                       <span>Current: {uploadProgress.currentFile}</span>
                       <span className="font-bold text-brand-yellow">
-                        🚀 {(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s
+                        🚀 {uploadProgress.uploadSpeed > 0 ? `${(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s` : 'Starting...'}
                       </span>
                     </div>
                     <div className="mt-1 text-xs text-gray-500">
@@ -709,8 +706,7 @@ export default function ShopOrder() {
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {uploadProgress ? (
                         <span>
-                          Uploading: {uploadProgress.progress}% 
-                          ({(uploadProgress.uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s)
+                          Uploading: {uploadProgress.progress}%
                         </span>
                       ) : (
                         <span>Creating Order...</span>

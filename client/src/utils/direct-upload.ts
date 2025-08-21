@@ -85,14 +85,15 @@ async function uploadMultipartFile(
   const totalParts = partUrls.length;
   let uploadedParts = 0;
   
-  // CRITICAL FIX: Dynamic concurrency based on file size
-  // For 47MB files, use fewer concurrent parts to avoid timeouts
+  // CRITICAL FIX: Ultra-conservative concurrency for large files
+  // For 47MB+ files, use ONLY 1-2 concurrent parts to prevent timeouts
   const getOptimalConcurrency = (fileSize: number) => {
     const sizeMB = fileSize / (1024 * 1024);
-    if (sizeMB < 20) return 2; // 2 concurrent for small files
-    if (sizeMB < 50) return 3; // 3 concurrent for 47MB files (FIXES YOUR ISSUE!)
-    if (sizeMB < 100) return 4; // 4 concurrent for medium files
-    return 5; // 5 concurrent for large files
+    if (sizeMB < 10) return 2; // 2 concurrent for small files
+    if (sizeMB < 30) return 2; // 2 concurrent for medium files
+    if (sizeMB < 50) return 1; // ONLY 1 concurrent for 47MB files!
+    if (sizeMB < 100) return 1; // ONLY 1 concurrent for 100MB files!
+    return 1; // ONLY 1 concurrent for 112MB+ files - SEQUENTIAL UPLOAD!
   };
   
   const maxConcurrent = getOptimalConcurrency(file.size);
@@ -150,19 +151,25 @@ async function uploadFileDirectly(
     let lastLoaded = 0;
     let lastTime = startTime;
     
-    // Track upload progress
+    // Track upload progress with fixed speed calculation
     xhr.upload.onprogress = (event: ProgressEvent) => {
       if (event.lengthComputable) {
         const currentTime = Date.now();
         const timeDiff = (currentTime - lastTime) / 1000; // Convert to seconds
         const bytesDiff = event.loaded - lastLoaded;
         
-        // Calculate speed (bytes per second)
-        const speed = timeDiff > 0 ? bytesDiff / timeDiff : 0;
-        
-        // Update tracking variables
-        lastLoaded = event.loaded;
-        lastTime = currentTime;
+        // Calculate speed only if enough time has passed (avoid 0 speed)
+        let speed = 0;
+        if (timeDiff > 0.1) { // Only calculate if at least 100ms passed
+          speed = bytesDiff / timeDiff;
+          // Update tracking variables only when we have a valid speed
+          lastLoaded = event.loaded;
+          lastTime = currentTime;
+        } else if (event.loaded > 0) {
+          // Use average speed from start if interval too short
+          const totalTime = (currentTime - startTime) / 1000;
+          speed = totalTime > 0 ? event.loaded / totalTime : 0;
+        }
         
         const progressPercent = Math.round((event.loaded / event.total) * 100);
         const uploadedMB = (event.loaded / (1024 * 1024)).toFixed(2);

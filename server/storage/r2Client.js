@@ -40,13 +40,15 @@ class R2Client {
       // 🚀 DYNAMIC MULTIPART CONFIGURATION - ENTERPRISE GRADE
       this.multipartThreshold = 10 * 1024 * 1024; // 10MB - Use multipart for files >10MB
       
-      // CRITICAL FIX: Dynamic part sizing based on file size
-      // For 47MB files, use smaller parts to avoid timeouts
+      // CRITICAL FIX: ULTRA-SMALL part sizing for large files to prevent timeouts
+      // 47MB and 112MB files MUST use 3-5MB parts MAX!
       this.getOptimalPartSize = (fileSize) => {
-        if (fileSize < 20 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <20MB
-        if (fileSize < 50 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <50MB (FIXES 47.2MB!)
-        if (fileSize < 100 * 1024 * 1024) return 10 * 1024 * 1024; // 10MB parts for <100MB
-        return 20 * 1024 * 1024; // 20MB parts for >100MB
+        if (fileSize < 10 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <10MB
+        if (fileSize < 30 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for <30MB
+        if (fileSize < 50 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for 47.2MB file!
+        if (fileSize < 100 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for <100MB
+        if (fileSize < 150 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for 112MB file!
+        return 5 * 1024 * 1024; // 5MB parts for very large files (MAX!)
       };
       
       // CRITICAL FIX: Dynamic concurrency based on system load
