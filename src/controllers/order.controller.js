@@ -1004,6 +1004,7 @@ class OrderController {
   
   // 🚀 NEW: R2 Direct Upload File Confirmation
   static async confirmFilesUpload(req, res) {
+    const startTime = Date.now(); // Track processing time
     const transaction = await sequelize.transaction();
     
     try {
@@ -1073,22 +1074,57 @@ class OrderController {
       // Broadcast file confirmation
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
       
-      // Broadcast update (wrapped in try-catch to prevent errors from breaking response)
-      try {
-        await broadcastOrderUpdate({
-          id: orderId,
-          shopId: order.shopId,
-          customerId: order.customerId,
-          ...transformedOrder
-        }, 'file_upload');
-      } catch (broadcastError) {
-        // Log but don't fail the request
-      }
+      // CRITICAL FIX: Immediate broadcast with priority for shop owner
+      // This fixes the 12-second delay issue
+      const broadcastFileReady = async () => {
+        try {
+          // Priority 1: Direct notification to shop owner
+          if (order.shopId) {
+            const shop = await Shop.findByPk(order.shopId);
+            if (shop && shop.ownerId) {
+              sendToUser(shop.ownerId, {
+                type: 'order:files_ready',
+                orderId: orderId,
+                shopId: order.shopId,
+                files: allFiles,
+                order: transformedOrder,
+                timestamp: new Date().toISOString(),
+                priority: 'urgent' // Mark as urgent for immediate UI update
+              });
+            }
+          }
+          
+          // Priority 2: Notify customer
+          if (order.customerId) {
+            sendToUser(order.customerId, {
+              type: 'order:files_confirmed',
+              orderId: orderId,
+              order: transformedOrder,
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+          // Priority 3: General broadcast
+          await broadcastOrderUpdate({
+            id: orderId,
+            shopId: order.shopId,
+            customerId: order.customerId,
+            ...transformedOrder
+          }, 'file_upload');
+        } catch (broadcastError) {
+          // Don't let broadcast errors affect the response
+        }
+      };
+      
+      // Execute broadcast immediately but don't wait
+      setImmediate(() => broadcastFileReady());
       
       res.json({ 
         success: true, 
         order: transformedOrder,
-        filesConfirmed: files.length
+        filesConfirmed: files.length,
+        filesReady: true, // Signal frontend that files are ready
+        timestamp: new Date().toISOString()
       });
       
     } catch (error) {

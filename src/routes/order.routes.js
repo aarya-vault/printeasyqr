@@ -5,6 +5,12 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 import storageManager from '../../server/storage/storageManager.js';
+import { 
+  r2UploadLimiter, 
+  multipartUploadLimiter, 
+  uploadQueueMiddleware,
+  systemHealthMonitor 
+} from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -66,8 +72,13 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 // Anonymous order route - deprecated (use authenticated flow)
 // router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
-// Direct R2 upload with batch presigned URLs
-router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
+// Direct R2 upload with batch presigned URLs - WITH RATE LIMITING
+router.post('/orders/:id/get-upload-urls', 
+  requireAuth, 
+  systemHealthMonitor, // Check system health first
+  r2UploadLimiter, // Apply rate limiting
+  uploadQueueMiddleware, // Manage concurrent uploads
+  async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
@@ -111,11 +122,19 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
   }
 });
 
-// 🚀 R2 DIRECT UPLOAD: File confirmation after direct upload to R2
-router.post('/orders/:orderId/confirm-files', requireAuth, OrderController.confirmFilesUpload);
+// 🚀 R2 DIRECT UPLOAD: File confirmation after direct upload to R2 - WITH RATE LIMITING
+router.post('/orders/:orderId/confirm-files', 
+  requireAuth,
+  systemHealthMonitor, // Check system health
+  r2UploadLimiter, // Apply rate limiting
+  OrderController.confirmFilesUpload);
 
-// Complete multipart upload after all parts are uploaded
-router.post('/orders/:orderId/complete-multipart', requireAuth, async (req, res) => {
+// Complete multipart upload after all parts are uploaded - WITH RATE LIMITING
+router.post('/orders/:orderId/complete-multipart', 
+  requireAuth,
+  systemHealthMonitor, // Check system health
+  multipartUploadLimiter, // Stricter rate limiting for multipart
+  async (req, res) => {
   try {
     const { key, uploadId, parts } = req.body;
     

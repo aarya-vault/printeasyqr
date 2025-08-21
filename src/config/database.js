@@ -64,10 +64,22 @@ const initializeSequelize = () => {
       } : false
     },
     pool: {
-      max: parseInt(process.env.DB_POOL_MAX) || 5,
-      min: parseInt(process.env.DB_POOL_MIN) || 0,
-      acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 30000,
-      idle: parseInt(process.env.DB_POOL_IDLE) || 10000
+      max: parseInt(process.env.DB_POOL_MAX) || 50,  // CRITICAL FIX: Support 50 concurrent users
+      min: parseInt(process.env.DB_POOL_MIN) || 5,   // Keep 5 connections ready
+      acquire: parseInt(process.env.DB_POOL_ACQUIRE) || 15000, // Faster timeout for acquiring connections
+      idle: parseInt(process.env.DB_POOL_IDLE) || 30000, // Keep connections alive longer
+      evict: 60000 // Check for stale connections every minute
+    },
+    retry: {
+      max: 3,
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/
+      ]
     },
     // CRITICAL: Prevent all automatic schema modifications
     define: {

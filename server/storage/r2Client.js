@@ -37,10 +37,31 @@ class R2Client {
       
       this.bucket = process.env.R2_BUCKET_NAME;
       
-      // 🚀 MULTIPART UPLOAD CONFIGURATION - OPTIMIZED FOR PERFORMANCE
+      // 🚀 DYNAMIC MULTIPART CONFIGURATION - ENTERPRISE GRADE
       this.multipartThreshold = 10 * 1024 * 1024; // 10MB - Use multipart for files >10MB
-      this.partSize = 10 * 1024 * 1024; // 10MB per part for optimal network utilization
-      this.maxConcurrentParts = 5; // Upload 5 parts simultaneously for balanced performance
+      
+      // CRITICAL FIX: Dynamic part sizing based on file size
+      // For 47MB files, use smaller parts to avoid timeouts
+      this.getOptimalPartSize = (fileSize) => {
+        if (fileSize < 20 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <20MB
+        if (fileSize < 50 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <50MB (FIXES 47.2MB!)
+        if (fileSize < 100 * 1024 * 1024) return 10 * 1024 * 1024; // 10MB parts for <100MB
+        return 20 * 1024 * 1024; // 20MB parts for >100MB
+      };
+      
+      // CRITICAL FIX: Dynamic concurrency based on system load
+      this.getDynamicConcurrency = () => {
+        const memUsage = process.memoryUsage();
+        const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
+        
+        // Reduce concurrency if memory usage is high
+        if (heapUsedMB > 200) return 2; // Low concurrency when memory constrained
+        if (heapUsedMB > 100) return 3; // Medium concurrency
+        return 5; // Full concurrency when resources available
+      };
+      
+      this.partSize = 5 * 1024 * 1024; // Default 5MB (safer for 47MB files)
+      this.maxConcurrentParts = 3; // Start conservative, increase dynamically
       
     } else {
       this.client = null;
@@ -395,31 +416,65 @@ class R2Client {
       
       // Use multipart for files over 10MB
       if (file.size > this.multipartThreshold) {
-        // For multipart, generate presigned URLs for each part
-        const totalParts = Math.ceil(file.size / this.partSize);
+        // CRITICAL FIX: Use dynamic part size based on file size
+        const optimalPartSize = this.getOptimalPartSize(file.size);
+        const totalParts = Math.ceil(file.size / optimalPartSize);
+        
+        // Validate part count (AWS S3/R2 limit is 10,000 parts)
+        if (totalParts > 10000) {
+          throw new Error(`File too large: would require ${totalParts} parts (max 10,000)`);
+        }
+        
         const createCommand = new CreateMultipartUploadCommand({
           Bucket: this.bucket,
           Key: key,
-          ContentType: file.type
+          ContentType: file.type,
+          Metadata: {
+            'original-size': String(file.size),
+            'part-size': String(optimalPartSize),
+            'total-parts': String(totalParts)
+          }
         });
         
         const { UploadId } = await this.client.send(createCommand);
         
-        // Generate presigned URLs for each part
+        // Generate presigned URLs for each part with retry logic
         const partUrls = [];
+        const maxRetries = 3;
+        
         for (let i = 1; i <= totalParts; i++) {
-          const uploadPartCommand = new UploadPartCommand({
-            Bucket: this.bucket,
-            Key: key,
-            UploadId,
-            PartNumber: i
-          });
+          let retries = 0;
+          let partUrl = null;
           
-          const partUrl = await getSignedUrl(this.client, uploadPartCommand, {
-            expiresIn: 7200 // 2 hours
-          });
-          
-          partUrls.push(partUrl);
+          while (retries < maxRetries && !partUrl) {
+            try {
+              const uploadPartCommand = new UploadPartCommand({
+                Bucket: this.bucket,
+                Key: key,
+                UploadId,
+                PartNumber: i
+              });
+              
+              partUrl = await getSignedUrl(this.client, uploadPartCommand, {
+                expiresIn: 7200 // 2 hours
+              });
+              
+              partUrls.push(partUrl);
+            } catch (error) {
+              retries++;
+              if (retries >= maxRetries) {
+                // Abort the multipart upload if we can't generate all URLs
+                await this.client.send(new AbortMultipartUploadCommand({
+                  Bucket: this.bucket,
+                  Key: key,
+                  UploadId
+                }));
+                throw new Error(`Failed to generate presigned URL for part ${i} after ${maxRetries} retries`);
+              }
+              // Wait before retry
+              await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+            }
+          }
         }
         
         return {
@@ -428,7 +483,7 @@ class R2Client {
           uploadType: 'multipart',
           uploadId: UploadId,
           partUrls: partUrls,
-          partSize: this.partSize,
+          partSize: optimalPartSize,  // Use dynamic part size
           totalParts: totalParts,
           size: file.size
         };

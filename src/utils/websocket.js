@@ -1,26 +1,105 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-// Store WebSocket connections
+// Store WebSocket connections with metadata
 const wsConnections = new Map();
+const connectionMetadata = new Map();
+
+// CRITICAL FIX: Add heartbeat to detect stale connections
+const HEARTBEAT_INTERVAL = 30000; // 30 seconds
+const CONNECTION_TIMEOUT = 60000; // 60 seconds
 
 export function setupWebSocket(server) {
   console.log('🔌 Setting up WebSocket server...');
   
   // Use a specific path to avoid conflict with Vite HMR WebSocket
-  const wss = new WebSocketServer({ server, path: '/ws' });
+  const wss = new WebSocketServer({ 
+    server, 
+    path: '/ws',
+    // CRITICAL FIX: Limit payload size to prevent memory attacks
+    maxPayload: 10 * 1024 * 1024, // 10MB max message size
+    clientTracking: true,
+    perMessageDeflate: false // Disable compression for better performance
+  });
+  
+  // CRITICAL FIX: Heartbeat mechanism to clean up dead connections
+  const heartbeatInterval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+      const metadata = connectionMetadata.get(ws);
+      if (!metadata) {
+        ws.terminate();
+        return;
+      }
+      
+      if (Date.now() - metadata.lastSeen > CONNECTION_TIMEOUT) {
+        // Connection is stale, clean it up
+        if (metadata.userId) {
+          wsConnections.delete(metadata.userId);
+        }
+        connectionMetadata.delete(ws);
+        ws.terminate();
+        return;
+      }
+      
+      // Send ping to check if connection is alive
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.ping();
+      }
+    });
+  }, HEARTBEAT_INTERVAL);
   
   wss.on('connection', (ws, req) => {
     console.log('📡 New WebSocket connection established');
     
+    // Initialize connection metadata
+    connectionMetadata.set(ws, {
+      userId: null,
+      connectedAt: Date.now(),
+      lastSeen: Date.now(),
+      messageCount: 0
+    });
+    
     let userId = null;
+    
+    // CRITICAL FIX: Handle pong responses to keep connection alive
+    ws.on('pong', () => {
+      const metadata = connectionMetadata.get(ws);
+      if (metadata) {
+        metadata.lastSeen = Date.now();
+      }
+    });
     
     ws.on('message', (message) => {
       try {
+        const metadata = connectionMetadata.get(ws);
+        if (metadata) {
+          metadata.lastSeen = Date.now();
+          metadata.messageCount++;
+          
+          // CRITICAL FIX: Rate limiting - prevent message flooding
+          if (metadata.messageCount > 100) {
+            console.warn(`⚠️ User ${userId} sending too many messages, closing connection`);
+            ws.close(1008, 'Rate limit exceeded');
+            return;
+          }
+        }
+        
         const data = JSON.parse(message.toString());
         
         if (data.type === 'authenticate' && data.userId) {
           userId = parseInt(data.userId);
+          
+          // CRITICAL FIX: Clean up old connection for same user
+          const oldConnection = wsConnections.get(userId);
+          if (oldConnection && oldConnection !== ws) {
+            oldConnection.close(1000, 'Replaced by new connection');
+          }
+          
           wsConnections.set(userId, ws);
+          
+          if (metadata) {
+            metadata.userId = userId;
+          }
+          
           console.log(`👤 User ${userId} authenticated via WebSocket`);
           
           ws.send(JSON.stringify({
@@ -38,6 +117,7 @@ export function setupWebSocket(server) {
         wsConnections.delete(userId);
         console.log(`👋 User ${userId} WebSocket disconnected`);
       }
+      connectionMetadata.delete(ws);
     });
     
     ws.on('error', (error) => {
@@ -45,7 +125,14 @@ export function setupWebSocket(server) {
       if (userId) {
         wsConnections.delete(userId);
       }
+      connectionMetadata.delete(ws);
     });
+  });
+  
+  // CRITICAL FIX: Clean up on server shutdown
+  process.on('SIGTERM', () => {
+    clearInterval(heartbeatInterval);
+    wss.close();
   });
   
   console.log('✅ WebSocket server setup completed');

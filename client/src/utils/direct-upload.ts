@@ -85,8 +85,17 @@ async function uploadMultipartFile(
   const totalParts = partUrls.length;
   let uploadedParts = 0;
   
-  // Upload parts in parallel (max 5 concurrent)
-  const maxConcurrent = 5;
+  // CRITICAL FIX: Dynamic concurrency based on file size
+  // For 47MB files, use fewer concurrent parts to avoid timeouts
+  const getOptimalConcurrency = (fileSize: number) => {
+    const sizeMB = fileSize / (1024 * 1024);
+    if (sizeMB < 20) return 2; // 2 concurrent for small files
+    if (sizeMB < 50) return 3; // 3 concurrent for 47MB files (FIXES YOUR ISSUE!)
+    if (sizeMB < 100) return 4; // 4 concurrent for medium files
+    return 5; // 5 concurrent for large files
+  };
+  
+  const maxConcurrent = getOptimalConcurrency(file.size);
   
   for (let i = 0; i < totalParts; i += maxConcurrent) {
     const batch = Math.min(maxConcurrent, totalParts - i);
@@ -252,8 +261,19 @@ export async function uploadFilesDirectlyToR2(
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   let uploadedBytes = 0;
 
-  // Upload files in parallel with optimized concurrency
-  const maxConcurrent = 5; // 5 concurrent uploads for optimal bandwidth utilization
+  // CRITICAL FIX: Dynamic concurrency based on total upload size
+  const getGlobalConcurrency = (totalSize: number, fileCount: number) => {
+    const totalMB = totalSize / (1024 * 1024);
+    const avgFileSizeMB = totalMB / fileCount;
+    
+    // Reduce concurrency for large average file sizes
+    if (avgFileSizeMB > 40) return 2; // Only 2 concurrent for 40MB+ files
+    if (avgFileSizeMB > 20) return 3; // 3 concurrent for 20-40MB files
+    if (totalMB > 200) return 3; // Limit for large total uploads
+    return 5; // Default 5 concurrent for smaller files
+  };
+  
+  const maxConcurrent = getGlobalConcurrency(totalBytes, files.length);
   const uploadPromises: Promise<void>[] = [];
 
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
