@@ -587,7 +587,10 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
         <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-rich-black">
-              {currentOrder.publicId || `ORD-${currentOrder.id}`}
+              Queue #{currentOrder.orderNumber || currentOrder.id}
+              <span className="text-sm text-gray-500 ml-2 font-normal">
+                (ID: {currentOrder.publicId || `ORD-${currentOrder.id}`})
+              </span>
             </h2>
             <p className="text-gray-600">{currentOrder.title}</p>
           </div>

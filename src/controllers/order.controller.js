@@ -140,7 +140,7 @@ class OrderController {
     }
   }
 
-  // Get orders by customer - excludes deleted orders for active view
+  // Get orders by customer - includes deleted orders for history  
   static async getOrdersByCustomer(req, res) {
     try {
       const customerId = parseInt(req.params.customerId);
@@ -161,68 +161,6 @@ class OrderController {
     } catch (error) {
       console.error('Get customer orders error:', error);
       res.status(500).json({ message: 'Failed to get orders' });
-    }
-  }
-
-  // Get complete shop order history - includes deleted orders with deletion info
-  static async getShopOrderHistory(req, res) {
-    try {
-      const shopId = parseInt(req.params.shopId);
-      const orders = await Order.findAll({
-        where: { shopId }, // Include ALL orders (deleted and non-deleted)
-        include: [
-          { model: User, as: 'customer' },
-          { model: Shop, as: 'shop' },
-          { model: User, as: 'deletedByUser', foreignKey: 'deletedBy' } // Include deletion info
-        ],
-        order: [['createdAt', 'DESC']]
-      });
-      
-      const transformedOrders = (orders || []).map(order => {
-        const transformed = OrderController.transformOrderData(order);
-        // Add deletion information if order was deleted
-        if (order.deletedAt && order.deletedByUser) {
-          transformed.deletedByName = order.deletedByUser.name;
-          transformed.deletedByRole = order.deletedByUser.role;
-        }
-        return transformed;
-      });
-      
-      res.json(transformedOrders);
-    } catch (error) {
-      console.error('Get shop order history error:', error);
-      res.status(500).json({ message: 'Failed to get order history' });
-    }
-  }
-
-  // Get complete customer order history - includes deleted orders with deletion info
-  static async getCustomerOrderHistory(req, res) {
-    try {
-      const customerId = parseInt(req.params.customerId);
-      const orders = await Order.findAll({
-        where: { customerId }, // Include ALL orders (deleted and non-deleted)
-        include: [
-          { model: Shop, as: 'shop' },
-          { model: User, as: 'customer' },
-          { model: User, as: 'deletedByUser', foreignKey: 'deletedBy' } // Include deletion info
-        ],
-        order: [['createdAt', 'DESC']]
-      });
-      
-      const transformedOrders = (orders || []).map(order => {
-        const transformed = OrderController.transformOrderData(order);
-        // Add deletion information if order was deleted
-        if (order.deletedAt && order.deletedByUser) {
-          transformed.deletedByName = order.deletedByUser.name;
-          transformed.deletedByRole = order.deletedByUser.role;
-        }
-        return transformed;
-      });
-      
-      res.json(transformedOrders);
-    } catch (error) {
-      console.error('Get customer order history error:', error);
-      res.status(500).json({ message: 'Failed to get order history' });
     }
   }
 

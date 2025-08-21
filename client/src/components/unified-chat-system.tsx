@@ -444,7 +444,7 @@ export default function UnifiedChatSystem({
                                 </p>
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                    {order.publicId || `ORD-${order.id}`}
+                                    Queue #{order.orderNumber || order.id}
                                   </span>
                                   <span className="text-xs text-gray-400">
                                     {formatToIndiaDateTime(order.createdAt)}
@@ -511,7 +511,7 @@ export default function UnifiedChatSystem({
                                     </p>
                                     <div className="flex items-center gap-3">
                                       <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
-                                        {order.publicId || `ORD-${order.id}`}
+                                        Queue #{order.orderNumber || order.id}
                                       </span>
                                       <span className="text-xs text-gray-400">
                                         {formatToIndiaDateTime(order.createdAt)}
