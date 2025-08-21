@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const phoneValidationSchema = z.string()
-  .regex(/^[6-9]\d{9}$/, "Phone number must be 10 digits starting with 6, 7, 8, or 9");
+  .regex(/^[6-9]\d{9}$/, "Phone Number must be valid");
 
 export const validatePhoneNumber = (phone: string): boolean => {
   const cleanPhone = phone.replace(/\D/g, '');
