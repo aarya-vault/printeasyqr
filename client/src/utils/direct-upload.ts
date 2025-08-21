@@ -9,6 +9,7 @@ export interface DirectUploadFile {
   status: 'pending' | 'uploading' | 'completed' | 'error';
   speed?: number;
   error?: string;
+  multipartId?: string;
 }
 
 export interface DirectUploadProgress {
@@ -231,10 +232,11 @@ export async function uploadFilesDirectlyToR2(
       console.log(`🔑 [MULTIPART ID] ${urlInfo.uploadId}`);
       return {
         file,
-        uploadUrl: urlInfo?.uploadUrl || urlInfo?.uploadId, // Use uploadId for multipart
+        uploadUrl: undefined, // No direct URL for multipart uploads
         key: urlInfo.key,
         progress: 0,
-        status: 'pending' as const
+        status: 'pending' as const,
+        multipartId: urlInfo.uploadId // Store multipart ID separately
       };
     } else {
       console.log(`📤 [DIRECT PREP] File ${file.name} (${fileSize}MB) will use direct upload`);
