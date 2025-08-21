@@ -196,6 +196,62 @@ class R2Client {
       return false;
     }
   }
+
+  /**
+   * 🗑️ BATCH DELETE: Delete multiple files efficiently
+   * Uses parallel deletion for better performance
+   */
+  async batchDelete(keys) {
+    if (!this.isAvailable()) {
+      console.warn('⚠️ R2 client not configured - skipping file cleanup');
+      return { success: [], failed: [] };
+    }
+    
+    if (!keys || keys.length === 0) {
+      console.log('📝 No files to delete');
+      return { success: [], failed: [] };
+    }
+    
+    console.log(`🗑️ Starting batch deletion of ${keys.length} files from R2...`);
+    
+    const results = {
+      success: [],
+      failed: []
+    };
+    
+    // Process deletions in parallel (max 10 concurrent for safety)
+    const batchSize = 10;
+    const batches = [];
+    
+    for (let i = 0; i < keys.length; i += batchSize) {
+      batches.push(keys.slice(i, i + batchSize));
+    }
+    
+    for (const batch of batches) {
+      const deletePromises = batch.map(async (key) => {
+        try {
+          const success = await this.delete(key);
+          if (success) {
+            results.success.push(key);
+          } else {
+            results.failed.push({ key, error: 'Delete operation returned false' });
+          }
+        } catch (error) {
+          results.failed.push({ key, error: error.message });
+        }
+      });
+      
+      await Promise.all(deletePromises);
+    }
+    
+    console.log(`✅ Batch deletion completed: ${results.success.length} success, ${results.failed.length} failed`);
+    
+    if (results.failed.length > 0) {
+      console.error('❌ Some files failed to delete:', results.failed);
+    }
+    
+    return results;
+  }
   
   async exists(key) {
     if (!this.isAvailable()) {
