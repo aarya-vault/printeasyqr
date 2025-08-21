@@ -1108,9 +1108,24 @@ class OrderController {
         ]
       });
       
+      // 🚀 BROADCAST FILE CONFIRMATION: Notify all parties that files are ready
+      const transformedOrder = OrderController.transformOrderData(updatedOrder);
+      broadcast({
+        type: 'order_update',
+        orderId: orderId,
+        shopId: order.shopId,
+        customerId: order.customerId,
+        order: transformedOrder,
+        filesAdded: true,
+        fileCount: files.length,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`📡 Broadcasting file confirmation: ${files.length} files added to order ${orderId}`);
+      
       res.json({ 
         success: true, 
-        order: OrderController.transformOrderData(updatedOrder),
+        order: transformedOrder,
         filesConfirmed: files.length
       });
       

@@ -143,7 +143,16 @@ export default function UnifiedOrderCard({
               )}
             </div>
             <p className="text-sm text-gray-600 truncate">
-              {files.length > 0 ? `${files.length} file${files.length > 1 ? 's' : ''}` : order.description || 'No files'}
+              {order.type === 'upload' && files.length === 0 && order.status === 'new' ? (
+                <span className="flex items-center gap-1 text-[#FFBF00]">
+                  <span className="inline-block w-4 h-4 border-2 border-[#FFBF00] border-t-transparent rounded-full animate-spin"></span>
+                  Files uploading...
+                </span>
+              ) : files.length > 0 ? (
+                `${files.length} file${files.length > 1 ? 's' : ''}`
+              ) : (
+                order.description || 'No files'
+              )}
             </p>
             <p className="text-xs text-gray-500">{displayName}</p>
           </div>
@@ -175,7 +184,14 @@ export default function UnifiedOrderCard({
             <span>{format(new Date(order.createdAt), 'MMM dd, HH:mm')}</span>
           </div>
           
-          {files.length > 0 && (
+          {order.type === 'upload' && files.length === 0 && order.status === 'new' ? (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1 text-[#FFBF00]">
+                <span className="inline-block w-3 h-3 border-2 border-[#FFBF00] border-t-transparent rounded-full animate-spin"></span>
+                <span>Waiting for files to upload...</span>
+              </div>
+            </div>
+          ) : files.length > 0 && (
             <div className="flex items-center gap-1 text-xs text-gray-600">
               <FileText className="w-3 h-3" />
               <span>{files.length} file{files.length > 1 ? 's' : ''}</span>

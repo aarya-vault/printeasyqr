@@ -57,13 +57,13 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               if (data.message.senderId !== user?.id) {
                 // Only show notification if message is from someone else
                 const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-[#FFBF00] text-black p-4 rounded-lg shadow-lg z-50 border border-black';
+                notification.className = 'fixed top-4 right-4 bg-[#FFBF00] text-black p-4 rounded-xl shadow-lg z-50';
                 notification.innerHTML = `
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-3">
                     <div class="w-2 h-2 bg-black rounded-full animate-pulse"></div>
                     <div>
                       <div class="font-semibold">New Message</div>
-                      <div class="text-sm">From ${data.message.senderName}</div>
+                      <div class="text-sm opacity-80">From ${data.message.senderName}</div>
                     </div>
                   </div>
                 `;
@@ -120,15 +120,22 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
                 queryKey: [`/api/orders`] 
               });
               
-              // 🔔 ENHANCED: Visual notification for order status updates
+              // 🔔 ENHANCED: Visual notification with context-aware messaging
               const statusNotification = document.createElement('div');
-              statusNotification.className = 'fixed top-4 right-4 bg-black text-[#FFBF00] p-4 rounded-lg shadow-lg z-50 border border-[#FFBF00]';
+              statusNotification.className = 'fixed top-4 right-4 bg-[#FFBF00] text-black p-4 rounded-xl shadow-lg z-50';
+              
+              // Different message for file addition vs status update
+              const notificationContent = data.filesAdded ? 
+                `<div class="font-semibold">Files Uploaded!</div>
+                 <div class="text-sm opacity-80">${data.fileCount} file${data.fileCount > 1 ? 's' : ''} added to Queue #${data.order.orderNumber || data.order.id}</div>` :
+                `<div class="font-semibold">Order Status Updated</div>
+                 <div class="text-sm opacity-80">Queue #${data.order.orderNumber || data.order.id} is now ${data.order.status}</div>`;
+              
               statusNotification.innerHTML = `
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 bg-[#FFBF00] rounded-full animate-pulse"></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-2 h-2 bg-black rounded-full animate-pulse"></div>
                   <div>
-                    <div class="font-semibold">Order Status Updated</div>
-                    <div class="text-sm">Queue #${data.order.orderNumber || data.order.id} is now ${data.order.status}</div>
+                    ${notificationContent}
                   </div>
                 </div>
               `;
@@ -142,22 +149,57 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               }, 4000);
               break;
               
+            case 'order:created':
+              // Handle initial order creation (files being uploaded)
+              console.log('📦 New order created, files uploading...');
+              // Invalidate queries to show the new order with loading state
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/shop/${data.shopId}`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders`] 
+              });
+              
+              // Show notification for shop owners about incoming order
+              if (user?.role === 'shop_owner') {
+                const pendingNotification = document.createElement('div');
+                pendingNotification.className = 'fixed top-4 right-4 bg-[#FFBF00] text-black p-4 rounded-xl shadow-lg z-50';
+                pendingNotification.innerHTML = `
+                  <div class="flex items-center gap-3">
+                    <span class="inline-block w-2 h-2 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                    <div>
+                      <div class="font-semibold">New Order Incoming!</div>
+                      <div class="text-sm opacity-80">Files are being uploaded by ${data.customerName}...</div>
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(pendingNotification);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                  if (pendingNotification.parentNode) {
+                    pendingNotification.parentNode.removeChild(pendingNotification);
+                  }
+                }, 5000);
+              }
+              break;
+              
             case 'new_order':
               // Invalidate shop order queries for new orders
               queryClient.invalidateQueries({ 
                 queryKey: [`/api/orders/shop/${data.order.shopId}`] 
               });
               
-              // 🔔 ENHANCED: Visual notification for new orders (for shop owners)
+              // 🔔 ENHANCED: Visual notification with improved yellow design
               if (user?.role === 'shop_owner') {
                 const orderNotification = document.createElement('div');
-                orderNotification.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 border border-green-600';
+                orderNotification.className = 'fixed top-4 right-4 bg-[#FFBF00] text-black p-4 rounded-xl shadow-lg z-50';
                 orderNotification.innerHTML = `
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 bg-black rounded-full animate-pulse"></div>
                     <div>
                       <div class="font-semibold">New Order Received!</div>
-                      <div class="text-sm">Queue #${data.order.orderNumber || data.order.id} from ${data.order.customerName}</div>
+                      <div class="text-sm opacity-80">Queue #${data.order.orderNumber || data.order.id} from ${data.order.customerName}</div>
                     </div>
                   </div>
                 `;
