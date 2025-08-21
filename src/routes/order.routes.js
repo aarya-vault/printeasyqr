@@ -89,26 +89,16 @@ router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
       return res.status(403).json({ error: 'Order not found or access denied' });
     }
     
-    console.log(`🚀 Generating direct upload URLs for ${files.length} files (order ${orderId})`);
-    
     // Import R2 client for direct uploads
     const r2Client = (await import('../../server/storage/r2Client.js')).default;
     
     // Check if R2 is available for direct uploads
     if (!r2Client.isAvailable()) {
-      console.log('⚠️ R2 not available, falling back to server upload');
       return res.status(200).json({ useDirectUpload: false });
     }
     
-    // 🚀 NEW: Use batch presigned URL generation for maximum speed
+    // Use batch presigned URL generation
     const uploadUrls = await r2Client.getBatchPresignedUrls(files, orderId);
-    
-    console.log(`🌍 Generated presigned URLs for DIRECT R2 upload (no proxy):`);
-    uploadUrls.forEach((url, i) => {
-      console.log(`  ${i + 1}. ${files[i].name} -> Direct to R2`);
-    });
-    
-    console.log(`✅ Generated ${uploadUrls.length} direct upload URLs`);
     
     res.json({ 
       useDirectUpload: true,

@@ -414,43 +414,23 @@ class R2Client {
       throw new Error('R2 client not configured');
     }
     
-    console.log(`🚀 Generating ${files.length} presigned URLs for direct upload`);
-    
     // Process in parallel for maximum speed
     const urlPromises = files.map(async (file, index) => {
       const key = this.generateKey(orderId, file.name);
       
-      // For large files, create multipart upload
-      if (file.size > this.multipartThreshold) {
-        const createCommand = new CreateMultipartUploadCommand({
-          Bucket: this.bucket,
-          Key: key,
-          ContentType: file.type
-        });
-        
-        const { UploadId } = await this.client.send(createCommand);
-        
-        return {
-          filename: file.name,
-          key: key,
-          uploadType: 'multipart',
-          uploadId: UploadId,
-          size: file.size
-        };
-      } else {
-        const url = await this.getPresignedUploadUrl(key, file.type);
-        return {
-          filename: file.name,
-          key: key,
-          uploadType: 'direct',
-          uploadUrl: url,
-          size: file.size
-        };
-      }
+      // ALWAYS use direct upload with presigned URLs
+      // Multipart is complex and not working properly
+      const url = await this.getPresignedUploadUrl(key, file.type);
+      return {
+        filename: file.name,
+        key: key,
+        uploadType: 'direct',
+        uploadUrl: url,
+        size: file.size
+      };
     });
     
     const results = await Promise.all(urlPromises);
-    console.log(`✅ Generated ${results.length} presigned URLs`);
     
     return results;
   }
