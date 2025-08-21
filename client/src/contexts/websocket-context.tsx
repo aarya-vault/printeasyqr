@@ -112,6 +112,13 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               queryClient.invalidateQueries({ 
                 queryKey: [`/api/orders/${data.order.id}`] 
               });
+              // ✅ FIXED: Also invalidate customer dashboard's specific query
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/customer`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders`] 
+              });
               
               // 🔔 ENHANCED: Visual notification for order status updates
               const statusNotification = document.createElement('div');
@@ -162,6 +169,32 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
                     orderNotification.parentNode.removeChild(orderNotification);
                   }
                 }, 6000);
+              }
+              break;
+              
+            case 'order_deleted':
+              // ✅ FIXED: Handle order deletion events for real-time updates
+              console.log(`🗑️ Order ${data.orderId} deleted - updating UI`);
+              
+              // Invalidate all order queries to remove deleted order from lists
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/customer`] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: [`/api/orders/shop`] 
+              });
+              if (data.customerId) {
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/orders/customer/${data.customerId}`] 
+                });
+              }
+              if (data.shopId) {
+                queryClient.invalidateQueries({ 
+                  queryKey: [`/api/orders/shop/${data.shopId}`] 
+                });
               }
               break;
           }

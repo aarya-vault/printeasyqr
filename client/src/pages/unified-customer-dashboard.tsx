@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import PrintEasyLogo from '@/components/common/printeasy-logo';
 import { useDeleteOrder, canDeleteOrder } from '@/hooks/use-delete-order';
 import { Order, Shop, User } from '@shared/types';
+import { useWebSocket } from '@/contexts/websocket-context';
 
 export default function UnifiedCustomerDashboard() {
   const { user, logout, updateUser } = useAuth();
@@ -34,6 +35,9 @@ export default function UnifiedCustomerDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  
+  // 🚀 WEBSOCKET INTEGRATION: Enable real-time updates for customer dashboard
+  const { isConnected } = useWebSocket();
   // 🔧 FIX: Per-order component to handle individual delete states
   const OrderItem = ({ order }: { order: Order }) => {
     const deleteOrderMutation = useDeleteOrder(order.id);

@@ -362,7 +362,7 @@ class OrderController {
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
       
       broadcast({
-        type: 'ORDER_UPDATED',
+        type: 'order_update',  // ✅ FIXED: Match frontend event name
         orderId: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
@@ -407,10 +407,11 @@ class OrderController {
       
       await order.update({ status }, { transaction });
 
-      // Auto delete files if order is completed
+      // Schedule file deletion for completed orders (non-blocking)
+      let shouldDeleteFiles = false;
       if (status === 'completed') {
-        console.log(`🗑️  Order ${orderId} marked as completed, triggering file deletion...`);
-        await OrderController.deleteOrderFiles(orderId, transaction);
+        console.log(`🗑️  Order ${orderId} marked as completed, will delete files after response...`);
+        shouldDeleteFiles = true;
         
         // 🎯 DYNAMIC ORDER NUMBERING: Check if this completion causes a reset
         const remainingActiveOrders = await Order.count({
@@ -444,7 +445,7 @@ class OrderController {
       const transformedOrder = OrderController.transformOrderData(updatedOrder);
       
       broadcast({
-        type: 'ORDER_STATUS_UPDATED',
+        type: 'order_update',  // ✅ FIXED: Match frontend event name for status updates
         orderId: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
@@ -456,6 +457,20 @@ class OrderController {
       console.log(`📡 Broadcasting order status update: Order ${orderId} status changed to ${status}`);
       
       res.json(transformedOrder);
+      
+      // 🗑️ ASYNC FILE CLEANUP: Delete files in background if order was completed
+      if (shouldDeleteFiles) {
+        setImmediate(async () => {
+          try {
+            console.log(`🗑️ Starting background file cleanup for completed order ${orderId}...`);
+            await OrderController.deleteOrderFiles(orderId);
+            console.log(`✅ Background file cleanup completed for order ${orderId}`);
+          } catch (error) {
+            console.error(`❌ Background file cleanup failed for order ${orderId}:`, error);
+            // Don't throw - cleanup failure shouldn't affect the user
+          }
+        });
+      }
     } catch (error) {
       await transaction.rollback();
       console.error('Update order status error:', error);
@@ -555,7 +570,7 @@ class OrderController {
       
       // Broadcast update to shop owner
       broadcast({
-        type: 'ORDER_FILES_ADDED',
+        type: 'order_update',  // ✅ FIXED: Match frontend event name for file additions
         orderId: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
@@ -992,13 +1007,9 @@ class OrderController {
       
       await transaction.commit();
       
-      // 🗑️ DELETE ALL ORDER FILES (R2 AND LOCAL) AFTER SUCCESSFUL ORDER DELETION
-      console.log(`🗑️ Starting file cleanup for deleted order ${orderId}...`);
-      await OrderController.deleteOrderFiles(orderId);
-      
       // 🚀 CRITICAL FIX: Broadcast order deletion to all connected users for real-time sync
       broadcast({
-        type: 'ORDER_DELETED',
+        type: 'order_deleted',  // ✅ FIXED: Use lowercase underscore for consistency
         orderId: orderId,
         shopId: order.shopId,
         customerId: order.customerId,
@@ -1007,7 +1018,21 @@ class OrderController {
       
       console.log(`📡 Broadcasting order deletion: Order ${orderId} deleted by user ${userId}`);
       
-      res.json({ success: true, message: 'Order deleted successfully' });
+      // Send response immediately for instant UI feedback
+      res.json({ success: true, message: 'Order deleted successfully', orderId: orderId });
+      
+      // 🗑️ ASYNC FILE CLEANUP: Delete files in background AFTER sending response
+      // This prevents UI blocking while R2 deletion happens
+      setImmediate(async () => {
+        try {
+          console.log(`🗑️ Starting background file cleanup for deleted order ${orderId}...`);
+          await OrderController.deleteOrderFiles(orderId);
+          console.log(`✅ Background file cleanup completed for order ${orderId}`);
+        } catch (error) {
+          console.error(`❌ Background file cleanup failed for order ${orderId}:`, error);
+          // Don't throw - cleanup failure shouldn't affect the user
+        }
+      });
     } catch (error) {
       await transaction.rollback();
       console.error('Delete order error:', error);
