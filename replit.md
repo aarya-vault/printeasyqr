@@ -131,3 +131,10 @@ The platform employs a clean, professional, and consistent visual identity, util
 - **Server Header Optimization**: Content-Disposition set to "inline" for print/inline requests
 - **Cross-Browser Compatibility**: Works with iframe content printing and parent window fallbacks
 - **Comprehensive Testing**: All print functionality tests passing with 100% reliability
+
+### ✅ R2 FILE CLEANUP ON ORDER DELETION (August 21, 2025)
+- **Automatic R2 Cleanup**: When orders are deleted, all associated files are automatically removed from R2 storage
+- **Integrated with Existing System**: Connected deleteOrderFiles method to deleteOrder process
+- **Works for All Roles**: Customer cancellations and shop owner deletions both trigger file cleanup
+- **Batch Deletion Support**: Efficiently handles multiple files per order
+- **Storage Manager Integration**: Uses existing storageManager.deleteFile() for R2 operations
