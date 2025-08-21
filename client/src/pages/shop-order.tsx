@@ -219,67 +219,7 @@ export default function ShopOrder() {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Fallback server upload function
-  const uploadFilesViaServer = async (orderId: number, files: File[]) => {
-    console.log(`💻 Server Upload: Processing ${files.length} files for order ${orderId}...`);
-    
-    return new Promise<any>((resolve, reject) => {
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file));
-      
-      const xhr = new XMLHttpRequest();
-      const startTime = Date.now();
-      
-      xhr.upload.onprogress = (progressEvent: ProgressEvent) => {
-        if (progressEvent.lengthComputable) {
-          const currentTime = Date.now();
-          const elapsedTime = (currentTime - startTime) / 1000;
-          const bytesLoaded = progressEvent.loaded;
-          const bytesTotal = progressEvent.total;
-          
-          // Calculate upload speed
-          const uploadSpeed = elapsedTime > 0 ? bytesLoaded / elapsedTime : 0;
-          const bytesRemaining = bytesTotal - bytesLoaded;
-          const estimatedTime = uploadSpeed > 0 ? Math.round(bytesRemaining / uploadSpeed) : 0;
-          
-          setUploadProgress({
-            progress: Math.round((bytesLoaded / bytesTotal) * 100),
-            currentFile: files[0]?.name || 'Uploading...',
-            filesProcessed: bytesLoaded === bytesTotal ? files.length : 0,
-            totalFiles: files.length,
-            uploadSpeed: uploadSpeed,
-            estimatedTime: estimatedTime,
-            bytesUploaded: bytesLoaded,
-            totalBytes: bytesTotal
-          });
-        }
-      };
-      
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          console.log('✅ Server upload completed successfully!');
-          resolve({ success: true });
-        } else {
-          console.error(`❌ Server upload failed: ${xhr.status}`);
-          reject(new Error(`Upload failed with status ${xhr.status}`));
-        }
-      };
-      
-      xhr.onerror = () => {
-        console.error('❌ Server upload network error');
-        reject(new Error('Network error during upload'));
-      };
-      
-      // Include JWT token if available (for authenticated users)
-      const token = localStorage.getItem('token');
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-      
-      xhr.open('POST', `/api/orders/${orderId}/add-files`);
-      xhr.send(formData);
-    });
-  };
+  // Removed: Fallback server upload - using R2 direct upload only
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderForm) => {

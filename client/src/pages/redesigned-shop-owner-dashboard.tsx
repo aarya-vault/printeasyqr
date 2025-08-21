@@ -688,11 +688,13 @@ export default function RedesignedShopOwnerDashboard() {
           <div className="flex items-center text-sm text-gray-600">
             <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="truncate">
-              {order.files && Array.isArray(order.files) && order.files.length > 0 
-                ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
-                : (typeof order.files === 'string' && order.files !== '[]' 
-                  ? `${JSON.parse(order.files).length || 0} files` 
-                  : order.description || 'No files')}
+              {order.type === 'file_upload' && (!order.files || (Array.isArray(order.files) && order.files.length === 0)) && order.status === 'new' 
+                ? 'Documents uploading...'
+                : order.files && Array.isArray(order.files) && order.files.length > 0 
+                  ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
+                  : (typeof order.files === 'string' && order.files !== '[]' 
+                    ? `${JSON.parse(order.files).length || 0} files` 
+                    : order.description || 'Documents uploading...')}
             </span>
           </div>
           {order.type === 'upload' && order.files && (
@@ -701,7 +703,7 @@ export default function RedesignedShopOwnerDashboard() {
               <span>
                 {(() => {
                   const fileCount = Array.isArray(order.files) ? order.files.length : JSON.parse(order.files || '[]').length;
-                  return fileCount > 0 ? `${fileCount} ${fileCount === 1 ? 'file' : 'files'}` : 'No files';
+                  return fileCount > 0 ? `${fileCount} ${fileCount === 1 ? 'file' : 'files'}` : (order.status === 'new' ? 'Documents uploading...' : 'No files');
                 })()}
               </span>
             </div>
@@ -774,7 +776,7 @@ export default function RedesignedShopOwnerDashboard() {
                 </DropdownMenuItem>
                 {isPlatformSupported() && (
                   <DropdownMenuItem onClick={async () => {
-                    await launchPrintEasyConnect(order.publicId || order.id.toString(), () => {
+                    await launchPrintEasyConnect(order.id.toString(), () => {
                       toast({
                         title: "PrintEasy Connect Not Installed",
                         description: "Download the desktop app for enhanced printing features",

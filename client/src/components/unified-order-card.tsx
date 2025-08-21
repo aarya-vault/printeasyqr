@@ -143,15 +143,15 @@ export default function UnifiedOrderCard({
               )}
             </div>
             <p className="text-sm text-gray-600 truncate">
-              {order.type === 'upload' && files.length === 0 && order.status === 'new' ? (
+              {(order.type === 'file_upload' || order.type === 'upload') && files.length === 0 && (order.status === 'new' || order.status === 'pending') ? (
                 <span className="flex items-center gap-1 text-[#FFBF00]">
                   <span className="inline-block w-4 h-4 border-2 border-[#FFBF00] border-t-transparent rounded-full animate-spin"></span>
-                  Files uploading...
+                  Documents uploading...
                 </span>
               ) : files.length > 0 ? (
                 `${files.length} file${files.length > 1 ? 's' : ''}`
               ) : (
-                order.description || 'No files'
+                order.description || 'Documents uploading...'
               )}
             </p>
             <p className="text-xs text-gray-500">{displayName}</p>
@@ -180,15 +180,15 @@ export default function UnifiedOrderCard({
         {/* Order Details */}
         <div className="space-y-2 mb-3">
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Type: {order.type === 'upload' ? 'File Upload' : 'Walk-in'}</span>
+            <span>Type: {(order.type === 'file_upload' || order.type === 'upload') ? 'File Upload' : 'Walk-in'}</span>
             <span>{format(new Date(order.createdAt), 'MMM dd, HH:mm')}</span>
           </div>
           
-          {order.type === 'upload' && files.length === 0 && order.status === 'new' ? (
+          {(order.type === 'file_upload' || order.type === 'upload') && files.length === 0 && (order.status === 'new' || order.status === 'pending') ? (
             <div className="flex items-center gap-2 text-xs">
               <div className="flex items-center gap-1 text-[#FFBF00]">
                 <span className="inline-block w-3 h-3 border-2 border-[#FFBF00] border-t-transparent rounded-full animate-spin"></span>
-                <span>Waiting for files to upload...</span>
+                <span>Documents are being uploaded...</span>
               </div>
             </div>
           ) : files.length > 0 && (
