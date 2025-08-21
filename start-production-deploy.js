@@ -26,8 +26,18 @@ console.log('   DISABLE_DB_SYNC:', process.env.DISABLE_DB_SYNC);
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 console.log('   DATABASE_URL available:', !!process.env.DATABASE_URL);
 
-// Import and run the production server
-import('./server/production.js').catch(error => {
-  console.error('❌ Failed to start production server:', error);
-  process.exit(1);
-});
+// Import and run the production server with proper async handling
+async function startProductionServer() {
+  try {
+    console.log('🔄 Importing production server module...');
+    await import('./server/production.js');
+    console.log('✅ Production server module loaded successfully');
+  } catch (error) {
+    console.error('❌ Failed to start production server:', error);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startProductionServer();
