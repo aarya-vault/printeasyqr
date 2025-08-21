@@ -40,19 +40,22 @@ const requireAuth = async (req, res, next) => {
     }
 
     if (!token) {
-      console.log('❌ No JWT token found in Authorization header or cookies');
-      console.log('🔍 DEBUG - Headers:', {
-        authorization: req.headers.authorization,
-        cookie: req.headers.cookie
-      });
+      console.log(`❌❌❌ [CRITICAL AUTH ERROR] NO TOKEN FOUND`);
+      console.log(`📝 [ALL HEADERS DUMP]:`, JSON.stringify(req.headers, null, 2));
+      console.log(`🔴 [REQUEST URL]: ${req.method} ${req.url}`);
+      console.log(`🔴 [USER AGENT]: ${req.headers['user-agent']}`);
       return res.status(401).json({ message: 'Authentication required' });
     }
+    
+    console.log(`✅✅✅ [TOKEN FOUND] Length: ${token.length}, First 50 chars: ${token.substring(0, 50)}`);
     let decoded;
     try {
-      console.log(`🔐 [JWT DEBUG] Attempting to verify token: ${token.substring(0, 20)}...${token.substring(token.length - 10)}`);
-      console.log(`🔑 [JWT DEBUG] Token length: ${token.length}, JWT_SECRET exists: ${!!process.env.JWT_SECRET}`);
+      console.log(`🔥🔥🔥 [JWT VERIFICATION START]`);
+      console.log(`🔍 [TOKEN DETAILS] Length: ${token.length}, Format: ${token.split('.').length} parts`);
+      console.log(`🔑 [JWT_SECRET] Exists: ${!!process.env.JWT_SECRET}, Length: ${process.env.JWT_SECRET?.length || 0}`);
+      console.log(`🗺 [FULL TOKEN]`, token);
       decoded = verifyToken(token);
-      console.log(`✅ [JWT SUCCESS] Token decoded successfully:`, { id: decoded?.id, role: decoded?.role, exp: decoded?.exp });
+      console.log(`✅✅✅ [JWT SUCCESS] Decoded:`, decoded);
     } catch (error) {
       console.log(`❌ [JWT ERROR] JWT decode failed:`, error.message);
       console.log(`📋 [JWT STACK]`, error.stack);

@@ -41,19 +41,32 @@ export function generateRefreshToken(user) {
 
 export function verifyToken(token) {
   try {
-    console.log(`🔐 [JWT VERIFY] Verifying token with length ${token.length}`);
-    console.log(`🔑 [JWT VERIFY] Using JWT_SECRET: ${process.env.JWT_SECRET?.substring(0, 10)}...`);
+    console.log(`🔥🔥🔥 [JWT VERIFY START] Token length: ${token.length}`);
+    console.log(`📝 [FULL TOKEN]:`, token);
+    console.log(`🔑 [JWT_SECRET]:`, process.env.JWT_SECRET);
+    console.log(`🔍 [TOKEN PARTS]:`, token.split('.'));
+    
     const decoded = jwt.verify(token, getJWTSecret());
-    console.log(`✅ [JWT VERIFY SUCCESS] Decoded:`, { id: decoded.id, role: decoded.role, exp: new Date(decoded.exp * 1000) });
+    
+    console.log(`✅✅✅ [JWT VERIFY SUCCESS]`);
+    console.log(`📄 [DECODED PAYLOAD]:`, decoded);
+    console.log(`🕰️ [TOKEN EXPIRY]:`, new Date(decoded.exp * 1000));
+    console.log(`🗓️ [CURRENT TIME]:`, new Date());
+    
     return decoded;
   } catch (error) {
-    console.log(`❌ [JWT VERIFY ERROR] ${error.name}: ${error.message}`);
+    console.log(`❌❌❌ [JWT VERIFY FAILED] ${error.name}: ${error.message}`);
+    console.log(`📏 [ERROR DETAILS]:`, error);
+    
     if (error.name === 'TokenExpiredError') {
-      console.log(`🕰️ [JWT EXPIRED] Token expired at: ${new Date(error.expiredAt)}`);
+      console.log(`🕰️ [TOKEN EXPIRED] Expired at: ${new Date(error.expiredAt)}`);
+      console.log(`🗓️ [CURRENT TIME]: ${new Date()}`);
     }
     if (error.name === 'JsonWebTokenError') {
       console.log(`❌ [JWT MALFORMED] Invalid token format or signature`);
+      console.log(`🔑 [SECRET USED]:`, process.env.JWT_SECRET?.substring(0, 20) + '...');
     }
+    
     return null;
   }
 }
