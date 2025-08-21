@@ -66,18 +66,9 @@ router.delete('/orders/:id', requireAuth, OrderController.deleteOrder);
 // Anonymous order route - deprecated (use authenticated flow)
 // router.post('/orders/anonymous', upload.array('files'), OrderController.createAnonymousOrder);
 
-// 🔥 ULTRA SPEED BOOST: Direct R2 upload with batch presigned URLs for massive performance
-// Requires authentication for security
-router.post('/orders/:id/get-upload-urls', (req, res, next) => {
-  console.log(`🔥🔥🔥 [UPLOAD URL REQUEST] OrderID: ${req.params.id}`);
-  console.log(`🌐 [REQUEST URL]: ${req.method} ${req.originalUrl}`);
-  console.log(`📝 [ALL HEADERS]:`, JSON.stringify(req.headers, null, 2));
-  console.log(`📏 [BODY]:`, JSON.stringify(req.body, null, 2));
-  console.log(`🔑 [AUTHORIZATION HEADER]:`, req.headers.authorization);
-  next();
-}, requireAuth, async (req, res) => {
+// Direct R2 upload with batch presigned URLs
+router.post('/orders/:id/get-upload-urls', requireAuth, async (req, res) => {
   try {
-    console.log(`✅ [AUTH SUCCESS] User authenticated: ${req.user.id} (${req.user.role}) for order ${req.params.id}`);
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
     
