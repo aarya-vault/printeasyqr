@@ -7,20 +7,9 @@ export interface ProtocolFile {
   size?: number;
 }
 
-// Generate protocol URL for single order with complete file data
-export const generateProtocolUrl = (orderId: string, files?: any[]): string => {
-  // 🔧 CRITICAL FIX: Desktop app expects complete file data, not just jobId
-  if (files && files.length > 0) {
-    const filesParam = encodeURIComponent(JSON.stringify(files.map(file => ({
-      name: file.originalName || file.filename || 'document',
-      url: file.downloadUrl || file.r2Url || `/api/download/${file.path || file.filename}`,
-      type: file.mimetype || 'unknown',
-      size: file.size || 0
-    }))));
-    return `printeasy-connect://?files=${filesParam}&orderId=${orderId}`;
-  }
-  
-  // Fallback to jobId approach for compatibility
+// Generate protocol URL for single order
+export const generateProtocolUrl = (orderId: string): string => {
+  // Using jobId-only approach as recommended for scalability
   return `printeasy-connect://?jobId=${orderId}`;
 };
 

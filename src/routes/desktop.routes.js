@@ -40,23 +40,16 @@ const authenticateDesktopApp = (req, res, next) => {
 // Generate pre-signed URLs for R2 files
 const generatePresignedUrl = async (r2Key) => {
   try {
-    // 🔧 CRITICAL FIX: Check if R2 client is properly configured
-    if (!s3Client || !s3Client.isConfigured) {
-      console.error('R2 client not configured - falling back to download endpoint');
-      return null;
-    }
-    
     const command = new GetObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME || 'printeasy-qr',
+      Bucket: 'printeasy-qr',
       Key: r2Key,
     });
     
     // Generate URL with 1 hour expiration
-    const url = await getSignedUrl(s3Client.client || s3Client, command, { expiresIn: 3600 });
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     return url;
   } catch (error) {
     console.error('Error generating pre-signed URL:', error);
-    // Return null to trigger fallback to download endpoint
     return null;
   }
 };
