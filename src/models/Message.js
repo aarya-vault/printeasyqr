@@ -38,7 +38,8 @@ const Message = getSequelize().define('Message', {
   content: {
     type: DataTypes.TEXT,
     allowNull: false,
-    defaultValue: ''
+    defaultValue: '',
+    field: 'message'
   },
   files: {
     type: DataTypes.TEXT,

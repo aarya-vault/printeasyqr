@@ -345,6 +345,7 @@ export async function uploadFilesDirectlyToR2(
 
       uploadFile.status = 'uploading';
       let fileUploadedBytes = 0;
+      const batchStartTime = Date.now(); // Initialize batchStartTime
 
       try {
         await uploadFileDirectly(
