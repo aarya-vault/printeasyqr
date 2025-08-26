@@ -158,17 +158,16 @@ async function uploadFileDirectly(
         const timeDiff = (currentTime - lastTime) / 1000; // Convert to seconds
         const bytesDiff = event.loaded - lastLoaded;
         
-        // Calculate speed only if enough time has passed (avoid 0 speed)
+        // Calculate speed with better smoothing to avoid speed drops
         let speed = 0;
-        if (timeDiff > 0.1) { // Only calculate if at least 100ms passed
+        if (timeDiff > 0.05) { // Reduce interval for more responsive calculation
           speed = bytesDiff / timeDiff;
-          // Update tracking variables only when we have a valid speed
           lastLoaded = event.loaded;
           lastTime = currentTime;
         } else if (event.loaded > 0) {
           // Use average speed from start if interval too short
           const totalTime = (currentTime - startTime) / 1000;
-          speed = totalTime > 0 ? event.loaded / totalTime : 0;
+          speed = totalTime > 0.5 ? event.loaded / totalTime : bytesDiff / 0.05; // Better fallback speed
         }
         
         const progressPercent = Math.round((event.loaded / event.total) * 100);
@@ -271,9 +270,9 @@ export async function uploadFilesDirectlyToR2(
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   let uploadedBytes = 0;
 
-  // SIMPLE DIRECT UPLOAD: Always use 5 concurrent uploads (NO MULTIPART)
-  // This handles 100-200MB files with 6-hour presigned URLs
-  const maxConcurrent = 5; // Fixed 5 concurrent uploads as requested
+  // OPTIMIZED DIRECT UPLOAD: Dynamic concurrency for better performance
+  // Start with more concurrent uploads for better initial speed
+  const maxConcurrent = Math.min(10, files.length); // Start with higher concurrency
   const uploadPromises: Promise<void>[] = [];
 
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
@@ -289,8 +288,8 @@ export async function uploadFilesDirectlyToR2(
           try {
             const parts = await uploadMultipartFile(
               uploadFile.file,
-              uploadFile.partUrls,
-              uploadFile.partSize,
+              uploadFile.partUrls || [],
+              uploadFile.partSize || 0,
               (progress) => {
                 uploadFile.progress = progress;
                 const overallProgress = Math.round((uploadedBytes + (uploadFile.file.size * progress / 100)) / totalBytes * 100);
@@ -332,7 +331,7 @@ export async function uploadFilesDirectlyToR2(
             uploadFile.progress = 100;
             uploadedBytes += uploadFile.file.size;
             completedCount++;
-          } catch (error) {
+          } catch (error: unknown) {
             uploadFile.status = 'error';
             uploadFile.error = error instanceof Error ? error.message : 'Multipart upload failed';
           }

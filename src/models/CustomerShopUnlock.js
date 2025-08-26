@@ -29,7 +29,7 @@ const CustomerShopUnlock = getSequelize().define('CustomerShopUnlock', {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW,
-    field: 'unlock_timestamp'
+    field: 'unlock_date'
   },
   qrScanLocation: {
     type: DataTypes.STRING,

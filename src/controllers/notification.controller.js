@@ -32,12 +32,12 @@ class NotificationController {
           const orderIds = orders.map(o => o.id);
           
           if (orderIds.length > 0) {
-            // Get unread messages for these orders
+            // Get unread messages for these orders (using 'message' column instead of 'content')
             const unreadMessages = await Message.findAll({
               where: { 
-                orderId: orderIds,
-                isRead: false,
-                senderRole: 'customer'
+                order_id: orderIds,
+                is_read: false,
+                type: 'text' // Filter for customer messages
               },
               order: [['created_at', 'DESC']],
               limit: 50
@@ -45,12 +45,12 @@ class NotificationController {
 
             notifications = unreadMessages.map(msg => ({
               id: msg.id,
-              title: `New message from ${msg.senderName || 'Customer'}`,
-              message: msg.content,
+              title: `New message from Customer`,
+              message: msg.message, // Use 'message' column
               type: 'chat_message',
               isRead: false,
-              createdAt: msg.createdAt,
-              relatedId: msg.orderId
+              createdAt: msg.created_at,
+              relatedId: msg.order_id
             }));
           }
         }
@@ -66,9 +66,9 @@ class NotificationController {
           // Get unread messages from shop owners
           const unreadMessages = await Message.findAll({
             where: { 
-              orderId: orderIds,
-              isRead: false,
-              senderRole: 'shop_owner'
+              order_id: orderIds,
+              is_read: false,
+              type: 'text' // Filter for shop owner messages
             },
             order: [['created_at', 'DESC']],
             limit: 50
@@ -77,11 +77,11 @@ class NotificationController {
           notifications = unreadMessages.map(msg => ({
             id: msg.id,
             title: `New message from Shop`,
-            message: msg.content,
+            message: msg.message, // Use 'message' column
             type: 'chat_message',
             isRead: false,
-            createdAt: msg.createdAt,
-            relatedId: msg.orderId
+            createdAt: msg.created_at,
+            relatedId: msg.order_id
           }));
         }
       }
@@ -100,7 +100,7 @@ class NotificationController {
       
       // Since notifications are based on messages, mark the message as read
       await Message.update(
-        { isRead: true },
+        { is_read: true },
         { where: { id: notificationId } }
       );
       
@@ -139,37 +139,43 @@ class NotificationController {
         const shop = await Shop.findOne({ where: { ownerId: userId } });
         if (shop) {
           // Mark all customer messages as read for this shop's orders
+          const orderIds = await Order.findAll({
+            where: { shopId: shop.id },
+            attributes: ['id']
+          });
+          const orderIdsList = orderIds.map(o => o.id);
+          
+          if (orderIdsList.length > 0) {
+            await Message.update(
+              { is_read: true },
+              {
+                where: { 
+                  order_id: orderIdsList,
+                  is_read: false 
+                }
+              }
+            );
+          }
+        }
+      } else {
+        // For customers: Mark all shop owner messages as read
+        const orderIds = await Order.findAll({
+          where: { customerId: userId },
+          attributes: ['id']
+        });
+        const orderIdsList = orderIds.map(o => o.id);
+        
+        if (orderIdsList.length > 0) {
           await Message.update(
-            { isRead: true },
+            { is_read: true },
             {
-              include: [{
-                model: Order,
-                as: 'order',
-                where: { shopId: shop.id }
-              }],
               where: { 
-                senderRole: 'customer',
-                isRead: false 
+                order_id: orderIdsList,
+                is_read: false 
               }
             }
           );
         }
-      } else {
-        // For customers: Mark all shop owner messages as read
-        await Message.update(
-          { isRead: true },
-          {
-            include: [{
-              model: Order,
-              as: 'order',
-              where: { customerId: userId }
-            }],
-            where: { 
-              senderRole: 'shop_owner',
-              isRead: false 
-            }
-          }
-        );
       }
       
       res.json({ success: true, message: 'All notifications marked as read' });

@@ -685,29 +685,32 @@ export default function RedesignedShopOwnerDashboard() {
 
         {/* Order Info */}
         <div className="space-y-2 mb-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="truncate">
-              {order.type === 'file_upload' && (!order.files || (Array.isArray(order.files) && order.files.length === 0)) && order.status === 'new' 
-                ? 'Documents uploading...'
-                : order.files && Array.isArray(order.files) && order.files.length > 0 
-                  ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
-                  : (typeof order.files === 'string' && order.files !== '[]' 
-                    ? `${JSON.parse(order.files).length || 0} files` 
-                    : order.description || 'Documents uploading...')}
-            </span>
-          </div>
-          {order.type === 'upload' && order.files && (
+          {/* Only show file info for upload orders, not walk-in orders */}
+          {order.type === 'upload' && (
             <div className="flex items-center text-sm text-gray-600">
-              <Upload className="w-4 h-4 mr-2" />
-              <span>
-                {(() => {
-                  const fileCount = Array.isArray(order.files) ? order.files.length : JSON.parse(order.files || '[]').length;
-                  return fileCount > 0 ? `${fileCount} ${fileCount === 1 ? 'file' : 'files'}` : (order.status === 'new' ? 'Documents uploading...' : 'No files');
-                })()}
+              <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">
+                {(!order.files || (Array.isArray(order.files) && order.files.length === 0)) && order.status === 'new' 
+                  ? 'Documents uploading...'
+                  : order.files && Array.isArray(order.files) && order.files.length > 0 
+                    ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
+                    : (typeof order.files === 'string' && order.files !== '[]' 
+                      ? `${JSON.parse(order.files).length || 0} files` 
+                      : 'No files')}
               </span>
             </div>
           )}
+          
+          {/* Walk-in order info */}
+          {order.type === 'walkin' && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Timer className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">
+                Walk-in Order: {order.description || 'Custom printing job'}
+              </span>
+            </div>
+          )}
+          
           {order.walkinTime && (
             <div className="flex items-center text-sm text-gray-600">
               <Timer className="w-4 h-4 mr-2" />
