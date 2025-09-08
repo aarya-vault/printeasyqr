@@ -1,3 +1,57 @@
+// Track print job requests for comprehensive reporting
+const trackPrintJob = async (files: any[], success: boolean = true): Promise<void> => {
+  try {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) return; // No auth, skip tracking
+    
+    // Find the order ID from the current page URL if possible
+    const urlMatch = window.location.pathname.match(/order\/(\d+)/);
+    const orderId = urlMatch ? parseInt(urlMatch[1]) : null;
+    
+    if (!orderId) return; // Can't track without order ID
+    
+    // Calculate estimated pages for files
+    const filesWithPages = files.map(file => ({
+      ...file,
+      estimatedPages: calculateFilePages(file)
+    }));
+    
+    await fetch('/api/reports/print-jobs', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        orderId,
+        files: filesWithPages,
+        success
+      })
+    });
+  } catch (error) {
+    console.warn('Failed to track print job:', error);
+  }
+};
+
+// Calculate estimated pages for a file
+const calculateFilePages = (file: any): number => {
+  if (!file.size) return 1;
+  
+  const mimetype = file.mimetype || '';
+  const filename = file.originalName || file.filename || '';
+  
+  if (mimetype === 'application/pdf' || filename.match(/\.pdf$/i)) {
+    // PDF: ~50KB per page estimation
+    return Math.max(1, Math.ceil(file.size / 51200));
+  } else if (mimetype.startsWith('image/')) {
+    // Images: 1 page each
+    return 1;
+  } else {
+    // Documents: ~2KB per page estimation
+    return Math.max(1, Math.ceil(file.size / 2048));
+  }
+};
+
 // Bulletproof print function using Print Host pattern with window monitoring
 export const printFile = async (file: any, orderStatus?: string): Promise<void> => {
   // Check if order is completed - files are deleted after completion
@@ -57,6 +111,10 @@ export const printFile = async (file: any, orderStatus?: string): Promise<void> 
       if (printWindow.closed) {
         clearInterval(checkInterval); // Stop checking
         console.log(`✅ Window for ${filename} closed. Continuing...`);
+        
+        // 🎯 TRACK PRINT JOB: Log print request for reporting
+        trackPrintJob([file], true).catch(console.error);
+        
         resolve();
       }
     }, 500); // Check every half-second

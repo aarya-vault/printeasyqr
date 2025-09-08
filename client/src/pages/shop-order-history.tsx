@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ComprehensiveReportModal } from '@/components/ui/comprehensive-report-modal';
 import { 
   ArrowLeft, 
   Search, 
@@ -18,7 +19,9 @@ import {
   History,
   Phone,
   Download,
-  Printer
+  Printer,
+  FileText,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
@@ -69,6 +72,7 @@ export default function ShopOrderHistory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // 🚫 SEO EXCLUSION: Shop order history is private
   useEffect(() => {
@@ -319,21 +323,32 @@ export default function ShopOrderHistory() {
       <div className="bg-white shadow-sm border-b">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/shop-dashboard">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold text-rich-black flex items-center">
-                  <History className="w-5 h-5 mr-2" />
-                  Order History
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {filteredOrders.length} completed order{filteredOrders.length !== 1 ? 's' : ''}
-                </p>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center space-x-4">
+                <Link href="/shop-dashboard">
+                  <Button variant="ghost" size="icon">
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <div>
+                  <h1 className="text-xl font-bold text-rich-black flex items-center">
+                    <History className="w-5 h-5 mr-2" />
+                    Order History
+                  </h1>
+                  <p className="text-sm text-gray-500">
+                    {filteredOrders.length} completed order{filteredOrders.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
+              
+              {/* Report Generation Button */}
+              <Button 
+                onClick={() => setShowReportModal(true)}
+                className="bg-[#FFBF00] text-black hover:bg-[#E6AC00] font-medium"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Generate Report
+              </Button>
             </div>
           </div>
         </div>
@@ -447,6 +462,15 @@ export default function ShopOrderHistory() {
             </div>
           </DialogContent>
         </Dialog>
+      )}
+      
+      {/* Comprehensive Report Modal */}
+      {showReportModal && shopData?.shop && (
+        <ComprehensiveReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          shopId={shopData.shop.id}
+        />
       )}
     </div>
   );
