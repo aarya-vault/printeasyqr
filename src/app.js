@@ -100,7 +100,6 @@ import qrRoutes from './routes/qr.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import pincodeRoutes from './routes/pincode.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
-import otpRoutes from './routes/otp.routes.js';
 import downloadRoutes from './routes/download.routes.js';
 import printHostRoutes from './routes/print-host.routes.js';
 import googleMapsImportRoutes from './routes/google-maps-import.routes.js';
@@ -237,7 +236,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/pincode', pincodeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/shop-owner', shopOwnerAnalyticsRoutes);
-app.use('/api/auth', otpRoutes); // WhatsApp OTP routes
 app.use('/api', printHostRoutes); // Print Host for PDF printing
 app.use('/api/google-maps-import', googleMapsImportRoutes); // Google Maps shop creation
 app.use('/api', r2Routes); // R2 storage routes for order files
