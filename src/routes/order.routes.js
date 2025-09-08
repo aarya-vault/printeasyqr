@@ -7,7 +7,6 @@ import path from 'path';
 import storageManager from '../../server/storage/storageManager.js';
 import { 
   r2UploadLimiter, 
-  multipartUploadLimiter, 
   uploadQueueMiddleware,
   systemHealthMonitor 
 } from '../middleware/rateLimiter.js';
@@ -129,28 +128,7 @@ router.post('/orders/:orderId/confirm-files',
   r2UploadLimiter, // Apply rate limiting
   OrderController.confirmFilesUpload);
 
-// Complete multipart upload after all parts are uploaded - WITH RATE LIMITING
-router.post('/orders/:orderId/complete-multipart', 
-  requireAuth,
-  systemHealthMonitor, // Check system health
-  multipartUploadLimiter, // Stricter rate limiting for multipart
-  async (req, res) => {
-  try {
-    const { key, uploadId, parts } = req.body;
-    
-    if (!key || !uploadId || !parts) {
-      return res.status(400).json({ error: 'Missing required parameters' });
-    }
-    
-    const r2Client = (await import('../../server/storage/r2Client.js')).default;
-    
-    const result = await r2Client.completeMultipartUpload(key, uploadId, parts);
-    
-    res.json({ success: true, result });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to complete multipart upload' });
-  }
-});
+// Multipart upload endpoints removed - using direct upload only
 
 // 🚀 TRUE R2 DIRECT UPLOAD: No proxy - files go directly to R2
 // Proxy endpoint removed - files now upload directly to R2 using presigned URLs
