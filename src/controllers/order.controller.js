@@ -1041,20 +1041,32 @@ class OrderController {
         }
       }
       
-      // Format NEW files with unified metadata structure
-      const formattedNewFiles = files.map((file, index) => ({
-        id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
-        filename: file.filename || file.originalName,
-        originalName: file.originalName,
-        r2Key: file.r2Key,
-        bucket: file.bucket || process.env.R2_BUCKET_NAME,
-        size: file.size,
-        mimetype: file.mimetype,
-        path: file.r2Key, // For compatibility
-        storageType: 'r2',
-        uploadedAt: new Date().toISOString(),
-        status: 'completed'
-      }));
+      // Validate and format NEW files with unified metadata structure
+      console.log(`🔍 Confirming ${files.length} files for order ${orderId}`);
+      
+      const formattedNewFiles = files.map((file, index) => {
+        // CRITICAL: Validate that r2Key exists and is valid
+        if (!file.r2Key) {
+          console.error(`❌ Missing r2Key for file:`, file);
+          throw new Error(`Missing r2Key for file: ${file.originalName || 'unknown'}`);
+        }
+        
+        console.log(`✅ Processing file: ${file.originalName} with key: ${file.r2Key}`);
+        
+        return {
+          id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
+          filename: file.filename || file.originalName,
+          originalName: file.originalName,
+          r2Key: file.r2Key,
+          bucket: file.bucket || process.env.R2_BUCKET_NAME,
+          size: file.size,
+          mimetype: file.mimetype,
+          path: file.r2Key, // For compatibility with legacy download paths
+          storageType: 'r2',
+          uploadedAt: new Date().toISOString(),
+          status: 'completed'
+        };
+      });
       
       // CRITICAL FIX: Combine existing files with new files instead of replacing
       const allFiles = [...existingFiles, ...formattedNewFiles];

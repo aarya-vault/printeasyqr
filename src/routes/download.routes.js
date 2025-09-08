@@ -73,9 +73,21 @@ router.get('/download/*', async (req, res) => {
     } else {
       // **R2 STORAGE HANDLING - USE AWS SDK TO GET OBJECT DIRECTLY**
       console.log('🔍 R2 file detected, fetching object directly...');
+      console.log(`📋 Request details:`, {
+        filePath,
+        originalName,
+        storageType,
+        query: req.query
+      });
       
       // Get the R2 key from file path
       let r2Key = filePath;
+      
+      // Validate r2Key
+      if (!r2Key) {
+        console.error('❌ Empty r2Key provided');
+        return res.status(400).json({ message: 'Invalid file key' });
+      }
       
       // **DIRECT R2 OBJECT RETRIEVAL** using AWS SDK
       try {
@@ -87,6 +99,8 @@ router.get('/download/*', async (req, res) => {
         });
         
         console.log(`🔗 Getting object directly from R2: ${r2Key}`);
+        console.log(`🪣 R2 Bucket: ${r2Client.bucket}`);
+        
         const s3Response = await r2Client.client.send(getObjectCommand);
         
         if (!s3Response.Body) {
@@ -154,8 +168,17 @@ router.get('/download/*', async (req, res) => {
         }
         
       } catch (r2Error) {
-        console.error('❌ Direct R2 access failed:', r2Error);
-        return res.status(404).json({ message: 'File not found in storage' });
+        console.error('❌ Direct R2 access failed:', {
+          error: r2Error.message,
+          code: r2Error.Code || r2Error.name,
+          key: r2Key,
+          bucket: r2Client.bucket
+        });
+        
+        // Return 404 if object not found, 500 for other errors
+        const statusCode = r2Error.name === 'NoSuchKey' || r2Error.Code === 'NoSuchKey' ? 404 : 500;
+        const message = statusCode === 404 ? 'File not found in storage' : 'Failed to retrieve file';
+        return res.status(statusCode).json({ message, details: r2Error.message });
       }
     }
     
