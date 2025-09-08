@@ -35,7 +35,7 @@ The platform employs a clean, professional, and consistent visual identity, util
 - **Unified Chat System**: Provides real-time communication between customers and shop owners with file attachment capabilities.
 - **Admin Dashboard**: Manages users and shops (CRUD operations, application review, status management, QR Customer Acquisition Analytics).
 - **Dynamic Homepage**: Mobile-first design focusing on QR scanning, login, real-time chat, and order tracking.
-- **File Management**: Supports various file types and uploads (up to 50MB/file, 20 files/order).
+- **File Management**: Supports various file types and uploads (up to 300MB/file, 1GB total per order).
 - **Pure JWT Authentication**: Features Bcrypt hashing, stateless JWT tokens, and role-based middleware.
 - **Shop Slug System**: Enables manual entry and validation of unique shop slugs.
 - **Optimized Shop Dashboard**: Displays key metrics such as Today's Orders, Pending, Completed, and Average Processing Time.

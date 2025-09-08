@@ -20,11 +20,11 @@ function createStorage() {
   return multer.memoryStorage();
 }
 
-// 🚀 ULTRA PERFORMANCE: Optimized for 1GB files and hundreds of small files
+// 🚀 ULTRA PERFORMANCE: Optimized for 300MB files and 1GB total per order
 const upload = multer({
   storage: createStorage(),
   limits: {
-    fileSize: 1024 * 1024 * 1024, // 1GB per file - Support huge files!
+    fileSize: 300 * 1024 * 1024, // 300MB per file - Support large files!
     files: 200, // Up to 200 files at once - Support bulk uploads!
     fieldSize: 50 * 1024 * 1024, // 50MB field size limit
     parts: 250 // Increased for handling many files

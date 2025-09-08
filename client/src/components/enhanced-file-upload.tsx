@@ -28,6 +28,8 @@ interface EnhancedFileUploadProps {
   isUploading?: boolean;
   disabled?: boolean;
   maxFiles?: number;
+  maxFileSize?: number; // Max file size in bytes
+  maxTotalSize?: number; // Max total size for all files in bytes
   acceptedFileTypes?: string[];
   uploadProgress?: UploadProgressInfo;
   onUploadProgress?: (progress: UploadProgressInfo) => void;
@@ -39,6 +41,8 @@ export function EnhancedFileUpload({
   isUploading = false,
   disabled = false,
   maxFiles = Infinity, // Unlimited files
+  maxFileSize = 300 * 1024 * 1024, // 300MB per file
+  maxTotalSize = 1024 * 1024 * 1024, // 1GB total per order
   acceptedFileTypes = ['*'], // Accept ALL file types including .zip, .csv, .xlsx, etc.
   uploadProgress,
   onUploadProgress
@@ -79,26 +83,48 @@ export function EnhancedFileUpload({
     const newFiles = Array.from(selectedFiles);
     const validFiles: File[] = [];
 
+    // Calculate current total size
+    const currentTotalSize = files.reduce((sum, file) => sum + file.size, 0);
+
     // Validate each file
     newFiles.forEach(file => {
+      // Check file size - individual file limit (300MB)
+      if (file.size > maxFileSize) {
+        toast({
+          title: "File too large",
+          description: `${file.name} is ${formatFileSize(file.size)}. Maximum file size is ${formatFileSize(maxFileSize)}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Check file type - handle wildcard case
       const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
       
       // If acceptedFileTypes contains '*', accept all files
-      if (acceptedFileTypes.includes('*') || acceptedFileTypes.includes(fileExtension)) {
-        validFiles.push(file);
+      if (!acceptedFileTypes.includes('*') && !acceptedFileTypes.includes(fileExtension)) {
+        toast({
+          title: "Invalid file type",
+          description: `${file.name} is not supported. Please upload: ${acceptedFileTypes.join(', ')}`,
+          variant: "destructive",
+        });
         return;
       }
       
-      // File type not accepted
-      toast({
-        title: "Invalid file type",
-        description: `${file.name} is not supported. Please upload: ${acceptedFileTypes.join(', ')}`,
-        variant: "destructive",
-      });
+      validFiles.push(file);
     });
 
-    // No file count restrictions - unlimited uploads
+    // Check total size limit (1GB for all files combined)
+    const newTotalSize = currentTotalSize + validFiles.reduce((sum, file) => sum + file.size, 0);
+    if (newTotalSize > maxTotalSize) {
+      const remainingSpace = maxTotalSize - currentTotalSize;
+      toast({
+        title: "Total file size limit exceeded",
+        description: `Adding these files would exceed the ${formatFileSize(maxTotalSize)} total limit. You have ${formatFileSize(remainingSpace)} remaining.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Add valid files
     onFilesChange([...files, ...validFiles]);
