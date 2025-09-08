@@ -244,31 +244,19 @@ class OrderController {
       const orderNumber = await OrderController.calculateDynamicQueueNumber(shopId);
       const publicId = OrderController.generatePublicId();
       
-      // 📁 R2/LOCAL HYBRID STORAGE: Save order files to R2 or fallback to local
-      let files = [];
-      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        
-        // Create a temporary order ID for R2 storage (will be updated after order creation)
-        const tempOrderId = `temp-${Date.now()}`;
-        
-        // ULTRA FAST: Process files using parallel batch processing
-        const filesForUpload = req.files.map(file => ({
-          buffer: file.buffer,
-          originalname: file.originalname,
+      // 🚀 INSTANT ORDER CREATION: Create order first, upload files asynchronously
+      // Store file info but don't upload yet - this makes order creation instant
+      let filesMetadata = [];
+      let hasFiles = req.files && Array.isArray(req.files) && req.files.length > 0;
+      
+      if (hasFiles) {
+        // Just store metadata for now - actual upload happens after order creation
+        filesMetadata = req.files.map(file => ({
           originalName: file.originalname,
           mimetype: file.mimetype,
-          size: file.size
+          size: file.size,
+          status: 'uploading' // Mark as uploading
         }));
-        
-        // Use the new parallel batch processing for massive speed
-        files = await storageManager.saveMultipleFiles(
-          filesForUpload,
-          'ORDER',
-          { orderId: tempOrderId }
-        );
-        
-        // Filter out any failed uploads (saveMultipleFiles already handles errors)
-        files = files.filter(file => file !== null);
       }
       
       // Extract additional order details from request body
@@ -292,7 +280,7 @@ class OrderController {
         title: title || `Queue #${orderNumber}`,
         description: description || instructions || '',
         specifications,
-        files,
+        files: filesMetadata, // Store metadata initially
         status: 'new',
         isUrgent,
         estimatedPages: estimatedPages ? parseInt(estimatedPages) : null,
@@ -327,6 +315,52 @@ class OrderController {
       });
       
       const transformedOrder = OrderController.transformOrderData(orderWithDetails);
+      
+      // 🚀 ASYNC FILE UPLOAD: Upload files in background after order creation
+      if (hasFiles) {
+        // Don't wait for file upload - start it asynchronously
+        setTimeout(async () => {
+          try {
+            const filesForUpload = req.files.map(file => ({
+              buffer: file.buffer,
+              originalname: file.originalname,
+              originalName: file.originalname,
+              mimetype: file.mimetype,
+              size: file.size
+            }));
+            
+            // Upload files in background
+            const uploadedFiles = await storageManager.saveMultipleFiles(
+              filesForUpload,
+              'ORDER',
+              { orderId: newOrder.id }
+            );
+            
+            // Update order with actual file data
+            const validFiles = uploadedFiles.filter(file => file !== null);
+            await Order.update(
+              { files: validFiles },
+              { where: { id: newOrder.id } }
+            );
+            
+            // Broadcast update to shop dashboard
+            broadcast(`shop_${shopId}`, 'ORDER_FILES_UPLOADED', {
+              orderId: newOrder.id,
+              filesCount: validFiles.length
+            });
+            
+          } catch (uploadError) {
+            console.error(`Background upload failed for order ${newOrder.id}:`, uploadError);
+            // Mark order with upload error
+            await Order.update(
+              { files: [] }, 
+              { where: { id: newOrder.id } }
+            );
+          }
+        }, 100); // Start upload after 100ms
+      }
+      
+      // Return order immediately without waiting for file upload
       res.json(transformedOrder);
     } catch (error) {
       res.status(500).json({ message: 'Failed to create order' });
