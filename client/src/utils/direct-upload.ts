@@ -1,6 +1,4 @@
 // Define upload file interface
-
-// Define upload file interface
 export interface DirectUploadFile {
   file: File;
   uploadUrl?: string;
@@ -9,10 +7,6 @@ export interface DirectUploadFile {
   status: 'pending' | 'uploading' | 'completed' | 'error';
   speed?: number;
   error?: string;
-  multipartId?: string;
-  partUrls?: string[];
-  partSize?: number;
-  totalParts?: number;
 }
 
 export interface DirectUploadProgress {
@@ -70,71 +64,6 @@ export async function getDirectUploadUrls(
   } catch (error) {
     return { useDirectUpload: false };
   }
-}
-
-/**
- * Upload multipart file in chunks
- */
-async function uploadMultipartFile(
-  file: File,
-  partUrls: string[],
-  partSize: number,
-  onProgress: (progress: number) => void
-): Promise<Array<{PartNumber: number, ETag: string}>> {
-  const parts: Array<{PartNumber: number, ETag: string}> = [];
-  const totalParts = partUrls.length;
-  let uploadedParts = 0;
-  
-  // CRITICAL FIX: Ultra-conservative concurrency for large files
-  // For 47MB+ files, use ONLY 1-2 concurrent parts to prevent timeouts
-  const getOptimalConcurrency = (fileSize: number) => {
-    const sizeMB = fileSize / (1024 * 1024);
-    if (sizeMB < 10) return 2; // 2 concurrent for small files
-    if (sizeMB < 30) return 2; // 2 concurrent for medium files
-    if (sizeMB < 50) return 1; // ONLY 1 concurrent for 47MB files!
-    if (sizeMB < 100) return 1; // ONLY 1 concurrent for 100MB files!
-    return 1; // ONLY 1 concurrent for 112MB+ files - SEQUENTIAL UPLOAD!
-  };
-  
-  const maxConcurrent = getOptimalConcurrency(file.size);
-  
-  for (let i = 0; i < totalParts; i += maxConcurrent) {
-    const batch = Math.min(maxConcurrent, totalParts - i);
-    const batchPromises = [];
-    
-    for (let j = 0; j < batch; j++) {
-      const partNumber = i + j + 1;
-      const start = (partNumber - 1) * partSize;
-      const end = Math.min(start + partSize, file.size);
-      const partBlob = file.slice(start, end);
-      
-      const uploadPart = async () => {
-        const response = await fetch(partUrls[partNumber - 1], {
-          method: 'PUT',
-          body: partBlob,
-          headers: {
-            'Content-Type': file.type || 'application/octet-stream'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to upload part ${partNumber}`);
-        }
-        
-        const etag = response.headers.get('ETag') || '';
-        uploadedParts++;
-        onProgress(Math.round((uploadedParts / totalParts) * 100));
-        return { PartNumber: partNumber, ETag: etag };
-      };
-      
-      batchPromises.push(uploadPart());
-    }
-    
-    const batchResults = await Promise.all(batchPromises);
-    parts.push(...batchResults);
-  }
-  
-  return parts.sort((a, b) => a.PartNumber - b.PartNumber);
 }
 
 /**
@@ -215,7 +144,7 @@ async function uploadFileDirectly(
 }
 
 /**
- * 🚀 Upload multiple files directly to R2 in parallel
+ * 🚀 Upload multiple files directly to R2 with 15 parallel uploads for optimal performance
  */
 export async function uploadFilesDirectlyToR2(
   files: File[],
@@ -240,22 +169,6 @@ export async function uploadFilesDirectlyToR2(
 
   const uploadFiles: DirectUploadFile[] = files.map((file, index) => {
     const urlInfo = uploadUrls[index];
-    const fileSize = Math.round(file.size/1024/1024);
-    
-    // MULTIPART DISABLED - Always use direct upload
-    if (false && urlInfo?.uploadType === 'multipart') { // DISABLED
-      return {
-        file,
-        uploadUrl: undefined, // No direct URL for multipart uploads
-        key: urlInfo.key,
-        progress: 0,
-        status: 'pending' as const,
-        multipartId: urlInfo.uploadId, // Store multipart ID separately
-        partUrls: urlInfo.partUrls,
-        partSize: urlInfo.partSize,
-        totalParts: urlInfo.totalParts
-      };
-    }
     
     return {
       file,
@@ -270,82 +183,26 @@ export async function uploadFilesDirectlyToR2(
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   let uploadedBytes = 0;
 
-  // OPTIMIZED DIRECT UPLOAD: Dynamic concurrency for better performance
-  // Start with more concurrent uploads for better initial speed
-  const maxConcurrent = Math.min(10, files.length); // Start with higher concurrency
-  const uploadPromises: Promise<void>[] = [];
-
+  // 🚀 OPTIMIZED 15 PARALLEL UPLOADS: Maximum performance per order
+  const maxConcurrent = Math.min(15, files.length); // Always use 15 parallel uploads
+  
   for (let i = 0; i < uploadFiles.length; i += maxConcurrent) {
     const batch = uploadFiles.slice(i, i + maxConcurrent);
     const batchNumber = Math.floor(i / maxConcurrent) + 1;
     const totalBatches = Math.ceil(uploadFiles.length / maxConcurrent);
     
+    console.log(`🚀 Starting batch ${batchNumber}/${totalBatches} with ${batch.length} files`);
+    
     const batchPromises = batch.map(async (uploadFile) => {
       if (!uploadFile.uploadUrl) {
-        // MULTIPART DISABLED - Skip multipart logic
-        if (false && uploadFile.multipartId && uploadFile.partUrls && uploadFile.partSize) { // DISABLED
-          uploadFile.status = 'uploading';
-          try {
-            const parts = await uploadMultipartFile(
-              uploadFile.file,
-              uploadFile.partUrls || [],
-              uploadFile.partSize || 0,
-              (progress) => {
-                uploadFile.progress = progress;
-                const overallProgress = Math.round((uploadedBytes + (uploadFile.file.size * progress / 100)) / totalBytes * 100);
-                if (onProgress) {
-                  onProgress({
-                    totalFiles: files.length,
-                    completedFiles: completedCount,
-                    currentFile: uploadFile.file.name,
-                    overallProgress,
-                    uploadSpeed: 0,
-                    estimatedTime: 0,
-                    bytesUploaded: uploadedBytes,
-                    totalBytes
-                  });
-                }
-              }
-            );
-            
-            // Complete multipart upload
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-            const completeResponse = await fetch(`/api/orders/${orderId}/complete-multipart`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                key: uploadFile.key,
-                uploadId: uploadFile.multipartId,
-                parts: parts
-              })
-            });
-            
-            if (!completeResponse.ok) {
-              throw new Error('Failed to complete multipart upload');
-            }
-            
-            uploadFile.status = 'completed';
-            uploadFile.progress = 100;
-            uploadedBytes += uploadFile.file.size;
-            completedCount++;
-          } catch (error: unknown) {
-            uploadFile.status = 'error';
-            uploadFile.error = error instanceof Error ? error.message : 'Multipart upload failed';
-          }
-        } else {
-          // Skip if no upload info
-          uploadFile.status = 'error';
-          uploadFile.error = 'No upload URL available';
-        }
+        uploadFile.status = 'error';
+        uploadFile.error = 'No upload URL available';
         return;
       }
 
       uploadFile.status = 'uploading';
       let fileUploadedBytes = 0;
-      const batchStartTime = Date.now(); // Initialize batchStartTime
+      const batchStartTime = Date.now();
 
       try {
         await uploadFileDirectly(
@@ -363,6 +220,7 @@ export async function uploadFilesDirectlyToR2(
 
             const currentTime = Date.now();
             const elapsedTime = (currentTime - batchStartTime) / 1000;
+            
             // Calculate aggregate speed from all parallel uploads
             let totalSpeed = 0;
             let activeUploads = 0;
@@ -382,7 +240,7 @@ export async function uploadFilesDirectlyToR2(
                 completedFiles: completedCount,
                 currentFile: uploadFile.file.name,
                 overallProgress: Math.round((uploadedBytes / totalBytes) * 100),
-                uploadSpeed: totalSpeed, // Use totalSpeed from all parallel uploads
+                uploadSpeed: totalSpeed, // Use totalSpeed from all 15 parallel uploads
                 estimatedTime,
                 bytesUploaded: uploadedBytes,
                 totalBytes
@@ -394,9 +252,13 @@ export async function uploadFilesDirectlyToR2(
         uploadFile.status = 'completed';
         uploadFile.progress = 100;
         completedCount++;
+        
+        console.log(`✅ File completed: ${uploadFile.file.name} (${completedCount}/${files.length})`);
+        
       } catch (error) {
         uploadFile.status = 'error';
         uploadFile.error = error instanceof Error ? error.message : 'Upload failed';
+        console.error(`❌ File failed: ${uploadFile.file.name}`, error);
       }
     });
 
@@ -406,6 +268,9 @@ export async function uploadFilesDirectlyToR2(
 
   const totalTime = (Date.now() - batchStartTime) / 1000;
   const avgSpeed = totalBytes / totalTime;
+  
+  console.log(`🎯 Upload completed: ${completedCount}/${files.length} files in ${totalTime.toFixed(2)}s`);
+  console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   
   // Confirm successful uploads with the server
   if (completedCount > 0) {
@@ -430,7 +295,12 @@ export async function uploadFilesDirectlyToR2(
         },
         body: JSON.stringify({ files: confirmData })
       });
+      
+      if (response.ok) {
+        console.log('✅ File confirmations sent to backend');
+      }
     } catch (confirmError: any) {
+      console.warn('⚠️ File confirmation failed:', confirmError);
       // Don't throw - allow order creation to complete even if confirmation fails
     }
   }
