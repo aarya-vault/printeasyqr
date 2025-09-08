@@ -384,7 +384,7 @@ export default function CompleteAdminShopEdit({ shop, onClose, onSave }: Complet
                     {/* Replace Image Button */}
                     <ObjectUploader
                       maxNumberOfFiles={1}
-                      maxFileSize={5242880} // 5MB for images
+                      maxFileSize={314572800} // 300MB for images
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleImageUploadComplete}
                       buttonClassName="w-full border border-gray-300 bg-white hover:bg-gray-50"
@@ -400,7 +400,7 @@ export default function CompleteAdminShopEdit({ shop, onClose, onSave }: Complet
                     <p className="text-gray-600 mb-4">Upload a professional photo of the shop exterior</p>
                     <ObjectUploader
                       maxNumberOfFiles={1}
-                      maxFileSize={5242880} // 5MB for images
+                      maxFileSize={314572800} // 300MB for images
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleImageUploadComplete}
                       buttonClassName="bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black"

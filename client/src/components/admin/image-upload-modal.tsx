@@ -106,7 +106,7 @@ export function ImageUploadModal({ shop, isOpen, onClose, onSuccess }: ImageUplo
 
             <ObjectUploader
               maxNumberOfFiles={1}
-              maxFileSize={10485760}
+              maxFileSize={314572800}
               onGetUploadParameters={handleGetUploadParameters}
               onComplete={handleImageUploadComplete}
               buttonClassName="bg-brand-yellow text-rich-black hover:bg-brand-yellow/90 disabled:opacity-50"
@@ -116,7 +116,7 @@ export function ImageUploadModal({ shop, isOpen, onClose, onSuccess }: ImageUplo
             </ObjectUploader>
             
             <p className="text-xs text-gray-500 mt-2">
-              Maximum file size: 10MB
+              Maximum file size: 300MB
             </p>
           </div>
         </div>

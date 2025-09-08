@@ -439,14 +439,14 @@ export default function EnhancedCustomerOrderDetails({ order, onClose, onRefresh
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    // VALIDATION: Check file sizes (1GB limit per file)
-    const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+    // VALIDATION: Check file sizes (300MB limit per file)
+    const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB per file
     const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
     
     if (oversizedFiles.length > 0) {
       toast({
         title: 'Files too large',
-        description: `${oversizedFiles.length} file(s) exceed the 1GB limit. Please use smaller files or compress them.`,
+        description: `${oversizedFiles.length} file(s) exceed the 300MB limit. Please use smaller files or compress them.`,
         variant: 'destructive'
       });
       // Remove oversized files from selection
