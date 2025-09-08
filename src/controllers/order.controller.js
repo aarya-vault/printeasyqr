@@ -143,7 +143,7 @@ class OrderController {
             required: false
           }
         ],
-        order: [['createdAt', 'DESC']] // Show newest first for better UX
+        order: [['createdAt', 'ASC']] // Show oldest first - oldest orders get priority
       });
       
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
@@ -177,7 +177,7 @@ class OrderController {
             required: false
           }
         ],
-        order: [['createdAt', 'DESC']]
+        order: [['createdAt', 'ASC']] // Show oldest first - oldest orders get priority
       });
       
       const transformedOrders = (orders || []).map(order => OrderController.transformOrderData(order));
