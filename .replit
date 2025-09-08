@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12", "web", "postgresql-16"]
+modules = ["nodejs-20", "web", "python-3.12", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
@@ -8,7 +8,7 @@ packages = ["chromium"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "node start-production-deploy.js"]
+run = ["npm", "run", "start"]
 build = ["npm", "run", "build"]
 
 [env]
