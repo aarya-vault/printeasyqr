@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class R2Client {
@@ -23,12 +23,12 @@ class R2Client {
           accessKeyId: process.env.R2_ACCESS_KEY_ID,
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
         },
-        // 🚀 ULTRA PERFORMANCE V2: Maximum speed optimizations
+        // 🚀 OPTIMIZED: Maximum speed for direct uploads
         maxAttempts: 3, // Faster retries
         requestHandler: {
           connectionTimeout: 5000, // 5s for faster connection
-          socketTimeout: 300000, // 5 minutes for large file transfers
-          requestTimeout: 300000 // 5 minutes request timeout
+          socketTimeout: 600000, // 10 minutes for large file transfers
+          requestTimeout: 600000 // 10 minutes request timeout
         },
         // 🔥 ADVANCED: Enhanced throughput settings
         forcePathStyle: false, // Use virtual-hosted style for better performance
@@ -36,34 +36,6 @@ class R2Client {
       });
       
       this.bucket = process.env.R2_BUCKET_NAME;
-      
-      // 🚀 DYNAMIC MULTIPART CONFIGURATION - ENTERPRISE GRADE
-      this.multipartThreshold = 10 * 1024 * 1024; // 10MB - Use multipart for files >10MB
-      
-      // CRITICAL FIX: ULTRA-SMALL part sizing for large files to prevent timeouts
-      // 47MB and 112MB files MUST use 3-5MB parts MAX!
-      this.getOptimalPartSize = (fileSize) => {
-        if (fileSize < 10 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB parts for <10MB
-        if (fileSize < 30 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for <30MB
-        if (fileSize < 50 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for 47.2MB file!
-        if (fileSize < 100 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for <100MB
-        if (fileSize < 150 * 1024 * 1024) return 3 * 1024 * 1024; // 3MB parts for 112MB file!
-        return 5 * 1024 * 1024; // 5MB parts for very large files (MAX!)
-      };
-      
-      // CRITICAL FIX: Dynamic concurrency based on system load
-      this.getDynamicConcurrency = () => {
-        const memUsage = process.memoryUsage();
-        const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
-        
-        // Reduce concurrency if memory usage is high
-        if (heapUsedMB > 200) return 2; // Low concurrency when memory constrained
-        if (heapUsedMB > 100) return 3; // Medium concurrency
-        return 5; // Full concurrency when resources available
-      };
-      
-      this.partSize = 5 * 1024 * 1024; // Default 5MB (safer for 47MB files)
-      this.maxConcurrentParts = 3; // Start conservative, increase dynamically
       
     } else {
       this.client = null;
@@ -142,7 +114,7 @@ class R2Client {
     });
     
     const url = await getSignedUrl(this.client, command, { 
-      expiresIn: 21600 // 6 HOURS for large file uploads (100-200MB)
+      expiresIn: 21600 // 6 HOURS for large file uploads
     });
     
     return url;
@@ -225,7 +197,6 @@ class R2Client {
       return { success: [], failed: [] };
     }
     
-    
     const results = {
       success: [],
       failed: []
@@ -256,10 +227,6 @@ class R2Client {
       await Promise.all(deletePromises);
     }
     
-    
-    if (results.failed.length > 0) {
-    }
-    
     return results;
   }
   
@@ -282,250 +249,39 @@ class R2Client {
   }
   
   /**
-   * 🚀 ULTRA-FAST MULTIPART UPLOAD for massive files
-   * Breaks large files into chunks and uploads them in parallel
-   */
-  async multipartUpload(key, buffer, mimetype) {
-    if (!this.isAvailable()) {
-      throw new Error('R2 client not configured');
-    }
-    
-    const fileSize = buffer.length;
-    const startTime = Date.now();
-    
-    let UploadId;
-    try {
-      // Create multipart upload
-      const createCommand = new CreateMultipartUploadCommand({
-        Bucket: this.bucket,
-        Key: key,
-        ContentType: mimetype,
-        Metadata: {
-          'uploaded-at': new Date().toISOString(),
-          'upload-type': 'multipart'
-        }
-      });
-      
-      const createResult = await this.client.send(createCommand);
-      UploadId = createResult.UploadId;
-      
-      // Calculate parts
-      const parts = [];
-      const totalParts = Math.ceil(fileSize / this.partSize);
-      
-      // Upload parts in parallel batches
-      const uploadPromises = [];
-      
-      for (let i = 0; i < totalParts; i++) {
-        const start = i * this.partSize;
-        const end = Math.min(start + this.partSize, fileSize);
-        const partBuffer = buffer.slice(start, end);
-        
-        const uploadPromise = this.uploadPart(key, UploadId, i + 1, partBuffer)
-          .then(etag => {
-            return { PartNumber: i + 1, ETag: etag };
-          });
-        
-        uploadPromises.push(uploadPromise);
-        
-        // Process in batches to avoid overwhelming the connection
-        if (uploadPromises.length >= this.maxConcurrentParts || i === totalParts - 1) {
-          const batchResults = await Promise.all(uploadPromises);
-          parts.push(...batchResults);
-          uploadPromises.length = 0; // Clear array
-        }
-      }
-      
-      // Complete multipart upload
-      const completeCommand = new CompleteMultipartUploadCommand({
-        Bucket: this.bucket,
-        Key: key,
-        UploadId,
-        MultipartUpload: {
-          Parts: parts.sort((a, b) => a.PartNumber - b.PartNumber)
-        }
-      });
-      
-      const result = await this.client.send(completeCommand);
-      
-      return {
-        key,
-        bucket: this.bucket,
-        url: `https://${this.bucket}.r2.cloudflarestorage.com/${key}`,
-        uploadType: 'multipart',
-        totalParts: parts.length
-      };
-      
-    } catch (error) {
-      // Attempt to abort the multipart upload
-      if (UploadId) {
-        try {
-          await this.client.send(new AbortMultipartUploadCommand({
-            Bucket: this.bucket,
-            Key: key,
-            UploadId
-          }));
-        } catch (abortError) {
-          // Ignore abort errors
-        }
-      }
-      
-      throw error;
-    }
-  }
-  
-  /**
-   * Upload a single part of a multipart upload
-   */
-  async uploadPart(key, uploadId, partNumber, buffer) {
-    const command = new UploadPartCommand({
-      Bucket: this.bucket,
-      Key: key,
-      UploadId: uploadId,
-      PartNumber: partNumber,
-      Body: buffer
-    });
-    
-    const result = await this.client.send(command);
-    return result.ETag;
-  }
-  
-  /**
-   * 💨 INTELLIGENT UPLOAD: Automatically choose between regular and multipart
+   * 🎯 DIRECT UPLOAD ONLY: Simplified upload for all file sizes
+   * All files use single direct upload regardless of size
    */
   async intelligentUpload(key, buffer, mimetype) {
-    const fileSize = buffer.length;
-    
-    // Use multipart for files over 10MB (threshold changed from 50MB)
-    if (fileSize > this.multipartThreshold) {
-      return await this.multipartUpload(key, buffer, mimetype);
-    } else {
-      return await this.upload(key, buffer, mimetype);
-    }
+    return await this.upload(key, buffer, mimetype);
   }
   
   /**
    * 🔥 BATCH PRESIGNED URLs for direct frontend uploads
+   * Optimized for 15 parallel uploads per order
    */
   async getBatchPresignedUrls(files, orderId) {
     if (!this.isAvailable()) {
       throw new Error('R2 client not configured');
     }
     
-    // Process in parallel for maximum speed
+    // Process in parallel for maximum speed - optimized for 15 parallel uploads
     const urlPromises = files.map(async (file, index) => {
       const key = this.generateKey(orderId, file.name);
       
-      // DISABLED MULTIPART - Always use direct upload for ALL files
-      if (false && file.size > this.multipartThreshold) { // MULTIPART DISABLED
-        // CRITICAL FIX: Use dynamic part size based on file size
-        const optimalPartSize = this.getOptimalPartSize(file.size);
-        const totalParts = Math.ceil(file.size / optimalPartSize);
-        
-        // Validate part count (AWS S3/R2 limit is 10,000 parts)
-        if (totalParts > 10000) {
-          throw new Error(`File too large: would require ${totalParts} parts (max 10,000)`);
-        }
-        
-        const createCommand = new CreateMultipartUploadCommand({
-          Bucket: this.bucket,
-          Key: key,
-          ContentType: file.type,
-          Metadata: {
-            'original-size': String(file.size),
-            'part-size': String(optimalPartSize),
-            'total-parts': String(totalParts)
-          }
-        });
-        
-        const { UploadId } = await this.client.send(createCommand);
-        
-        // Generate presigned URLs for each part with retry logic
-        const partUrls = [];
-        const maxRetries = 3;
-        
-        for (let i = 1; i <= totalParts; i++) {
-          let retries = 0;
-          let partUrl = null;
-          
-          while (retries < maxRetries && !partUrl) {
-            try {
-              const uploadPartCommand = new UploadPartCommand({
-                Bucket: this.bucket,
-                Key: key,
-                UploadId,
-                PartNumber: i
-              });
-              
-              partUrl = await getSignedUrl(this.client, uploadPartCommand, {
-                expiresIn: 7200 // 2 hours
-              });
-              
-              partUrls.push(partUrl);
-            } catch (error) {
-              retries++;
-              if (retries >= maxRetries) {
-                // Abort the multipart upload if we can't generate all URLs
-                await this.client.send(new AbortMultipartUploadCommand({
-                  Bucket: this.bucket,
-                  Key: key,
-                  UploadId
-                }));
-                throw new Error(`Failed to generate presigned URL for part ${i} after ${maxRetries} retries`);
-              }
-              // Wait before retry
-              await new Promise(resolve => setTimeout(resolve, 1000 * retries));
-            }
-          }
-        }
-        
-        return {
-          filename: file.name,
-          key: key,
-          uploadType: 'multipart',
-          uploadId: UploadId,
-          partUrls: partUrls,
-          partSize: optimalPartSize,  // Use dynamic part size
-          totalParts: totalParts,
-          size: file.size
-        };
-      } else {
-        // ALWAYS USE DIRECT UPLOAD - Even for 100-200MB files!
-        const url = await this.getPresignedUploadUrl(key, file.type);
-        return {
-          filename: file.name,
-          key: key,
-          uploadType: 'direct',
-          uploadUrl: url,
-          size: file.size
-        };
-      }
+      // ALWAYS USE DIRECT UPLOAD - Single part uploads only
+      const url = await this.getPresignedUploadUrl(key, file.type);
+      return {
+        filename: file.name,
+        key: key,
+        uploadType: 'direct',
+        uploadUrl: url,
+        size: file.size
+      };
     });
     
     const results = await Promise.all(urlPromises);
-    
     return results;
-  }
-  
-  /**
-   * Complete a multipart upload after all parts are uploaded
-   */
-  async completeMultipartUpload(key, uploadId, parts) {
-    if (!this.isAvailable()) {
-      throw new Error('R2 client not configured');
-    }
-    
-    const command = new CompleteMultipartUploadCommand({
-      Bucket: this.bucket,
-      Key: key,
-      UploadId: uploadId,
-      MultipartUpload: {
-        Parts: parts.sort((a, b) => a.PartNumber - b.PartNumber)
-      }
-    });
-    
-    const result = await this.client.send(command);
-    return result;
   }
 }
 
