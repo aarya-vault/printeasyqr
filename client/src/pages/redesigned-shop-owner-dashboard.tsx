@@ -810,10 +810,11 @@ export default function RedesignedShopOwnerDashboard() {
                   size="sm"
                   variant="outline"
                   className="text-xs"
+                  disabled={hasUploadingFiles}
                 >
                   <Printer className="w-3 h-3 mr-1" />
-                  Print All
-                  <ChevronDown className="w-3 h-3 ml-1" />
+                  {hasUploadingFiles ? 'Uploading...' : 'Print All'}
+                  {!hasUploadingFiles && <ChevronDown className="w-3 h-3 ml-1" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
@@ -850,9 +851,10 @@ export default function RedesignedShopOwnerDashboard() {
               variant="outline"
               onClick={() => handleDownloadAll(order)}
               className="text-xs"
+              disabled={hasUploadingFiles}
             >
               <Download className="w-3 h-3 mr-1" />
-              Download All
+              {hasUploadingFiles ? 'Uploading...' : 'Download All'}
             </Button>
           </div>
         )}

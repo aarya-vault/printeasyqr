@@ -349,6 +349,12 @@ class OrderController {
               filesCount: validFiles.length
             });
             
+            // Also send to connected users for real-time update
+            sendToUser(customerId, 'FILES_UPLOADED', {
+              orderId: newOrder.id,
+              status: 'completed'
+            });
+            
           } catch (uploadError) {
             console.error(`Background upload failed for order ${newOrder.id}:`, uploadError);
             // Mark order with upload error
