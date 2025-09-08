@@ -43,6 +43,10 @@ interface Order {
   status: string;
   files: any;
   specifications?: any;
+  notes?: string;
+  finalAmount?: number;
+  estimatedPages?: number;
+  estimatedBudget?: number;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -53,6 +57,18 @@ interface Order {
     name: string;
     role: string;
   };
+  customer?: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+  };
+  printJobs?: {
+    totalRequests: number;
+    successfulPrints: number;
+  };
+  totalMessages?: number;
+  processingTime?: number;
 }
 
 interface Message {
@@ -165,21 +181,54 @@ export default function ShopOrderHistory() {
   const OrderCard = ({ order }: { order: Order }) => {
     const hasFiles = order.files && order.files !== 'null' && order.files !== '';
     let fileCount = 0;
+    let totalPages = 0;
+    let fileDetails: any[] = [];
     
     if (hasFiles) {
       try {
         const files = typeof order.files === 'string' ? JSON.parse(order.files) : order.files;
-        fileCount = Array.isArray(files) ? files.length : 0;
+        if (Array.isArray(files)) {
+          fileCount = files.length;
+          fileDetails = files;
+          // Calculate estimated pages
+          totalPages = files.reduce((sum, file) => {
+            if (file.mimetype === 'application/pdf' && file.size) {
+              return sum + Math.max(1, Math.ceil(file.size / 51200)); // ~50KB per page
+            } else if (file.mimetype?.startsWith('image/')) {
+              return sum + 1; // 1 page per image
+            } else if (file.size) {
+              return sum + Math.max(1, Math.ceil(file.size / 2048)); // ~2KB per page for docs
+            }
+            return sum + 1;
+          }, 0);
+        }
       } catch (error) {
         fileCount = 0;
+        totalPages = 0;
       }
     }
+
+    // Use estimated pages from order if available, otherwise use calculated
+    const displayPages = order.estimatedPages || totalPages;
 
     const hasConversation = chatHistory.length > 0 || order.type === 'upload';
 
     const isDeleted = !!(order.deletedAt);
-    const borderColor = isDeleted ? 'border-l-red-400' : 'border-l-gray-300';
+    const borderColor = isDeleted ? 'border-l-red-400' : 'border-l-green-400';
     const cardBg = isDeleted ? 'bg-red-50/30' : 'bg-white';
+
+    // Calculate processing time
+    const processingHours = order.completedAt && order.createdAt ? 
+      Math.round((new Date(order.completedAt).getTime() - new Date(order.createdAt).getTime()) / (1000 * 60 * 60)) : 
+      order.processingTime || null;
+
+    const formatFileSize = (bytes: number) => {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
     
     return (
       <Card className={`transition-shadow hover:shadow-md border-l-4 ${borderColor} ${cardBg}`}>
@@ -187,7 +236,7 @@ export default function ShopOrderHistory() {
           <div className="space-y-3">
             {/* Order Header */}
             <div className="flex items-start justify-between">
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className={`font-semibold ${isDeleted ? 'text-gray-600 line-through' : 'text-gray-900'}`}>{order.title}</h3>
                   <Badge className="bg-brand-yellow text-rich-black font-semibold">
@@ -198,9 +247,15 @@ export default function ShopOrderHistory() {
                       <Badge className="bg-gray-100 text-gray-800">
                         {order.publicId || `ORD-${order.id}`}
                       </Badge>
-                      <Badge className="bg-gray-100 text-gray-800">
+                      <Badge className="bg-blue-100 text-blue-800">
                         {order.type === 'upload' ? 'Upload' : 'Walk-in'}
                       </Badge>
+                      {processingHours && (
+                        <Badge className="bg-purple-100 text-purple-800">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {processingHours}h
+                        </Badge>
+                      )}
                     </>
                   )}
                   {isDeleted && (
@@ -209,34 +264,53 @@ export default function ShopOrderHistory() {
                     </Badge>
                   )}
                 </div>
-                {!isDeleted && (
-                  <div className="flex items-center text-sm text-gray-600">
+
+                {/* Customer Information */}
+                <div className="flex items-center text-sm text-gray-600 flex-wrap gap-4">
+                  <div className="flex items-center">
                     <User className="w-4 h-4 mr-1" />
-                    {order.customerName || (order as any).customer?.name}
-                    <Phone className="w-4 h-4 ml-3 mr-1" />
-                    {(order as any).customer?.phone || order.customerPhone}
+                    {order.customer?.name || order.customerName}
                   </div>
-                )}
+                  <div className="flex items-center">
+                    <Phone className="w-4 h-4 mr-1" />
+                    {order.customer?.phone || order.customerPhone}
+                  </div>
+                  {order.customer?.email && (
+                    <div className="flex items-center text-xs">
+                      📧 {order.customer.email}
+                    </div>
+                  )}
+                </div>
+
                 {isDeleted && (
-                  <div className="text-sm text-red-600">
+                  <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
                     <span className="font-medium">Deleted by:</span> {order.deletedByUser?.name || 'Unknown'}
                     <span className="text-xs text-gray-500 ml-2">
                       on {format(new Date(order.deletedAt!), 'MMM dd, yyyy')}
                     </span>
+                    <div className="text-xs text-green-600 mt-1">
+                      ✓ Customer contact & chat history still accessible
+                    </div>
                   </div>
                 )}
               </div>
-              <div className="text-right text-sm text-gray-500">
+              
+              <div className="text-right text-sm text-gray-500 ml-4">
                 {!isDeleted && (
-                  <div>
-                    <div className="flex items-center">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-end">
                       <CheckCircle2 className="w-4 h-4 mr-1 text-green-600" />
                       Completed
                     </div>
-                    <div className="flex items-center mt-1">
+                    <div className="flex items-center justify-end">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {format(new Date(order.updatedAt), 'MMM dd, yyyy')}
+                      {format(new Date(order.completedAt || order.updatedAt), 'MMM dd, yyyy')}
                     </div>
+                    {order.finalAmount && (
+                      <div className="font-semibold text-green-600">
+                        ₹{order.finalAmount}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -249,11 +323,104 @@ export default function ShopOrderHistory() {
               </p>
             )}
 
-            {/* File Info */}
-            {hasFiles && fileCount > 0 && (
-              <div className="flex items-center text-sm text-gray-600">
-                <Package className="w-4 h-4 mr-1" />
-                {fileCount} file{fileCount !== 1 ? 's' : ''} processed
+            {/* Comprehensive Order Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+              {/* File Information */}
+              {hasFiles && fileCount > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="flex items-center text-blue-700 mb-1">
+                    <Package className="w-4 h-4 mr-1" />
+                    <span className="font-medium">Files</span>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div>{fileCount} file{fileCount !== 1 ? 's' : ''}</div>
+                    {displayPages > 0 && (
+                      <div className="flex items-center">
+                        <span>📄 ~{displayPages} pages</span>
+                      </div>
+                    )}
+                    {fileDetails.length > 0 && (
+                      <div className="text-xs text-gray-600">
+                        {fileDetails.slice(0, 2).map((file, idx) => (
+                          <div key={idx}>
+                            • {file.originalName || file.filename} ({formatFileSize(file.size || 0)})
+                          </div>
+                        ))}
+                        {fileDetails.length > 2 && (
+                          <div>• ... and {fileDetails.length - 2} more</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Print Job Tracking */}
+              {order.printJobs && order.printJobs.totalRequests > 0 && (
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <div className="flex items-center text-green-700 mb-1">
+                    <Printer className="w-4 h-4 mr-1" />
+                    <span className="font-medium">Print Jobs</span>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div>{order.printJobs.totalRequests} print request{order.printJobs.totalRequests !== 1 ? 's' : ''}</div>
+                    <div className="text-green-600">{order.printJobs.successfulPrints} successful</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Communication */}
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <div className="flex items-center text-purple-700 mb-1">
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  <span className="font-medium">Communication</span>
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div>{order.totalMessages || 0} messages</div>
+                  <div className="text-green-600">Always accessible</div>
+                </div>
+              </div>
+
+              {/* Financial Information */}
+              {(order.estimatedBudget || order.finalAmount) && (
+                <div className="bg-yellow-50 p-3 rounded-lg">
+                  <div className="flex items-center text-yellow-700 mb-1">
+                    <span className="text-sm">💰</span>
+                    <span className="font-medium ml-1">Financials</span>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    {order.estimatedBudget && (
+                      <div>Est: ₹{order.estimatedBudget}</div>
+                    )}
+                    {order.finalAmount && (
+                      <div className="font-semibold">Final: ₹{order.finalAmount}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Processing Time */}
+              {processingHours && (
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="flex items-center text-gray-700 mb-1">
+                    <Clock className="w-4 h-4 mr-1" />
+                    <span className="font-medium">Processing</span>
+                  </div>
+                  <div className="text-xs">
+                    {processingHours} hour{processingHours !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Order Notes */}
+            {order.notes && (
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-lg">
+                <div className="flex items-center text-amber-700 mb-1">
+                  <FileText className="w-4 h-4 mr-1" />
+                  <span className="font-medium text-sm">Shop Notes</span>
+                </div>
+                <p className="text-sm text-amber-900">{order.notes}</p>
               </div>
             )}
 
@@ -293,10 +460,32 @@ export default function ShopOrderHistory() {
                 )}
               </div>
             )}
+            {/* Enhanced Actions for Deleted Orders */}
             {isDeleted && (
               <div className="pt-2 border-t border-red-200">
-                <div className="text-xs text-gray-500 italic">
+                <div className="text-xs text-gray-500 italic mb-2">
                   This order was deleted and is no longer available for processing.
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleViewChatHistory(order)}
+                    className="text-xs border-green-300 text-green-700 hover:bg-green-50"
+                  >
+                    <MessageSquare className="w-3 h-3 mr-1" />
+                    View Chat
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`tel:${order.customer?.phone || order.customerPhone}`)}
+                    className="text-xs border-blue-300 text-blue-700 hover:bg-blue-50"
+                  >
+                    <Phone className="w-3 h-3 mr-1" />
+                    Call Customer
+                  </Button>
                 </div>
               </div>
             )}
