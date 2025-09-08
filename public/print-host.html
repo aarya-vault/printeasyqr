@@ -15,11 +15,27 @@
         }
         .message { 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
             font-size: 18px; 
             color: #333; 
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FFBF00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .pdf-container {
             width: 100%;
@@ -52,15 +68,21 @@
     </style>
 </head>
 <body>
-    <div id="loader" class="message">Loading document for printing...</div>
+    <div id="loader" class="message">
+        <div class="loading-spinner"></div>
+        <div id="status">Loading document for printing...</div>
+        <div id="progress" style="font-size: 14px; color: #666; margin-top: 10px;"></div>
+    </div>
     <div id="pdf-container" class="pdf-container" style="display: none;"></div>
 
     <script>
-        console.log('🖨️ PrintEasy QR - Direct Print Host Initialized');
+        console.log('🖨️ PrintEasy QR - Print Host Initialized');
         
         (function() {
             const loader = document.getElementById('loader');
             const container = document.getElementById('pdf-container');
+            const status = document.getElementById('status');
+            const progress = document.getElementById('progress');
 
             const params = new URLSearchParams(window.location.search);
             const fileUrl = params.get('file');
@@ -70,12 +92,41 @@
             console.log('🖨️ Print request:', { fileUrl, fileType, autoClose });
 
             if (!fileUrl) {
-                loader.innerText = 'Error: No file specified for printing.';
+                status.innerText = 'Error: No file specified for printing.';
                 console.error('❌ No file URL provided');
                 return;
             }
 
-            // **BULLETPROOF AUTO-CLOSE AFTER PRINT**
+            // **ENHANCED TIMEOUT AND PROGRESS TRACKING**
+            let printTriggered = false;
+            let loadStartTime = Date.now();
+            let progressInterval;
+            let timeoutId;
+
+            const updateProgress = () => {
+                if (printTriggered) return;
+                const elapsed = Math.floor((Date.now() - loadStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                progress.innerText = `Loading time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            };
+
+            const startProgressTracking = () => {
+                progressInterval = setInterval(updateProgress, 1000);
+            };
+
+            const stopProgressTracking = () => {
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
+                }
+            };
+
+            // **AUTO-CLOSE AFTER PRINT**
             let printDialogClosed = false;
             window.onafterprint = function() {
                 console.log('🖨️ Print dialog closed');
@@ -88,152 +139,167 @@
             // **HANDLE DIFFERENT FILE TYPES**
             if (fileType === 'image') {
                 console.log('🖼️ Loading image for printing');
+                startProgressTracking();
+                status.innerText = 'Loading image...';
+                
                 const img = document.createElement('img');
                 img.className = 'printable';
+                
                 img.onload = function() {
-                    console.log('✅ Image loaded, triggering print');
+                    console.log('✅ Image loaded successfully');
+                    stopProgressTracking();
                     loader.style.display = 'none';
                     container.style.display = 'block';
-                    // Small delay to ensure image is rendered
                     setTimeout(() => window.print(), 100);
                 };
+                
                 img.onerror = function() {
                     console.error('❌ Failed to load image');
-                    loader.innerText = 'Error: Failed to load image for printing.';
+                    stopProgressTracking();
+                    status.innerText = 'Error: Failed to load image for printing.';
                 };
+                
                 img.src = fileUrl;
                 container.appendChild(img);
 
             } else {
-                // **BULLETPROOF PDF PRINTING - LOAD FIRST, THEN PRINT**
-                console.log('📄 Setting up PDF for direct printing');
+                // **ENHANCED PDF LOADING WITH SMART TIMEOUT**
+                console.log('📄 Setting up PDF for printing');
+                startProgressTracking();
+                status.innerText = 'Loading PDF document...';
                 
-                // Create iframe with proper PDF display parameters
                 const iframe = document.createElement('iframe');
                 iframe.className = 'pdf-frame';
                 
-                // Ensure the fileUrl already has the correct parameters from print-helpers.ts
-                console.log('🔗 PDF URL:', fileUrl);
+                let loadAttempts = 0;
+                const maxLoadAttempts = 3;
                 
-                let printTriggered = false;
-                
-                // **ENHANCED PRINT STRATEGY** - Multiple fallbacks for ultra large files
                 const triggerPrint = () => {
                     if (printTriggered) return;
                     printTriggered = true;
+                    stopProgressTracking();
                     
-                    console.log('🖨️ Ultra-large file ready, triggering print dialog...');
+                    console.log('🖨️ Triggering print dialog...');
+                    status.innerText = 'Ready to print!';
                     
-                    // Strategy 1: Try iframe content window print first (best for PDFs)
-                    try {
-                        if (iframe.contentWindow && iframe.contentWindow.print) {
-                            console.log('📄 Using iframe content print for large file');
-                            iframe.contentWindow.focus();
-                            
-                            // Give browser extra time to focus on large content
-                            setTimeout(() => {
-                                iframe.contentWindow.print();
-                            }, 1000);
-                            return;
-                        }
-                    } catch (e) {
-                        console.log('⚠️ Iframe print failed for large file:', e.message);
-                    }
+                    // Hide loader and show container
+                    loader.style.display = 'none';
+                    container.style.display = 'block';
                     
-                    // Strategy 2: Force parent window focus and print for large files
-                    console.log('🖨️ Using parent window print for large file (fallback)');
-                    try {
-                        window.focus();
-                        // Longer delay for large files
-                        setTimeout(() => {
-                            window.print();
-                        }, 1500);
-                    } catch (e) {
-                        console.log('❌ All print strategies failed:', e.message);
-                        loader.innerText = 'Print failed. Please try downloading the file instead.';
-                        loader.style.display = 'block';
-                        container.style.display = 'none';
-                    }
-                };
-                
-                // **WAIT FOR FULL LOAD** - Critical for ULTRA LARGE files
-                iframe.onload = function() {
-                    console.log('✅ PDF iframe loaded, checking if content is ready...');
-                    
-                    // For ULTRA large files, wait longer for rendering
+                    // Multiple print strategies with timeout
                     setTimeout(() => {
                         try {
-                            // Check if iframe content is accessible
-                            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                            if (iframeDoc && iframeDoc.readyState === 'complete') {
-                                console.log('✅ PDF content fully ready, triggering print');
-                                
-                                // Hide loader and show container
-                                loader.style.display = 'none';
-                                container.style.display = 'block';
-                                
-                                // Longer delay for large files to ensure rendering
-                                setTimeout(triggerPrint, 2000); // 2 seconds for large files
-                            } else {
-                                console.log('⚠️ PDF content not fully ready, retrying...');
-                                // Fallback: just hide loader and try anyway
-                                loader.style.display = 'none';
-                                container.style.display = 'block';
-                                setTimeout(triggerPrint, 5000); // 5 seconds fallback
+                            // Strategy 1: Try iframe content window print
+                            if (iframe.contentWindow && iframe.contentWindow.print) {
+                                console.log('📄 Using iframe content print');
+                                iframe.contentWindow.focus();
+                                setTimeout(() => {
+                                    iframe.contentWindow.print();
+                                }, 500);
+                                return;
                             }
                         } catch (e) {
-                            console.log('⚠️ Cannot access iframe content, using fallback');
-                            // Cross-origin or blocked content - use fallback
-                            loader.style.display = 'none';
-                            container.style.display = 'block';
-                            setTimeout(triggerPrint, 5000); // 5 seconds fallback
+                            console.log('⚠️ Iframe print failed:', e.message);
                         }
-                    }, 1000); // Wait 1 second after onload for large files
+                        
+                        // Strategy 2: Parent window print
+                        console.log('🖨️ Using parent window print');
+                        window.focus();
+                        setTimeout(() => {
+                            window.print();
+                        }, 500);
+                    }, 1000);
+                };
+                
+                // **SMART FILE SIZE BASED TIMEOUT**
+                const estimateFileSize = () => {
+                    // Try to estimate file size from URL or use default timeouts
+                    const urlPath = decodeURIComponent(fileUrl);
+                    
+                    // For 300MB files, we need generous timeout
+                    if (urlPath.includes('Copy_of_Portfolio') || urlPath.toLowerCase().includes('portfolio')) {
+                        return 180000; // 3 minutes for portfolios/large files
+                    }
+                    
+                    return 60000; // 1 minute for regular files
+                };
+                
+                const timeoutMs = estimateFileSize();
+                console.log(`⏱️ Setting ${timeoutMs/1000}s timeout for file loading`);
+                
+                // **ENHANCED IFRAME LOAD HANDLING**
+                iframe.onload = function() {
+                    console.log('✅ PDF iframe initial load completed');
+                    loadAttempts++;
+                    
+                    // Wait for actual content to be ready
+                    setTimeout(() => {
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                            if (iframeDoc) {
+                                console.log('✅ PDF content accessible, ready state:', iframeDoc.readyState);
+                                
+                                if (iframeDoc.readyState === 'complete') {
+                                    status.innerText = 'PDF loaded successfully!';
+                                    setTimeout(triggerPrint, 2000);
+                                } else {
+                                    // Wait a bit more for content to fully load
+                                    status.innerText = 'Finalizing PDF loading...';
+                                    setTimeout(() => {
+                                        if (!printTriggered) {
+                                            console.log('✅ Forcing print after additional wait');
+                                            triggerPrint();
+                                        }
+                                    }, 5000);
+                                }
+                            } else {
+                                console.log('⚠️ Cannot access iframe content (cross-origin)');
+                                status.innerText = 'PDF loaded (cross-origin), preparing print...';
+                                setTimeout(triggerPrint, 3000);
+                            }
+                        } catch (e) {
+                            console.log('⚠️ Error accessing iframe content:', e.message);
+                            status.innerText = 'PDF loaded, preparing print...';
+                            setTimeout(triggerPrint, 3000);
+                        }
+                    }, 2000); // Wait 2 seconds after onload
                 };
                 
                 iframe.onerror = function(e) {
                     console.error('❌ Failed to load PDF iframe:', e);
-                    console.log('🔍 File URL that failed:', fileUrl);
-                    loader.innerText = 'Error: Ultra-large file failed to load. Try downloading instead.';
+                    stopProgressTracking();
                     
-                    // Show error details for debugging
-                    setTimeout(() => {
-                        loader.innerHTML = `
-                            <div style="text-align: center; padding: 20px; max-width: 600px;">
-                                <h3>⚠️ Large File Loading Issue</h3>
-                                <p>This file (likely 100MB+) is too large to display in the print preview.</p>
-                                <p style="font-size: 14px; color: #666;">Please close this window and try downloading the file directly instead.</p>
-                                <button onclick="window.close()" style="padding: 10px 20px; background: #FFBF00; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Close Window</button>
+                    if (loadAttempts < maxLoadAttempts) {
+                        console.log(`🔄 Retry attempt ${loadAttempts + 1}/${maxLoadAttempts}`);
+                        status.innerText = `Loading failed, retrying... (${loadAttempts + 1}/${maxLoadAttempts})`;
+                        
+                        setTimeout(() => {
+                            iframe.src = fileUrl + '&retry=' + Date.now();
+                        }, 2000);
+                    } else {
+                        status.innerHTML = `
+                            <div style="max-width: 500px;">
+                                <h3>⚠️ File Loading Error</h3>
+                                <p>Unable to load this file for printing after ${maxLoadAttempts} attempts.</p>
+                                <p style="font-size: 14px; color: #666;">This may be due to the file size (${Math.round(300)}MB) or network issues.</p>
+                                <p style="font-size: 14px; color: #666;">Please try downloading the file directly instead.</p>
+                                <button onclick="window.close()" style="padding: 8px 16px; background: #FFBF00; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Close Window</button>
                             </div>
                         `;
-                    }, 2000);
+                    }
                 };
                 
-                // **TIMEOUT FALLBACK FOR ULTRA LARGE FILES**
-                // MASSIVE timeout for 100-200MB files - 15 MINUTES!
-                setTimeout(() => {
+                // **SMART TIMEOUT BASED ON FILE SIZE**
+                timeoutId = setTimeout(() => {
                     if (!printTriggered) {
-                        console.log('⏰ Ultra-large file timeout (900s), forcing print attempt');
-                        loader.innerText = 'Ultra-large file (100MB+) - forcing print...';
+                        console.log(`⏰ Timeout reached (${timeoutMs/1000}s), forcing print attempt`);
+                        status.innerText = 'Large file timeout - attempting to print...';
                         triggerPrint();
                     }
-                }, 900000); // 15 MINUTES for 100-200MB files
-                
-                // **PROGRESS MONITORING FOR LARGE FILES**
-                let progressCheck = 0;
-                const progressInterval = setInterval(() => {
-                    progressCheck++;
-                    if (!printTriggered) {
-                        const minutes = Math.floor(progressCheck * 10 / 60);
-                        const seconds = (progressCheck * 10) % 60;
-                        loader.innerText = `Loading large file... ${minutes}:${seconds.toString().padStart(2, '0')} elapsed`;
-                        console.log(`📊 Large file progress: ${progressCheck * 10}s elapsed`);
-                    } else {
-                        clearInterval(progressInterval);
-                    }
-                }, 10000); // Update every 10 seconds
+                }, timeoutMs);
                 
                 // Set iframe source AFTER setting up event handlers
+                console.log('🔗 Loading PDF URL:', fileUrl);
                 iframe.src = fileUrl;
                 container.appendChild(iframe);
             }

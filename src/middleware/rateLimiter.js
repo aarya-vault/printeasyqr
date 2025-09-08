@@ -18,6 +18,26 @@ export const r2UploadLimiter = rateLimit({
   }
 });
 
+// GENEROUS: Download/Print Rate Limiter - Very permissive for authenticated users
+export const downloadLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 500, // 500 downloads per minute - very generous for large file access
+  message: 'Too many download requests, please try again in a moment',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for authenticated users with valid JWT tokens
+    return req.headers.authorization && req.headers.authorization.startsWith('Bearer ');
+  },
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many download requests',
+      message: 'Please wait a moment and try again.',
+      retryAfter: 60
+    });
+  }
+});
+
 // Multipart upload rate limiter (stricter for large files)
 export const multipartUploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

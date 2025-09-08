@@ -1,6 +1,7 @@
 // Download routes using StorageManager and R2Client
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js';
+import { downloadLimiter } from '../middleware/rateLimiter.js';
 import storageManager from '../../server/storage/storageManager.js';
 import r2Client from '../../server/storage/r2Client.js';
 import fs from 'fs';
@@ -15,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Download file - handles both R2 and local storage with proper inline/attachment headers
-router.get('/download/*', async (req, res) => {
+router.get('/download/*', downloadLimiter, async (req, res) => {
   try {
     // Get the file path from the URL
     const filePath = req.params[0];
