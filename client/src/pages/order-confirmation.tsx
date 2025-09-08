@@ -67,7 +67,7 @@ export default function OrderConfirmation() {
       if (noIndexMeta) noIndexMeta.remove();
     };
   }, []);
-  const [countdown, setCountdown] = useState(10); // 10 seconds countdown
+  const [countdown, setCountdown] = useState(3); // 3 seconds countdown for faster UX
 
   useEffect(() => {
     setMounted(true);

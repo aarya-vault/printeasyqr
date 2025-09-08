@@ -617,12 +617,26 @@ export default function RedesignedShopOwnerDashboard() {
     // 🔧 FIX: Per-order delete mutation to prevent global state
     const deleteOrderMutation = useDeleteOrder(order.id);
     
+    // Check if files are still uploading
+    const hasUploadingFiles = order.files && Array.isArray(order.files) && 
+      order.files.some((file: any) => file.status === 'uploading');
+    
     return (
     <Card 
-      className="transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow cursor-pointer relative"
+      className={`transition-shadow hover:shadow-md border-l-4 border-l-brand-yellow relative ${
+        hasUploadingFiles ? 'cursor-wait opacity-75' : 'cursor-pointer'
+      }`}
       onClick={(e) => {
-        // Don't open details if clicking checkbox
+        // Don't open details if clicking checkbox or files are uploading
         if ((e.target as HTMLElement).closest('.order-checkbox')) return;
+        if (hasUploadingFiles) {
+          toast({ 
+            title: 'Files uploading...', 
+            description: 'Please wait for files to finish uploading before viewing details.',
+            variant: 'default'
+          });
+          return;
+        }
         setSelectedOrderForDetails(order);
       }}
     >
@@ -690,13 +704,43 @@ export default function RedesignedShopOwnerDashboard() {
             <div className="flex items-center text-sm text-gray-600">
               <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
               <span className="truncate">
-                {(!order.files || (Array.isArray(order.files) && order.files.length === 0)) && order.status === 'new' 
-                  ? 'Documents uploading...'
-                  : order.files && Array.isArray(order.files) && order.files.length > 0 
-                    ? `${order.files.length} file${order.files.length > 1 ? 's' : ''}` 
-                    : (typeof order.files === 'string' && order.files !== '[]' 
-                      ? `${JSON.parse(order.files).length || 0} files` 
-                      : 'No files')}
+                {(() => {
+                  // Check if files are still uploading
+                  const hasUploadingFiles = order.files && Array.isArray(order.files) && 
+                    order.files.some((file: any) => file.status === 'uploading');
+                  
+                  if (hasUploadingFiles) {
+                    const uploadingCount = order.files.filter((file: any) => file.status === 'uploading').length;
+                    return (
+                      <span className="flex items-center text-orange-600">
+                        <div className="animate-spin rounded-full h-3 w-3 border border-orange-600 border-t-transparent mr-1"></div>
+                        Uploading {uploadingCount} file{uploadingCount > 1 ? 's' : ''}...
+                      </span>
+                    );
+                  }
+                  
+                  if (!order.files || (Array.isArray(order.files) && order.files.length === 0)) {
+                    return 'No files';
+                  }
+                  
+                  if (Array.isArray(order.files)) {
+                    const completedFiles = order.files.filter((file: any) => file.status !== 'uploading');
+                    return completedFiles.length > 0 
+                      ? `${completedFiles.length} file${completedFiles.length > 1 ? 's' : ''}` 
+                      : 'Preparing files...';
+                  }
+                  
+                  if (typeof order.files === 'string' && order.files !== '[]') {
+                    try {
+                      const parsed = JSON.parse(order.files);
+                      return `${parsed.length || 0} files`;
+                    } catch {
+                      return 'Files processing...';
+                    }
+                  }
+                  
+                  return 'No files';
+                })()}
               </span>
             </div>
           )}
