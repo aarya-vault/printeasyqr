@@ -2,7 +2,6 @@ import { Router } from 'express';
 import OrderController from '../controllers/order.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import jwt from 'jsonwebtoken';
-import multer from 'multer';
 import path from 'path';
 import storageManager from '../../server/storage/storageManager.js';
 import { 
@@ -13,28 +12,12 @@ import {
 
 const router = Router();
 
-// Configure multer for file uploads - Lazy initialization to prevent module load failures
-// 🚀 OBJECT STORAGE FIX: Use object storage for all file uploads
-function createStorage() {
-  // Always use memory storage and upload to object storage
-  return multer.memoryStorage();
-}
-
-// 🚀 ULTRA PERFORMANCE: Optimized for 300MB files and 1GB total per order
-const upload = multer({
-  storage: createStorage(),
-  limits: {
-    fileSize: 300 * 1024 * 1024, // 300MB per file - Support large files!
-    files: 200, // Up to 200 files at once - Support bulk uploads!
-    fieldSize: 50 * 1024 * 1024, // 50MB field size limit
-    parts: 250 // Increased for handling many files
-  },
-  fileFilter: (req, file, cb) => {
-    // Enhanced file filtering with size validation
-    console.log(`📤 Processing file upload: ${file.originalname} (${file.mimetype})`);
-    cb(null, true); // Accept all file types
-  }
-});
+// File upload limits for R2 direct uploads
+const FILE_LIMITS = {
+  maxFileSize: 300 * 1024 * 1024, // 300MB per file
+  maxTotalSize: 1024 * 1024 * 1024, // 1GB total per order
+  maxFiles: 200 // Up to 200 files per order
+};
 
 // Order routes - Files handled via R2 direct upload, not multer
 router.post('/orders/authenticated', requireAuth, OrderController.createAuthenticatedOrder); // Authenticated order creation (no files via multer)
@@ -85,6 +68,34 @@ router.post('/orders/:id/get-upload-urls',
     if (!files || !Array.isArray(files)) {
       return res.status(400).json({ error: 'Files array required' });
     }
+
+    // Validate file limits for R2 direct upload
+    const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
+    
+    // Check individual file size limits
+    const oversizedFiles = files.filter(file => file.size > FILE_LIMITS.maxFileSize);
+    if (oversizedFiles.length > 0) {
+      return res.status(400).json({ 
+        error: 'File size limit exceeded',
+        details: `Maximum file size is ${Math.round(FILE_LIMITS.maxFileSize / (1024 * 1024))}MB. Files exceeding limit: ${oversizedFiles.map(f => f.name).join(', ')}` 
+      });
+    }
+
+    // Check total size limit
+    if (totalSize > FILE_LIMITS.maxTotalSize) {
+      return res.status(400).json({ 
+        error: 'Total size limit exceeded',
+        details: `Maximum total size is ${Math.round(FILE_LIMITS.maxTotalSize / (1024 * 1024 * 1024))}GB. Current total: ${Math.round(totalSize / (1024 * 1024))}MB` 
+      });
+    }
+
+    // Check file count limit
+    if (files.length > FILE_LIMITS.maxFiles) {
+      return res.status(400).json({ 
+        error: 'Too many files',
+        details: `Maximum ${FILE_LIMITS.maxFiles} files allowed per order` 
+      });
+    }
     
     // Verify order belongs to authenticated user
     const Order = (await import('../models/index.js')).Order;
@@ -107,12 +118,13 @@ router.post('/orders/:id/get-upload-urls',
       return res.status(200).json({ useDirectUpload: false });
     }
     
-    // Use batch presigned URL generation
+    // Use batch presigned URL generation with file limit validation
     const uploadUrls = await r2Client.getBatchPresignedUrls(files, orderId);
     
     res.json({ 
       useDirectUpload: true,
       uploadUrls,
+      limits: FILE_LIMITS, // Send limits to frontend
       serverBypass: true // Flag indicating server is completely bypassed
     });
   } catch (error) {
