@@ -316,6 +316,15 @@ class OrderController {
       
       const transformedOrder = OrderController.transformOrderData(orderWithDetails);
       
+      // 🚀 INSTANT ORDER BROADCAST: Notify shop dashboard immediately
+      broadcast(`shop_${shopId}`, 'order:created', {
+        orderId: newOrder.id,
+        shopId: parseInt(shopId),
+        customerName: req.user.name,
+        hasFiles: hasFiles,
+        filesUploading: hasFiles
+      });
+      
       // 🚀 ASYNC FILE UPLOAD: Upload files in background after order creation
       if (hasFiles) {
         // Don't wait for file upload - start it asynchronously
