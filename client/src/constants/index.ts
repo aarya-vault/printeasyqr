@@ -36,18 +36,59 @@ export const API_ENDPOINTS = {
   }
 } as const;
 
-// File upload constraints
+// File upload constraints - UPDATED: Allow ALL file types
 export const FILE_UPLOAD = {
   ALLOWED_TYPES: [
+    // Documents
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    'text/csv',
+    'application/rtf',
+    'application/vnd.oasis.opendocument.text',
+    'application/vnd.oasis.opendocument.spreadsheet',
+    'application/vnd.oasis.opendocument.presentation',
+    // Images
     'image/jpeg',
     'image/jpg', 
     'image/png',
-    'text/plain'
+    'image/gif',
+    'image/bmp',
+    'image/webp',
+    'image/tiff',
+    'image/svg+xml',
+    // Archives
+    'application/zip',
+    'application/x-rar-compressed',
+    'application/x-7z-compressed',
+    'application/x-tar',
+    'application/gzip',
+    // Other common formats
+    'application/json',
+    'application/xml',
+    'text/xml',
+    'text/html',
+    'application/javascript',
+    'text/css',
+    // Allow any file type (fallback)
+    '*/*'
   ],
-  ALLOWED_EXTENSIONS: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt']
+  ALLOWED_EXTENSIONS: [
+    // Documents
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'rtf', 'odt', 'ods', 'odp',
+    // Images  
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif', 'svg',
+    // Archives
+    'zip', 'rar', '7z', 'tar', 'gz',
+    // Other formats
+    'json', 'xml', 'html', 'js', 'css', 'md',
+    // Allow any extension (removed specific restrictions)
+  ]
 } as const;
 
 // UI constants
