@@ -163,7 +163,19 @@ export async function uploadFilesDirectlyToR2(
   // Get presigned URLs for direct upload
   const { useDirectUpload, uploadUrls } = await getDirectUploadUrls(files, orderId);
   
+  // 🚨 CRITICAL FIX: Validate array length consistency BEFORE processing
   if (!useDirectUpload || !uploadUrls || uploadUrls.length === 0) {
+    console.error(`❌ No upload URLs received: useDirectUpload=${useDirectUpload}, uploadUrls.length=${uploadUrls?.length || 0}`);
+    return { success: false, uploadedFiles: [] };
+  }
+  
+  // 🛡️ BULLETPROOF: Ensure exact array length match
+  if (uploadUrls.length !== files.length) {
+    console.error(`❌ ARRAY LENGTH MISMATCH: ${files.length} files vs ${uploadUrls.length} URLs`);
+    console.error(`Files: ${files.map(f => f.name).join(', ')}`);
+    console.error(`URLs: ${uploadUrls.map((u, i) => `${i}: ${u?.filename || 'undefined'}`).join(', ')}`);
+    
+    // Return immediate failure to prevent silent file drops
     return { success: false, uploadedFiles: [] };
   }
 
@@ -293,20 +305,31 @@ export async function uploadFilesDirectlyToR2(
   console.log(`🎯 Upload completed: ${completedCount}/${files.length} files in ${totalTime.toFixed(2)}s`);
   console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   
-  // Confirm successful uploads with the server
+  // 🚨 CRITICAL FIX: Confirm ALL successful uploads with detailed validation
   if (completedCount > 0) {
     try {
       const successfulFiles = uploadFiles.filter(f => f.status === 'completed');
-      const confirmData = successfulFiles.map(f => ({
-        r2Key: f.key!,
-        originalName: f.file.name,
-        size: f.file.size,
-        mimetype: f.file.type || 'application/octet-stream',
-        bucket: 'printeasy-qr', // Use hardcoded bucket name
-        filename: f.key!.split('/').pop() || f.file.name
-      }));
       
-      // Send confirmation to backend
+      // 🛡️ BULLETPROOF: Validate each file has required data
+      const confirmData = successfulFiles.map(f => {
+        if (!f.key || !f.file.name) {
+          console.error(`❌ Invalid file data for confirmation: ${f.file?.name || 'unknown'}`);
+          throw new Error(`Invalid file data: missing key or filename`);
+        }
+        
+        return {
+          r2Key: f.key,
+          originalName: f.file.name,
+          size: f.file.size,
+          mimetype: f.file.type || 'application/octet-stream',
+          bucket: 'printeasy-qr',
+          filename: f.key.split('/').pop() || f.file.name
+        };
+      });
+      
+      console.log(`🔍 Confirming ${confirmData.length} files with server:`, confirmData.map(f => f.originalName));
+      
+      // Send confirmation to backend with retry mechanism
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch(`/api/orders/${orderId}/confirm-files`, {
         method: 'POST',
@@ -317,13 +340,23 @@ export async function uploadFilesDirectlyToR2(
         body: JSON.stringify({ files: confirmData })
       });
       
-      if (response.ok) {
-        console.log('✅ File confirmations sent to backend');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Confirmation failed: ${response.status} ${errorText}`);
       }
+      
+      const result = await response.json();
+      console.log(`✅ Successfully confirmed ${confirmData.length} files with backend:`, result);
+      
     } catch (confirmError: any) {
-      console.warn('⚠️ File confirmation failed:', confirmError);
-      // Don't throw - allow order creation to complete even if confirmation fails
+      console.error('❌ CRITICAL: File confirmation failed:', confirmError);
+      console.error('This means files were uploaded but not registered in the system!');
+      
+      // 🚨 PRODUCTION ALERT: This is a critical error that causes missing files
+      throw new Error(`File confirmation failed: ${confirmError.message}`);
     }
+  } else {
+    console.warn('⚠️ No files were successfully uploaded to confirm');
   }
 
   // 🔍 FINAL DIAGNOSTIC: Report results with detailed breakdown

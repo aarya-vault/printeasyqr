@@ -711,10 +711,13 @@ export default function RedesignedShopOwnerDashboard() {
                   
                   if (hasUploadingFiles) {
                     const uploadingCount = order.files.filter((file: any) => file.status === 'uploading').length;
+                    const totalCount = order.files.length;
                     return (
                       <span className="flex items-center text-orange-600">
-                        <div className="animate-spin rounded-full h-3 w-3 border border-orange-600 border-t-transparent mr-1"></div>
-                        Uploading {uploadingCount} file{uploadingCount > 1 ? 's' : ''}...
+                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-orange-600 border-t-transparent mr-1"></div>
+                        <span className="font-medium">
+                          Uploading {uploadingCount}/{totalCount} file{totalCount > 1 ? 's' : ''}...
+                        </span>
                       </span>
                     );
                   }

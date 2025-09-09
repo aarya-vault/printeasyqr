@@ -1023,19 +1023,24 @@ class OrderController {
       
       await transaction.commit();
       
-      // 🚀 INSTANT REAL-TIME SYNC: Use proper targeted broadcasting for order deletion
-      // Import the proper broadcast function
-      const { broadcastOrderUpdate } = await import('../utils/websocket.js');
-      await broadcastOrderUpdate({
-        id: orderId,
-        shopId: order.shopId,
-        customerId: order.customerId,
-        status: order.status
-      }, 'deleted');
-      
-      
-      // Send response immediately for instant UI feedback
+      // 🚀 INSTANT UI RESPONSE: Send response IMMEDIATELY for instant deletion
       res.json({ success: true, message: 'Order deleted successfully', orderId: orderId });
+      
+      // 🔥 ASYNC WEBSOCKET BROADCAST: Non-blocking real-time update
+      setImmediate(async () => {
+        try {
+          const { broadcastOrderUpdate } = await import('../utils/websocket.js');
+          await broadcastOrderUpdate({
+            id: orderId,
+            shopId: order.shopId,
+            customerId: order.customerId,
+            status: order.status
+          }, 'deleted');
+        } catch (error) {
+          console.error('WebSocket broadcast failed:', error);
+          // Don't throw - UI is already updated
+        }
+      });
       
       // 🗑️ ASYNC FILE CLEANUP: Delete files in background AFTER sending response
       // This prevents UI blocking while R2 deletion happens
