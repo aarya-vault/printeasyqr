@@ -52,21 +52,42 @@ export const messageSchema = z.object({
 
 export const fileValidation = {
   allowedTypes: [
+    // Allow ALL file types - Updated for maximum flexibility
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     'image/jpeg',
     'image/png',
-    'text/plain'
+    'image/gif',
+    'image/bmp',
+    'image/webp',
+    'image/tiff',
+    'image/svg+xml',
+    'text/plain',
+    'text/csv',
+    'application/zip',
+    'application/x-rar-compressed',
+    'application/x-7z-compressed',
+    'application/json',
+    'application/xml',
+    'text/html',
+    // Wildcard to allow ANY file type
+    '*/*'
   ],
   
   validateFile: (file: File): { isValid: boolean; error?: string } => {
-    // No size limit - unlimited file uploads
+    // Updated validation: Allow ALL file types
+    // Only check for basic file existence and reasonable naming
     
-    if (!fileValidation.allowedTypes.includes(file.type)) {
-      return { isValid: false, error: `File type not supported. Allowed: PDF, DOC, DOCX, JPG, PNG, TXT` };
+    if (!file || !file.name) {
+      return { isValid: false, error: 'Invalid file - please select a valid file' };
     }
-    
+
+    // Allow all file types - no restrictions
     return { isValid: true };
   }
 };
