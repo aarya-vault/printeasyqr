@@ -1066,7 +1066,12 @@ class OrderController {
       const orderId = parseInt(req.params.orderId);
       const { files } = req.body;
       
+      // 🚨 CRITICAL LOGGING: Track confirmation attempt
+      console.log(`🔍 [CONFIRM-START] Order ${orderId}: Attempting to confirm ${files?.length || 0} files`);
+      console.log(`🔍 [CONFIRM-FILES] Files received:`, files?.map((f, i) => `${i}: ${f.originalName} (r2Key: ${f.r2Key ? 'EXISTS' : 'MISSING'})`).join(', '));
+      
       if (!files || !Array.isArray(files)) {
+        console.error(`❌ [CONFIRM-ERROR] Order ${orderId}: Invalid files array - type: ${typeof files}, isArray: ${Array.isArray(files)}`);
         await transaction.rollback();
         return res.status(400).json({ message: 'Files array required' });
       }
@@ -1081,6 +1086,7 @@ class OrderController {
       });
       
       if (!order) {
+        console.error(`❌ [CONFIRM-ERROR] Order ${orderId}: Order not found or access denied for user ${req.user.id}`);
         await transaction.rollback();
         return res.status(404).json({ message: 'Order not found or access denied' });
       }
@@ -1095,37 +1101,74 @@ class OrderController {
         }
       }
       
-      // Validate and format NEW files with unified metadata structure
-      console.log(`🔍 Confirming ${files.length} files for order ${orderId}`);
+      console.log(`🔍 [CONFIRM-EXISTING] Order ${orderId}: Found ${existingFiles.length} existing files`);
       
-      const formattedNewFiles = files.map((file, index) => {
-        // CRITICAL: Validate that r2Key exists and is valid
+      // 🛡️ BULLETPROOF FILE PROCESSING: Handle partial failures gracefully
+      const validFiles = [];
+      const invalidFiles = [];
+      
+      files.forEach((file, index) => {
+        console.log(`🔍 [CONFIRM-PROCESS] File ${index}: ${file.originalName}`);
+        
+        // CRITICAL: Check r2Key existence but don't fail entire batch
         if (!file.r2Key) {
-          console.error(`❌ Missing r2Key for file:`, file);
-          throw new Error(`Missing r2Key for file: ${file.originalName || 'unknown'}`);
+          console.error(`❌ [CONFIRM-INVALID] File ${index} (${file.originalName}): Missing r2Key`);
+          invalidFiles.push({ index, file, reason: 'Missing r2Key' });
+          return; // Continue processing other files
         }
         
-        console.log(`✅ Processing file: ${file.originalName} with key: ${file.r2Key}`);
+        // Validate other required fields
+        if (!file.originalName) {
+          console.error(`❌ [CONFIRM-INVALID] File ${index}: Missing originalName`);
+          invalidFiles.push({ index, file, reason: 'Missing originalName' });
+          return;
+        }
         
-        return {
-          id: `${orderId}-${existingFiles.length + index}-${Date.now()}`,
+        console.log(`✅ [CONFIRM-VALID] File ${index}: ${file.originalName} with key: ${file.r2Key}`);
+        
+        validFiles.push({
+          id: `${orderId}-${existingFiles.length + validFiles.length}-${Date.now()}`,
           filename: file.filename || file.originalName,
           originalName: file.originalName,
           r2Key: file.r2Key,
           bucket: file.bucket || process.env.R2_BUCKET_NAME,
-          size: file.size,
-          mimetype: file.mimetype,
+          size: file.size || 0,
+          mimetype: file.mimetype || 'application/octet-stream',
           path: file.r2Key, // For compatibility with legacy download paths
           storageType: 'r2',
           uploadedAt: new Date().toISOString(),
           status: 'completed'
-        };
+        });
       });
       
-      // CRITICAL FIX: Combine existing files with new files instead of replacing
-      const allFiles = [...existingFiles, ...formattedNewFiles];
+      // 🚨 PRODUCTION FIX: Report invalid files but continue with valid ones
+      if (invalidFiles.length > 0) {
+        console.error(`❌ [CONFIRM-CRITICAL] Order ${orderId}: ${invalidFiles.length}/${files.length} files are invalid:`);
+        invalidFiles.forEach(({ index, file, reason }) => {
+          console.error(`   - File ${index} (${file.originalName || 'unknown'}): ${reason}`);
+        });
+        
+        // 🛡️ FAIL-SAFE: If ALL files are invalid, fail the request
+        if (validFiles.length === 0) {
+          console.error(`❌ [CONFIRM-TOTAL-FAILURE] Order ${orderId}: No valid files to confirm`);
+          await transaction.rollback();
+          return res.status(400).json({ 
+            message: 'No valid files to confirm',
+            invalidFiles: invalidFiles.length,
+            details: invalidFiles.map(f => f.reason)
+          });
+        }
+        
+        // 🚨 WARNING: Some files are invalid but continue with valid ones
+        console.warn(`⚠️ [CONFIRM-PARTIAL] Order ${orderId}: Confirming ${validFiles.length} valid files, ${invalidFiles.length} invalid files ignored`);
+      }
       
-      // Update order with COMBINED files (existing + new)
+      // CRITICAL FIX: Combine existing files with valid new files only
+      const allFiles = [...existingFiles, ...validFiles];
+      
+      console.log(`🔍 [CONFIRM-UPDATE] Order ${orderId}: Updating order with ${allFiles.length} total files (${existingFiles.length} existing + ${validFiles.length} new)`);
+      
+      // Update order with COMBINED files (existing + valid new files only)
       await order.update({ files: allFiles }, { transaction });
       
       await transaction.commit();
@@ -1186,13 +1229,29 @@ class OrderController {
       // Execute broadcast immediately but don't wait
       setImmediate(() => broadcastFileReady());
       
-      res.json({ 
+      // 🎯 COMPREHENSIVE RESPONSE: Include validation results
+      const response = {
         success: true, 
         order: transformedOrder,
-        filesConfirmed: files.length,
+        filesConfirmed: validFiles.length,
+        filesRequested: files.length,
+        filesInvalid: invalidFiles.length,
         filesReady: true, // Signal frontend that files are ready
         timestamp: new Date().toISOString()
-      });
+      };
+      
+      // Add warning for partial success
+      if (invalidFiles.length > 0) {
+        response.warning = `${invalidFiles.length} files were invalid and skipped`;
+        response.invalidFiles = invalidFiles.map(f => ({
+          name: f.file.originalName || 'unknown',
+          reason: f.reason
+        }));
+      }
+      
+      console.log(`✅ [CONFIRM-SUCCESS] Order ${orderId}: Confirmed ${validFiles.length}/${files.length} files in ${Date.now() - startTime}ms`);
+      
+      res.json(response);
       
     } catch (error) {
       if (transaction) {
