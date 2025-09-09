@@ -265,22 +265,72 @@ class R2Client {
       throw new Error('R2 client not configured');
     }
     
-    // Process in parallel for maximum speed - optimized for 15 parallel uploads
+    // 🚀 CRITICAL FIX: Use Promise.allSettled to prevent array length mismatch
+    // This ensures we ALWAYS get a result for each file, even if some fail
     const urlPromises = files.map(async (file, index) => {
       const key = this.generateKey(orderId, file.name);
       
-      // ALWAYS USE DIRECT UPLOAD - Single part uploads only
-      const url = await this.getPresignedUploadUrl(key, file.type);
-      return {
-        filename: file.name,
-        key: key,
-        uploadType: 'direct',
-        uploadUrl: url,
-        size: file.size
-      };
+      try {
+        // ALWAYS USE DIRECT UPLOAD - Single part uploads only
+        const url = await this.getPresignedUploadUrl(key, file.type);
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'direct',
+          uploadUrl: url,
+          size: file.size,
+          index: index // CRITICAL: Track original index
+        };
+      } catch (error) {
+        // 🛡️ CRITICAL: Return error object instead of throwing
+        // This maintains array length and prevents silent file drops
+        console.error(`❌ Failed to generate URL for file ${file.name}:`, error);
+        return {
+          filename: file.name,
+          key: key,
+          uploadType: 'direct',
+          uploadUrl: null, // Explicit null for failed URLs
+          size: file.size,
+          index: index,
+          error: error.message || 'Failed to generate upload URL'
+        };
+      }
     });
     
-    const results = await Promise.all(urlPromises);
+    // 🚀 BULLETPROOF: Use Promise.allSettled to handle partial failures
+    const settledResults = await Promise.allSettled(urlPromises);
+    
+    // Extract results and maintain original array order/length
+    const results = settledResults.map((result, index) => {
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else {
+        // Handle any rejected promises
+        console.error(`❌ Promise rejected for file ${files[index]?.name}:`, result.reason);
+        return {
+          filename: files[index]?.name || `file_${index}`,
+          key: this.generateKey(orderId, files[index]?.name || `file_${index}`),
+          uploadType: 'direct',
+          uploadUrl: null,
+          size: files[index]?.size || 0,
+          index: index,
+          error: result.reason?.message || 'Promise rejected'
+        };
+      }
+    });
+    
+    // 🔍 DIAGNOSTIC: Log array length consistency
+    console.log(`🔍 URL Generation: ${files.length} files requested, ${results.length} URLs generated`);
+    const successCount = results.filter(r => r.uploadUrl).length;
+    const failCount = results.length - successCount;
+    
+    if (failCount > 0) {
+      console.warn(`⚠️ ${failCount}/${results.length} files failed URL generation`);
+      results.filter(r => !r.uploadUrl).forEach(r => {
+        console.warn(`   - ${r.filename}: ${r.error}`);
+      });
+    }
+    
     return results;
   }
 }

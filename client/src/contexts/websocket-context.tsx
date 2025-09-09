@@ -94,19 +94,12 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
               break;
               
             case 'unread_count_update':
-              // Invalidate unread count queries for real-time updates
-              queryClient.invalidateQueries({ 
-                queryKey: [`/api/messages/unread-count`] 
-              });
-              console.log('🔔 Unread count invalidated due to new message');
-              break;
-              
             case 'new_message':
               // PERFORMANCE FIX: Always invalidate unread count when new message arrives
               queryClient.invalidateQueries({ 
                 queryKey: [`/api/messages/unread-count`] 
               });
-              // Continue with existing message handling...
+              console.log('🔔 Unread count invalidated due to message update');
               break;
               
             case 'order_update':

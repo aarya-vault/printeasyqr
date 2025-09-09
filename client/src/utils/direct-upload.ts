@@ -167,17 +167,38 @@ export async function uploadFilesDirectlyToR2(
     return { success: false, uploadedFiles: [] };
   }
 
+  // 🚀 CRITICAL FIX: Handle failed URL generation properly
   const uploadFiles: DirectUploadFile[] = files.map((file, index) => {
     const urlInfo = uploadUrls[index];
     
+    // Check if URL generation failed for this file
+    if (!urlInfo || !urlInfo.uploadUrl) {
+      console.error(`❌ No upload URL for file: ${file.name} (index ${index})`);
+      return {
+        file,
+        uploadUrl: undefined,
+        key: urlInfo?.key,
+        progress: 0,
+        status: 'error' as const,
+        error: urlInfo?.error || 'Failed to generate upload URL'
+      };
+    }
+    
     return {
       file,
-      uploadUrl: urlInfo?.uploadUrl,
-      key: urlInfo?.key,
+      uploadUrl: urlInfo.uploadUrl,
+      key: urlInfo.key,
       progress: 0,
       status: 'pending' as const
     };
   });
+  
+  // 🔍 DIAGNOSTIC: Check for URL generation failures upfront
+  const failedFiles = uploadFiles.filter(f => f.status === 'error');
+  if (failedFiles.length > 0) {
+    console.error(`⚠️ ${failedFiles.length}/${files.length} files failed to get upload URLs:`);
+    failedFiles.forEach(f => console.error(`   - ${f.file.name}: ${f.error}`));
+  }
 
   let completedCount = 0;
   let totalBytes = files.reduce((sum, f) => sum + f.size, 0);
@@ -194,10 +215,10 @@ export async function uploadFilesDirectlyToR2(
     console.log(`🚀 Starting batch ${batchNumber}/${totalBatches} with ${batch.length} files`);
     
     const batchPromises = batch.map(async (uploadFile) => {
-      if (!uploadFile.uploadUrl) {
-        uploadFile.status = 'error';
-        uploadFile.error = 'No upload URL available';
-        return;
+      // 🛡️ SKIP files that already failed during URL generation
+      if (uploadFile.status === 'error' || !uploadFile.uploadUrl) {
+        console.warn(`⏭️ Skipping file with failed URL: ${uploadFile.file.name}`);
+        return; // Don't attempt upload for failed URL generation
       }
 
       uploadFile.status = 'uploading';
@@ -303,6 +324,19 @@ export async function uploadFilesDirectlyToR2(
       console.warn('⚠️ File confirmation failed:', confirmError);
       // Don't throw - allow order creation to complete even if confirmation fails
     }
+  }
+
+  // 🔍 FINAL DIAGNOSTIC: Report results with detailed breakdown
+  const urlFailures = uploadFiles.filter(f => f.status === 'error' && f.error?.includes('upload URL')).length;
+  const uploadFailures = uploadFiles.filter(f => f.status === 'error' && !f.error?.includes('upload URL')).length;
+  const successful = uploadFiles.filter(f => f.status === 'completed').length;
+  
+  console.log(`🎯 FINAL RESULTS: ${successful}/${files.length} files successfully uploaded`);
+  if (urlFailures > 0) {
+    console.error(`   - ${urlFailures} files failed URL generation`);
+  }
+  if (uploadFailures > 0) {
+    console.error(`   - ${uploadFailures} files failed during upload`);
   }
 
   return {
