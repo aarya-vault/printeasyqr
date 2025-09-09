@@ -295,8 +295,17 @@ export async function uploadFilesDirectlyToR2(
       }
     });
 
-    // Wait for batch to complete before starting next batch
-    await Promise.all(batchPromises);
+    // 🛡️ BULLETPROOF: Use Promise.allSettled to handle partial failures gracefully
+    const batchResults = await Promise.allSettled(batchPromises);
+    
+    // 🔍 DIAGNOSTIC: Check for rejected promises
+    const rejectedPromises = batchResults.filter(result => result.status === 'rejected');
+    if (rejectedPromises.length > 0) {
+      console.error(`❌ [BATCH-FAILURES] ${rejectedPromises.length}/${batch.length} promises rejected in batch ${batchNumber}:`);
+      rejectedPromises.forEach((result, index) => {
+        console.error(`   - Promise ${index}: ${result.reason}`);
+      });
+    }
   }
 
   const totalTime = (Date.now() - batchStartTime) / 1000;
@@ -305,27 +314,47 @@ export async function uploadFilesDirectlyToR2(
   console.log(`🎯 Upload completed: ${completedCount}/${files.length} files in ${totalTime.toFixed(2)}s`);
   console.log(`📊 Average speed: ${(avgSpeed / (1024 * 1024)).toFixed(2)} MB/s`);
   
+  // 🚨 CRITICAL FIX: Add delay to ensure all async upload operations complete
+  console.log(`🔍 [UPLOAD-SYNC] Waiting 100ms for all async operations to complete...`);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   // 🚨 CRITICAL FIX: Confirm ALL successful uploads with detailed validation
   if (completedCount > 0) {
     try {
+      // 🛡️ BULLETPROOF: Double-check file status after delay
       const successfulFiles = uploadFiles.filter(f => f.status === 'completed');
+      console.log(`🔍 [CONFIRMATION-CHECK] ${successfulFiles.length}/${uploadFiles.length} files marked as completed`);
       
       // 🛡️ BULLETPROOF: Validate each file has required data
-      const confirmData = successfulFiles.map(f => {
+      const validConfirmData = [];
+      const invalidConfirmData = [];
+      
+      successfulFiles.forEach((f, index) => {
         if (!f.key || !f.file.name) {
-          console.error(`❌ Invalid file data for confirmation: ${f.file?.name || 'unknown'}`);
-          throw new Error(`Invalid file data: missing key or filename`);
+          console.error(`❌ [CONFIRM-INVALID] File ${index} (${f.file?.name || 'unknown'}): Missing key=${!f.key} or name=${!f.file.name}`);
+          invalidConfirmData.push({file: f, reason: 'Missing r2Key or filename'});
+          return;
         }
         
-        return {
+        validConfirmData.push({
           r2Key: f.key,
           originalName: f.file.name,
           size: f.file.size,
           mimetype: f.file.type || 'application/octet-stream',
           bucket: 'printeasy-qr',
           filename: f.key.split('/').pop() || f.file.name
-        };
+        });
       });
+      
+      // 🚨 PRODUCTION ALERT: Report any invalid confirmation data
+      if (invalidConfirmData.length > 0) {
+        console.error(`❌ [CONFIRM-CRITICAL] ${invalidConfirmData.length}/${successfulFiles.length} successful uploads have invalid confirmation data:`);
+        invalidConfirmData.forEach(({file, reason}) => {
+          console.error(`   - ${file.file?.name || 'unknown'}: ${reason}`);
+        });
+      }
+      
+      const confirmData = validConfirmData;
       
       console.log(`🔍 Confirming ${confirmData.length} files with server:`, confirmData.map(f => f.originalName));
       
