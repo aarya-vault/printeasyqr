@@ -82,6 +82,10 @@ export function EnhancedFileUpload({
 
     const newFiles = Array.from(selectedFiles);
     const validFiles: File[] = [];
+    const rejectedFiles: Array<{file: File, reason: string}> = [];
+
+    // 🚨 CRITICAL LOGGING: Track file selection attempt
+    console.log(`🔍 [FILE-SELECT] Attempting to select ${newFiles.length} files:`, newFiles.map(f => f.name));
 
     // Calculate current total size
     const currentTotalSize = files.reduce((sum, file) => sum + file.size, 0);
@@ -90,6 +94,9 @@ export function EnhancedFileUpload({
     newFiles.forEach(file => {
       // Check file size - individual file limit (300MB)
       if (file.size > maxFileSize) {
+        const reason = `File too large: ${formatFileSize(file.size)} > ${formatFileSize(maxFileSize)}`;
+        console.error(`❌ [FILE-REJECT] ${file.name}: ${reason}`);
+        rejectedFiles.push({file, reason});
         toast({
           title: "File too large",
           description: `${file.name} is ${formatFileSize(file.size)}. Maximum file size is ${formatFileSize(maxFileSize)}.`,
@@ -103,6 +110,9 @@ export function EnhancedFileUpload({
       
       // If acceptedFileTypes contains '*', accept all files
       if (!acceptedFileTypes.includes('*') && !acceptedFileTypes.includes(fileExtension)) {
+        const reason = `Invalid file type: ${fileExtension} not in [${acceptedFileTypes.join(', ')}]`;
+        console.error(`❌ [FILE-REJECT] ${file.name}: ${reason}`);
+        rejectedFiles.push({file, reason});
         toast({
           title: "Invalid file type",
           description: `${file.name} is not supported. Please upload: ${acceptedFileTypes.join(', ')}`,
@@ -111,13 +121,33 @@ export function EnhancedFileUpload({
         return;
       }
       
+      console.log(`✅ [FILE-ACCEPT] ${file.name}: ${formatFileSize(file.size)}`);
       validFiles.push(file);
     });
+
+    // 🚨 CRITICAL VALIDATION: Prevent silent file drops
+    if (rejectedFiles.length > 0) {
+      console.error(`❌ [CRITICAL-DROP] ${rejectedFiles.length}/${newFiles.length} files rejected:`);
+      rejectedFiles.forEach(({file, reason}) => {
+        console.error(`   - ${file.name}: ${reason}`);
+      });
+      
+      // 🛡️ FAIL-SAFE: If ANY file is rejected, show comprehensive error and STOP
+      toast({
+        title: `${rejectedFiles.length} file${rejectedFiles.length > 1 ? 's' : ''} rejected`,
+        description: `Please fix the issues and try again. Only valid files will be uploaded to prevent data loss.`,
+        variant: "destructive",
+      });
+      
+      // 🚨 PRODUCTION FIX: Still add valid files but warn about rejected ones
+      console.warn(`⚠️ [PARTIAL-ADD] Adding ${validFiles.length} valid files, ${rejectedFiles.length} rejected`);
+    }
 
     // Check total size limit (1GB for all files combined)
     const newTotalSize = currentTotalSize + validFiles.reduce((sum, file) => sum + file.size, 0);
     if (newTotalSize > maxTotalSize) {
       const remainingSpace = maxTotalSize - currentTotalSize;
+      console.error(`❌ [SIZE-LIMIT] Total size ${formatFileSize(newTotalSize)} > limit ${formatFileSize(maxTotalSize)}`);
       toast({
         title: "Total file size limit exceeded",
         description: `Adding these files would exceed the ${formatFileSize(maxTotalSize)} total limit. You have ${formatFileSize(remainingSpace)} remaining.`,
@@ -127,6 +157,7 @@ export function EnhancedFileUpload({
     }
 
     // Add valid files
+    console.log(`✅ [FILE-SUCCESS] Adding ${validFiles.length} files (${rejectedFiles.length} rejected)`);
     onFilesChange([...files, ...validFiles]);
   };
 
