@@ -326,8 +326,8 @@ export async function uploadFilesDirectlyToR2(
       console.log(`🔍 [CONFIRMATION-CHECK] ${successfulFiles.length}/${uploadFiles.length} files marked as completed`);
       
       // 🛡️ BULLETPROOF: Validate each file has required data
-      const validConfirmData = [];
-      const invalidConfirmData = [];
+      const validConfirmData: any[] = [];
+      const invalidConfirmData: any[] = [];
       
       successfulFiles.forEach((f, index) => {
         if (!f.key || !f.file.name) {
