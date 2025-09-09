@@ -65,7 +65,12 @@ router.post('/orders/:id/get-upload-urls',
     const orderId = parseInt(req.params.id);
     const { files } = req.body; // Array of {name, type, size}
     
+    // 🚨 CRITICAL DEBUGGING: Log exact request details
+    console.log(`🔍 [URL-REQUEST] Order ${orderId}: Received ${files?.length || 0} files for URL generation`);
+    console.log(`🔍 [URL-REQUEST] Files: ${files?.map(f => f.name).join(', ') || 'none'}`);
+    
     if (!files || !Array.isArray(files)) {
+      console.error(`❌ [URL-REQUEST] Order ${orderId}: Invalid files array - type: ${typeof files}, isArray: ${Array.isArray(files)}`);
       return res.status(400).json({ error: 'Files array required' });
     }
 
@@ -119,7 +124,25 @@ router.post('/orders/:id/get-upload-urls',
     }
     
     // Use batch presigned URL generation with file limit validation
+    console.log(`🔍 [URL-GEN-START] Order ${orderId}: Calling getBatchPresignedUrls with ${files.length} files`);
     const uploadUrls = await r2Client.getBatchPresignedUrls(files, orderId);
+    
+    // 🚨 CRITICAL VALIDATION: Check array length consistency
+    console.log(`🔍 [URL-GEN-RESULT] Order ${orderId}: Generated ${uploadUrls?.length || 0} URLs for ${files.length} files`);
+    
+    if (uploadUrls.length !== files.length) {
+      console.error(`❌ [CRITICAL-ERROR] Order ${orderId}: URL COUNT MISMATCH! ${files.length} files → ${uploadUrls.length} URLs`);
+      console.error(`❌ [CRITICAL-ERROR] Input files:`, files.map(f => f.name));
+      console.error(`❌ [CRITICAL-ERROR] Output URLs:`, uploadUrls.map((u, i) => `${i}: ${u?.filename || 'undefined'}`));
+      
+      // FAIL IMMEDIATELY - Don't allow partial uploads
+      return res.status(500).json({ 
+        error: 'URL generation failed - array length mismatch',
+        details: `Expected ${files.length} URLs, got ${uploadUrls.length}` 
+      });
+    }
+    
+    console.log(`✅ [URL-GEN-SUCCESS] Order ${orderId}: All ${files.length} URLs generated successfully`);
     
     res.json({ 
       useDirectUpload: true,

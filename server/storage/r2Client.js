@@ -319,16 +319,26 @@ class R2Client {
       }
     });
     
+    // 🚨 BULLETPROOF VALIDATION: Critical array length check
+    if (results.length !== files.length) {
+      console.error(`❌ [R2-CRITICAL] ARRAY LENGTH CATASTROPHE: ${files.length} input files → ${results.length} output results`);
+      console.error(`❌ [R2-CRITICAL] Input files:`, files.map((f, i) => `${i}: ${f.name}`));
+      console.error(`❌ [R2-CRITICAL] Output results:`, results.map((r, i) => `${i}: ${r?.filename || 'MISSING'}`));
+      throw new Error(`R2 URL generation array length mismatch: ${files.length} → ${results.length}`);
+    }
+    
     // 🔍 DIAGNOSTIC: Log array length consistency
-    console.log(`🔍 URL Generation: ${files.length} files requested, ${results.length} URLs generated`);
+    console.log(`🔍 [R2-SUCCESS] URL Generation: ${files.length} files requested, ${results.length} URLs generated`);
     const successCount = results.filter(r => r.uploadUrl).length;
     const failCount = results.length - successCount;
     
     if (failCount > 0) {
-      console.warn(`⚠️ ${failCount}/${results.length} files failed URL generation`);
+      console.warn(`⚠️ [R2-PARTIAL] ${failCount}/${results.length} files failed URL generation`);
       results.filter(r => !r.uploadUrl).forEach(r => {
         console.warn(`   - ${r.filename}: ${r.error}`);
       });
+    } else {
+      console.log(`✅ [R2-PERFECT] All ${files.length} files got valid URLs`);
     }
     
     return results;
